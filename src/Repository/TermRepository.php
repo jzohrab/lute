@@ -175,10 +175,10 @@ LEFT OUTER JOIN (
     public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term
     {
         $ret = null;
-
-        if ($wid > 0 && ($text == '' || $text != '-')) {
-            // Specified text overrides wid, but if that's missing,
-            // wid will do.
+        if ($wid > 0 && ($text == '' || $text == '-')) {
+            // Use wid, *provided that there is no text specified*.
+            // If there is, the user has mousedown-drag created
+            // a new multiword term.
             $ret = $this->find($wid);
         }
         elseif ($text != '') {

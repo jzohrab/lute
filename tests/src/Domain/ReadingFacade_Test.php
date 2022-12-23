@@ -234,6 +234,30 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     }
 
+    // Prod bug: setting all to known, and then selecting to create a
+    // multi-word term, didn't return that new term.
+    /**
+     * @group prodbug
+     */
+    public function test_create_multiword_term_when_all_known() {
+        $t = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
+        $this->facade->mark_unknowns_as_known($t);
+
+        $sentences = $this->facade->getSentences($t);
+        $this->assertEquals(count($sentences), 1, "sanity check");
+        $sentence = $sentences[0];
+        $terms = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
+        $this->assertEquals(count($terms), 1, "just one match, sanity check");
+        $tiene = array_values($terms)[0];
+        $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
+        $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
+
+        $formterm = $this->term_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
+        $this->assertEquals($formterm->getText(), 'tiene una bebida', 'text loaded');
+        $this->assertTrue($formterm->getID() == null, 'should be a new term');
+    }
+
+
     public function test_get_prev_next_stays_in_current_language() {
 
         $s1 = $this->create_text("a 1", "Hola.", $this->spanish);
