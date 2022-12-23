@@ -152,7 +152,7 @@ LEFT OUTER JOIN (
     }
 
 
-
+    // TODO:move - this belongs in the ReadingRepository, it's more domain-level.
     /******************************************/
     // Loading a Term for the reading pane.
     //
