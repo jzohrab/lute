@@ -258,6 +258,42 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    // Prod bug: when updating the status of an existing multi-term
+    // TextItem (that hides other text items), the UI wasn't getting
+    // updated, because the ID of the element to replace wasn't
+    // correct.
+    /**
+     * @group prodbug
+     */
+    public function test_update_multiword_textitem_status_replaces_correct_item() {
+        $t = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
+        $sentences = $this->facade->getSentences($t);
+        $sentence = $sentences[0];
+        $terms = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
+        $tiene = array_values($terms)[0];
+        $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
+        $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
+
+        $formterm = $this->reading_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
+        $formterm->setStatus(1);
+        $updates = $this->facade->save($formterm);
+
+        $this->assertEquals($updates['replace'], $tiene->getSpanID(), 'replaces tiene');
+
+        $sentences = $this->facade->getSentences($t);
+        $sentence = $sentences[0];
+        $terms = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene una bebida');
+        $tub = array_values($terms)[0];
+        $this->assertEquals($tub->TextLC, 'tiene una bebida', 'sanity check, got the term ...');
+        $this->assertTrue($tub->WoID > 0, '... and it has a WoID');
+
+        $tubterm = $this->reading_repo->load($tub->WoID, $t->getID(), $tub->Order, '');
+        $tubterm->setStatus(1);
+        $updates = $this->facade->save($tubterm);
+        $this->assertEquals($updates['replace'], $tubterm->getSpanID(), 'replaces tiene');
+    }
+
+
     public function test_get_prev_next_stays_in_current_language() {
 
         $s1 = $this->create_text("a 1", "Hola.", $this->spanish);

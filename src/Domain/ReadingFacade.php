@@ -117,4 +117,12 @@ class ReadingFacade {
     public function set_current_text(Text $text) {
         $this->settingsrepo->saveCurrentTextID($text->getID());
     }
+
+
+    /**
+     * Save a term, and get the UI items to replace and hide (delete).
+     */
+    public function save(Term $term) {
+
+    }
 }
