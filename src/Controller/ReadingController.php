@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Domain\ReadingFacade;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
+use App\Repository\ReadingRepository;
 use App\Domain\Parser;
 use App\Domain\ExpressionUpdater;
 use App\Entity\Text;
@@ -56,7 +57,7 @@ class ReadingController extends AbstractController
         $ord,
         $text,
         Request $request,
-        TermRepository $termRepository,
+        ReadingRepository $readingRepository,
         TextRepository $textRepository,
         ReadingFacade $facade
     ): Response
@@ -65,12 +66,12 @@ class ReadingController extends AbstractController
         // b/c otherwise the route didn't work.
         if ($text == '-')
             $text = '';
-        $term = $termRepository->load($wid, $textid, $ord, $text);
+        $term = $readingRepository->load($wid, $textid, $ord, $text);
 
         $form = $this->createForm(TermType::class, $term);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $termRepository->save($term, true);
+            $readingRepository->save($term, true);
             ExpressionUpdater::associateTermTextItems($term);
             $textentity = $textRepository->find($textid);
             $rawtextitems = $facade->getTextItems($textentity);

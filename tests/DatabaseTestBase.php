@@ -60,7 +60,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
         $this->termtag_repo = $this->entity_manager->getRepository(App\Entity\TermTag::class);
         $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
-        $this->reading_repo = new ReadingRepository($this->entity_manager);
+        $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo, $this->language_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
         $this->childSetUp();
