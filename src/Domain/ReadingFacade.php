@@ -148,8 +148,8 @@ class ReadingFacade {
             $u = [
                 'replace' => $replace_id,
                 'hide' => $hide_ids
-                ];
-                $update_js[ $item->getSpanID() ] = $u;
+            ];
+            $update_js[ $item->getSpanID() ] = $u;
         }
 
         return [

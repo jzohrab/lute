@@ -282,7 +282,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->reading_repo->save($mword_term);
         $wid = $mword_term->getID();
 
-        // It should replace "tiene"
+        // The new term "tiene una bebida" should replace "tiene" on the UI.
         [ $updatedTIs, $updates ] = $this->facade->getUIUpdates($mword_term, $text);
         $this->assertEquals(count($updatedTIs), 1, 'just one update');
         $theTI = $updatedTIs[0];
@@ -305,7 +305,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $mword_term->setStatus(1);
         $this->reading_repo->save($mword_term);
 
-        // Check the UI updates:
+        // The updated term "tiene una bebida" should replace itself on the UI.
         [ $updatedTIs, $updates ] = $this->facade->getUIUpdates($mword_term, $text);
         $this->assertEquals(count($updatedTIs), 1, 'just one update');
         $theTI = $updatedTIs[0];
