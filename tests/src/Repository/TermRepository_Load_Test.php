@@ -48,9 +48,6 @@ where ti2order = 25";
         DbHelpers::assertTableContains($spot_check_sql, $expected);
     }
 
-    /**
-     * @group failing
-     */
     public function test_load_existing_wid() {
         $t = $this->term_repo->load($this->bebida->getID(), 1, 25, '');
         $this->assertEquals($t->getID(), $this->bebida->getID(), 'id');

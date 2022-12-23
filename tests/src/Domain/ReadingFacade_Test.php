@@ -46,9 +46,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
-    /**
-     * @group fixing
-     */
     public function test_mark_unknown_as_known_creates_words_and_updates_ti2s()
     {
         DbHelpers::add_word($this->spanish->getLgID(), "lista", "lista", 3, 1);
