@@ -67,6 +67,10 @@ class ReadingFacade {
     }
 
     public function mark_unknowns_as_known(Text $text) {
+        // Ensure that no words have been created that already map to
+        // any of the $text's textitems2.
+        ExpressionUpdater::associateAllExactMatches($text);
+
         $tis = $this->repo->getTextItems($text);
 
         $is_unknown = function($ti) {

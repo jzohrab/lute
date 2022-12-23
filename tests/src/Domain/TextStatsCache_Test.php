@@ -47,9 +47,6 @@ final class TextStatsCache_Test extends DatabaseTestBase
     }
     
 
-    /**
-     * @group debug
-     */
     public function test_mark_stale_and_refresh_updates_stats()
     {
         $t = new Text();
