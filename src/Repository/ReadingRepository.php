@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Text;
+use App\Entity\Term;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
+use App\Entity\Language;
 use App\Domain\Parser;
 use App\Domain\ExpressionUpdater;
 use App\Domain\TextStatsCache;
@@ -15,17 +17,17 @@ class ReadingRepository
 {
     private EntityManagerInterface $manager;
     private TermRepository $term_repo;
-    private LanguageRepository $langrepo;
+    private LanguageRepository $lang_repo;
 
     public function __construct(
         EntityManagerInterface $manager,
         TermRepository $term_repo,
-        LanguageRepository $langrepo
+        LanguageRepository $lang_repo
     )
     {
         $this->manager = $manager;
         $this->term_repo = $term_repo;
-        $this->langrepo = $langrepo;
+        $this->lang_repo = $lang_repo;
     }
 
     public function getTextItems(Text $entity, int $woid = null) {
@@ -158,7 +160,7 @@ class ReadingRepository
     private function getTextLanguage($tid): ?Language {
         $sql = "SELECT TxLgID FROM texts WHERE TxID = {$tid}";
         $record = $this
-            ->getEntityManager()
+            ->manager
             ->getConnection()
             ->executeQuery($sql)
             ->fetchAssociative();
@@ -181,7 +183,7 @@ class ReadingRepository
           LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
           WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
         $record = $this
-            ->getEntityManager()
+            ->manager
             ->getConnection()
             ->executeQuery($sql)
             ->fetchAssociative();
@@ -191,7 +193,7 @@ class ReadingRepository
 
         $wid = (int) $record['WoID'];
         if ($wid > 0) {
-            return $this->find($wid);
+            return $this->term_repo->find($wid);
         }
 
         $t = new Term();
@@ -221,7 +223,7 @@ class ReadingRepository
            WHERE Ti2TxID = :tid and Ti2Order = :ord";
         $params = [ "tid" => $tid, "ord" => $ord ];
         return $this
-            ->getEntityManager()
+            ->manager
             ->getConnection()
             ->executeQuery($sql, $params)
             ->fetchNumeric()[0];
