@@ -51,7 +51,7 @@ class TermRepository extends ServiceEntityRepository
             throw new \Exception('Language not set for Entity?');
         }
 
-        $p = $this->findTermInLanguage($pt, $entity->getLanguage()->getLgID());
+        $p = $this->findTermInLanguage($pt, $entity->getLanguage());
 
         if ($p !== null)
             return $p;
@@ -82,7 +82,8 @@ class TermRepository extends ServiceEntityRepository
         }
     }
 
-    public function findTermInLanguage(string $value, int $langid): ?Term
+
+    public function findTermInLanguage(string $value, Language $lang): ?Term
     {
         // Using Doctrine Query Language --
         // Interesting, but am not totally confident with it.
@@ -95,7 +96,7 @@ class TermRepository extends ServiceEntityRepository
         $em = $this->getEntityManager();
         $query = $em
                ->createQuery($dql)
-               ->setParameter('langid', $langid)
+               ->setParameter('langid', $lang->getLgID())
                ->setParameter('val', mb_strtolower($value));
         $terms = $query->getResult();
 

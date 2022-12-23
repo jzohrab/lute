@@ -205,7 +205,7 @@ class ReadingRepository
 
     private function loadFromText(string $text, Language $lang): Term {
         $textlc = mb_strtolower($text);
-        $t = $this->term_repo->findTermInLanguage($text, $lang->getLgID());
+        $t = $this->term_repo->findTermInLanguage($text, $lang);
         if (null != $t)
             return $t;
 
