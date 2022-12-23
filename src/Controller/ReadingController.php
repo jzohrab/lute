@@ -71,9 +71,11 @@ class ReadingController extends AbstractController
         $form = $this->createForm(TermType::class, $term);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $textentity = $textRepository->find($textid);
             $readingRepository->save($term, true);
             $textentity = $textRepository->find($textid);
-            [ $updateitems, $update_js ] = $this->facade->getUIUpdates($term, $text);
+            [ $updateitems, $update_js ] = $this->facade->save($term, $text);
+
             // The updates are encoded here, and decoded in the
             // twig javascript.  Thanks to
             // https://stackoverflow.com/questions/38072085/

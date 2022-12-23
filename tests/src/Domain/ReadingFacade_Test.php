@@ -271,6 +271,12 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $sentences = $this->facade->getSentences($text);
         $sentence = $sentences[0];
+
+        $spanid_to_text = [];
+        foreach ($sentence->getTextItems() as $ti) {
+            $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+        }
+
         $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
         $tiene = array_values($tis)[0];
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
@@ -279,17 +285,23 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $mword_text = 'tiene una bebida';
         $mword_term = $this->reading_repo->load($tiene->WoID, $tid, $tiene->Order, $mword_text);
         $mword_term->setStatus(1);
-        $this->reading_repo->save($mword_term);
-        $wid = $mword_term->getID();
 
         // The new term "tiene una bebida" should replace "tiene" on the UI.
-        [ $updatedTIs, $updates ] = $this->facade->getUIUpdates($mword_term, $text);
+        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
+        $wid = $mword_term->getID();
         $this->assertEquals(count($updatedTIs), 1, 'just one update');
         $theTI = $updatedTIs[0];
         $this->assertEquals($theTI->WoID, $wid, 'which is the new term');
         $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
         $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
-        $this->assertEquals($theTI_replaces, $tiene->getSpanID(), 'replaces tiene');
+        $this->assertEquals($theTI_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
+
+        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
+        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
+        $this->assertEquals(
+            implode(', ', $theTI_hides_text),
+            "' ', 'una', ' ', 'bebida'",
+            "Hides stuff after tiene, which it replaces");
 
         // Get the textitem for "tiene una bebida":
         $sentences = $this->facade->getSentences($text);
@@ -303,16 +315,23 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $mword_term = $this->reading_repo->load($mword_ti->WoID, $tid, $mword_ti->Order, '');
         $this->assertEquals($mword_term->getID(), $mword_ti->WoID, 'sanity check, id');
         $mword_term->setStatus(1);
-        $this->reading_repo->save($mword_term);
 
-        // The updated term "tiene una bebida" should replace itself on the UI.
-        [ $updatedTIs, $updates ] = $this->facade->getUIUpdates($mword_term, $text);
+        // The updated term "tiene una bebida" should replace itself on the UI,
+        // and hides other things.
+        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
         $this->assertEquals(count($updatedTIs), 1, 'just one update');
         $theTI = $updatedTIs[0];
         $this->assertEquals($theTI->WoID, $mword_term->getID(), 'which is the new term');
         $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
         $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
         $this->assertEquals($theTI_replaces, $theTI->getSpanID(), 'it replaces itself!');
+
+        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
+        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
+        $this->assertEquals(
+            implode(', ', $theTI_hides_text),
+            "'tiene', ' ', 'una', ' ', 'bebida'",
+            "Hides the original terms (b/c the mword term has replaced itself already)");
     }
 
 
