@@ -1,17 +1,13 @@
 # Why the fork?
 
-The original Learning With Texts code is ... tough.  Per the author at https://learning-with-texts.sourceforge.io/:
+TL;DR: I felt that LWT was **an extremely important idea**, but I felt that **its implementation made it hard to fix problems, and created barriers for its improvement**.
 
-> My programming style is quite chaotic, and my software is mostly undocumented.
+<hr />
 
-Regardless, the original LWT author released a _super_ idea and a working project!
+I started using [Hugo Fara's fork of LWT](https://github.com/HugoFara/lwt) in Oct/Nov 2022.  I submitted a few patches, but Hugo wanted to put things on hold as he dreamed up another version of LWT.
 
-Hugo Fara then picked up the project and started working at it in earnest in [his fork](https://github.com/HugoFara/lwt), making massive improvements to the code structure.
+* Initially, I just wanted a new feature: adding "parent terms" to terms.  To me, it doesn't make sense to think of a conjugated form of a verb ("I _speak_", "yo _hablo_") as a separate thing from the root form ("to speak", "_hablar_").  I added the feature to LWT, but it was very tough.
+* There were some bugs in LWT that were impossible to track down.  For example, when adding multi-term expressions, LWT would sometimes find them, and sometimes miss them.  Lute corrects those issues, and adds a series of automated tests to help track down those problems.
+* As a former dev, there were some things about LWT that I simply couldn't get behind: lack of automated testing, tough database management, tough architecture, etc.  Per the author at https://learning-with-texts.sourceforge.io/: "My programming style is quite chaotic, and my software is mostly undocumented."  That's what happens when you create a brand new system -- Lute takes advantage of the things learned in that code and in Hugo's fork to create a reasonably solid starting point.
 
-**Thanks to both of these guys!**
-
-## Initial contributions to LWT
-
-I started using LWT in Oct/Nov 2022.  As a (former-ish) dev, there were some things in the code that _really bothered_ me, and potentially blocked me from adding features I wanted for myself.  I proposed some patches, but Hugo wanted to put things on hold as he dreamed up another version of LWT.
-
-Since Hugo's version of LWT was working for me, I forked and started to make my own changes.  I soon got tired of struggling with the existing code, and started implementing small subfeatures with something like the ["strangler pattern"](https://microservices.io/patterns/refactoring/strangler-application.html).  I introduced [the Symfony framework](./symfony.md) for small sections, and then figured I could get an MVP out the door that did away with all of the legacy code.
+Even if Lute doesn't become "the new LWT" that I hope it can be, perhaps it will be useful as a reference implementation.
