@@ -46,9 +46,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals(2, count($sentences), "reparsed");
     }
 
-    /**
-     * @group fixing
-     */
     public function test_mark_unknown_as_known_creates_words_and_updates_ti2s()
     {
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
@@ -135,6 +132,68 @@ final class ReadingFacade_Test extends DatabaseTestBase
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
 
+    }
+
+
+    // Prod bug: a text had a textitem2 that it thought was unknown, but a
+    // matching term already existed.  Due to a _prior_ bug, the textitem2
+    // hadn't been associated to the existing word record, and the
+    // facade tried to create the _same_ word on marking this textitem2s as
+    // well-known.
+    /**
+     * @group fixing
+     */
+    public function test_mark_unknown_as_known_works_if_ti2_already_exists()
+    {
+        $content = "Hola tengo un perro.";
+        $t = $this->create_text("Hola", $content, $this->spanish);
+
+        $textitemssql = "select ti2woid, ti2order, ti2text from textitems2
+          where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
+        // DbHelpers::dumpTable($textitemssql);
+        $expected = [
+            "0; 1; Hola",
+            "0; 3; tengo",
+            "0; 5; un",
+            "0; 7; perro"
+        ];
+        DbHelpers::assertTableContains($textitemssql, $expected, "initial ti2s");
+
+        // Hack db directly to add a word, no associations.
+        DbHelpers::add_word($this->spanish->getLgID(), 'perro', 'perro', 1, 1);
+
+        $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
+        $expected = [
+            "perro; 1; 1",
+        ];
+        DbHelpers::assertTableContains($wordssql, $expected, "words created");
+
+        // Check mapping.
+        $joinedti2s = "select ti2order, ti2text, wotext, wostatus from textitems2
+          inner join words on woid = ti2woid
+          order by ti2order, ti2wordcount desc";
+        // DbHelpers::dumpTable($joinedti2s);
+        $expected = [];
+        DbHelpers::assertTableContains($joinedti2s, $expected, "no mappings");
+        
+        $this->facade->mark_unknowns_as_known($t);
+
+        $expected = [
+            "perro; 1; 99",
+            "Hola; 1; 99",
+            "tengo; 1; 99",
+            "un; 1; 99"
+        ];
+        DbHelpers::assertTableContains($wordssql, $expected, "words created");
+
+        // DbHelpers::dumpTable($joinedti2s);
+        $expected = [
+            "1; Hola; hola; 99",
+            "3; tengo; tengo; 99",
+            "5; un; un; 99",
+            "7; perro; perro; 99"
+        ];
+        DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
     }
 
     public function test_update_status_creates_words_and_updates_ti2s()
