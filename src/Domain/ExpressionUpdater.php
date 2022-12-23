@@ -26,9 +26,9 @@ class ExpressionUpdater {
         $eu->associate_term_with_existing_texts($term);
     }
 
-    public static function associateAllExactMatches() {
+    public static function associateAllExactMatches(?Text $text = null) {
         $eu = new ExpressionUpdater();
-        $eu->associate_all_exact_text_matches();
+        $eu->associate_all_exact_text_matches($text);
     }
 
 
@@ -60,11 +60,14 @@ class ExpressionUpdater {
     }
 
 
-    private function associate_all_exact_text_matches() {
+    private function associate_all_exact_text_matches(?Text $text) {
         $sql = "update textitems2
 inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
 set ti2woid = woid
 where ti2woid = 0";
+        if ($text != null) {
+            $sql .= " AND ti2TxID = {$text->getID()}";
+        }
         $this->exec_sql($sql);
     }
     

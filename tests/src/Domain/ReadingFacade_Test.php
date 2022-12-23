@@ -179,8 +179,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->facade->mark_unknowns_as_known($t);
 
         $expected = [
-            "perro; 1; 99",
-            "Hola; 1; 99",
+            "perro; 1; 1",  // Not set to 99, because it was already 1.
+            "hola; 1; 99",
             "tengo; 1; 99",
             "un; 1; 99"
         ];
@@ -191,7 +191,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
             "1; Hola; hola; 99",
             "3; tengo; tengo; 99",
             "5; un; un; 99",
-            "7; perro; perro; 99"
+            "7; perro; perro; 1"  // Still 1.
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
     }
