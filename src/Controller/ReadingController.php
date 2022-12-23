@@ -71,6 +71,7 @@ class ReadingController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
+            ExpressionUpdater::associateTermTextItems($term);
             $textentity = $textRepository->find($textid);
             $rawtextitems = $facade->getTextItems($textentity);
 
