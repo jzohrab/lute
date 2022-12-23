@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>{% block title %}LUTE{% endblock %}</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+
+    <meta name="viewport" content="width=900" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon-57x57.png');?>" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/apple-touch-icon-72x72.png');?>" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/apple-touch-icon-114x114.png');?>" />
+    <link rel="apple-touch-startup-image" href="/img/apple-touch-startup.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery.tagit.css" />
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.scrollTo.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery-ui.min.js"  charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.jeditable.mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/tag-it.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/datatables.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.hoverIntent.js" charset="utf-8"></script>
+
+    <script type="text/javascript" src="/js/lute.js" charset="utf-8"></script>
+
+    <script type="text/javascript">
+      //<![CDATA[
+      var STATUSES = {
+        "0": {"abbr":"?","name":"Unknown"},
+        "1": {"abbr":"1","name":"Learning"},
+        "2":{"abbr":"2","name":"Learning"},
+        "3":{"abbr":"3","name":"Learning"},
+        "4":{"abbr":"4","name":"Learning"},
+        "5":{"abbr":"5","name":"Learned"},
+        "99":{"abbr":"WKn","name":"Well Known"},
+        "98":{"abbr":"Ign","name":"Ignored"}
+      };
+    
+      var TAGS = {{ render(url('app_termtag_jsonlist')) }};
+      var TEXTTAGS = {{ render(url('app_texttag_jsonlist')) }};
+      //]]>
+    </script>
+
+    {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+    {#  Eventually, use encore.
+    {% block stylesheets %}
+    {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+    
+    {% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+    #}
+  </head>
+
+  <body>
+    {% if block("hide_home_link") is not defined %}
+
+    <!-- I'm not *supposed* to use tables for layout, but it works. -->
+    <table style="table-layout: fixed; border-spacing: 0; ">
+      <tr>
+        <td width="2px">
+          <img src="/img/lute.png" class="lutelogo_small" />
+        </td>
+        <td>
+          <a href="/" tabindex="-1">Home</a>
+        </td>
+      </tr>
+    </table>
+
+    {% endif %}
+    {% block body %}{% endblock %}
+  </body>
+
+</html>

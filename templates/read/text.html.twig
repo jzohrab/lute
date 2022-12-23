@@ -1,0 +1,24 @@
+{# Hack for js translation keyboard shortcut. #}
+<span id="translateURL" style="visibility:hidden">{{ dictionary_url }}</span>
+
+<div id="thetext">
+
+  <p>
+
+    {% for sentence in sentences %}
+
+    <span id="sent_{{ sentence.SeID }}">
+      {% for item in sentence.renderable %}
+      {% include '/read/textitem.html.twig' %}
+      {% endfor %}
+    </span>
+
+    {% endfor %}
+
+  </p>
+
+</div>
+
+<script>
+  $(document).ready(prepareTextInteractions);
+</script>

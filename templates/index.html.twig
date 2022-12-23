@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}LUTE{% endblock %}
+
+{% block hide_home_link %}{% endblock %}
+
+{% block body %}
+
+<!-- I'm not *supposed* to use tables for layout, but it works. -->
+<table style="table-layout: fixed">
+  <tr>
+    <td width="5px">
+      <img src="/img/lute.png" class="lutelogo" style="width: 75px; height: auto;" />
+    </td>
+    <td>
+      <h1>Learning Using Texts (LUTE)</h1>
+    </td>
+  </tr>
+</table>
+
+
+<div id="userlinks" style="margin-top: 30px;">
+  <ul>
+
+    {% if currtxid is not null %}
+    <li>
+      <a href="/read/{{ currtxid }}">Continue reading</a> &quot;{{ currtxtitle }}&quot;
+    </li>
+    {% endif %}
+
+    <li><a href="/text/index">Texts</a></li>
+    <li><a href="/text/archived">Text Archive</a></li>
+    <li><a href="/term">Terms</a></li>
+    <li><a href="/language">Languages</a></li>
+  </ul>
+</div>
+
+<div id="techlinks" style="margin-top: 30px;">
+  <ul>
+    <li><a href="/server_info">Server details</a></li>
+    <li><a href="https://github.com/jzohrab/lute/tree/master/docs">Docs (on GitHub)</a></li>
+  </ul>
+</div>
+
+<footer id="myfooter">
+<p>
+  Lute is free and unencumbered software released into the 
+  <a href="https://en.wikipedia.org/wiki/Public_domain_software" target="_blank">PUBLIC DOMAIN</a>. 
+  Ref <a href="http://unlicense.org/" target="_blank">http://unlicense.org/</a>
+</p>
+</footer>
+  
+{% endblock %}
+

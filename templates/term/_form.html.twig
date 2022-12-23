@@ -1,0 +1,228 @@
+{% form_theme form 'form_table_layout.html.twig' %}
+
+{{ form_start(form) }}
+
+<table id="term">
+
+  <tr id="languageSel"
+    {% if ((showlanguageselector ?? false) != true) %}
+      style="display:none;"
+    {% endif %}
+  >
+    <td>Language</td>
+    <td>{{ form_widget(form.language) }}</td>
+  </tr>
+
+  <tr>
+    <td>Term</td>
+    <td>{{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}</td>
+    <td><img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" /></td>
+  </tr>
+
+  {{ form_row(form.ParentText) }}
+  {{ form_row(form.Romanization) }}
+  {{ form_row(form.Translation) }}
+  {{ form_row(form.Status) }}
+
+  <tr>
+    <td>Sentence</td>
+    <td>{{ form_widget(form.Sentence) }}</td>
+    <td><img src="/icn/external.png" title="Lookup" onclick="do_sentence_lookup()" /></td>
+  </tr>
+
+  {% do form.termTags.setRendered %}
+  {# manually write list so it can be managed by tagit. #}
+  <tr>
+    <td>Tags</td>
+    <td>
+      <ul id="termtagslist" class="tags nomarginblock">
+        {% for termTag in form.termTags %}
+        <li>
+          {{ termTag.vars.value.text }}
+        </li>
+        {% endfor %}
+      </ul>
+    </td>
+  </tr>
+
+</table>
+
+<button class="btn">{{ button_label|default('Save') }}</button>
+
+{{ form_end(form) }}
+
+<script type="text/javascript">
+  
+  let set_parent_fields = function(event, ui) {
+    $('#term_ParentText').val(ui.item.word);
+    return false;
+  };
+  
+  let set_up_parent_autocomplete = function() {
+    $("#term_ParentText").autocomplete({
+      source: function(request, response) {
+        const s = encodeURIComponent(request.term);
+        const langid = parseInt($('#term_language').val());
+        $.ajax({
+          url: `/term/search/${s}/${langid}`,
+          type: 'GET',
+          dataType: 'json',
+          success: function(data) {
+            const arr = [];
+            for (const [wordid, word] of Object.entries(data)) {
+              let label = word.text;
+              if (word.translation != null && word.translation != '') {
+                label = `${label} (${word.translation})`;
+              }
+              const obj = {
+                label: label,
+                value: wordid,
+                word: word.text,
+                translation: word.translation
+              };
+              arr.push(obj);
+            };
+            response(arr, data);
+          }
+        })
+      },
+      select: set_parent_fields,
+      focus: set_parent_fields,
+      change: set_parent_fields
+    });
+  };
+
+  let setupTagit = function() {
+    var prototypeFieldName = 'term[termTags][__name__][text]';
+    var fieldIndex = 0;
+    
+    let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
+
+    $('#termtagslist').tagit(
+      {
+        beforeTagAdded: function (_event, ui) {
+          if (invalidChar(ui.tag.text())) {
+            return;
+          }
+          fieldIndex++;
+          $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
+        },
+        availableTags: TAGS,
+        fieldName: 'term[termTags][0][text]'
+      });
+
+  };
+
+  let handleAutofocus = function() {
+    const wordfield = $('#wordfield');
+    const transfield = $('#translationfield');
+
+    if ($('#autofocus').val() != 'false') {
+      if (wordfield.val()) {
+        transfield.focus();
+      }
+      else {
+        wordfield.focus();
+      }
+    }
+
+  }
+  $(document).ready(function () {
+    setupTagit();
+    // TODO - activate this
+    // handleAutofocus();
+    set_up_parent_autocomplete();
+
+    // Approx good size for the text area:
+    const w = $('#term_Text').css('width');
+    // Textareas seem to have their own dimensional quirks.
+    const hackTextareaWidth = parseInt(parseInt(w) * 1.10);
+    // console.log(`got term_Text width = ${w} giving hack width ${hackTextareaWidth}`);
+    $('#term_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
+
+    if (($('#term_Text').val() ?? '') != '') {
+      do_term_lookup(false);
+    }
+
+    // The "term" field is sometimes disabled, so it's not submitted,
+    // causing problems b/c the entity Text is not set ... so
+    // make sure it's enabled.
+    // Ref https://stackoverflow.com/questions/8925716/
+    //   disabled-form-fields-not-submitting-data
+    $('form[name="term"]').submit(function(e) {
+      $(':disabled').each(function(e) {
+        $(this).removeAttr('disabled');
+      })
+    });
+  });
+
+  /** LOOKUPS */
+
+  const LANGUAGES = {{ render(url('app_language_jsonlist')) }};
+
+  // Term lookups cycle through the available dictionaries in the language.
+  var termdictindex = 0;
+
+  let open_new_lookup_window = function(url) {
+    window.open(
+      url,
+      'otherwin',
+      'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no'
+    );
+  };
+
+  let get_lookup_url = function(dicturl, term) {
+    let ret = dicturl;
+    ret = ret.replace('###', encodeURIComponent(term));
+    return ret;
+  };
+
+  /**
+   * Either open a new window, or show the result in the correct frame.
+   */
+  let show_lookup_page = function(dicturl, text, allow_open_new_web_page = true) {
+    const is_external = (dicturl.charAt(0) == '*');
+    if (is_external && !allow_open_new_web_page) {
+      console.log('Declining to open external web page.');
+      return;
+    }
+
+    // TODO: the URL shouldn't be prepended with trash.
+    // Instead, each dict should have an "is_external" property.
+    if (is_external)
+      dicturl = dicturl.slice(1);
+    const url = get_lookup_url(dicturl, text);
+    if (is_external)
+      open_new_lookup_window(url);
+    else
+      top.frames.dictframe.location.href = url;
+  };
+
+  function do_term_lookup(allow_open_new_web_page = true) {
+    const langid = $('#term_language').val();
+    if (langid == null || langid == '' || parseInt(langid) == 0) {
+      alert('Please select a language.');
+      return;
+    }
+
+    const termdicts = LANGUAGES[langid].term;
+    const usedict = termdicts[termdictindex];
+    show_lookup_page(usedict, $('#term_Text').val(), allow_open_new_web_page);
+
+    termdictindex++;
+    if (termdictindex >= termdicts.length)
+      termdictindex = 0;
+  }
+
+  function do_sentence_lookup() {
+    const langid = $('#term_language').val();
+    if (langid == null || langid == '' || parseInt(langid) == 0) {
+      alert('Please select a language.');
+      return;
+    }
+
+    const usedict = LANGUAGES[langid].sentence;
+    show_lookup_page(usedict, $('#term_Sentence').val());
+  }
+
+</script>

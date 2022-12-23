@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Language index{% endblock %}
+
+{% block body %}
+
+<h1>Language index</h1>
+
+{% if languages|length == 0 %}
+  <p>No languages defined.</p>
+{% else %}
+  
+<table class="table dataTable no-footer">
+  <thead>
+    <tr>
+      <th>Language</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for language in languages %}
+    <tr>
+      <td>
+        <a href="/language/{{ language.LgID }}/edit">
+          <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+        </a>
+        {{ language.LgName }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endif %}
+
+<a href="{{ path('app_language_new') }}">Create new</a>
+{% endblock %}
+

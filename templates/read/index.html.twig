@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Read{% endblock %}
+
+{% block body %}
+
+<div id="reading-frames-left" style="width: 50%;">
+  <div id="reading-header">
+    <h2>
+      {% if prevtext %}
+      <a href="/read/{{ prevtext.ID }}" title="{{ prevtext.Title }}" tabindex="-1">&lt;</a>
+      {% endif %}
+
+      {{ text.Title }}
+      
+      <a href="/text/{{ text.ID }}/edit" tabindex="-1">
+        <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+      </a>
+
+      {% if nexttext %}
+      <a href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&gt;</a>
+      {% endif %}
+    </h2>
+
+
+    <form action="/read/{{ text.ID }}/allknown" method="post">
+      <button
+        type="submit"
+        name="fallknown"
+        onclick="return confirm('Setting all to unknown words to known.  OK?');"
+        tabindex="-1">Set all to known</button>
+    </form>
+
+    <hr />
+  </div>
+    {{ render(url('app_read_text', { 'TxID': text.ID })) }}
+  </div>
+</div>
+
+
+<div id="reading-frames-right" style="position: fixed; top: 0; right: 0; height: 95%; 
+width: 50%;">
+    <iframe name="wordframe" class="rightreadingframe" src="about:blank" scrolling="auto"
+            style="height: 45%; width: 100%;" frameBorder="0">
+      Frame support required.
+    </iframe>
+
+    <iframe name="dictframe" class="rightreadingframe" src="about:blank" scrolling="auto"
+            style="height: 65%; width: 100%;" frameBorder="0">
+      Frame support required.
+    </iframe>
+</div>
+
+{% endblock %}

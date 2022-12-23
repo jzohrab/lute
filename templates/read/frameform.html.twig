@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Form</title>
+    
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery.tagit.css" />
+    <link rel="stylesheet" type="text/css" href="/css/styles-compact.css" />
+    
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery-ui.min.js"  charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.jeditable.mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/tag-it.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.hoverIntent.js" charset="utf-8"></script>
+
+    <script type="text/javascript">
+      var TAGS = {{ render(url('app_termtag_jsonlist')) }};
+    </script>
+
+  </head>
+
+  <body>
+    {{ include('term/_form.html.twig') }}
+  </body>
+
+</html>

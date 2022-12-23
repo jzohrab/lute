@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>Your server</h1>
+
+<table>
+  <tr>
+    <td>Db name</td>
+    <td>{{ dbname }}</td>
+  </tr>
+  <tr>
+    <td>Server</td>
+    <td>{{ server }}</td>
+  </tr>
+  <tr>
+    <td>Connection</td>
+    <td>{{ symfconn }}</td>
+  </tr>
+  <tr>
+    <td>Web host</td>
+    <td>{{ webhost }}</td>
+  </tr>
+  <tr>
+    <td>Running</td>
+    <td>{{ apache }}</td>
+  </tr>
+  <tr>
+    <td>PHP version</td>
+    <td>{{ php }}</td>
+  </tr>
+</table>
+
+{% endblock %}
+

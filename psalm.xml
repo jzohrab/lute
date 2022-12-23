@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="5"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="." />
+        <ignoreFiles>
+          <directory name="bin" />
+          <directory name="config" />
+          <directory name="db" />
+          <directory name="var" />
+          <directory name="vendor" />
+          <file name="connect.inc.php" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <globals>
+        <!-- Globals from connect.inc.php -->
+        <var name="$server" type="string" />
+        <var name="$userid" type="string" />
+        <var name="$passwd" type="string" />
+        <var name="$dbname" type="string" />
+    </globals>
+
+    <stubs>
+        <file name="connect.inc.php.example" />
+    </stubs>
+
+    <issueHandlers>
+
+      <!-- Symfony-generated repositories caused many
+           LessSpecificImplementedReturnType errs.
+           eg. "...src/Repository/TextTagRepository.php:14:12 - The
+           inherited return type 'list<App\Entity\TextTag>' for
+           Doctrine\ORM\EntityRepository::findAll is more specific
+           than the implemented return type for
+           Doctrine\ORM\EntityRepository::findall 'array<array-key,
+           App\Entity\TextTag>' (see https://psalm.dev/166)
+      -->
+      <LessSpecificImplementedReturnType>
+        <errorLevel type="suppress">
+          <directory name="src/Repository" />
+        </errorLevel>
+      </LessSpecificImplementedReturnType>
+
+    </issueHandlers>
+</psalm>

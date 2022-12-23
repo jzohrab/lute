@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Term index{% endblock %}
+
+{% block body %}
+<h1>Term index</h1>
+
+<table id="termtable" class="table dataTable stripe" style="table-layout:fixed;" >
+  <thead>
+    <tr>
+      <th>Text</th>
+      <th>Language</th>
+      <th>Tags</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <th>Text</th>
+      <th>Language</th>
+      <th>Tags</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </tfoot>
+</table>
+
+<a href="{{ path('app_term_new') }}">Create new</a>
+
+<script>
+
+  let setup_term_datatable = function() {
+    var table = $('#termtable').DataTable({
+      responsive: true,
+      select: true,
+      lengthMenu: [ 10, 25, 50, 100 ],
+      paging: true,
+      info: true,
+      searching: true,
+      processing: true,
+      serverSide: true,
+      columnDefs: [
+        // "name" is the column name in your main SQL query.
+        // The fields in each row in the data ajax response are ordered as they are declared here.
+        // All fields default to "orderable" = true, "searchable" = true.
+        { "name": "WoText", "targets": 0 },
+        { "name": "LgName", "targets": 1 },
+        { "name": "TagList", "targets": 2 },
+        { "name": "WoStatus", "targets": 3 },
+        {
+          "name": "WoID",
+          "targets": 4,
+          "searchable": false,
+          "orderable": false,
+          "render": function ( data, type, row, meta ) {
+            const href = `/term/${row[4]}/edit`;
+            const img = '<img src="/icn/document--pencil.png" title="Edit" alt="Edit" />';
+            return `<a href=${href}>${img}</a>`;
+          }
+        },
+
+      ],
+
+      // Ajax call
+      ajax: {
+        url: '/term/datatables',
+        type: "POST",
+        dataType: "json"
+      },
+
+    });
+  } // end setup_term_datatable
+  
+  $(document).ready(function () { setup_term_datatable(); });
+
+
+</script>
+
+{% endblock %}

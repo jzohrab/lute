@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="tests/bootstrap.php"
+         convertDeprecationsToExceptions="false"
+>
+    <php>
+        <ini name="display_errors" value="1" />
+        <ini name="error_reporting" value="-1" />
+
+        <!--
+        NOTE we use "prod" for the testing!!! because
+        the connect.ini.php is changed by the user
+        to run tests.  EVERY TEST SHOULD SAY ensure_using_test_db
+        at the top.
+        -->
+        <server name="APP_ENV" value="prod" force="true" />
+
+        <server name="SHELL_VERBOSITY" value="-1" />
+        <server name="SYMFONY_DEPRECATIONS_HELPER" value="max[total]=42" />
+        <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
+        <server name="SYMFONY_PHPUNIT_VERSION" value="9.5" />
+
+        <!-- https://stackoverflow.com/questions/66214776/symfony-4-phpunit-kernel-class-env-variable-error -->
+        <!-- ??? jz. -->
+        <server name="KERNEL_CLASS" value="App\Kernel" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </coverage>
+
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+    </listeners>
+
+    <!-- Run `composer require symfony/panther` before enabling this extension -->
+    <!--
+    <extensions>
+        <extension class="Symfony\Component\Panther\ServerExtension" />
+    </extensions>
+    -->
+</phpunit>
