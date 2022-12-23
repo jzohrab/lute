@@ -107,14 +107,6 @@ where ti2woid = 0";
               SET Ti2WoID = {$woid} WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
             $params = array("s", $term->getTextLC());
             $this->exec_sql($updateti2sql, $params);
-
-            $sql = "SELECT DISTINCT Ti2TxID FROM textitems2 WHERE Ti2WoID = {$woid}";
-            $res = $this->exec_sql($sql);
-            $ids = [];
-            while ($rec = $res->fetch_array(MYSQLI_NUM)) {
-                $ids[] = $rec[0];
-            }
-            mysqli_free_result($res);
         }
         else {
             $this->insertExpressions(
