@@ -252,9 +252,86 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
-        $formterm = $this->term_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
+        $formterm = $this->reading_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
         $this->assertEquals($formterm->getText(), 'tiene una bebida', 'text loaded');
         $this->assertTrue($formterm->getID() == null, 'should be a new term');
+    }
+
+
+    // Prod bug: when updating the status of an existing multi-term
+    // TextItem (that hides other text items), the UI wasn't getting
+    // updated, because the ID of the element to replace wasn't
+    // correct.
+    /**
+     * @group prodbug
+     */
+    public function test_update_multiword_textitem_status_replaces_correct_item() {
+        $text = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
+        $tid = $text->getID();
+
+        $sentences = $this->facade->getSentences($text);
+        $sentence = $sentences[0];
+
+        $spanid_to_text = [];
+        foreach ($sentence->getTextItems() as $ti) {
+            $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+        }
+
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
+        $tiene = array_values($tis)[0];
+        $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
+        $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
+
+        $mword_text = 'tiene una bebida';
+        $mword_term = $this->reading_repo->load($tiene->WoID, $tid, $tiene->Order, $mword_text);
+        $mword_term->setStatus(1);
+
+        // The new term "tiene una bebida" should replace "tiene" on the UI.
+        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
+        $wid = $mword_term->getID();
+        $this->assertEquals(count($updatedTIs), 1, 'just one update');
+        $theTI = $updatedTIs[0];
+        $this->assertEquals($theTI->WoID, $wid, 'which is the new term');
+        $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
+        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
+        $this->assertEquals($theTI_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
+
+        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
+        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
+        $this->assertEquals(
+            implode(', ', $theTI_hides_text),
+            "' ', 'una', ' ', 'bebida'",
+            "Hides stuff after tiene, which it replaces");
+
+        // Get the textitem for "tiene una bebida":
+        $sentences = $this->facade->getSentences($text);
+        $sentence = $sentences[0];
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $mword_text);
+        $mword_ti = array_values($tis)[0];
+        $this->assertEquals($mword_ti->TextLC, $mword_text, 'sanity check, got the term');
+        $this->assertTrue($mword_ti->WoID > 0, 'and it has a WoID');
+
+        // Load and update the status for "tiene una bebida":        
+        $mword_term = $this->reading_repo->load($mword_ti->WoID, $tid, $mword_ti->Order, '');
+        $this->assertEquals($mword_term->getID(), $mword_ti->WoID, 'sanity check, id');
+        $mword_term->setStatus(1);
+
+        // The updated term "tiene una bebida" should replace itself on the UI,
+        // and hides other things.
+        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
+        $this->assertEquals(count($updatedTIs), 1, 'just one update');
+        $theTI = $updatedTIs[0];
+        $this->assertEquals($theTI->WoID, $mword_term->getID(), 'which is the new term');
+        $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
+        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
+        $this->assertEquals($theTI_replaces, $theTI->getSpanID(), 'it replaces itself!');
+
+        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
+        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
+        $this->assertEquals(
+            implode(', ', $theTI_hides_text),
+            "'tiene', ' ', 'una', ' ', 'bebida'",
+            "Hides the original terms (b/c the mword term has replaced itself already)");
     }
 
 

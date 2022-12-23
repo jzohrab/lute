@@ -98,8 +98,8 @@
   },
   "scripts": {
     "dev:class": "./utils/entityInterface.sh",
-    "todo:list": "composer find TODO",
-    "todo:types": "composer find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
+    "todo:list": "composer dev:find TODO",
+    "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
     "db:which": "grep ^\\$dbname connect.inc.php",
     "db:migrate": "php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Domain\ReadingFacade;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
+use App\Repository\ReadingRepository;
 use App\Domain\Parser;
 use App\Domain\ExpressionUpdater;
 use App\Entity\Text;
@@ -56,7 +57,7 @@ class ReadingController extends AbstractController
         $ord,
         $text,
         Request $request,
-        TermRepository $termRepository,
+        ReadingRepository $readingRepository,
         TextRepository $textRepository,
         ReadingFacade $facade
     ): Response
@@ -65,36 +66,13 @@ class ReadingController extends AbstractController
         // b/c otherwise the route didn't work.
         if ($text == '-')
             $text = '';
-        $term = $termRepository->load($wid, $textid, $ord, $text);
+        $term = $readingRepository->load($wid, $textid, $ord, $text);
 
         $form = $this->createForm(TermType::class, $term);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $termRepository->save($term, true);
-            ExpressionUpdater::associateTermTextItems($term);
             $textentity = $textRepository->find($textid);
-            $rawtextitems = $facade->getTextItems($textentity);
-
-            // Use a temporary sentence to determine which items hide
-            // which other items.
-            $sentence = new Sentence(999, $rawtextitems);
-            $textitems = $sentence->getTextItems();
-            $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
-
-            // what updates to do.
-            $update_js = [];
-            foreach ($updateitems as $item) {
-                $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
-                $hide_ids = array_values($hide_ids);
-                $replace_id = $item->getSpanID();
-                if (count($hide_ids) > 0)
-                    $replace_id = $hide_ids[0];
-                $u = [
-                    'replace' => $replace_id,
-                    'hide' => $hide_ids
-                ];
-                $update_js[ $item->getSpanID() ] = $u;
-            }
+            [ $updateitems, $update_js ] = $facade->save($term, $textentity);
 
             // The updates are encoded here, and decoded in the
             // twig javascript.  Thanks to

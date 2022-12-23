@@ -20,12 +20,9 @@ use Doctrine\Persistence\ManagerRegistry;
 class TermRepository extends ServiceEntityRepository
 {
 
-    private LanguageRepository $lang_repo;
-
-    public function __construct(ManagerRegistry $registry, LanguageRepository $langrepo)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Term::class);
-        $this->lang_repo = $langrepo;
     }
 
     public function save(Term $entity, bool $flush = false): void
@@ -54,7 +51,7 @@ class TermRepository extends ServiceEntityRepository
             throw new \Exception('Language not set for Entity?');
         }
 
-        $p = $this->findTermInLanguage($pt, $entity->getLanguage()->getLgID());
+        $p = $this->findTermInLanguage($pt, $entity->getLanguage());
 
         if ($p !== null)
             return $p;
@@ -85,7 +82,8 @@ class TermRepository extends ServiceEntityRepository
         }
     }
 
-    public function findTermInLanguage(string $value, int $langid): ?Term
+
+    public function findTermInLanguage(string $value, Language $lang): ?Term
     {
         // Using Doctrine Query Language --
         // Interesting, but am not totally confident with it.
@@ -98,7 +96,7 @@ class TermRepository extends ServiceEntityRepository
         $em = $this->getEntityManager();
         $query = $em
                ->createQuery($dql)
-               ->setParameter('langid', $langid)
+               ->setParameter('langid', $lang->getLgID())
                ->setParameter('val', mb_strtolower($value));
         $terms = $query->getResult();
 
@@ -150,127 +148,5 @@ LEFT OUTER JOIN (
         
         return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
     }
-
-
-
-    /******************************************/
-    // Loading a Term for the reading pane.
-    //
-    // Loading is rather complex.  It can be done by the Term ID (aka
-    // the 'wid') or the textid and position in the text (the 'tid'
-    // and 'ord'), or it might be a brand new multi-word term
-    // (specified by the 'text').  The integration tests cover these
-    // scenarios in /hopefully/ enough detail.
-
-    /**
-     * Get fully populated Term from database, or create a new one with available data.
-     *
-     * @param wid  int    WoID, an actual ID, or 0 if new.
-     * @param tid  int    TxID, text ID
-     * @param ord  int    Ti2Order, the order in the text
-     * @param text string Multiword text (overrides tid/ord text)
-     *
-     * @return Term
-     */
-    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term
-    {
-        $ret = null;
-        if ($wid > 0 && ($text == '' || $text == '-')) {
-            // Use wid, *provided that there is no text specified*.
-            // If there is, the user has mousedown-drag created
-            // a new multiword term.
-            $ret = $this->find($wid);
-        }
-        elseif ($text != '') {
-            $language = $this->getTextLanguage($tid);
-            $ret = $this->loadFromText($text, $language);
-        }
-        elseif ($tid != 0 && $ord != 0) {
-            $language = $this->getTextLanguage($tid);
-            $ret = $this->loadFromTidAndOrd($tid, $ord, $language);
-        }
-        else {
-            throw new \Exception("Out of options to search for term");
-        }
-
-        if ($ret->getSentence() == null && $tid != 0 && $ord != 0) {
-            $s = $this->findSentence($tid, $ord);
-            $ret->setSentence($s);
-        }
-
-        return $ret;
-    }
-
-    private function getTextLanguage($tid): ?Language {
-        $sql = "SELECT TxLgID FROM texts WHERE TxID = {$tid}";
-        $record = $this
-            ->getEntityManager()
-            ->getConnection()
-            ->executeQuery($sql)
-            ->fetchAssociative();
-        if (! $record) {
-            throw new \Exception("no record for tid = $tid ???");
-        }
-        $lang = $this->lang_repo->find((int) $record['TxLgID']);
-        return $lang;
-    }
-    
-    /**
-     * Get baseline data from tid and ord.
-     *
-     * @return Term.
-     */
-    private function loadFromTidAndOrd($tid, $ord, Language $lang): ?Term {
-        $sql = "SELECT ifnull(WoID, 0) as WoID,
-          Ti2Text AS t
-          FROM textitems2
-          LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
-          WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
-        $record = $this
-            ->getEntityManager()
-            ->getConnection()
-            ->executeQuery($sql)
-            ->fetchAssociative();
-        if (! $record) {
-            throw new \Exception("no matching textitems2 for tid = $tid , ord = $ord");
-        }
-
-        $wid = (int) $record['WoID'];
-        if ($wid > 0) {
-            return $this->find($wid);
-        }
-
-        $t = new Term();
-        $t->setText($record['t']);
-        $t->setLanguage($lang);
-        return $t;
-    }
-
-
-    private function loadFromText(string $text, Language $lang): Term {
-        $textlc = mb_strtolower($text);
-        $t = $this->findTermInLanguage($text, $lang->getLgID());
-        if (null != $t)
-            return $t;
-
-        $t = new Term();
-        $t->setText($text);
-        $t->setLanguage($lang);
-        return $t;
-    }
-
-
-    private function findSentence($tid, $ord) : string {
-        $sql = "select SeText
-           from sentences
-           INNER JOIN textitems2 on Ti2SeID = SeID
-           WHERE Ti2TxID = :tid and Ti2Order = :ord";
-        $params = [ "tid" => $tid, "ord" => $ord ];
-        return $this
-            ->getEntityManager()
-            ->getConnection()
-            ->executeQuery($sql, $params)
-            ->fetchNumeric()[0];
-  }
 
 }

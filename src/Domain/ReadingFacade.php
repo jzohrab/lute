@@ -101,7 +101,7 @@ class ReadingFacade {
         $lang =$text->getLanguage();
         $tid = $text->getID();
         foreach ($uniques as $u) {
-            $t = $this->termrepo->load(0, $tid, 0, $u);
+            $t = $this->repo->load(0, $tid, 0, $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
             $this->termrepo->save($t, true);
@@ -117,4 +117,66 @@ class ReadingFacade {
     public function set_current_text(Text $text) {
         $this->settingsrepo->saveCurrentTextID($text->getID());
     }
+
+
+    private function get_textitems_for_term(Text $text, Term $term): array {
+        // Use a temporary sentence to determine which items hide
+        // which other items.
+        $sentence = new Sentence(999, $this->getTextItems($text));
+        $all_textitems = $sentence->getTextItems();
+        $ret = array_filter($all_textitems, fn($t) => $t->WoID == $term->getID());
+        return array_values($ret);
+    }
+
+
+    /** Save a term, and return an array of UI updates. */
+    public function save(Term $term, Text $text): array {
+        // Need to know if the term is new or not, because if it's a
+        // multi-word term, it will be a *new element* in the rendered
+        // HTML, and so will have to replace one of the elements it
+        // hides.  Otherwise, it will just replace itself.
+        $is_new = ($term->getID() == 0);
+
+        $this->repo->save($term, true);
+        return $this->getUIUpdates($text, $term, $is_new);
+    }
+
+
+    /**
+     * Get the UI items to replace and hide (delete).
+     * Returns [ array of textitems to update, dict of span IDs -> replacements and hides ].
+     */
+    private function getUIUpdates(Text $text, Term $term, bool $is_new): array {
+        $items = $this->get_textitems_for_term($text, $term);
+
+        // what updates to do.
+        $update_js = [];
+
+        foreach ($items as $item) {
+            $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
+            $hide_ids = array_values($hide_ids);
+
+            $replace_id = $item->getSpanID();
+            if ($is_new && count($hide_ids) > 0) {
+                // New multiterm replaces the first element in the
+                // list of things it hides, and the list of things it
+                // hides is reduced.
+                $replace_id = $hide_ids[0];
+                $hide_ids = array_slice($hide_ids, 1);
+            }
+
+            $u = [
+                'replace' => $replace_id,
+                'hide' => $hide_ids
+            ];
+            $update_js[ $item->getSpanID() ] = $u;
+        }
+
+        return [
+            $items,
+            $update_js
+        ];
+            
+    }
+
 }
