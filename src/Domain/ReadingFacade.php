@@ -119,19 +119,22 @@ class ReadingFacade {
     }
 
 
+    private function get_textitems_for_term(Text $text, Term $term): array {
+        // Use a temporary sentence to determine which items hide
+        // which other items.
+        $sentence = new Sentence(999, $this->getTextItems($text));
+        $all_textitems = $sentence->getTextItems();
+        $ret = array_filter($all_textitems, fn($t) => $t->WoID == $term->getID());
+        return array_values($ret);
+    }
+
+
     /**
      * Get the UI items to replace and hide (delete).
      * Returns [ array of textitems to update, dict of span IDs -> replacements and hides ].
      */
-    public function getUIUpdates(Term $term, Text $textentity): array {
-        $rawtextitems = $this->getTextItems($textentity);
-
-        // Use a temporary sentence to determine which items hide
-        // which other items.
-        $sentence = new Sentence(999, $rawtextitems);
-        $textitems = $sentence->getTextItems();
-        $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
-        $updateitems = array_values($updateitems);
+    public function getUIUpdates(Term $term, Text $text): array {
+        $updateitems = $this->get_textitems_for_term($text, $term);
 
         // what updates to do.
         $update_js = [];
