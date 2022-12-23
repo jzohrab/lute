@@ -54,6 +54,10 @@
 <script type="text/javascript">
   
   let set_parent_fields = function(event, ui) {
+    if (ui.item == null) {
+      // console.log('directly entered text, nothing to do.');
+      return;
+    }
     $('#term_ParentText').val(ui.item.word);
     return false;
   };
