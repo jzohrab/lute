@@ -252,7 +252,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
-        $formterm = $this->term_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
+        $formterm = $this->reading_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
         $this->assertEquals($formterm->getText(), 'tiene una bebida', 'text loaded');
         $this->assertTrue($formterm->getID() == null, 'should be a new term');
     }

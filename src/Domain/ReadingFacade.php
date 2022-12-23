@@ -101,7 +101,7 @@ class ReadingFacade {
         $lang =$text->getLanguage();
         $tid = $text->getID();
         foreach ($uniques as $u) {
-            $t = $this->termrepo->load(0, $tid, 0, $u);
+            $t = $this->repo->load(0, $tid, 0, $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
             $this->termrepo->save($t, true);
