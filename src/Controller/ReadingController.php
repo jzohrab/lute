@@ -72,31 +72,8 @@ class ReadingController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $readingRepository->save($term, true);
-            ExpressionUpdater::associateTermTextItems($term);
             $textentity = $textRepository->find($textid);
-            $rawtextitems = $facade->getTextItems($textentity);
-
-            // Use a temporary sentence to determine which items hide
-            // which other items.
-            $sentence = new Sentence(999, $rawtextitems);
-            $textitems = $sentence->getTextItems();
-            $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
-
-            // what updates to do.
-            $update_js = [];
-            foreach ($updateitems as $item) {
-                $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
-                $hide_ids = array_values($hide_ids);
-                $replace_id = $item->getSpanID();
-                if (count($hide_ids) > 0)
-                    $replace_id = $hide_ids[0];
-                $u = [
-                    'replace' => $replace_id,
-                    'hide' => $hide_ids
-                ];
-                $update_js[ $item->getSpanID() ] = $u;
-            }
-
+            [ $updateitems, $update_js ] = $this->facade->getUIUpdates($term, $text);
             // The updates are encoded here, and decoded in the
             // twig javascript.  Thanks to
             // https://stackoverflow.com/questions/38072085/

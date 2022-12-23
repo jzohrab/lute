@@ -230,8 +230,9 @@ class ReadingRepository
     }
 
 
-    public function save(Term $term, bool $flush = false): void {
-        $this->term_repo->save($term, $flush);
+    public function save(Term $term): void {
+        $this->term_repo->save($term, true);
+        ExpressionUpdater::associateTermTextItems($term);
     }
 
 }

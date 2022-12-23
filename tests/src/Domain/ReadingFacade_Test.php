@@ -266,31 +266,53 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group prodbug
      */
     public function test_update_multiword_textitem_status_replaces_correct_item() {
-        $t = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
-        $sentences = $this->facade->getSentences($t);
+        $text = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
+        $tid = $text->getID();
+
+        $sentences = $this->facade->getSentences($text);
         $sentence = $sentences[0];
-        $terms = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
-        $tiene = array_values($terms)[0];
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
+        $tiene = array_values($tis)[0];
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
         $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
 
-        $formterm = $this->reading_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
-        $formterm->setStatus(1);
-        $updates = $this->facade->save($formterm);
+        $mword_text = 'tiene una bebida';
+        $mword_term = $this->reading_repo->load($tiene->WoID, $tid, $tiene->Order, $mword_text);
+        $mword_term->setStatus(1);
+        $this->reading_repo->save($mword_term);
+        $wid = $mword_term->getID();
 
-        $this->assertEquals($updates['replace'], $tiene->getSpanID(), 'replaces tiene');
+        // It should replace "tiene"
+        [ $updatedTIs, $updates ] = $this->facade->getUIUpdates($mword_term, $text);
+        $this->assertEquals(count($updatedTIs), 1, 'just one update');
+        $theTI = $updatedTIs[0];
+        $this->assertEquals($theTI->WoID, $wid, 'which is the new term');
+        $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
+        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
+        $this->assertEquals($theTI_replaces, $tiene->getSpanID(), 'replaces tiene');
 
-        $sentences = $this->facade->getSentences($t);
+        // Get the textitem for "tiene una bebida":
+        $sentences = $this->facade->getSentences($text);
         $sentence = $sentences[0];
-        $terms = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene una bebida');
-        $tub = array_values($terms)[0];
-        $this->assertEquals($tub->TextLC, 'tiene una bebida', 'sanity check, got the term ...');
-        $this->assertTrue($tub->WoID > 0, '... and it has a WoID');
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $mword_text);
+        $mword_ti = array_values($tis)[0];
+        $this->assertEquals($mword_ti->TextLC, $mword_text, 'sanity check, got the term');
+        $this->assertTrue($mword_ti->WoID > 0, 'and it has a WoID');
 
-        $tubterm = $this->reading_repo->load($tub->WoID, $t->getID(), $tub->Order, '');
-        $tubterm->setStatus(1);
-        $updates = $this->facade->save($tubterm);
-        $this->assertEquals($updates['replace'], $tubterm->getSpanID(), 'replaces tiene');
+        // Load and update the status for "tiene una bebida":        
+        $mword_term = $this->reading_repo->load($mword_ti->WoID, $tid, $mword_ti->Order, '');
+        $this->assertEquals($mword_term->getID(), $mword_ti->WoID, 'sanity check, id');
+        $mword_term->setStatus(1);
+        $this->reading_repo->save($mword_term);
+
+        // Check the UI updates:
+        [ $updatedTIs, $updates ] = $this->facade->getUIUpdates($mword_term, $text);
+        $this->assertEquals(count($updatedTIs), 1, 'just one update');
+        $theTI = $updatedTIs[0];
+        $this->assertEquals($theTI->WoID, $mword_term->getID(), 'which is the new term');
+        $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
+        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
+        $this->assertEquals($theTI_replaces, $theTI->getSpanID(), 'it replaces itself!');
     }
 
 

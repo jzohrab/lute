@@ -120,9 +120,40 @@ class ReadingFacade {
 
 
     /**
-     * Save a term, and get the UI items to replace and hide (delete).
+     * Get the UI items to replace and hide (delete).
+     * Returns [ array of textitems to update, dict of span IDs -> replacements and hides ].
      */
-    public function save(Term $term) {
+    public function getUIUpdates(Term $term, Text $textentity): array {
+        $rawtextitems = $this->getTextItems($textentity);
 
+        // Use a temporary sentence to determine which items hide
+        // which other items.
+        $sentence = new Sentence(999, $rawtextitems);
+        $textitems = $sentence->getTextItems();
+        $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
+        $updateitems = array_values($updateitems);
+
+        // what updates to do.
+        $update_js = [];
+
+        foreach ($updateitems as $item) {
+            $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
+            $hide_ids = array_values($hide_ids);
+            $replace_id = $item->getSpanID();
+            if (count($hide_ids) > 0)
+                $replace_id = $hide_ids[0];
+            $u = [
+                'replace' => $replace_id,
+                'hide' => $hide_ids
+                ];
+                $update_js[ $item->getSpanID() ] = $u;
+        }
+
+        return [
+            $updateitems,
+            $update_js
+        ];
+            
     }
+
 }
