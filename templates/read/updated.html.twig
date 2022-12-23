@@ -60,14 +60,12 @@
 
         const repel = $(`#${replaceid}`, context);
         if (repel.length == 0) {
-          // TODO:remove logging cruft
-          console.log(` ... could not find ${replaceid} ?`);
+          // console.log(` ... could not find ${replaceid} ?`);
           // Sometimes ids may have been hidden by other terms,
           // so they're not rendered.  Not an issue, just quit.
           return;
         }
-        // TODO:remove logging cruft
-        console.log(`replacing ${replaceid} with content.`);
+        // console.log(`replacing ${replaceid} with content.`);
         repel.replaceWith(content);
 
         // console.log('removing elements');
