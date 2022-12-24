@@ -35,3 +35,13 @@ This rocking post, https://www.seancdavis.com/posts/three-ways-to-add-image-to-g
 Copy-paste, and bob's your uncle.
 
 What a waste of time this was.
+
+ps - I then tried using the full-size file, prior to 80% shrink, just because.
+
+pps - I then used a larger size, because hey, why not.
+
+```
+ffmpeg -i in.mov -s 800x533 -pix_fmt rgb24 -r 10 -f gif - | gifsicle --optimize=3 --delay=1 > out.gif
+```
+
+and then dragging that to a new issue gave me what's there now.

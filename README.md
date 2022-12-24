@@ -10,7 +10,7 @@ A _very_ brief demo, showing the core feature: reading a doc, and creating a ter
 
 [comment]: # (See docs/adding_readme_gif.md for notes)
 
-![A small demo](https://user-images.githubusercontent.com/1637133/209414488-1d2d63db-6790-452c-bfae-837afed822b2.gif)
+![A wee demo](https://user-images.githubusercontent.com/1637133/209415779-9b04f389-37c3-4a8b-85a1-ec0c6b1708c5.gif)
 
 _(fyi - The screenshot was edited for time and file size, so it looks like Lute is automatically filling in the term form -- it's not.)_
 
