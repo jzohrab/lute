@@ -219,8 +219,8 @@ class Parser {
             $src = $r[0];
             $tgt = $r[1];
 
-            echo "=====================\n";
-            echo "Applying '$src' \n\n";
+            // echo "=====================\n";
+            // echo "Applying '$src' \n\n";
 
             if (! is_string($tgt)) {
                 $text = preg_replace_callback($src, $tgt, $text);
@@ -232,9 +232,9 @@ class Parser {
                     $text = str_replace($src, $tgt, $text);
             }
 
-            echo "text is ---------------------\n";
-            echo str_replace("\r", "<RET>\n", $text);
-            echo "\n-----------------------------\n";
+            // echo "text is ---------------------\n";
+            // echo str_replace("\r", "<RET>\n", $text);
+            // echo "\n-----------------------------\n";
         }
         return $text;
     }
@@ -325,6 +325,8 @@ class Parser {
     private function build_insert_array($text): array {
         $lines = explode("\n", $text);
         $lines = array_filter($lines, fn($s) => $s != '');
+
+        global $sentence_number, $ord;
         $sentence_number = 0;
         $ord = 0;
 
@@ -407,7 +409,6 @@ class Parser {
     /**
      * Load temptextitems using load local infile.
      */
-    /*
     private function load_temptextitems($text)
     {
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
@@ -462,7 +463,7 @@ class Parser {
         };
         unlink($file_name);
     }
-    */
+
 
     // TODO:refactor - this code is tough to follow. :-)
     /**
