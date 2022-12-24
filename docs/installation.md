@@ -6,8 +6,7 @@ This project does not have "GitHub releases" yet, so just clone the repo to your
 
 The setup for this project is much the same as [LWT](https://github.com/HugoFara/lwt):
 
-* get an Apache server with PHP and MySQL
-* Enable "load local infile" for MySQL server
+* get an Apache server with PHP and MySQL _(note: setting up "load local infile" is not required)_
 * create a "connect.inc.php"
 
 Unlike LWT, which just uses plain php files, Lute uses the [symfony](https://symfony.com/) framework, and so has more requirements:
@@ -48,13 +47,6 @@ After saving the file, restart Apache, and check the configuration:
 sudo apachectl restart    # Restart :-)
 apachectl -S              # Check your vhost config:
 ```
-
-### MySQL load local infile
-
-ref https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
-
-The app and many tests require 'load local infile' to be set to On, so you'll need to set that in your php.ini.  For me, for example, the file I changed was at `/usr/local/etc/php/8.1/php.ini`.
-
 
 ### Edit your /etc/hosts
 

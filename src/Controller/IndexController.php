@@ -53,10 +53,6 @@ class IndexController extends AbstractController
         }
         */
 
-        if (!Parser::load_local_infile_enabled()) {
-            $errors[] = "SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.";
-        }
-
         $outstanding = \MigrationHelper::get_pending_migrations();
         if (count($outstanding) > 0) {
             $n = count($outstanding);

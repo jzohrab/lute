@@ -18,13 +18,6 @@ class Parser {
         $p->parseText($text);
     }
 
-    public static function load_local_infile_enabled(): bool {
-        global $userid, $passwd, $server, $dbname; // From connect.inc.php
-        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
-        $val = $conn->query("SELECT @@GLOBAL.local_infile as val")->fetch_array()[0];
-        return intval($val) == 1;
-    }
-
 
     private $conn;
 
@@ -34,11 +27,6 @@ class Parser {
         $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
         @mysqli_query($conn, "SET SESSION sql_mode = ''");
         $this->conn = $conn;
-
-        if (!Parser::load_local_infile_enabled()) {
-            $msg = "SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.";
-            throw new \Exception($msg);
-        }
     }
 
     /** PRIVATE **/
@@ -94,8 +82,8 @@ class Parser {
         }
         // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
 
-        $this->load_temptextitems($newcleantext);
-
+        $arr = $this->build_insert_array($newcleantext);
+        $this->load_temptextitems_from_array($arr);
         $this->import_temptextitems($text);
 
         TextStatsCache::force_refresh($text);
@@ -115,6 +103,8 @@ class Parser {
         $lang = $entity->getLanguage();
 
         $text = $entity->getText();
+
+        $punct = ParserPunctuation::PUNCTUATION;
 
         // Initial cleanup.
         $text = str_replace("\r\n", "\n", $text);
@@ -144,18 +134,17 @@ class Parser {
             $notEnd = $lang->getLgExceptionsSplitSentences();
             return $this->find_latin_sentence_end($matches, $notEnd);
         };
-        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
+        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
         $text = preg_replace_callback($re, $callback, $text);
 
         // Para delims include \r
         $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
 
         $termchar = $lang->getLgRegexpWordCharacters();
-        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
         $text = preg_replace(
             array(
                 '/([^' . $termchar . '])/u',
-                '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u',
+                '/\n([' . $splitSentence . '][' . $punct . '\]]*)\n\t/u',
                 '/([0-9])[\n]([:.,])[\n]([0-9])/u'
             ),
             array("\n$1\n", "$1", "$1$2$3"),
@@ -166,10 +155,10 @@ class Parser {
 
         $text = preg_replace(
                 array(
-                    "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u",
+                    "/\r(?=[]$punct ]*\r)/u",
                     '/[\n]+\r/u',
                     '/\r([^\n])/u',
-                    "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u",
+                    "/\n[.](?![]$punct]*\r)/u",
                     "/(\n|^)(?=.?[$termchar][^\n]*\n)/u"
                 ),
                 array(
@@ -200,9 +189,13 @@ class Parser {
     // A (possibly) easier way to do substitutions -- each
     // pair in $replacements is run in order.
     // Possible entries:
-    // ( <src string or regex string (starting with '/')>, <target (string or callback)> [, <condition>] )
+    // ( <src string or regex string (starting with '/')>, <target (string or callback)> )
     private function do_replacements($text, $replacements) {
         foreach($replacements as $r) {
+            if ($r == 'skip') {
+                continue;
+            }
+
             if ($r == 'trim') {
                 $text = trim($text);
                 continue;
@@ -211,23 +204,22 @@ class Parser {
             $src = $r[0];
             $tgt = $r[1];
 
-            if (count($r) == 3) {
-                if ($r[2] == false) {
-                    continue;
-                }
-            }
+            // echo "=====================\n";
+            // echo "Applying '$src' \n\n";
 
-            if (is_string($tgt)) {
-                if (substr($src, 0, 1) == '/') {
-                    $text = preg_replace($src, $tgt, $text);
-                }
-                else {
-                    $text = str_replace($src, $tgt, $text);
-                }
-            }
-            else {
+            if (! is_string($tgt)) {
                 $text = preg_replace_callback($src, $tgt, $text);
             }
+            else {
+                if (substr($src, 0, 1) == '/')
+                    $text = preg_replace($src, $tgt, $text);
+                else
+                    $text = str_replace($src, $tgt, $text);
+            }
+
+            // echo "text is ---------------------\n";
+            // echo str_replace("\r", "<RET>\n", $text);
+            // echo "\n-----------------------------\n";
         }
         return $text;
     }
@@ -251,41 +243,59 @@ class Parser {
             }
         }
 
-        $splitSentencecallback = function($matches) use ($lang) {
-            $notEnd = $lang->getLgExceptionsSplitSentences();
-            return $this->find_latin_sentence_end($matches, $notEnd);
-        };
+        $punct = ParserPunctuation::PUNCTUATION . '\]';
 
         $splitSentence = $lang->getLgRegexpSplitSentences();
-        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
-
         $termchar = $lang->getLgRegexpWordCharacters();
-        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
-        
+
+        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
+        $splitSentencecallback = function($matches) use ($lang) {
+            $splitex = $lang->getLgExceptionsSplitSentences();
+            return $this->find_latin_sentence_end($matches, $splitex);
+        };
+
+        $splitThenPunct = "[{$splitSentence}][{$punct}]*";
+
+        /**
+         * Following is a hairy set of regular expressions and their
+         * replacements that are applied in order.  These were copied
+         * practically verbatim from LWT's parsing, and so they have
+         * been production-tested by users with their texts.  Some of
+         * these regex's may be redundant, or the order in some cases
+         * might not matter -- hard to say offhand without getting a
+         * bunch of test cases to verify behaviour before refactoring
+         * the regexes.
+         */
         $text = $this->do_replacements($text, [
-            [ "\r\n", "\n" ],
-            [ '}', ']'],
-            [ '{', '['],
-            [ "\n", " ¶" ],
-            [ '/([^\s])/u', "$1\t", $lang->isLgSplitEachChar() ],
+            [ "\r\n",  "\n" ],
+            [ '{',     '['],
+            [ '}',     ']'],
+            [ "\n",    ' ¶' ],
+
+            $lang->isLgSplitEachChar() ?
+            [ '/([^\s])/u', "$1\t" ] : 'skip',
+
             'trim',
-            [ '/\s+/u', ' ' ],
-            [ $resplitsent, $splitSentencecallback ],
-            [ "¶", "¶\r" ],
-            [ " ¶", "\r¶" ],
-            [ '/([^' . $termchar . '])/u', "\n$1\n" ],
-            [ '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u', "\n$1\n" ],
-            [ '/([0-9])[\n]([:.,])[\n]([0-9])/u', "$1$2$3" ],
-            [ "\t", "\n" ],
-            [ "\n\n", "" ],
-            [ "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u", "" ],
-            [ '/[\n]+\r/u', "\r" ],
-            [ '/\r([^\n])/u', "\r\n$1" ],
-            [ "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u", ".\n" ],
+            [ '/\s+/u',                             ' ' ],
+            [ $resplitsent,                         $splitSentencecallback ],
+            [ "¶",                                  "¶\r" ],
+            [ " ¶",                                 "\r¶" ],
+            [ '/([^' . $termchar . '])/u',          "\n$1\n" ],
+            [ '/\n(' . $splitThenPunct . ')\n\t/u', "\n$1\n" ],
+            [ '/([0-9])[\n]([:.,])[\n]([0-9])/u',   "$1$2$3" ],
+            [ "\t",                                 "\n" ],
+            [ "\n\n",                               "" ],
+            [ "/\r(?=[{$punct} ]*\r)/u",            "" ],
+            [ '/[\n]+\r/u',                         "\r" ],
+            [ '/\r([^\n])/u',                       "\r\n$1" ],
+            [ "/\n[.](?![{$punct}]*\r)/u",          ".\n" ],
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
-            [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
-            [ ' ', '', $lang->isLgRemoveSpaces() ],
+            [ "/(\n|^)(?!1\t)/u",                   "\n0\t" ],
+
+            $lang->isLgRemoveSpaces() ?
+            [ ' ', '' ] : 'skip',
+
             'trim'
         ]);
         
@@ -293,22 +303,42 @@ class Parser {
     }
 
 
+    // Instance state required while loading temp table:
+    private int $sentence_number = 0;
+    private int $ord = 0;
+
     /**
-     * Load temptextitems using load local infile.
+     * Convert each non-empty line of text into an array
+     * [ sentence_number, order, wordcount, word ].
      */
-    private function load_temptextitems($text)
-    {
-        $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
-        $fp = fopen($file_name, 'w');
-        fwrite($fp, $text);
-        fclose($fp);
+    private function build_insert_array($text): array {
+        $lines = explode("\n", $text);
+        $lines = array_filter($lines, fn($s) => $s != '');
 
-        /*
-        echo "\n-------------\n";
-        echo $text;
-        echo "\n-------------\n";
-        */
+        // Make the array row, incrementing $sentence_number as
+        // needed.
+        $makeentry = function($line) {
+            [ $wordcount, $s ] = explode("\t", $line);
+            $this->ord += 1;
+            $ret = [ $this->sentence_number, $this->ord, intval($wordcount), rtrim($s, "\r") ];
 
+            // Word ending with \r marks the end of the current
+            // sentence.
+            if (str_ends_with($s, "\r")) {
+                $this->sentence_number += 1;
+            }
+            return $ret;
+        };
+
+        $arr = array_map($makeentry, $lines);
+
+        // var_dump($arr);
+        return $arr;
+    }
+
+
+    // Load array
+    private function load_temptextitems_from_array(array $arr) {
         $this->conn->query("drop table if exists temptextitems");
 
         // Note the charset/collation here is very important!
@@ -322,38 +352,45 @@ class Parser {
         ) ENGINE=MEMORY DEFAULT CHARSET=utf8";
         $this->conn->query($sql);
 
-        $this->conn->query("SET @order=0, @sid=0, @count=0");
-        // TODO:fix? - fix the text file to be loaded so it already has
-        // order, sid, and count ... no need for this query to have more
-        // logic.
+        $chunks = array_chunk($arr, 1000);
 
-        $file_name = mysqli_real_escape_string($this->conn, $file_name);
-        $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
-        INTO TABLE temptextitems
-        FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
-        SET
-            TiSeID = @sid,
-            TiOrder = IF(
-                @term LIKE '%\\r',
-                CASE
-                    WHEN (@term:=REPLACE(@term,'\\r','')) IS NULL THEN NULL
-                    WHEN (@sid:=@sid+1) IS NULL THEN NULL
-                    WHEN @count:= 0 IS NULL THEN NULL
-                    ELSE @order := @order+1
-                END,
-                @order := @order+1
-            ),
-            TiText = @term,
-            TiWordCount = @word_count";
+        foreach ($chunks as $chunk) {
+            $this->insert_array_chunk($chunk);
+        }
+    }
 
-        if (!($this->conn->query($sql))) {
-            $msg = "Query execute failed: ERRNO: (" . $this->conn->errno . ") " . $this->conn->error;
-            throw new \Exception($msg);
-        };
-        unlink($file_name);
+    // Insert each record in chunk in a prepared statement,
+    // where chunk record is [ sentence_num, ord, wordcount, word ].
+    private function insert_array_chunk(array $chunk) {
+        $sqlbase = "insert into temptextitems values ";
+        $n = count($chunk);
+        $valplaceholders = str_repeat("(?,?,?,?),", $n);
+        $valplaceholders = rtrim($valplaceholders, ',');
+        $parmtypes = str_repeat("iiis", $n);
+
+        // Flatten the records in the chunks.
+        // Ref belyas's solution in https://gist.github.com/SeanCannon/6585889.
+        $prmarray = [];
+        array_map(
+            function($arr) use (&$prmarray) {
+                $prmarray = array_merge($prmarray, $arr);
+            },
+            $chunk
+        );
+
+        $sql = $sqlbase . $valplaceholders;
+        // echo $sql . "\n";
+        // echo $parmtypes . "\n";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param($parmtypes, ...$prmarray);
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
     }
 
 
+    // TODO:refactor - this code is tough to follow. :-)
     /**
      * Find end-of-sentence characters in a sentence using latin alphabet.
      * 

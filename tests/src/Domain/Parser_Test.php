@@ -47,6 +47,10 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, 'lowercase set');
     }
 
+
+    /**
+     * @group current
+     */
     public function test_parse_no_words_defined()
     {
         $this->load_spanish_texts(false);
