@@ -25,6 +25,8 @@ runsearch config 8
 
 runsearch src 8
 
+runsearch docs 8
+
 runsearch templates 8
 
 runsearch tests 8
