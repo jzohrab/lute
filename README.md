@@ -4,12 +4,26 @@ This is a fork and ground-up rewrite of [Hugo Fara's fork](https://github.com/hu
 
 > Lute would never have existed without the original Learning With Texts and Hugo Fara's subsequent efforts, so **a big thanks to both of these projects.**
 
+## Demo
+
+A _very_ brief demo, showing the core feature: reading a doc, and creating a term:
+
 [comment]: # (See docs/adding_readme_gif.md for notes)
 
 ![A small demo](https://user-images.githubusercontent.com/1637133/209414488-1d2d63db-6790-452c-bfae-837afed822b2.gif)
 
+_(fyi - The screenshot was edited for time and file size, so it looks like Lute is automatically filling in the term form -- it's not.)_
 
-Main links:
+Features not shown:
+
+* creating/editing texts
+* searching texts in the listing page
+* creating multi-word terms (clicking and dragging in the reading pane)
+* defining languages
+
+The feature set of Lute is currently small, but it contains the core features for it to be a minimally viable product (MVP).  As I, or others, feel the need, new features can be implemented.
+
+# Docs to start
 
 * If you're wondering whether you should use Lute or something else, [here's my take](./docs/lute_and_alternatives.md).
 * If you're into tech, and wonder why I created a new project rather than improve the existing LWT code, see [why I forked](./docs/why_the_fork.md).
