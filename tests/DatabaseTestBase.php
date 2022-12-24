@@ -44,9 +44,6 @@ abstract class DatabaseTestBase extends WebTestCase
     
     public function setUp(): void
     {
-        $inimsg = 'php.ini must set mysqli.allow_local_infile to 1.';
-        $this->assertEquals(ini_get('mysqli.allow_local_infile'), '1', $inimsg);
-
         // Set up db.
         DbHelpers::ensure_using_test_db();
         DbHelpers::clean_db();

@@ -18,13 +18,6 @@ class Parser {
         $p->parseText($text);
     }
 
-    public static function load_local_infile_enabled(): bool {
-        global $userid, $passwd, $server, $dbname; // From connect.inc.php
-        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
-        $val = $conn->query("SELECT @@GLOBAL.local_infile as val")->fetch_array()[0];
-        return intval($val) == 1;
-    }
-
 
     private $conn;
 
@@ -34,11 +27,6 @@ class Parser {
         $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
         @mysqli_query($conn, "SET SESSION sql_mode = ''");
         $this->conn = $conn;
-
-        if (!Parser::load_local_infile_enabled()) {
-            $msg = "SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.";
-            throw new \Exception($msg);
-        }
     }
 
     /** PRIVATE **/
