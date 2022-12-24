@@ -31,5 +31,38 @@
   </tr>
 </table>
 
+<hr />
+
+<p>All environment vars:</p>
+
+<table>
+  <tr><th>Key</th><th>Value</th></tr>
+  {% for k, v in allenv %}
+  <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+  {% endfor %}
+</table>
+
+<hr />
+
+<p>_ENV:</p>
+
+<table>
+  <tr><th>Key</th><th>Value</th></tr>
+  {% for k, v in ENV %}
+  <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+  {% endfor %}
+</table>
+
+<hr />
+
+<p>_SERVER:</p>
+
+<table>
+  <tr><th>Key</th><th>Value</th></tr>
+  {% for k, v in SERVER %}
+  <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+  {% endfor %}
+</table>
+
 {% endblock %}
 

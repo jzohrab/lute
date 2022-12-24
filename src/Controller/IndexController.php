@@ -128,7 +128,11 @@ class IndexController extends AbstractController
             'dbname' => $dbname,
             'server' => $server,
             'symfconn' => $_ENV['DATABASE_URL'],
-            'webhost' => $_SERVER['HTTP_HOST']
+            'webhost' => $_SERVER['HTTP_HOST'],
+
+            'allenv' => getenv(),
+            'ENV' => $_ENV,
+            'SERVER' => $_SERVER
         ]);
     }
 
