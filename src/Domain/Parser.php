@@ -263,6 +263,8 @@ class Parser {
             return $this->find_latin_sentence_end($matches, $splitex);
         };
 
+        $splitThenPunct = "[{$splitSentence}][{$punct}]*";
+
         $text = $this->do_replacements($text, [
             [ "\r\n", "\n" ],
             [ '}', ']'],
@@ -275,7 +277,7 @@ class Parser {
             [ "¶", "¶\r" ],
             [ " ¶", "\r¶" ],
             [ '/([^' . $termchar . '])/u', "\n$1\n" ],
-            [ '/\n([' . $splitSentence . '][' . $punct . ']*)\n\t/u', "\n$1\n" ],
+            [ '/\n(' . $splitThenPunct . ')\n\t/u', "\n$1\n" ],
             [ '/([0-9])[\n]([:.,])[\n]([0-9])/u', "$1$2$3" ],
             [ "\t", "\n" ],
             [ "\n\n", "" ],
