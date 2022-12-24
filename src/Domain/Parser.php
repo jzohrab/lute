@@ -96,7 +96,8 @@ class Parser {
 
         $arr = $this->build_insert_array($newcleantext);
         $this->load_temptextitems_from_array($arr);
-        
+
+        // TODO: obsolete.  Now just using plain old insert statements.
         // $this->load_temptextitems($newcleantext);
 
         $this->import_temptextitems($text);
@@ -404,10 +405,13 @@ class Parser {
         }
     }
 
-    // TODO:remove - legacy
+    // TODO:obsolete - legacy loading using "load local infile",
+    // which isn't merited by the amount of data we're loading,
+    // and potentially creates configuration problems for users.
     /**
      * Load temptextitems using load local infile.
      */
+    /*
     private function load_temptextitems($text)
     {
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
@@ -462,7 +466,7 @@ class Parser {
         };
         unlink($file_name);
     }
-
+    */
 
     // TODO:refactor - this code is tough to follow. :-)
     /**
