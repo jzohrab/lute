@@ -262,6 +262,16 @@ class Parser {
 
         $splitThenPunct = "[{$splitSentence}][{$punct}]*";
 
+        /**
+         * Following is a hairy set of regular expressions and their
+         * replacements that are applied in order.  These were copied
+         * practically verbatim from LWT's parsing, and so they have
+         * been production-tested by users with their texts.  Some of
+         * these regex's may be redundant, or the order in some cases
+         * might not matter -- hard to say offhand without getting a
+         * bunch of test cases to verify behaviour before refactoring
+         * the regexes.
+         */
         $text = $this->do_replacements($text, [
             [ "\r\n",  "\n" ],
             [ '{',     '['],
@@ -360,6 +370,7 @@ class Parser {
     }
 
 
+    // TODO:refactor - this code is tough to follow. :-)
     /**
      * Find end-of-sentence characters in a sentence using latin alphabet.
      * 
