@@ -76,18 +76,13 @@ class IndexController extends AbstractController
                ->executeQuery("SELECT VERSION() as value")
                ->fetchNumeric()[0];
 
-        // TODO:config eventually, get rid of this config file. :-)
-        $connect_inc = __DIR__ . '/../../connect.inc.php';
-        require $connect_inc;
-        global $dbname, $server;
-
         return $this->render('server_info.html.twig', [
             'serversoft' => $serversoft,
             'apache' => $apache,
             'php' => $php,
             'mysql' => $mysql,
-            'dbname' => $dbname,
-            'server' => $server,
+            'dbname' => $_ENV['DB_DATABASE'],
+            'server' => $_ENV['DB_HOSTNAME'],
             'symfconn' => $_ENV['DATABASE_URL'],
             'webhost' => $_SERVER['HTTP_HOST'],
 
