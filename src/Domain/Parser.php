@@ -117,7 +117,6 @@ class Parser {
         $text = $entity->getText();
 
         $punct = ParserPunctuation::PUNCTUATION;
-        $punctchars = $punct . "\]";
 
         // Initial cleanup.
         $text = str_replace("\r\n", "\n", $text);
@@ -157,7 +156,7 @@ class Parser {
         $text = preg_replace(
             array(
                 '/([^' . $termchar . '])/u',
-                '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u',
+                '/\n([' . $splitSentence . '][' . $punct . '\]]*)\n\t/u',
                 '/([0-9])[\n]([:.,])[\n]([0-9])/u'
             ),
             array("\n$1\n", "$1", "$1$2$3"),
@@ -259,7 +258,6 @@ class Parser {
         };
 
         $punct = ParserPunctuation::PUNCTUATION;
-        $punctchars = $punct . "\]";
 
         $splitSentence = $lang->getLgRegexpSplitSentences();
         $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
@@ -279,7 +277,7 @@ class Parser {
             [ "¶", "¶\r" ],
             [ " ¶", "\r¶" ],
             [ '/([^' . $termchar . '])/u', "\n$1\n" ],
-            [ '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u', "\n$1\n" ],
+            [ '/\n([' . $splitSentence . '][' . $punct . '\]]*)\n\t/u', "\n$1\n" ],
             [ '/([0-9])[\n]([:.,])[\n]([0-9])/u', "$1$2$3" ],
             [ "\t", "\n" ],
             [ "\n\n", "" ],
