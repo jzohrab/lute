@@ -95,7 +95,8 @@ class Parser {
         // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
 
         $arr = $this->build_insert_array($newcleantext);
-
+        $this->load_temptextitemsXXX_from_array($arr);
+        
         $this->load_temptextitems($newcleantext);
 
         $this->import_temptextitems($text);
@@ -342,6 +343,59 @@ class Parser {
 
         // var_dump($arr);
         return $arr;
+    }
+
+
+    // Load array
+    private function load_temptextitemsXXX_from_array(array $arr) {
+        $this->conn->query("drop table if exists temptextitemsXXX");
+
+        // Note the charset/collation here is very important!
+        // If not used, then when the import is done, a new text item
+        // can match to both an accented *and* unaccented word.
+        $sql = "CREATE TABLE temptextitemsXXX (
+          TiSeID mediumint(8) unsigned NOT NULL,
+          TiOrder smallint(5) unsigned NOT NULL,
+          TiWordCount tinyint(3) unsigned NOT NULL,
+          TiText varchar(250) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+        ) ENGINE=MEMORY DEFAULT CHARSET=utf8";
+        $this->conn->query($sql);
+
+        $chunks = array_chunk($arr, 1000);
+
+        foreach ($chunks as $chunk) {
+            $this->insert_array_chunk($chunk);
+        }
+    }
+
+    // Insert each record in chunk in a prepared statement,
+    // where chunk record is [ sentence_num, ord, wordcount, word ].
+    private function insert_array_chunk(array $chunk) {
+        $sqlbase = "insert into temptextitemsXXX values ";
+        $n = count($chunk);
+        $valplaceholders = str_repeat("(?,?,?,?),", $n);
+        $valplaceholders = rtrim($valplaceholders, ',');
+        $parmtypes = str_repeat("iiis", $n);
+
+        // Flatten the records in the chunks.
+        // Ref belyas's solution in https://gist.github.com/SeanCannon/6585889.
+        $prmarray = [];
+        array_map(
+            function($arr) use (&$prmarray) {
+                $prmarray = array_merge($prmarray, $arr);
+            },
+            $chunk
+        );
+
+        $sql = $sqlbase . $valplaceholders;
+        // echo $sql . "\n";
+        // echo $parmtypes . "\n";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param($parmtypes, ...$prmarray);
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
     }
 
     /**
