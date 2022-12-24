@@ -84,10 +84,6 @@ class Parser {
 
         $arr = $this->build_insert_array($newcleantext);
         $this->load_temptextitems_from_array($arr);
-
-        // TODO: obsolete.  Now just using plain old insert statements.
-        // $this->load_temptextitems($newcleantext);
-
         $this->import_temptextitems($text);
 
         TextStatsCache::force_refresh($text);
@@ -393,68 +389,6 @@ class Parser {
         }
     }
 
-    // TODO:obsolete - legacy loading using "load local infile",
-    // which isn't merited by the amount of data we're loading,
-    // and potentially creates configuration problems for users.
-    /**
-     * Load temptextitems using load local infile.
-     */
-    /*
-    private function load_temptextitems($text)
-    {
-        $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
-        $fp = fopen($file_name, 'w');
-        fwrite($fp, $text);
-        fclose($fp);
-
-        // echo "\n-------------\n";
-        // echo $text;
-        // echo "\n-------------\n";
-
-        $this->conn->query("drop table if exists temptextitems");
-
-        // Note the charset/collation here is very important!
-        // If not used, then when the import is done, a new text item
-        // can match to both an accented *and* unaccented word.
-        $sql = "CREATE TABLE temptextitems (
-          TiSeID mediumint(8) unsigned NOT NULL,
-          TiOrder smallint(5) unsigned NOT NULL,
-          TiWordCount tinyint(3) unsigned NOT NULL,
-          TiText varchar(250) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-        ) ENGINE=MEMORY DEFAULT CHARSET=utf8";
-        $this->conn->query($sql);
-
-        $this->conn->query("SET @order=0, @sid=0, @count=0");
-        // TODO:fix? - fix the text file to be loaded so it already has
-        // order, sid, and count ... no need for this query to have more
-        // logic.
-
-        $file_name = mysqli_real_escape_string($this->conn, $file_name);
-        $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
-        INTO TABLE temptextitems
-        FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
-        SET
-            TiSeID = @sid,
-            TiOrder = IF(
-                @term LIKE '%\\r',
-                CASE
-                    WHEN (@term:=REPLACE(@term,'\\r','')) IS NULL THEN NULL
-                    WHEN (@sid:=@sid+1) IS NULL THEN NULL
-                    WHEN @count:= 0 IS NULL THEN NULL
-                    ELSE @order := @order+1
-                END,
-                @order := @order+1
-            ),
-            TiText = @term,
-            TiWordCount = @word_count";
-
-        if (!($this->conn->query($sql))) {
-            $msg = "Query execute failed: ERRNO: (" . $this->conn->errno . ") " . $this->conn->error;
-            throw new \Exception($msg);
-        };
-        unlink($file_name);
-    }
-    */
 
     // TODO:refactor - this code is tough to follow. :-)
     /**
