@@ -48,35 +48,13 @@ class IndexController extends AbstractController
             ]);
         }
 
-        $serversoft = explode(' ', $_SERVER['SERVER_SOFTWARE']);
-        $apache = "Apache/?";
-        if (substr($serversoft[0], 0, 7) == "Apache/") { 
-            $apache = $serversoft[0]; 
-        }
-        $php = phpversion();
-
-        // $conn = $repo->getEntityManager()->getConnection();
         $conn = $doctrine->getConnection();
         $mysql = $conn
                ->executeQuery("SELECT VERSION() as value")
                ->fetchNumeric()[0];
-
-        // TODO: eventually, get rid of this config file. :-)
-        $connect_inc = __DIR__ . '/../../connect.inc.php';
-        require $connect_inc;
-        global $dbname, $server;
-
         [ $txid, $txtitle ] = $this->get_current_text($conn);
 
         return $this->render('index.html.twig', [
-            'serversoft' => $serversoft,
-            'apache' => $apache,
-            'php' => $php,
-            'mysql' => $mysql,
-            'dbname' => $dbname,
-            'server' => $server,
-            'symfconn' => $_ENV['DATABASE_URL'],
-            'webhost' => $_SERVER['HTTP_HOST'],
             'currtxid' => $txid,
             'currtxtitle' => $txtitle
         ]);
