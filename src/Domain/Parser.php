@@ -216,6 +216,9 @@ class Parser {
             $src = $r[0];
             $tgt = $r[1];
 
+            echo "=====================\n";
+            echo "Applying '$src' \n\n";
+
             if (! is_string($tgt)) {
                 $text = preg_replace_callback($src, $tgt, $text);
             }
@@ -226,6 +229,9 @@ class Parser {
                     $text = str_replace($src, $tgt, $text);
             }
 
+            echo "text is ---------------------\n";
+            echo str_replace("\r", "<RET>\n", $text);
+            echo "\n-----------------------------\n";
         }
         return $text;
     }
