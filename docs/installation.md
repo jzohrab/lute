@@ -7,7 +7,7 @@ This project does not have "GitHub releases" yet, so just clone the repo to your
 The setup for this project is much the same as [LWT](https://github.com/HugoFara/lwt):
 
 * get an Apache server with PHP and MySQL _(note: setting up "load local infile" is not required)_
-* create a "connect.inc.php"
+* create a ".env.local" (and ".env.test.local" if you're running tests)
 
 Unlike LWT, which just uses plain php files, Lute uses the [symfony](https://symfony.com/) framework, and so has more requirements:
 
@@ -66,6 +66,6 @@ Add the line
 
 Then in a browser window, go to http://lute.local:8080/ - if it pops up, your basic mappings are fine.
 
-### connect.inc.php
+### .env, .env.test, .env.local, and .env.test.local
 
-Copy the file `connect.inc.php.example` to `connect.inc.php`, and specify your values for the variables (server, userid, password, db name).
+TODO:documentation_env_files

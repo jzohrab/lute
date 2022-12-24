@@ -15,7 +15,7 @@ Then install dependencies:
 
 Most tests hit the database, and refuse to run unless the database name starts with 'test_'.  This prevents you from destroying real data!
 
-In your connect.inc.php, change the `$dbname` to `test_<whatever>`, and create the `test_<whatever>` db using a dump from your actual db, or just create a new one.  Then the tests will work.
+The `.env.test` has a good db name already.  If you're using an `.env.test.local`, then set the DB_DATABASE to `test_<whatever>`, and create the `test_<whatever>` db using a dump from your actual db, or just create a new one.  Then the tests will work.
 
 **You have to use the config file phpunit.xml.dist when running tests!**  So either specify that file, or use the composer test command:
 

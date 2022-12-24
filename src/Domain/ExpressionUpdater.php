@@ -6,8 +6,8 @@ use App\Entity\Text;
 use App\Entity\Term;
 use App\Entity\Language;
 use App\Repository\TermRepository;
+use App\Utils\Connection;
 
-require_once __DIR__ . '/../../connect.inc.php';
 
 
 class ExpressionUpdater {
@@ -36,10 +36,7 @@ class ExpressionUpdater {
 
     public function __construct()
     {
-        global $userid, $passwd, $server, $dbname; // From connect.inc.php
-        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
-        @mysqli_query($conn, "SET SESSION sql_mode = ''");
-        $this->conn = $conn;
+        $this->conn = Connection::getFromEnvironment();
     }
 
     /** PRIVATE **/

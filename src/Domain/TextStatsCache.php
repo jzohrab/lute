@@ -6,8 +6,7 @@ use App\Entity\Text;
 use App\Entity\Term;
 use App\Entity\Language;
 use App\Repository\TermRepository;
-
-require_once __DIR__ . '/../../connect.inc.php';
+use App\Utils\Connection;
 
 
 /**
@@ -193,9 +192,7 @@ where maxwsc > tsc.updatedDate";
 
     private static function getConnection()
     {
-        global $userid, $passwd, $server, $dbname; // From connect.inc.php
-        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
-        return $conn;
+        return Connection::getFromEnvironment()
     }
 
     private static function exec_sql($sql, $params = null) {
