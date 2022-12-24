@@ -36,23 +36,6 @@ class IndexController extends AbstractController
     {
         $errors = [];
 
-        /*
-        // Note: the presence of connect.inc.php is already checked in 
-        // the front controller public/index.php.
-        //
-        // In future that check might be moved here, so leaving this code.
-        //
-        $connect_inc = __DIR__ . '/../../connect.inc.php';
-        if (!file_exists($connect_inc)) {
-            $errors[] = "Cannot find file: connect.inc.php." .
-                   " Please create the file from connect.inc.php.example.";
-            // Quit, no point in going further.
-            return $this->render('index_error.html.twig', [
-                'errors' => $errors,
-            ]);
-        }
-        */
-
         $outstanding = \MigrationHelper::get_pending_migrations();
         if (count($outstanding) > 0) {
             $n = count($outstanding);

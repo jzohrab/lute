@@ -14,7 +14,7 @@ class Connection {
                 throw new \Exception("Empty ENV key $key");
             return $ret;
         };
-                    
+
         $server = $getOrThrow('DB_HOSTNAME');
         $userid = $getOrThrow('DB_USER');
         $passwd = $getOrThrow('DB_PASSWORD');
