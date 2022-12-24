@@ -192,7 +192,7 @@ where maxwsc > tsc.updatedDate";
 
     private static function getConnection()
     {
-        return Connection::getFromEnvironment()
+        return Connection::getFromEnvironment();
     }
 
     private static function exec_sql($sql, $params = null) {
