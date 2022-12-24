@@ -14,21 +14,8 @@
           <directory name="db" />
           <directory name="var" />
           <directory name="vendor" />
-          <file name="connect.inc.php" />
         </ignoreFiles>
     </projectFiles>
-
-    <globals>
-        <!-- Globals from connect.inc.php -->
-        <var name="$server" type="string" />
-        <var name="$userid" type="string" />
-        <var name="$passwd" type="string" />
-        <var name="$dbname" type="string" />
-    </globals>
-
-    <stubs>
-        <file name="connect.inc.php.example" />
-    </stubs>
 
     <issueHandlers>
 

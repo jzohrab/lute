@@ -77,7 +77,7 @@ Since database tests are destructive (delete/edit/change data),
 you must use a dedicated test database when running tests.
 
 1. Create a new database called 'test_<whatever_you_want>'
-2. Update your connect.inc.php to use this new db
+2. Update your env.test.local to use this new db
 3. Run the tests.
 *************************************************************
 ";
