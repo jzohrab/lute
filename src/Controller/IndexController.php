@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Utils\Connection;
 
 require_once __DIR__ . '/../../db/lib/migration_helper.php';
 
@@ -32,7 +33,7 @@ class IndexController extends AbstractController
 
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
-    public function index(ManagerRegistry $doctrine): Response
+    public function index(): Response
     {
         $errors = [];
 
@@ -48,10 +49,7 @@ class IndexController extends AbstractController
             ]);
         }
 
-        $conn = $doctrine->getConnection();
-        $mysql = $conn
-               ->executeQuery("SELECT VERSION() as value")
-               ->fetchNumeric()[0];
+        $conn = Connection::getFromEnvironment();
         [ $txid, $txtitle ] = $this->get_current_text($conn);
 
         return $this->render('index.html.twig', [
@@ -61,7 +59,7 @@ class IndexController extends AbstractController
     }
 
     #[Route('/server_info', name: 'app_server_info', methods: ['GET'])]
-    public function server_info(ManagerRegistry $doctrine): Response
+    public function server_info(): Response
     {
         $serversoft = explode(' ', $_SERVER['SERVER_SOFTWARE']);
         $apache = "Apache/?";
@@ -70,8 +68,7 @@ class IndexController extends AbstractController
         }
         $php = phpversion();
 
-        // $conn = $repo->getEntityManager()->getConnection();
-        $conn = $doctrine->getConnection();
+        $conn = Connection::getFromEnvironment();
         $mysql = $conn
                ->executeQuery("SELECT VERSION() as value")
                ->fetchNumeric()[0];
