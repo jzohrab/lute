@@ -263,31 +263,31 @@ class Parser {
         $splitThenPunct = "[{$splitSentence}][{$punct}]*";
 
         $text = $this->do_replacements($text, [
-            [ "\r\n", "\n" ],
-            [ '}', ']'],
-            [ '{', '['],
-            [ "\n", " ¶" ],
+            [ "\r\n",  "\n" ],
+            [ '{',     '['],
+            [ '}',     ']'],
+            [ "\n",    ' ¶' ],
 
             $lang->isLgSplitEachChar() ?
             [ '/([^\s])/u', "$1\t" ] : 'skip',
 
             'trim',
-            [ '/\s+/u', ' ' ],
-            [ $resplitsent, $splitSentencecallback ],
-            [ "¶", "¶\r" ],
-            [ " ¶", "\r¶" ],
-            [ '/([^' . $termchar . '])/u', "\n$1\n" ],
+            [ '/\s+/u',                             ' ' ],
+            [ $resplitsent,                         $splitSentencecallback ],
+            [ "¶",                                  "¶\r" ],
+            [ " ¶",                                 "\r¶" ],
+            [ '/([^' . $termchar . '])/u',          "\n$1\n" ],
             [ '/\n(' . $splitThenPunct . ')\n\t/u', "\n$1\n" ],
-            [ '/([0-9])[\n]([:.,])[\n]([0-9])/u', "$1$2$3" ],
-            [ "\t", "\n" ],
-            [ "\n\n", "" ],
-            [ "/\r(?=[{$punct} ]*\r)/u", "" ],
-            [ '/[\n]+\r/u', "\r" ],
-            [ '/\r([^\n])/u', "\r\n$1" ],
-            [ "/\n[.](?![{$punct}]*\r)/u", ".\n" ],
+            [ '/([0-9])[\n]([:.,])[\n]([0-9])/u',   "$1$2$3" ],
+            [ "\t",                                 "\n" ],
+            [ "\n\n",                               "" ],
+            [ "/\r(?=[{$punct} ]*\r)/u",            "" ],
+            [ '/[\n]+\r/u',                         "\r" ],
+            [ '/\r([^\n])/u',                       "\r\n$1" ],
+            [ "/\n[.](?![{$punct}]*\r)/u",          ".\n" ],
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
-            [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
+            [ "/(\n|^)(?!1\t)/u",                   "\n0\t" ],
 
             $lang->isLgRemoveSpaces() ?
             [ ' ', '' ] : 'skip',
