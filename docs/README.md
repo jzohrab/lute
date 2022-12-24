@@ -29,4 +29,5 @@ _Everything is, of course, a work in progress._
 * [Lute and alternatives](./lute_and_alternatives.md)
 * [restrictions](./restrictions.md)
 * [third party licenses](./thirdpartylicenses.md)
+* [adding the gif to the readme](./adding_readme_gif.md)
 * [CHANGELOG](./CHANGELOG.md)

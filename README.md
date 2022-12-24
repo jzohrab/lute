@@ -4,7 +4,9 @@ This is a fork and ground-up rewrite of [Hugo Fara's fork](https://github.com/hu
 
 > Lute would never have existed without the original Learning With Texts and Hugo Fara's subsequent efforts, so **a big thanks to both of these projects.**
 
-> TODO:docs - add a screencast gif.
+[comment]: # (See docs/adding_readme_gif.md for notes)
+
+![A small demo](https://user-images.githubusercontent.com/1637133/209414488-1d2d63db-6790-452c-bfae-837afed822b2.gif)
 
 
 Main links:
