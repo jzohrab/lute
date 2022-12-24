@@ -61,7 +61,7 @@ class DbHelpers {
     }
     
     public static function ensure_using_test_db() {
-        global $dbname;
+        $dbname = $_ENV['DB_DATABASE'];
         $conn_db_name = DbHelpers::get_first_value("SELECT DATABASE()");
 
         foreach([$dbname, $conn_db_name] as $s) {
