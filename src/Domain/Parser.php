@@ -318,6 +318,10 @@ class Parser {
     }
 
 
+    // Instance state required while loading temp table:
+    private int $sentence_number = 0;
+    private int $ord = 0;
+
     /**
      * Convert each non-empty line of text into an array
      * [ sentence_number, order, wordcount, word ].
@@ -326,22 +330,17 @@ class Parser {
         $lines = explode("\n", $text);
         $lines = array_filter($lines, fn($s) => $s != '');
 
-        global $sentence_number, $ord;
-        $sentence_number = 0;
-        $ord = 0;
-
         // Make the array row, incrementing $sentence_number as
         // needed.
-        $makeentry = function($line) use ($sentence_number, $ord) {
-            global $sentence_number, $ord;
+        $makeentry = function($line) {
             [ $wordcount, $s ] = explode("\t", $line);
-            $ord += 1;
-            $ret = [ $sentence_number, $ord, intval($wordcount), rtrim($s, "\r") ];
+            $this->ord += 1;
+            $ret = [ $this->sentence_number, $this->ord, intval($wordcount), rtrim($s, "\r") ];
 
             // Word ending with \r marks the end of the current
             // sentence.
             if (str_ends_with($s, "\r")) {
-                $sentence_number += 1;
+                $this->sentence_number += 1;
             }
             return $ret;
         };
