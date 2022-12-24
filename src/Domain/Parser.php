@@ -252,19 +252,17 @@ class Parser {
             }
         }
 
-        $splitSentencecallback = function($matches) use ($lang) {
-            $notEnd = $lang->getLgExceptionsSplitSentences();
-            return $this->find_latin_sentence_end($matches, $notEnd);
-        };
-
         $punct = ParserPunctuation::PUNCTUATION;
 
         $splitSentence = $lang->getLgRegexpSplitSentences();
-        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
-
         $termchar = $lang->getLgRegexpWordCharacters();
 
-        
+        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
+        $splitSentencecallback = function($matches) use ($lang) {
+            $splitex = $lang->getLgExceptionsSplitSentences();
+            return $this->find_latin_sentence_end($matches, $splitex);
+        };
+
         $text = $this->do_replacements($text, [
             [ "\r\n", "\n" ],
             [ '}', ']'],
