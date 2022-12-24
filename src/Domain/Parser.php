@@ -201,9 +201,13 @@ class Parser {
     // A (possibly) easier way to do substitutions -- each
     // pair in $replacements is run in order.
     // Possible entries:
-    // ( <src string or regex string (starting with '/')>, <target (string or callback)> [, <condition>] )
+    // ( <src string or regex string (starting with '/')>, <target (string or callback)> )
     private function do_replacements($text, $replacements) {
         foreach($replacements as $r) {
+            if ($r == 'skip') {
+                continue;
+            }
+
             if ($r == 'trim') {
                 $text = trim($text);
                 continue;
@@ -212,23 +216,16 @@ class Parser {
             $src = $r[0];
             $tgt = $r[1];
 
-            if (count($r) == 3) {
-                if ($r[2] == false) {
-                    continue;
-                }
-            }
-
-            if (is_string($tgt)) {
-                if (substr($src, 0, 1) == '/') {
-                    $text = preg_replace($src, $tgt, $text);
-                }
-                else {
-                    $text = str_replace($src, $tgt, $text);
-                }
-            }
-            else {
+            if (! is_string($tgt)) {
                 $text = preg_replace_callback($src, $tgt, $text);
             }
+            else {
+                if (substr($src, 0, 1) == '/')
+                    $text = preg_replace($src, $tgt, $text);
+                else
+                    $text = str_replace($src, $tgt, $text);
+            }
+
         }
         return $text;
     }
@@ -270,7 +267,10 @@ class Parser {
             [ '}', ']'],
             [ '{', '['],
             [ "\n", " ¶" ],
-            [ '/([^\s])/u', "$1\t", $lang->isLgSplitEachChar() ],
+
+            $lang->isLgSplitEachChar() ?
+            [ '/([^\s])/u', "$1\t" ] : 'skip',
+
             'trim',
             [ '/\s+/u', ' ' ],
             [ $resplitsent, $splitSentencecallback ],
@@ -288,7 +288,10 @@ class Parser {
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
             [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
-            [ ' ', '', $lang->isLgRemoveSpaces() ],
+
+            $lang->isLgRemoveSpaces() ?
+            [ ' ', '' ] : 'skip',
+
             'trim'
         ]);
         
