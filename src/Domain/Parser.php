@@ -95,9 +95,9 @@ class Parser {
         // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
 
         $arr = $this->build_insert_array($newcleantext);
-        $this->load_temptextitemsXXX_from_array($arr);
+        $this->load_temptextitems_from_array($arr);
         
-        $this->load_temptextitems($newcleantext);
+        // $this->load_temptextitems($newcleantext);
 
         $this->import_temptextitems($text);
 
@@ -333,10 +333,15 @@ class Parser {
         $makeentry = function($line) use ($sentence_number, $ord) {
             global $sentence_number, $ord;
             [ $wordcount, $s ] = explode("\t", $line);
-            if (str_ends_with($s, "\r"))
-                $sentence_number += 1;
             $ord += 1;
-            return [ $sentence_number, $ord, intval($wordcount), $s ];
+            $ret = [ $sentence_number, $ord, intval($wordcount), rtrim($s, "\r") ];
+
+            // Word ending with \r marks the end of the current
+            // sentence.
+            if (str_ends_with($s, "\r")) {
+                $sentence_number += 1;
+            }
+            return $ret;
         };
 
         $arr = array_map($makeentry, $lines);
@@ -347,13 +352,13 @@ class Parser {
 
 
     // Load array
-    private function load_temptextitemsXXX_from_array(array $arr) {
-        $this->conn->query("drop table if exists temptextitemsXXX");
+    private function load_temptextitems_from_array(array $arr) {
+        $this->conn->query("drop table if exists temptextitems");
 
         // Note the charset/collation here is very important!
         // If not used, then when the import is done, a new text item
         // can match to both an accented *and* unaccented word.
-        $sql = "CREATE TABLE temptextitemsXXX (
+        $sql = "CREATE TABLE temptextitems (
           TiSeID mediumint(8) unsigned NOT NULL,
           TiOrder smallint(5) unsigned NOT NULL,
           TiWordCount tinyint(3) unsigned NOT NULL,
@@ -371,7 +376,7 @@ class Parser {
     // Insert each record in chunk in a prepared statement,
     // where chunk record is [ sentence_num, ord, wordcount, word ].
     private function insert_array_chunk(array $chunk) {
-        $sqlbase = "insert into temptextitemsXXX values ";
+        $sqlbase = "insert into temptextitems values ";
         $n = count($chunk);
         $valplaceholders = str_repeat("(?,?,?,?),", $n);
         $valplaceholders = rtrim($valplaceholders, ',');
@@ -398,9 +403,11 @@ class Parser {
         }
     }
 
+    // TODO:remove - legacy
     /**
      * Load temptextitems using load local infile.
      */
+    /*
     private function load_temptextitems($text)
     {
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
@@ -408,11 +415,9 @@ class Parser {
         fwrite($fp, $text);
         fclose($fp);
 
-        /*
-        echo "\n-------------\n";
-        echo $text;
-        echo "\n-------------\n";
-        */
+        // echo "\n-------------\n";
+        // echo $text;
+        // echo "\n-------------\n";
 
         $this->conn->query("drop table if exists temptextitems");
 
@@ -457,7 +462,7 @@ class Parser {
         };
         unlink($file_name);
     }
-
+    */
 
     // TODO:refactor - this code is tough to follow. :-)
     /**
