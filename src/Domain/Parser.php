@@ -252,7 +252,7 @@ class Parser {
             }
         }
 
-        $punct = ParserPunctuation::PUNCTUATION;
+        $punct = ParserPunctuation::PUNCTUATION . '\]';
 
         $splitSentence = $lang->getLgRegexpSplitSentences();
         $termchar = $lang->getLgRegexpWordCharacters();
@@ -275,14 +275,14 @@ class Parser {
             [ "¶", "¶\r" ],
             [ " ¶", "\r¶" ],
             [ '/([^' . $termchar . '])/u', "\n$1\n" ],
-            [ '/\n([' . $splitSentence . '][' . $punct . '\]]*)\n\t/u', "\n$1\n" ],
+            [ '/\n([' . $splitSentence . '][' . $punct . ']*)\n\t/u', "\n$1\n" ],
             [ '/([0-9])[\n]([:.,])[\n]([0-9])/u', "$1$2$3" ],
             [ "\t", "\n" ],
             [ "\n\n", "" ],
-            [ "/\r(?=[]$punct ]*\r)/u", "" ],
+            [ "/\r(?=[{$punct} ]*\r)/u", "" ],
             [ '/[\n]+\r/u', "\r" ],
             [ '/\r([^\n])/u', "\r\n$1" ],
-            [ "/\n[.](?![]$punct]*\r)/u", ".\n" ],
+            [ "/\n[.](?![{$punct}]*\r)/u", ".\n" ],
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
             [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
