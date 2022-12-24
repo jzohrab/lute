@@ -116,6 +116,9 @@ class Parser {
 
         $text = $entity->getText();
 
+        $punct = ParserPunctuation::PUNCTUATION;
+        $punctchars = $punct . "\]";
+
         // Initial cleanup.
         $text = str_replace("\r\n", "\n", $text);
         // because of sentence special characters
@@ -144,14 +147,13 @@ class Parser {
             $notEnd = $lang->getLgExceptionsSplitSentences();
             return $this->find_latin_sentence_end($matches, $notEnd);
         };
-        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
+        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
         $text = preg_replace_callback($re, $callback, $text);
 
         // Para delims include \r
         $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
 
         $termchar = $lang->getLgRegexpWordCharacters();
-        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
         $text = preg_replace(
             array(
                 '/([^' . $termchar . '])/u',
@@ -166,10 +168,10 @@ class Parser {
 
         $text = preg_replace(
                 array(
-                    "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u",
+                    "/\r(?=[]$punct ]*\r)/u",
                     '/[\n]+\r/u',
                     '/\r([^\n])/u',
-                    "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u",
+                    "/\n[.](?![]$punct]*\r)/u",
                     "/(\n|^)(?=.?[$termchar][^\n]*\n)/u"
                 ),
                 array(
@@ -256,11 +258,14 @@ class Parser {
             return $this->find_latin_sentence_end($matches, $notEnd);
         };
 
+        $punct = ParserPunctuation::PUNCTUATION;
+        $punctchars = $punct . "\]";
+
         $splitSentence = $lang->getLgRegexpSplitSentences();
-        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
+        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
 
         $termchar = $lang->getLgRegexpWordCharacters();
-        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
+
         
         $text = $this->do_replacements($text, [
             [ "\r\n", "\n" ],
@@ -278,10 +283,10 @@ class Parser {
             [ '/([0-9])[\n]([:.,])[\n]([0-9])/u', "$1$2$3" ],
             [ "\t", "\n" ],
             [ "\n\n", "" ],
-            [ "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u", "" ],
+            [ "/\r(?=[]$punct ]*\r)/u", "" ],
             [ '/[\n]+\r/u', "\r" ],
             [ '/\r([^\n])/u', "\r\n$1" ],
-            [ "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u", ".\n" ],
+            [ "/\n[.](?![]$punct]*\r)/u", ".\n" ],
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
             [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
