@@ -94,6 +94,8 @@ class Parser {
         }
         // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
 
+        $arr = $this->build_insert_array($newcleantext);
+
         $this->load_temptextitems($newcleantext);
 
         $this->import_temptextitems($text);
@@ -314,6 +316,33 @@ class Parser {
         return $text;
     }
 
+
+    /**
+     * Convert each non-empty line of text into an array
+     * [ sentence_number, order, wordcount, word ].
+     */
+    private function build_insert_array($text): array {
+        $lines = explode("\n", $text);
+        $lines = array_filter($lines, fn($s) => $s != '');
+        $sentence_number = 0;
+        $ord = 0;
+
+        // Make the array row, incrementing $sentence_number as
+        // needed.
+        $makeentry = function($line) use ($sentence_number, $ord) {
+            global $sentence_number, $ord;
+            [ $wordcount, $s ] = explode("\t", $line);
+            if (str_ends_with($s, "\r"))
+                $sentence_number += 1;
+            $ord += 1;
+            return [ $sentence_number, $ord, intval($wordcount), $s ];
+        };
+
+        $arr = array_map($makeentry, $lines);
+
+        // var_dump($arr);
+        return $arr;
+    }
 
     /**
      * Load temptextitems using load local infile.
