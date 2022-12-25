@@ -80,6 +80,17 @@ class MigrationHelper {
         $c = intval($check['c']);
         return $c == 0;
     }
+
+    public static function loadDemoData() {
+        $files = [
+            'data.sql'
+        ];
+        foreach ($files as $f) {
+            $basepath = __DIR__ . '/../../db/demo/';
+            MigrationHelper::process_file($basepath . $f);
+        }
+    }
+
 }
 
 ?>
