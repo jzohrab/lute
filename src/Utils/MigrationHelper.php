@@ -41,6 +41,11 @@ class MigrationHelper {
         return $migration->get_pending();
     }
 
+    public static function hasPendingMigrations() {
+        $migration = MigrationHelper::getMigrator();
+        return count($migration->get_pending()) > 0;
+    }
+
 }
 
 ?>

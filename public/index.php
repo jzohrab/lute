@@ -17,13 +17,11 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 
-/*
 [ $messages, $error ] = DatabaseSetup::doSetup();
 if ($error != null) {
     echo $error;
     die();
 }
-*/
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);

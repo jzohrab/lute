@@ -26,7 +26,7 @@ class DatabaseSetup {
             }
             if (MigrationHelper::hasPendingMigrations()) {
                 MigrationHelper::runMigrations();
-                $messages[] = [ 'notice', 'Database updated' ];
+                $messages[] = [ 'Database updated' ];
             }
         }
         catch (\Exception $e) {
