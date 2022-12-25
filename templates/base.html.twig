@@ -74,11 +74,11 @@
 
     {% endif %}
 
-    {% for message in app.flashes('notice') %}
+    {% if app.request.server.get('DB_UPDATE_NOTES') %}
     <div class="flash-notice">
-      {{ message }}
+      {{ app.request.server.get('DB_UPDATE_NOTES') }}
     </div>
-    {% endfor %}
+    {% endif %}
 
     {% block body %}{% endblock %}
   </body>

@@ -17,16 +17,20 @@ class DatabaseSetup {
 
         $messages = [];
         $error = null;
+        $newdbcreated = false;
         try {
             Connection::verifyConnectionParams();
             if (! Connection::databaseExists()) {
                 Connection::createBlankDatabase();
                 MigrationHelper::installBaseline();
-                $messages[] = 'New database created';
+                $newdbcreated = true;
+                $messages[] = 'New database created.';
             }
             if (MigrationHelper::hasPendingMigrations()) {
                 MigrationHelper::runMigrations();
-                $messages[] = 'Database updated';
+                if (! $newdbcreated) {
+                    $messages[] = 'Database updated.';
+                }
             }
         }
         catch (\Exception $e) {
