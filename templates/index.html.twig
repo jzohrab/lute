@@ -22,6 +22,13 @@
 {% if isdemodb %}
 <div class="flash-notice">
   <p>Lute is currently using a demo database, <b>lute_demo</b>.</p>
+
+  {% if demoisempty %}
+  <p>The demo db is currently empty.  You
+  can <a href="/demo/load">load some demo data</a>, or define your own
+  languages and texts to try it out.</p>
+  {% endif %}
+
   <p>When you are done testing out the demo, update
   your <b>.env.local</b> configuration file to your real database
   name.  (Lute will create that database for you, if it doesn't
@@ -31,13 +38,6 @@
 
 <div id="userlinks" style="margin-top: 30px;">
   <ul>
-
-    {% if demoisempty %}
-    <li>
-      The demo db is currently empty.
-      <a href="/demo/load">Load some demo data.<a>
-    </li>
-    {% endif %}
 
     {% if currtxid is not null %}
     <li>
