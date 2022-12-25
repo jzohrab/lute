@@ -6,23 +6,25 @@
 
 | Key         | Action                                                           |
 |----------------|---------------------------------------------------------------------|
-| RETURN         | Move to next unknown word   |
-| RIGHT          | Move to next word                                                   |
-| RIGHT + Shift  | Move to next unknown or learning word (skip known and ignored)      |
-| LEFT           | Move to previous word                                               |
-| LEFT + Shift   | Move to previous unknown or learning word (skip known and ignored)  |
-| HOME           | Move to first word  |
-| END            | Move to last word   |
-| ESC            | Reset marked term(s)                                                |
+| Return         | Move to next unknown word   |
+| Right          | Move to next word                                                   |
+| Right + Shift  | Move to next unknown or learning word (skip known and ignored)      |
+| Left           | Move to previous word                                               |
+| Left + Shift   | Move to previous unknown or learning word (skip known and ignored)  |
+| Home           | Move to first word  |
+| End            | Move to last word   |
+| Esc            | Reset marked term(s)                                                |
 
 
 ## Updating status
 
+When a term is selected, you can edit its status with a keystroke:
+
 | Key            | Set status of marked term(s) to        |
 |----------------|----------------------------------------|
-| 1, 2, 3, 4, 5  | 1, 2, 3, 4, or 5                       |
+| 1 - 5          | 1 (Learning) to 5 (Learned)            |
 | I              | "Ignored"                              |
 | W              | "Well Known"                           |
 
 
-You can also "bulk update" statuses by holding down Shift and clicking with the mouse.  All of the underlined terms will then be affected when you hit 1,2,...,W.
+You can also "bulk update" statuses by holding down Shift and clicking with the mouse.  All of the underlined terms will then be affected when you hit 1, 2, etc.
