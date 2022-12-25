@@ -11,36 +11,19 @@ use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
-use App\Utils\Connection;
-use App\Utils\MigrationHelper;
+use App\Utils\DatabaseSetup;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 
-
-$flash_messages = [];
-try {
-    Connection::verifyConnectionParams();
-    if (! Connection::databaseExists()) {
-        Connection::createBlankDatabase();
-        MigrationHelper::installBaseline();
-        $flash_messages[] = [ 'notice', 'New database created' ];
-    }
-    if (MigrationHelper::hasPendingMigrations()) {
-        MigrationHelper::runMigrations();
-        $flash_messages[] = [ 'notice', 'Database updated' ];
-    }
-}
-catch (\Exception $e) {
-    // ref https://twig.symfony.com/doc/2.x/api.html
-    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
-    $twig = new \Twig\Environment($loader);
-    $template = $twig->load('fatal_error.html.twig');
-    echo $template->render(['errors' => [ $e->getMessage(), 'something', 'here' ]]);
+/*
+[ $messages, $error ] = DatabaseSetup::doSetup();
+if ($error != null) {
+    echo $error;
     die();
 }
+*/
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);

@@ -9,8 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
-
-require_once __DIR__ . '/../../db/lib/migration_helper.php';
+use App\Utils\MigrationHelper;
 
 
 class IndexController extends AbstractController
@@ -36,7 +35,7 @@ class IndexController extends AbstractController
     {
         $errors = [];
 
-        $outstanding = \MigrationHelper::get_pending_migrations();
+        $outstanding = MigrationHelper::get_pending_migrations();
         if (count($outstanding) > 0) {
             $n = count($outstanding);
             $errors[] = "{$n} migrations outstanding (e.g., {$outstanding[0]}).  Please run 'composer db:migrate'";
