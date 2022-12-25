@@ -64,6 +64,22 @@ class MigrationHelper {
         }
     }
 
+    public static function isLuteDemo() {
+        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        return ($dbname == 'lute_demo');
+    }
+
+    public static function isEmptyDemo() {
+        if (! MigrationHelper::isLuteDemo())
+            return false;
+
+        $conn = Connection::getFromEnvironment();
+        $check = $conn
+               ->query('select count(*) as c from Languages')
+               ->fetch_array();
+        $c = intval($check['c']);
+        return $c == 0;
+    }
 }
 
 ?>

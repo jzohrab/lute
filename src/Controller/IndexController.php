@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
+use App\Utils\MigrationHelper;
 
 class IndexController extends AbstractController
 {
@@ -35,6 +36,8 @@ class IndexController extends AbstractController
         [ $txid, $txtitle ] = $this->get_current_text($conn);
 
         return $this->render('index.html.twig', [
+            'isdemodb' => MigrationHelper::isLuteDemo(),
+            'demoisempty' => MigrationHelper::isEmptyDemo(),
             'currtxid' => $txid,
             'currtxtitle' => $txtitle
         ]);
