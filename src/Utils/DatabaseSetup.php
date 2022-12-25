@@ -22,11 +22,11 @@ class DatabaseSetup {
             if (! Connection::databaseExists()) {
                 Connection::createBlankDatabase();
                 MigrationHelper::installBaseline();
-                $messages[] = [ 'New database created' ];
+                $messages[] = 'New database created';
             }
             if (MigrationHelper::hasPendingMigrations()) {
                 MigrationHelper::runMigrations();
-                $messages[] = [ 'Database updated' ];
+                $messages[] = 'Database updated';
             }
         }
         catch (\Exception $e) {

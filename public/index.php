@@ -17,12 +17,6 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 
-[ $messages, $error ] = DatabaseSetup::doSetup();
-if ($error != null) {
-    echo $error;
-    die();
-}
-
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
     Debug::enable();
@@ -40,8 +34,24 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false
 }
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+
+[ $messages, $error ] = DatabaseSetup::doSetup();
+if ($error != null) {
+    echo $error;
+    die();
+}
+
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
+
+foreach ($messages as $message) {
+    // ref https://symfony.com/doc/current/controller.html
+    //   #flash-messages
+    $request->getSession()
+        ->getFlashBag()
+        ->add('notice', $message);
+}
+
 $response->send();
 
 $kernel->terminate($request, $response);

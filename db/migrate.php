@@ -7,5 +7,5 @@ require __DIR__ . '/../vendor/autoload.php';
 (new Dotenv())->bootEnv(__DIR__ . '/../.env');
 
 echo "\nMigrating {$_ENV['DB_DATABASE']}\n\n";
-MigrationHelper::apply_migrations(true);
+MigrationHelper::runMigrations(true);
 ?>

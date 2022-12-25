@@ -27,23 +27,17 @@ class MigrationHelper {
         $migration = new \MysqlMigrator($dir, $repdir, $server, $dbname, $userid, $passwd, $showlogging);
         return $migration;
     }
-    
-    public static function apply_migrations($showlogging = false) {
-        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
-        $migration = MigrationHelper::getMigrator($showlogging);
-        $migration->exec("ALTER DATABASE `{$dbname}` CHARACTER SET utf8 COLLATE utf8_general_ci");
-        $migration->process();
-    }
-
-
-    public static function get_pending_migrations($showlogging = false) {
-        $migration = MigrationHelper::getMigrator($showlogging);
-        return $migration->get_pending();
-    }
 
     public static function hasPendingMigrations() {
         $migration = MigrationHelper::getMigrator();
         return count($migration->get_pending()) > 0;
+    }
+
+    public static function runMigrations($showlogging = false) {
+        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        $migration = MigrationHelper::getMigrator($showlogging);
+        $migration->exec("ALTER DATABASE `{$dbname}` CHARACTER SET utf8 COLLATE utf8_general_ci");
+        $migration->process();
     }
 
 }
