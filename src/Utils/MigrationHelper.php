@@ -40,6 +40,30 @@ class MigrationHelper {
         $migration->process();
     }
 
+    public static function installBaseline() {
+        $files = [
+            'baseline_schema.sql',
+            'reference_data.sql'
+        ];
+        foreach ($files as $f) {
+            $basepath = __DIR__ . '/../../db/baseline/';
+            MigrationHelper::process_file($basepath . $f);
+        }
+    }
+
+    private static function process_file($file) {
+        $conn = Connection::getFromEnvironment();
+        $commands = file_get_contents($file);
+        $conn->multi_query($commands);
+        do {
+            $conn->store_result();
+        } while ($conn->next_result());
+        
+        if ($conn->error) {
+            throw new \Exception($conn->error);
+        }
+    }
+
 }
 
 ?>
