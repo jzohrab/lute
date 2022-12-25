@@ -5,9 +5,7 @@ namespace App\Domain;
 use App\Entity\Text;
 use App\Entity\Language;
 use App\Domain\TextStatsCache;
-
-require_once __DIR__ . '/../../connect.inc.php';
-
+use App\Utils\Connection;
 
 class Parser {
 
@@ -18,15 +16,11 @@ class Parser {
         $p->parseText($text);
     }
 
-
     private $conn;
 
     public function __construct()
     {
-        global $userid, $passwd, $server, $dbname; // From connect.inc.php
-        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
-        @mysqli_query($conn, "SET SESSION sql_mode = ''");
-        $this->conn = $conn;
+        $this->conn = Connection::getFromEnvironment();
     }
 
     /** PRIVATE **/

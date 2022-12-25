@@ -11,8 +11,6 @@ use App\Repository\TermRepository;
 use App\Repository\TextRepository;
 use App\Repository\SettingsRepository;
 
-require_once __DIR__ . '/../../connect.inc.php';
-
 
 class ReadingFacade {
 

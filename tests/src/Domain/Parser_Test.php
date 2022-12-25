@@ -20,6 +20,10 @@ final class Parser_Test extends DatabaseTestBase
         // echo "tearing down ... \n";
     }
 
+    // Rewiring the constructor of Parser.
+    /**
+     * @group rewire
+     */
     public function test_existing_cruft_deleted() {
         $this->load_spanish_texts(false);
         $t = $this->spanish_hola_text;

@@ -24,7 +24,7 @@ mysqladmin -u root -proot create somedbname
 mysql -u root -proot somedbname < dbexport.sql
 ```
 
-**After you've imported the new db, change `connect.inc.php` to the new name.**
+**After you've imported the new db, change `.env.local` and `env.test.local` to use the new db.**
 
 Then verify the db, and run any outstanding migrations:
 

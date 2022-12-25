@@ -13,12 +13,10 @@
         <ini name="error_reporting" value="-1" />
 
         <!--
-        NOTE we use "prod" for the testing!!! because
-        the connect.ini.php is changed by the user
-        to run tests.  EVERY TEST SHOULD SAY ensure_using_test_db
-        at the top.
+        NOTE even though we specify "test" for the testing, EVERY TEST
+        SHOULD SAY ensure_using_test_db at the top.
         -->
-        <server name="APP_ENV" value="prod" force="true" />
+        <server name="APP_ENV" value="test" force="true" />
 
         <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_DEPRECATIONS_HELPER" value="max[total]=42" />

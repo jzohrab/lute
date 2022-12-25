@@ -7,33 +7,14 @@
  * Optionally (preferably?) use DatabaseTestBase.php.
  */
 
-/**
- * Users create a connect.inc.php file with db settings, so just
- * use that to create the db connection for symfony.
- *
- * This should be replaced with .env files or similar at some point.
- */
-require_once __DIR__ . '/../connect.inc.php';
-
-/**
- * @psalm-suppress InvalidGlobal
- */
-global $userid, $passwd, $server, $dbname;
-
-$DATABASE_URL = "mysql://{$userid}:{$passwd}@{$server}/{$dbname}?serverVersion=8&charset=utf8";
-$_ENV['DATABASE_URL'] = $DATABASE_URL;
-$_SERVER['DATABASE_URL'] = $DATABASE_URL;
-
 
 use PHPUnit\Framework\TestCase;
+use App\Utils\Connection;
 
 class DbHelpers {
 
     private static function get_connection() {
-        global $userid, $passwd, $server, $dbname; // From connect.inc.php
-        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
-        @mysqli_query($conn, "SET SESSION sql_mode = ''");
-        return $conn;
+        return Connection::getFromEnvironment();
     }
 
     public static function exec_sql_get_result($sql, $params = null) {
@@ -80,7 +61,7 @@ class DbHelpers {
     }
     
     public static function ensure_using_test_db() {
-        global $dbname;
+        $dbname = $_ENV['DB_DATABASE'];
         $conn_db_name = DbHelpers::get_first_value("SELECT DATABASE()");
 
         foreach([$dbname, $conn_db_name] as $s) {
@@ -96,7 +77,7 @@ Since database tests are destructive (delete/edit/change data),
 you must use a dedicated test database when running tests.
 
 1. Create a new database called 'test_<whatever_you_want>'
-2. Update your connect.inc.php to use this new db
+2. Update your env.test.local to use this new db
 3. Run the tests.
 *************************************************************
 ";
