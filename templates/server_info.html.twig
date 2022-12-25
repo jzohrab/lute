@@ -31,6 +31,11 @@
   </tr>
 </table>
 
+
+{% if true %}
+
+<h1>A big dump of stuff for development</h1>
+
 <hr />
 
 <p>All environment vars:</p>
@@ -63,6 +68,8 @@
   <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
   {% endfor %}
 </table>
+
+{% endif %}
 
 {% endblock %}
 

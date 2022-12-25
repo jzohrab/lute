@@ -8,7 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\Persistence\ManagerRegistry;
 use App\Utils\Connection;
 
 require_once __DIR__ . '/../../db/lib/migration_helper.php';
@@ -23,12 +22,12 @@ class IndexController extends AbstractController
              select StValue from settings where StKey = 'currenttext'
            )";
         $rec = $conn
-             ->executeQuery($sql)
-             ->fetchNumeric();
+             ->query($sql)
+             ->fetch_array();
         if (! $rec)
             return [null, null];
         else
-            return array_values($rec);
+            return [ $rec['TxID'], $rec['TxTitle'] ];
     }
 
 
@@ -70,8 +69,8 @@ class IndexController extends AbstractController
 
         $conn = Connection::getFromEnvironment();
         $mysql = $conn
-               ->executeQuery("SELECT VERSION() as value")
-               ->fetchNumeric()[0];
+               ->query("SELECT VERSION() as value")
+               ->fetch_array()[0];
 
         return $this->render('server_info.html.twig', [
             'serversoft' => $serversoft,
