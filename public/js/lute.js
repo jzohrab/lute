@@ -95,6 +95,11 @@ function showEditFrame(el, extra_args = {}) {
   top.frames.wordframe.location.href = url;
 }
 
+function show_help() {
+  const url = `/read/shortcuts`;
+  top.frames.wordframe.location.href = url;
+}
+
 
 function add_active(e) {
   e.addClass('kwordmarked');

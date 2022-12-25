@@ -28,6 +28,15 @@ class ReadingController extends AbstractController
         return $this->render('read/empty.html.twig');
     }
 
+    // Note this route has to appear about "read" because otherwise
+    // 'shortcuts' is treated as a TxID.
+    #[Route('/shortcuts', name: 'app_read_shortcuts', methods: ['GET'])]
+    public function shortcuts(Request $request): Response
+    {
+        return $this->render('read/shortcuts.html.twig');
+    }
+
+
     #[Route('/{TxID}', name: 'app_read', methods: ['GET'])]
     public function read(Request $request, Text $text, ReadingFacade $facade): Response
     {
@@ -122,6 +131,5 @@ class ReadingController extends AbstractController
 
         return $this->json('ok');
     }
-
 
 }

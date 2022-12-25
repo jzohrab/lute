@@ -22,17 +22,28 @@
       {% endif %}
     </h2>
 
-
-    <form action="/read/{{ text.ID }}/allknown" method="post">
-      <button
-        type="submit"
-        name="fallknown"
-        onclick="return confirm('Setting all to unknown words to known.  OK?');"
-        tabindex="-1">Set all to known</button>
-    </form>
+    <!-- Lacking css skills, so table layout to the rescue. -->
+    <table style="width: 100%">
+      <tr>
+        <td>
+          <form action="/read/{{ text.ID }}/allknown" method="post" style="float:left;">
+            <button
+              type="submit"
+              name="fallknown"
+              onclick="return confirm('Setting all to unknown words to known.  OK?');"
+              tabindex="-1">Set all to known</button>
+          </form>
+        </td>
+        <td align="right">
+          <img src="/icn/question-balloon.png" onclick="show_help(); return false;" title="Keyboard shortcuts" />
+        </td>
+      </tr>
+    </table>
 
     <hr />
+
   </div>
+
     {{ render(url('app_read_text', { 'TxID': text.ID })) }}
   </div>
 </div>
