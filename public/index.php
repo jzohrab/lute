@@ -12,9 +12,37 @@ use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use App\Utils\Connection;
+use App\Utils\MigrationHelper;
+
 require dirname(__DIR__).'/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+
+
+$flash_messages = [];
+try {
+    throw new \Exception('whoops');
+/*
+    Connection::verifyGeneralConnectionParams();
+    if (! Connection::databaseExists()) {
+        Connection::createDatabase();
+        $flash_messages[] = [ 'notice', 'New database created' ];
+    }
+    if (MigrationHelper::hasPendingMigrations()) {
+        MigrationHelper::runMigrations();
+        $flash_messages[] = [ 'notice', 'Database updated' ];
+    }
+*/
+}
+catch (\Exception $e) {
+    // ref https://twig.symfony.com/doc/2.x/api.html
+    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
+    $twig = new \Twig\Environment($loader);
+    $template = $twig->load('fatal_error.html.twig');
+    echo $template->render(['errors' => [ $e->getMessage(), 'something', 'here' ]]);
+    die();
+}
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
