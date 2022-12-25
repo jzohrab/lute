@@ -82,6 +82,7 @@ class IndexController extends AbstractController
             'symfconn' => $_ENV['DATABASE_URL'],
             'webhost' => $_SERVER['HTTP_HOST'],
 
+            'isdev' => ($_ENV['APP_ENV'] == 'dev'),
             'allenv' => getenv(),
             'ENV' => $_ENV,
             'SERVER' => $_SERVER
