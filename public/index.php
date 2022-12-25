@@ -22,18 +22,16 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 $flash_messages = [];
 try {
-    throw new \Exception('whoops');
-/*
-    Connection::verifyGeneralConnectionParams();
+    Connection::verifyConnectionParams();
     if (! Connection::databaseExists()) {
-        Connection::createDatabase();
+        Connection::createBlankDatabase();
+        MigrationHelper::installBaseline();
         $flash_messages[] = [ 'notice', 'New database created' ];
     }
     if (MigrationHelper::hasPendingMigrations()) {
         MigrationHelper::runMigrations();
         $flash_messages[] = [ 'notice', 'Database updated' ];
     }
-*/
 }
 catch (\Exception $e) {
     // ref https://twig.symfony.com/doc/2.x/api.html
