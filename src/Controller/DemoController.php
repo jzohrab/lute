@@ -15,11 +15,12 @@ class DemoController extends AbstractController
 {
 
     #[Route('/demo/load', name: 'app_demo_load', methods: ['GET'])]
-    public function load_demo(): Response
+    public function load_demo(LanguageRepository $langrepo, TextRepository $textrepo, TermRepository $termrepo): Response
     {
-        if (MigrationHelper::isEmptyDemo()) {
-            MigrationHelper::loadDemoData();
+        if (! MigrationHelper::isEmptyDemo()) {
+            return $this->redirectToRoute('app_index');
         }
+        MigrationHelper::loadDemoData($langrepo, $textrepo, $termrepo);
         return $this->redirectToRoute('app_index');
     }
 

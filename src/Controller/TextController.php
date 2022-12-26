@@ -82,15 +82,10 @@ class TextController extends AbstractController
             $textRepository->save($text, true);
 
             $currtext = $settingsRepository->getCurrentTextID();
-            dump($currtext);
-            dump("and the text saved was");
-            dump($text->getID());
             if ($currtext == $text->getID()) {
-                dump('redirecting back to read');
                 return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
             }
             else {
-                dump('red to index');
                 return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
             }
         }

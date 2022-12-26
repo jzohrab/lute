@@ -14,8 +14,11 @@ final class MigrationHelper_Test extends DatabaseTestBase
         $this->assertFalse(MigrationHelper::hasPendingMigrations(), 'everything done');
     }
 
+    /**
+     * @group demo
+     */
     public function test_smoke_can_load_demo_data() {
-        MigrationHelper::loadDemoData();
+        MigrationHelper::loadDemoData($this->language_repo, $this->text_repo, $this->term_repo);
         $this->assertTrue(true, 'dummy');
     }
 

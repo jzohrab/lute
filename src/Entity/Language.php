@@ -229,4 +229,49 @@ class Language
         return $this;
     }
 
+
+    /**
+     * Language "factories" to create sensible defaults.
+     * Returns unsaved entities.
+     */
+
+    public static function makeSpanish() {
+        $spanish = new Language();
+        $spanish
+            ->setLgName('Spanish')
+            ->setLgDict1URI('https://es.thefreedictionary.com/###')
+            ->setLgDict2URI('https://www.wordreference.com/es/en/translation.asp?spen=###')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#es/en/###');
+        return $spanish;
+    }
+
+    public static function makeFrench() {
+        $french = new Language();
+        $french
+            ->setLgName('French')
+            ->setLgDict1URI('https://fr.thefreedictionary.com/###')
+            ->setLgDict2URI('https://www.wordreference.com/fren/###')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#fr/en/###');
+        return $french;
+    }
+
+    public static function makeGerman() {
+        $german = new Language();
+        $german
+            ->setLgName('German')
+            ->setLgDict1URI('http://de-en.syn.dict.cc/?s=###')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#de/en/###');
+        return $german;
+    }
+
+    public static function makeEnglish() {
+        $english = new Language();
+        $english
+            ->setLgName('English')
+            ->setLgDict1URI('https://en.thefreedictionary.com/###')
+            ->setLgDict2URI('https://www.wordreference.com/en/###')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#en/fr/###');
+        return $english;
+    }
+
 }

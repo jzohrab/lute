@@ -1,0 +1,18 @@
+# title: Tutorial follow-up
+# language: English
+#
+Hopefully you've gone through the Tutorial, and created some Terms.
+
+From the Tutorial, you've already told Lute that you know most of the words on this page, but there are still a few blue words.  Again according to Lute, these are "unknown".
+
+(fyi - If a text has a spelling mikstaske, you can edit it by clicking the small Edit icon next to the title.  If you'd like, correct the mistake now, and resave this text.)
+
+You'll see the definitions of of words that you told Lute in the Tutorial, such as for the Terms elephant and dogs -- hover over them to see some information.
+
+That's the core feature of Lute!  There are some sample stories for other languages.  Try those out or create your own.
+
+When you're done with the demo, update your local environment file with a new database name, and go back to the Home screen.  Lute will create a new empty database for you, and you can get started.
+
+I hope that you find Lute a fun tool to use for learning languages.  Learning by reading really is the cat's pyjamas.
+
+Cheers and best wishes!

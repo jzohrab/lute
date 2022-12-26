@@ -78,10 +78,13 @@ class TextItem
     }
 
     public function getHtmlClassString(): string {
+        if ($this->WordCount == 0) {
+            return "textitem";
+        }
         $tc = $this->getTermClassname();
         if ($this->WoID == 0) {
-            return "click word wsty status0 {$tc}";
+            return "textitem click word status0 {$tc}";
         }
-        return "click word wsty word{$this->WoID} status{$this->WoStatus} {$tc}";
+        return "textitem click word word{$this->WoID} status{$this->WoStatus} {$tc}";
     }
 }

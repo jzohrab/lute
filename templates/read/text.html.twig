@@ -7,9 +7,13 @@
 
     {% for sentence in sentences %}
 
-    <span id="sent_{{ sentence.SeID }}">
+    <span class="textsentence" id="sent_{{ sentence.SeID }}">
       {% for item in sentence.renderable %}
-      {% include '/read/textitem.html.twig' %}
+      {% if item.Text == '¶' %}
+        </p><p>
+    {% else %}
+    {% include '/read/textitem.html.twig' %}
+      {% endif %}
       {% endfor %}
     </span>
 

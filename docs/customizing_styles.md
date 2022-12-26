@@ -7,8 +7,8 @@ In `public/css/styles-overrides.css`, you can define your own styles to replace 
 For example, if you wanted the words to be very large in the reading pane, you could write the following:
 
 ```
-span.wsty {
-    font-size: 250%;
+span.textitem {
+    font-size: 24px;
 }
 ```
 

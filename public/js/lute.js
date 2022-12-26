@@ -19,7 +19,7 @@ function prepareTextInteractions(textid) {
     position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit' },
     items: '.hword',
     show: { easing: 'easeOutCirc' },
-    content: function () { return tooltip_wsty_content($(this)); }
+    content: function () { return tooltip_textitem_content($(this)); }
   });
 
   $('#thetext').hoverIntent(
@@ -44,7 +44,7 @@ let word_hover_out = function() {
 }
 
 
-let tooltip_wsty_content = function (el) {
+let tooltip_textitem_content = function (el) {
   let content = `<p><b style="font-size:120%">${el.text()}</b></p>`;
 
   const roman = el.attr('data_rom');
@@ -169,11 +169,11 @@ function select_ended(e) {
 
   const startord = parseInt(selection_start_el.attr('data_order'));
   const endord = parseInt($(this).attr('data_order'));
-  const selected = $("span.word").filter(function() {
+  const selected = $("span.textitem").filter(function() {
     const ord = $(this).attr("data_order");
     return ord >= startord && ord <= endord;
   });
-  const text = selected.toArray().map((el) => $(el).text()).join(' ');
+  const text = selected.toArray().map((el) => $(el).text()).join('').trim();
 
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
