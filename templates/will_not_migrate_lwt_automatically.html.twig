@@ -25,11 +25,9 @@
     Lute-compatible schema by running the following from the command
     line:</p>
 
-    <pre>
-    <code>
+    <pre><code>
     composer db:migrate:prod
-    </code>
-    </pre>
+    </code></pre>
 
     <h2>Creating a new Lute db from {{ dbname }}</h2>
 
@@ -45,13 +43,18 @@
     mysql -u {{ username }} -p mylute &lt; lwtdbdump.sql
     </code></pre>
 
-    <p>Then change your .env.local file, changing <code>{{ dbname }}</code> to <code>mylute</code>, and finally:</p>
+    <p>Then change your .env.local file:</p>
 
-    <pre>
-    <code>
+    <pre><code>
+    # DB_DATABASE={{ dbname }}  ## << commented out, or delete this line
+    DB_DATABASE=mylute
+    </code></pre>
+
+    <p>And finally run the migrations:</p>
+
+    <pre><code>
     composer db:migrate:prod
-    </code>
-    </pre>
+    </code></pre>
 
   </body>
 
