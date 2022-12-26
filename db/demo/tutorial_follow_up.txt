@@ -13,4 +13,4 @@ That's the core feature of Lute!  There are some sample stories for other langua
 
 When you're done with the demo, update your local environment file with a new database name, and go back to the Home screen.  Lute will create a new empty database for you, and you can get started.
 
-Good luck!
+Cheers and best wishes!

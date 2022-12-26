@@ -37,6 +37,4 @@ When you're done creating Terms, you will likely still have a bunch of blue word
 
 All done this text!
 
-You've now "processed" all of the words on this tutorial, and Lute keeps track of all of this in your database.  From the homescreen, click the Texts link, and then choose the "Tutorial follow-up" - you'll see that most of the text is aleady "processed", and there may be some new things for you to create Terms for.
-
-Cheers and best wishes!
+You've now "processed" all of the words on this tutorial, and Lute keeps track of all of this in your database.  You can go to the Tutorial follow up by either clicking the right arrow next to the title (which moves to the next Text with the same language as the current Text), or go to the Home screen, click the Texts link, and choose the "Tutorial follow-up".
