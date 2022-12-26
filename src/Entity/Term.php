@@ -88,21 +88,29 @@ class Term
     public function setLanguage(Language $language): self
     {
         $this->language = $language;
+        $this->calcWordCount();
         return $this;
     }
 
     public function setText(string $WoText): self
     {
-        $parts = mb_split("\s+", $WoText);
-        $testlen = function($p) { return mb_strlen($p) > 0; };
-        $realparts = array_filter($parts, $testlen);
-        $cleanword = implode(' ', $realparts);
-
-        $this->WoText = $cleanword;
-        $this->WoTextLC = mb_strtolower($cleanword);
-        $this->setWordCount(count($realparts));
-
+        $trimmed = trim($WoText);
+        $this->WoText = $trimmed;
+        $this->WoTextLC = mb_strtolower($trimmed);
+        $this->calcWordCount();
         return $this;
+    }
+
+    private function calcWordCount() {
+        $wc = 0;
+        if ($this->WoText != null && $this->language != null) {
+            $termchars = $this->getLanguage()->getLgRegexpWordCharacters();
+            $re = '/([' . $termchars . ']+)/u';
+            preg_match_all($re, $this->WoText, $matches);
+            if (count($matches) > 0)
+                $wc = count($matches[0]);
+        }
+        $this->setWordCount($wc);
     }
 
     public function getText(): ?string
