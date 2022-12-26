@@ -44,7 +44,9 @@ class MigrationHelper {
         try {
             Connection::verifyConnectionParams();
 
-            if (MigrationHelper::isLearningWithTextsDb()) {
+            $dbexists = Connection::databaseExists();
+
+            if ($dbexists && MigrationHelper::isLearningWithTextsDb()) {
                 $args = [
                     'dbname' => MigrationHelper::getOrThrow('DB_DATABASE'),
                     'username' => MigrationHelper::getOrThrow('DB_USER')
@@ -53,12 +55,13 @@ class MigrationHelper {
                 return [ $messages, $error ];
             }
 
-            if (! Connection::databaseExists()) {
+            if (! $dbexists) {
                 Connection::createBlankDatabase();
                 MigrationHelper::installBaseline();
                 $newdbcreated = true;
                 $messages[] = 'New database created.';
             }
+
             if (MigrationHelper::hasPendingMigrations()) {
                 MigrationHelper::runMigrations();
                 if (! $newdbcreated) {
