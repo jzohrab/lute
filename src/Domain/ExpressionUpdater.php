@@ -44,6 +44,7 @@ class ExpressionUpdater {
     private function exec_sql($sql, $params = null) {
         // echo $sql . "\n";
         $stmt = $this->conn->prepare($sql);
+        // dump("running $sql");
         if (!$stmt) {
             throw new \Exception($this->conn->error);
         }
@@ -145,6 +146,8 @@ where ti2woid = 0";
         }
 
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
+        // dump("got sentences:");
+        // dump($sentences);
         $this->insert_standard_expression(
             $sentences, $lang, $textlc, $wid, $len
         );
@@ -220,6 +223,7 @@ where ti2woid = 0";
         $sql = "SELECT * FROM sentences 
             WHERE {$whereSeIDRange}
             SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
+        // dump($sql);
 
         if ($removeSpaces == 1 && $splitEachChar == 0) {
             $sql = "SELECT 
@@ -240,11 +244,20 @@ where ti2woid = 0";
         // are not returned to the calling method ... so the calling
         // method won't be handling these things correctly.  Needs test cases.
 
-        $params = [ 's', $textlc ];
+        $params = [ 's', mysqli_real_escape_string($this->conn, $textlc) ];
+
+        $countsql = "select count(*) as c from ($sql) src";
+        $count = $this->exec_sql($countsql, $params);
+        $record = mysqli_fetch_assoc($count);
+        $c = $record['c'];
+        mysqli_free_result($count);
+        // dump("got $c sentences matching \"{$textlc}\"");
+
         $res = $this->exec_sql($sql, $params);
         $result = [];
         while ($record = mysqli_fetch_assoc($res)) {
             $string = ' ' . $record['SeText'] . ' ';
+            // dump("checking $string");
             if ($splitEachChar) {
                 $string = preg_replace('/([^\s])/u', "$1 ", $string);
             } else if ($removeSpaces == 1) {
@@ -260,6 +273,7 @@ where ti2woid = 0";
                 }
             }
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+            // dump("got $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');");
             if ($last_pos !== false)
                 $result[] = $record;
         }

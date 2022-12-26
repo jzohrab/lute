@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Domain\Parser;
 use App\Domain\ExpressionUpdater;
 use App\Entity\Text;
+use App\Entity\Term;
 
 final class Parser_Test extends DatabaseTestBase
 {
@@ -262,6 +263,36 @@ final class Parser_Test extends DatabaseTestBase
         ];
         DbHelpers::assertTableContains($sql, $expected);
 
+    }
+
+
+    // Expression with apostrophe wasn't working, found with demo.
+    /**
+     * @group apostrophes
+     */
+    public function test_apostrophes()
+    {
+
+        $t = new Text();
+        $t->setTitle("Jammies.");
+        $t->setText("This is the cat's pyjamas.");
+        $t->setLanguage($this->english);
+        $this->text_repo->save($t, true, false);
+
+        $term = new Term();
+        $term->setLanguage($this->english);
+        $term->setText("the cat's pyjamas");
+        $this->term_repo->save($term, true);
+
+        Parser::parse($t);
+        ExpressionUpdater::associateExpressionsInText($t);
+
+        $sql = "select ti2seid, ti2order, ti2text from textitems2
+          where ti2woid <> 0 order by ti2seid";
+        $expected = [
+            "1; 5; the cat's pyjamas"
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
     }
 
     /* "Tests" I was using to echo to console during debugging.
