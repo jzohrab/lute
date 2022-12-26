@@ -190,11 +190,16 @@
    */
    border-bottom: dashed 1px #000000;
  }
- 
+
+ span.textsentence {
+     /* The weird "font-size: 0%" prevents excess space between the spans! */
+     /* span.wsty then re-sets the font size for the words. */
+     font-size: 0%;
+ }
+
  span.wsty
  {
-   font-size: 100%;
-   margin-right: 2px;
+   font-size: 16px;
    color: #000000;
 
    /* disallow select, only allow mouse-down-drag-up to define multiword

@@ -18,4 +18,4 @@
       parent_text="{{ item.ParentWoTextLC }}"
       parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}"
 {% endif %}
->{{ item.Text }}</span>
+>{{ item.Text | replace({' ': '&nbsp;'})| raw }}</span>
