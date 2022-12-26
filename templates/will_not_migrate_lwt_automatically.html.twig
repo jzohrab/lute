@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>LUTE - fatal error</title>
+    <title>LUTE - stopping migration</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
 
     <link rel="stylesheet" type="text/css" href="/css/styles.css" />
@@ -35,13 +35,15 @@
     want to create a new db for Lute, using your LWT db as a starting
     point.  Do this from the command line:</p>
 
-    <pre><code>
-    mysqldump -u {{ username }} -p -v {{ dbname }} &gt; lwtdbdump.sql
+    <pre>
+      <code>
+        mysqldump --complete-insert --quote-names --skip-triggers --user={{ username }} -p {{ dbname }} > lwtdbdump.sql
 
-    mysqladmin -u {{ username }} -p create mylute
+        mysqladmin -u {{ username }} -p create mylute
 
-    mysql -u {{ username }} -p mylute &lt; lwtdbdump.sql
-    </code></pre>
+        mysql -u {{ username }} -p mylute < lwtdbdump.sql
+      </code>
+    </pre>
 
     <p>Then change your .env.local file:</p>
 
