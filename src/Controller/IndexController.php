@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
-
-require_once __DIR__ . '/../../db/lib/migration_helper.php';
-
+use App\Utils\MigrationHelper;
 
 class IndexController extends AbstractController
 {
@@ -34,24 +32,12 @@ class IndexController extends AbstractController
     #[Route('/', name: 'app_index', methods: ['GET'])]
     public function index(): Response
     {
-        $errors = [];
-
-        $outstanding = \MigrationHelper::get_pending_migrations();
-        if (count($outstanding) > 0) {
-            $n = count($outstanding);
-            $errors[] = "{$n} migrations outstanding (e.g., {$outstanding[0]}).  Please run 'composer db:migrate'";
-        }
-
-        if (count($errors) != 0) {
-            return $this->render('index_error.html.twig', [
-                'errors' => $errors,
-            ]);
-        }
-
         $conn = Connection::getFromEnvironment();
         [ $txid, $txtitle ] = $this->get_current_text($conn);
 
         return $this->render('index.html.twig', [
+            'isdemodb' => MigrationHelper::isLuteDemo(),
+            'demoisempty' => MigrationHelper::isEmptyDemo(),
             'currtxid' => $txid,
             'currtxtitle' => $txtitle
         ]);

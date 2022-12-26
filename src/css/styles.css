@@ -28,6 +28,13 @@
      height: auto;
  }
 
+ .flash-notice {
+     margin-top: 20px;
+     padding: 20px;
+     background-color: #fff3cd;
+     border-color: #ffeeba;
+ }
+
  input[type=text]
  {
    font: 85% "Lucida Grande",Arial,sans-serif,STHeiti,"Arial Unicode MS",MingLiu;

@@ -73,6 +73,13 @@
     </table>
 
     {% endif %}
+
+    {% if app.request.server.get('DB_UPDATE_NOTES') %}
+    <div class="flash-notice">
+      {{ app.request.server.get('DB_UPDATE_NOTES') }}
+    </div>
+    {% endif %}
+
     {% block body %}{% endblock %}
   </body>
 

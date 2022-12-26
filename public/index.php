@@ -11,6 +11,7 @@ use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Utils\MigrationHelper;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
@@ -33,6 +34,32 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false
 }
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+
+[ $messages, $error ] = MigrationHelper::doSetup();
+if ($error != null) {
+    echo $error;
+    die();
+}
+
+/**
+ * Storing update messages in the $_SERVER so I can get it in
+ * templates/base.html.twig.
+ *
+ * I tried using getFlashBag() per
+ * https://symfony.com/doc/current/controller.html, but: A) if I
+ * called ->getSession()->getFlashBag() /before/ handling the request,
+ * it failed because the session wasn't set; and B) if I called
+ * ...->add('notice', $message) /after/ handling the request, the
+ * message wouldn't show up because the request had already been
+ * handled!
+ *
+ * I would have preferred to use $_ENV instead to store a temporary
+ * message (just a hunch, no real reason I can think of), but twig
+ * didn't have an _easy_ way to get env vars, but I can get server
+ * vars with "app.request.server.get('varname').
+ */
+$_SERVER['DB_UPDATE_NOTES'] = implode(', ', $messages);
+
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
 $response->send();
