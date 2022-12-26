@@ -68,7 +68,7 @@ class MigrationHelper {
         }
         catch (\Exception $e) {
             $args = ['errors' => [ $e->getMessage() ]];
-            $error = DatabaseSetup::renderError('fatal_error.html.twig', $args);
+            $error = MigrationHelper::renderError('fatal_error.html.twig', $args);
         }
 
         return [ $messages, $error ];
@@ -76,7 +76,7 @@ class MigrationHelper {
 
     private static function renderError($name, $args = []): string {
         // ref https://twig.symfony.com/doc/2.x/api.html
-        $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../../templates');
+        $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../../templates/errors');
         $twig = new \Twig\Environment($loader);
         $template = $twig->load($name);
         return $template->render($args);
