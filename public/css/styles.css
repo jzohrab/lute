@@ -196,6 +196,10 @@
    font-size: 100%;
    margin-right: 2px;
    color: #000000;
+
+   /* disallow select, only allow mouse-down-drag-up to define multiword
+   terms. */
+   user-select: none;
  }
  
  span.status5stat

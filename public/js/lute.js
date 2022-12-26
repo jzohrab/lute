@@ -173,7 +173,7 @@ function select_ended(e) {
     const ord = $(this).attr("data_order");
     return ord >= startord && ord <= endord;
   });
-  const text = selected.toArray().map((el) => $(el).text()).join(' ');
+  const text = selected.toArray().map((el) => $(el).text()).join('');
 
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
