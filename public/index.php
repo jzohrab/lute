@@ -11,7 +11,7 @@ use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Utils\DatabaseSetup;
+use App\Utils\MigrationHelper;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
@@ -35,7 +35,7 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 
-[ $messages, $error ] = DatabaseSetup::doSetup();
+[ $messages, $error ] = MigrationHelper::doSetup();
 if ($error != null) {
     echo $error;
     die();

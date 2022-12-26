@@ -6,7 +6,7 @@ This folder contains simple db scripts and and migrations for db schema manageme
 * All migrations are stored in the `migrations` folder, and are applied once only, in filename-sorted order.
 * The main class `mysql_migrator.php` is lifted from https://github.com/jzohrab/php-migration.
 
-The front controller `index.php` calls `src/Utils/DatabaseSetup.php` to apply changes automatically for users.
+The front controller `index.php` calls `src/Utils/MigrationHelper.php` to apply changes automatically for users.
 
 # Development
 
