@@ -179,8 +179,8 @@ class MigrationHelper {
         $term = new Term();
         $term->setLanguage($e);
         $term->setText("your local environment file");
-        $term->setStatus(5);
-        $term->setTranslation(".env.local - Your environment configuration file, in the project root folder!");
+        $term->setStatus(3);
+        $term->setTranslation("This is \".env.local\", your personal file in the project root folder :-)");
         $term_repo->save($term, true);
 
         $files = [
