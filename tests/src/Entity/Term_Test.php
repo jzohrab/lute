@@ -14,7 +14,10 @@ class Term_Test extends TestCase
         $cases = [
             [ 'hola', 'hola', 'hola' ],
             [ '    hola    ', 'hola', 'hola' ],
-            [ "   hola\tGATO\nok", 'hola GATO ok', 'hola gato ok' ],
+
+            // This case should never occur:
+            // tabs are stripped out of text, and returns mark different sentences.
+            // [ "   hola\tGATO\nok", 'hola GATO ok', 'hola gato ok' ],
         ];
         
         foreach ($cases as $c) {
@@ -28,16 +31,20 @@ class Term_Test extends TestCase
     public function test_getWordCount()
     {
         $cases = [
-            [ 'hola', 1 ],
-            [ '    hola    ', 1 ],
-            [ '  hola 	gato', 2 ],
-            [ "HOLA\nhay\tgato  ", 3 ]
+            [ 'hola', 1, 'hola' ],
+            [ '    hola    ', 1, 'h2' ],
+            [ '  hola 	gato', 2, 'hg' ],
+            [ "HOLA\nhay\tgato  ", 3, 'hg2' ]
         ];
-        
+
+        $english = new Language();
+        $english->setLgName('English');  // Use defaults for all settings.
+
         foreach ($cases as $c) {
             $t = new Term();
             $t->setText($c[0]);
-            $this->assertEquals($t->getWordCount(), $c[1]);
+            $t->setLanguage($english);
+            $this->assertEquals($t->getWordCount(), $c[1], $c[2]);
 
             // If wc is set, it's used.
             $t->setWordCount(17);
