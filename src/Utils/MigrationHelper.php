@@ -4,6 +4,13 @@ namespace App\Utils;
 
 require_once __DIR__ . '/../../db/lib/mysql_migrator.php';
 
+use App\Entity\Language;
+use App\Repository\LanguageRepository;
+use App\Entity\Text;
+use App\Repository\TextRepository;
+use App\Entity\Term;
+use App\Repository\TermRepository;
+
 // Class for namespacing only.
 class MigrationHelper {
 
@@ -151,13 +158,56 @@ class MigrationHelper {
         return $c == 1;
     }
 
-    public static function loadDemoData() {
+
+    public static function loadDemoData(
+        LanguageRepository $lang_repo,
+        TextRepository $text_repo,
+        TermRepository $term_repo
+    ) {
+        $e = Language::makeEnglish();
+        $f = Language::makeFrench();
+        $s = Language::makeSpanish();
+        $g = Language::makeGerman();
+
+        $langs = [ $e, $f, $s, $g ];
+        $langmap = [];
+        foreach ($langs as $lang) {
+            $lang_repo->save($lang, true);
+            $langmap[ $lang->getLgName() ] = $lang;
+        }
+
+        $term = new Term();
+        $term->setLanguage($e);
+        $term->setText("your local environment file");
+        $term->setStatus(5);
+        $term->setTranslation(".env.local - Your environment configuration file, in the project root folder!");
+        $term_repo->save($term, true);
+
         $files = [
-            'data.sql'
+            'tutorial.txt',
+            'tutorial_follow_up.txt',
+            'es_aladino.txt',
+            'fr_goldilocks.txt',
+            'de_Stadtmusikanten.txt'
         ];
         foreach ($files as $f) {
+            $fname = $f;
             $basepath = __DIR__ . '/../../db/demo/';
-            MigrationHelper::process_file($basepath . $f);
+            $fullcontent = file_get_contents($basepath . $fname);
+            $content = preg_replace('/#.*\n/u', '', $fullcontent);
+
+            preg_match('/language:\s*(.*)\n/u', $fullcontent, $matches);
+            $lang = $langmap[$matches[1]];
+
+            preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
+            $title = $matches[1];
+
+            $t = new Text();
+            $t->setTitle($title);
+            $t->setLanguage($lang);
+            $t->setText($content);
+            
+            $text_repo->save($t, true);
         }
     }
 

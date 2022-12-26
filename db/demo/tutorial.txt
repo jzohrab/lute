@@ -1,0 +1,42 @@
+# title: Tutorial
+# language: English
+#
+Welcome to Lute!  This short guide should get you going.
+
+1. The Basics
+
+All of these words are blue because they are "unknown" - according to Lute, this is the first time you're seeing these words.
+
+You can click on a word, and create a definition.  For example, click on this word: elephant.
+
+When the form pops up in the right-hand frame, a dictionary is loaded below.  Copy-paste something from the dictionary into the translation, or make up your own, mark the status, add some tags if you want (eg, type "noun" in the tags field), and click save.
+
+From now on, every English text that you read that contains the word "elephant" will show the status.  If you hover over any "elephant", you'll see some information.
+
+2. Multi-word Terms
+
+You can create multi-word terms by clicking and dragging across multiple words, then release the mouse.  Try creating a term for the phrase "the cat's pyjamas", and add a translation and set the status.
+
+3. Parent Terms
+
+Sometimes it helps to associate terms with a "parent".  For example, the verb "to have" is conjugated in various forms as "I have a cold", "he has a dog", "they had dinner".  First create a Term for "have".  Then create a Term for "has", and in the Parent field start typing "have".  Lute will show the the existing Term "have" in the drop down, and if you select it, "has" will be associated with that on save, and when you hover over "has" you'll see the parent's information as well.
+
+If you enter a non-existent Parent word, Lute will create a placeholder Term for that Parent, copying some content from your term.  For example, try creating a Term for the word "dogs", associating it with the non-existent Term "dog".  When you save "dogs", both will be updated.
+
+4. Keyboard shortcuts
+
+The small blue question mark in the header shows some keyboard shortcuts.  If you click on a word, it's underlined in red: that's the active term.  You can then hit the Left or Right arrow to move around.  You can also set the status of the word by hitting 1, 2, 3, 4, 5, I, or W.
+
+5. Bulk updates
+
+If you hold down Shift and click a bunch of words, you can bulk update their statuses.
+
+6. Mark the remainder as "Well Known"
+
+When you're done creating Terms, you will likely still have a bunch of blue words "unknowns" left over, even though you really know these words.  You can set all of these to "Well Known" in one shot by hitting the "Set all to known" button at the top of the screen.  The blue highlight will disappear, and if you hover over any word, it will show that its status is "Well Known".
+
+All done this text!
+
+You've now "processed" all of the words on this tutorial, and Lute keeps track of all of this in your database.  From the homescreen, click the Texts link, and then choose the "Tutorial follow-up" - you'll see that most of the text is aleady "processed", and there may be some new things for you to create Terms for.
+
+Cheers and best wishes!
