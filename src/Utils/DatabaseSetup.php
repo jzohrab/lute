@@ -26,6 +26,11 @@ class DatabaseSetup {
                 $newdbcreated = true;
                 $messages[] = 'New database created.';
             }
+            /*
+            if (MigrationHelper::isLearningWithTextsDb()) {
+            // todo
+            }
+            */
             if (MigrationHelper::hasPendingMigrations()) {
                 MigrationHelper::runMigrations();
                 if (! $newdbcreated) {
@@ -34,14 +39,19 @@ class DatabaseSetup {
             }
         }
         catch (\Exception $e) {
-            // ref https://twig.symfony.com/doc/2.x/api.html
-            $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
-            $twig = new \Twig\Environment($loader);
-            $template = $twig->load('fatal_error.html.twig');
-            $error = $template->render(['errors' => [ $e->getMessage(), 'something', 'here' ]]);
+            $args = ['errors' => [ $e->getMessage() ]];
+            $error = DatabaseSetup::renderError('fatal_error.html.twig', $args);
         }
 
         return [ $messages, $error ];
+    }
+
+    private static function renderError($name, $args = []): string {
+        // ref https://twig.symfony.com/doc/2.x/api.html
+        $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../../templates');
+        $twig = new \Twig\Environment($loader);
+        $template = $twig->load($name);
+        return $template->render($args);
     }
 
 }
