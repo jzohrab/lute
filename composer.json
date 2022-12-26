@@ -116,7 +116,6 @@
       "php bin/console cache:warmup"
     ],
     "dev:psalm": "./vendor/bin/psalm",
-    "dev:minify": "php -r \"require 'utils/minifier.php';minify_css();\"",
     "auto-scripts": {
       "cache:clear": "symfony-cmd",
       "assets:install %PUBLIC_DIR%": "symfony-cmd"
@@ -140,7 +139,6 @@
     "db:which": "What db connecting to",
     "dev:dumpserver": "Start the dump server",
     "dev:find": "search specific parts of code using grep",
-    "dev:minify": "Regenerate minified CSS",
     "dev:nukecache": "blow things away, b/c symfony likes to cache",
     "dev:psalm": "Run psalm and start crying",
     "test": "Run tests",
