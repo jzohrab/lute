@@ -20,6 +20,8 @@ final class MigrationHelper_Test extends DatabaseTestBase
     public function test_smoke_can_load_demo_data() {
         MigrationHelper::loadDemoData($this->language_repo, $this->text_repo, $this->term_repo);
         $this->assertTrue(true, 'dummy');
+        $t = $this->text_repo->find(1);
+        $this->assertEquals($t->getTitle(), 'Tutorial', 'got tutorial, index link to /read/1 is good.');
     }
 
 }

@@ -29,6 +29,12 @@
   languages and texts to try it out.</p>
   {% endif %}
 
+  {% if tutorialloaded %}
+  <p>The demo db has been loaded with a <a href="/read/1">brief
+  tutorial</a>, and a few languages and sample stories.
+  </p>
+  {% endif %}
+
   <p>When you are done testing out the demo, update
   your <b>.env.local</b> configuration file to your real database
   name.  (Lute will create that database for you, if it doesn't

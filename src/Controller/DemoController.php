@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Repository\LanguageRepository;
 use App\Repository\TextRepository;
+use App\Repository\TermRepository;
+
 use App\Domain\Parser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +24,7 @@ class DemoController extends AbstractController
             return $this->redirectToRoute('app_index');
         }
         MigrationHelper::loadDemoData($langrepo, $textrepo, $termrepo);
-        return $this->redirectToRoute('app_index');
+        return $this->redirectToRoute('app_index', [ 'tutorialloaded' => true ]);
     }
 
 
