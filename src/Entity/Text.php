@@ -28,9 +28,6 @@ class Text
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
     private string $TxText = '';
 
-    #[ORM\Column(name: 'TxAnnotatedText', type: Types::TEXT)]
-    private string $TxAnnotatedText = '';
-
     #[ORM\Column(name: 'TxAudioURI', length: 200, nullable: true)]
     private ?string $TxAudioURI = null;
 
@@ -97,18 +94,6 @@ class Text
     public function setText(string $TxText): self
     {
         $this->TxText = $TxText;
-
-        return $this;
-    }
-
-    public function getAnnotatedText(): string
-    {
-        return $this->TxAnnotatedText;
-    }
-
-    public function setAnnotatedText(string $TxAnnotatedText): self
-    {
-        $this->TxAnnotatedText = $TxAnnotatedText;
 
         return $this;
     }
