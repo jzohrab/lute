@@ -55,7 +55,6 @@ composer test:group xxx
   dev:data                 Abuse the testing system to load the dev db with some data.
   dev:dumpserver           Start the dump server
   dev:find                 search specific parts of code using grep
-  dev:minify               Regenerate minified CSS
   dev:nukecache            blow things away, b/c symfony likes to cache
   dev:psalm                Run psalm and start crying
  test <filename|blank>     Run tests
