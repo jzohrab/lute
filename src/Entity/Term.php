@@ -94,9 +94,14 @@ class Term
 
     public function setText(string $WoText): self
     {
-        $trimmed = trim($WoText);
-        $this->WoText = $trimmed;
-        $this->WoTextLC = mb_strtolower($trimmed);
+        $parts = mb_split("\s+", $WoText);
+        $testlen = function($p) { return mb_strlen($p) > 0; };
+        $realparts = array_filter($parts, $testlen);
+        $cleanword = implode(' ', $realparts);
+
+        $this->WoText = $cleanword;
+        $this->WoTextLC = mb_strtolower($cleanword);
+
         $this->calcWordCount();
         return $this;
     }
