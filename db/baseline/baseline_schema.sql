@@ -94,7 +94,7 @@ CREATE TABLE `languages` (
   `LgRightToLeft` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`LgID`),
   UNIQUE KEY `LgName` (`LgName`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,7 +137,7 @@ CREATE TABLE `sentences` (
   KEY `SeLgID` (`SeLgID`),
   KEY `SeTxID` (`SeTxID`),
   KEY `SeOrder` (`SeOrder`)
-) ENGINE=MyISAM AUTO_INCREMENT=16535 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -167,7 +167,7 @@ CREATE TABLE `tags` (
   `TgComment` varchar(200) NOT NULL DEFAULT '',
   PRIMARY KEY (`TgID`),
   UNIQUE KEY `TgText` (`TgText`)
-) ENGINE=MyISAM AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -261,7 +261,7 @@ CREATE TABLE `texts` (
   PRIMARY KEY (`TxID`),
   KEY `TxLgID` (`TxLgID`),
   KEY `TxLgIDSourceURI` (`TxSourceURI`(20),`TxLgID`)
-) ENGINE=MyISAM AUTO_INCREMENT=310 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -328,7 +328,7 @@ CREATE TABLE `words` (
   KEY `WoTomorrowScore` (`WoTomorrowScore`),
   KEY `WoRandom` (`WoRandom`),
   KEY `WoWordCount` (`WoWordCount`)
-) ENGINE=MyISAM AUTO_INCREMENT=8200 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -343,7 +343,7 @@ CREATE TABLE `wordtags` (
   `WtTgID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`WtWoID`,`WtTgID`),
   KEY `WtTgID` (`WtTgID`)
-) ENGINE=MyISAM AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

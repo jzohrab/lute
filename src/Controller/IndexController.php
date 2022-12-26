@@ -30,14 +30,18 @@ class IndexController extends AbstractController
 
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $conn = Connection::getFromEnvironment();
         [ $txid, $txtitle ] = $this->get_current_text($conn);
 
+        // DemoController sets tutorialloaded.
+        $tutorialloaded = $request->query->get('tutorialloaded');
+
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
             'demoisempty' => MigrationHelper::isEmptyDemo(),
+            'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
             'currtxtitle' => $txtitle
         ]);
