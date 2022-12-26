@@ -12,6 +12,9 @@ composer.phar
 /.env.local.php
 /.env.*.local
 
+# User config
+/public/css/styles-overrides.css
+
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
