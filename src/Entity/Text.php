@@ -28,20 +28,11 @@ class Text
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
     private string $TxText = '';
 
-    #[ORM\Column(name: 'TxAnnotatedText', type: Types::TEXT)]
-    private string $TxAnnotatedText = '';
-
     #[ORM\Column(name: 'TxAudioURI', length: 200, nullable: true)]
     private ?string $TxAudioURI = null;
 
     #[ORM\Column(name: 'TxSourceURI', length: 1000, nullable: true)]
     private ?string $TxSourceURI = null;
-
-    #[ORM\Column(name: 'TxPosition', type: Types::SMALLINT)]
-    private int $TxPosition = 0;
-
-    #[ORM\Column(name: 'TxAudioPosition')]
-    private float $TxAudioPosition = 0;
 
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
@@ -101,18 +92,6 @@ class Text
         return $this;
     }
 
-    public function getAnnotatedText(): string
-    {
-        return $this->TxAnnotatedText;
-    }
-
-    public function setAnnotatedText(string $TxAnnotatedText): self
-    {
-        $this->TxAnnotatedText = $TxAnnotatedText;
-
-        return $this;
-    }
-
     public function getAudioURI(): ?string
     {
         return $this->TxAudioURI;
@@ -133,30 +112,6 @@ class Text
     public function setSourceURI(?string $TxSourceURI): self
     {
         $this->TxSourceURI = $TxSourceURI;
-
-        return $this;
-    }
-
-    public function getPosition(): int
-    {
-        return $this->TxPosition;
-    }
-
-    public function setPosition(int $TxPosition): self
-    {
-        $this->TxPosition = $TxPosition;
-
-        return $this;
-    }
-
-    public function getAudioPosition(): float
-    {
-        return $this->TxAudioPosition;
-    }
-
-    public function setAudioPosition(float $TxAudioPosition): self
-    {
-        $this->TxAudioPosition = $TxAudioPosition;
 
         return $this;
     }
