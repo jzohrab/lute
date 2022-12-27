@@ -19,3 +19,6 @@ composer.phar
 /public/bundles/
 /var/
 /vendor/
+
+# Manifest, generated when creating a release.
+manifest.json

@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
 use App\Utils\MigrationHelper;
+use App\Utils\AppManifest;
 
 class IndexController extends AbstractController
 {
@@ -50,6 +51,11 @@ class IndexController extends AbstractController
     #[Route('/server_info', name: 'app_server_info', methods: ['GET'])]
     public function server_info(): Response
     {
+        $m = AppManifest::read();
+        $commit = $m['commit'];
+        $gittag = $m['tag'];
+        $releasedate = $m['release_date'];
+
         $serversoft = explode(' ', $_SERVER['SERVER_SOFTWARE']);
         $apache = "Apache/?";
         if (substr($serversoft[0], 0, 7) == "Apache/") { 
@@ -63,6 +69,10 @@ class IndexController extends AbstractController
                ->fetch_array()[0];
 
         return $this->render('server_info.html.twig', [
+            'tag' => $gittag,
+            'commit' => $commit,
+            'release_date' => $releasedate,
+
             'serversoft' => $serversoft,
             'apache' => $apache,
             'php' => $php,
