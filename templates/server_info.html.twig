@@ -2,6 +2,27 @@
 
 {% block body %}
 
+{% if commit %}
+
+<h1>Release info</h1>
+
+<table>
+  <tr>
+    <td>Release date</td>
+    <td>{{ release_date }}</td>
+  </tr>
+  <tr>
+    <td>Tag</td>
+    <td>{{ tag }}</td>
+  </tr>
+  <tr>
+    <td>Commit</td>
+    <td>{{ commit }}</td>
+  </tr>
+</table>
+
+{% endif %}
+
 <h1>Your server</h1>
 
 <table>

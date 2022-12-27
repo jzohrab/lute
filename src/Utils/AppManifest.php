@@ -9,18 +9,21 @@ class AppManifest {
     }
 
     public static function write(): void {
-        $gettrim = function($cmd) {
-            $ret = shell_exec($cmd);
+        $git = function($cmd, $default = '') {
+            $ret = shell_exec("git {$cmd}");
             // put in string in case it's null:
-            return trim("{$ret}");
+            $ret = trim("{$ret}");
+            if ($ret == '')
+                $ret = $default;
+            return $ret;
         };
 
         $date = new \DateTime();
         $reldate = $date->format(DATE_RFC2822);
 
         $m = [
-            'commit' => $gettrim('git log --pretty="%h" -n 1'),
-            'tag' => $gettrim('git tag --points-at HEAD'),
+            'commit' => $git('log --pretty="%h" -n 1'),
+            'tag' => $git('tag --points-at HEAD', '(not set)'),
             'release_date' => trim($reldate)
         ];
 
