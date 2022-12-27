@@ -122,7 +122,25 @@ class ReadingFacade {
         // which other items.
         $sentence = new Sentence(999, $this->getTextItems($text));
         $all_textitems = $sentence->getTextItems();
-        $ret = array_filter($all_textitems, fn($t) => $t->WoID == $term->getID());
+
+        $termid = $term->getID();
+        $pid = null;
+        $parent = $term->getParent();
+        if ($parent != null)
+            $pid = $parent->getID();
+
+        // dump("term id = $termid, pid = $pid");
+        $filt = function($t) use ($termid, $pid) {
+            $tid = $t->WoID;
+            // $ttxt = $t->Text;
+            // dump("curr term id = $tid , and text = $ttxt");
+            $ret = ($tid == $termid);
+            if ($pid != null)
+                $ret = $ret || ($tid == $pid);
+            return $ret;
+        };
+
+        $ret = array_filter($all_textitems, $filt);
         return array_values($ret);
     }
 
