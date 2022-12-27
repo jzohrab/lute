@@ -24,6 +24,10 @@ class ExpressionUpdater {
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
         $eu = new ExpressionUpdater();
         $eu->associate_term_with_existing_texts($term);
+        $p = $term->getParent();
+        if ($p != null) {
+            $eu->associate_term_with_existing_texts($p);
+        }
     }
 
     public static function associateAllExactMatches(?Text $text = null) {
