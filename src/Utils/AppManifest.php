@@ -9,16 +9,19 @@ class AppManifest {
     }
 
     public static function write(): void {
-        $commit = shell_exec('git log --pretty="%h" -n 1');
-        $tag = shell_exec('git tag --points-at HEAD');
+        $gettrim = function($cmd) {
+            $ret = shell_exec($cmd);
+            // put in string in case it's null:
+            return trim("{$ret}");
+        };
 
         $date = new \DateTime();
         $reldate = $date->format(DATE_RFC2822);
 
         $m = [
-            'commit' => $commit,
-            'tag' => $tag,
-            'release_date' => $reldate
+            'commit' => $gettrim('git log --pretty="%h" -n 1'),
+            'tag' => $gettrim('git tag --points-at HEAD'),
+            'release_date' => trim($reldate)
         ];
 
         $h = fopen(AppManifest::manifestPath(), 'w');
@@ -28,16 +31,15 @@ class AppManifest {
 
     public static function read(): array {
         $manifest = AppManifest::manifestPath();
-        if (! file_exists($manifest)) {
-            return [
-                'commit' => null,
-                'tag' => null,
-                'release_date' => null
-            ];
-        }
-
+        $ret = [
+            'commit' => null,
+            'tag' => null,
+            'release_date' => null
+        ];
         if (file_exists($manifest)) {
-            return json_decode(file_get_contents($manifest));
+            $content = file_get_contents($manifest);
+            $ret = json_decode($content, true);
         }
+        return $ret;
     }
 }

@@ -12,9 +12,11 @@ final class AppManifest_Test extends TestCase
             unlink(AppManifest::manifestPath());
         AppManifest::write();
         $hsh = AppManifest::read();
+        // dump($hsh);
         foreach (['commit', 'tag', 'release_date'] as $key) {
-            echo $hsh[$key] . "\n";
-            $this->assertTrue($hsh[$key] != null, "have $key");
+            // echo "'" . $hsh[$key] . "'\n";
+            $exists = array_key_exists($key, $hsh);
+            $this->assertTrue($exists, "have $key");
         }
     }
 
