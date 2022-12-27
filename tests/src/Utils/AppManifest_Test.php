@@ -13,6 +13,7 @@ final class AppManifest_Test extends TestCase
         AppManifest::write();
         $hsh = AppManifest::read();
         foreach (['commit', 'tag', 'release_date'] as $key) {
+            echo $hsh[$key] . "\n";
             $this->assertTrue($hsh[$key] != null, "have $key");
         }
     }
