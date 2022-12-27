@@ -97,6 +97,7 @@
     "squizlabs/php_codesniffer": "Following code style standards is a good thing"
   },
   "scripts": {
+    "app:release": "./utils/create_release.sh",
     "dev:class": "./utils/entityInterface.sh",
     "todo:list": "composer dev:find TODO",
     "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
@@ -129,6 +130,7 @@
     
   },
   "scripts-descriptions": {
+    "app:release": "Make release package ../lute_release.zip",
     "dev:class": "Show public interface methods of class",
     "todo:list": "Show code todos",
     "todo:types": "Show types of todos",
