@@ -56,6 +56,7 @@ zip -r ../lute_release.zip . -x "*.git*" -x "*tests*" -x "utils" -x "*var*" > /d
 echo
 echo "Restoring my .env files"
 cp "${BACKUPDIR}/.env.local" .
+cp "${BACKUPDIR}/.env.test.local" .
 
 echo
 echo "Done, backup created:"
