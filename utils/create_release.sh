@@ -32,6 +32,10 @@ cp .env.local.example .env.local
 cp .env.test.local.example .env.test.local
 
 echo
+echo "Removing dev dependencies to reduce zip size."
+APP_ENV=prod composer install --no-dev
+
+echo
 echo "Making the zip file:"
 touch ../lute_release.zip
 rm ../lute_release.zip
@@ -41,6 +45,10 @@ echo
 echo "Restoring my .env files"
 cp "${BACKUPDIR}/.env.local" .
 cp "${BACKUPDIR}/.env.test.local" .
+
+echo
+echo "Restoring dev dependencies."
+APP_ENV=dev composer install --dev
 
 echo
 echo "Done, release created:"
