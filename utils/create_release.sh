@@ -51,7 +51,7 @@ echo
 echo "Making the zip file:"
 touch ../lute_release.zip
 rm ../lute_release.zip
-zip -r ../lute_release.zip . -x "*.git*" -x "*tests*" -x "utils" -x "*var*" > /dev/null
+zip -r ../lute_release.zip . -x ".git" -x "tests" -x "utils" -x "var" > /dev/null
 
 echo
 echo "Restoring my .env files"
