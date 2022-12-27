@@ -2,6 +2,19 @@
 
 set -e
 
+# Files are changed here, so you should have your own copies safely stored.
+BACKUPDIR=../lute_my_files
+if [[ ! -f "${BACKUPDIR}/.env.local" ]]
+then
+    echo "Missing backup .env.local, quitting."
+    exit 1
+fi
+if [[ ! -f "${BACKUPDIR}/.env.test.local" ]]
+then
+    echo "Missing backup .env.test.local, quitting."
+    exit 1
+fi
+
 # Run this script from the project root directory.
 clear
 echo "Creating release."
@@ -12,18 +25,6 @@ echo Generating manifest.
 php utils/write_app_manifest.php
 cat manifest.json
 echo
-
-BACKUPDIR=../lute_release_copies
-mkdir -p $BACKUPDIR
-echo
-echo "Backing up my files to ${BACKUPDIR}."
-echo "Backup of files during lute release gen" > $BACKUPDIR/README.txt
-cp .env.local "${BACKUPDIR}/"
-cp .env.test.local "${BACKUPDIR}/"
-cp public/css/styles-overrides.css "${BACKUPDIR}/"
-
-# echo "Verify:"
-# ls -a -1 $BACKUPDIR
 
 echo
 echo "Make .env[.test].local"
