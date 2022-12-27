@@ -335,6 +335,57 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    /**
+     * @group prodbugparent
+     */
+    public function test_update_textitem_with_parent() {
+        $text = $this->create_text("Tener", "tiene y tener.", $this->spanish);
+        $tid = $text->getID();
+
+        $sentences = $this->facade->getSentences($text);
+        $sentence = $sentences[0];
+
+        $spanid_to_text = [];
+        foreach ($sentence->getTextItems() as $ti) {
+            $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+        }
+
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
+        $tiene = array_values($tis)[0];
+        $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
+        $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
+
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tener');
+        $tener = array_values($tis)[0];
+        $this->assertEquals($tener->TextLC, 'tener', 'sanity check, got tener');
+        $this->assertEquals($tener->WoID, 0, 'sanity check, new word');
+
+        $term = $this->reading_repo->load(0, $tid, $tiene->Order, 'tiene');
+        $term->setParentText('tener');
+        $term->setStatus(1);
+
+        // The new term "tiene una bebida" should replace "tiene" on the UI.
+        [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
+        $wid = $term->getID();
+        $this->assertEquals(count($updatedTIs), 2, 'both updated');
+
+        $updated_tiene = $updatedTIs[0];
+        $this->assertEquals($updated_tiene->WoID, $wid, 'first is tiene');
+        $this->assertEquals($updated_tiene->TextLC, 'tiene', 'it says tiene');
+        $updated_tiene_replaces = $updates[$updated_tiene->getSpanID()]['replace'];
+        $this->assertEquals($updated_tiene_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
+
+        $tener_term = $this->reading_repo->load(0, $tid, $tiene->Order, 'tener');
+        $this->assertTrue($tener_term->getID() != 0, 'sanity check, tener also saved.');
+
+        $updated_tener = $updatedTIs[1];
+        $this->assertEquals($updated_tener->WoID, $tener_term->getID(), 'id = tener');
+        $this->assertEquals($updated_tener->TextLC, 'tener', 'it says tener');
+        $updated_tener_replaces = $updates[$updated_tener->getSpanID()]['replace'];
+        $this->assertEquals($updated_tener_replaces, $tener->getSpanID(), 'it replaces "tener"');
+    }
+
+
     public function test_get_prev_next_stays_in_current_language() {
 
         $s1 = $this->create_text("a 1", "Hola.", $this->spanish);
