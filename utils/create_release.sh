@@ -1,5 +1,20 @@
 #!/bin/bash
 
+set -e
+
+# Files are changed here, so you should have your own copies safely stored.
+BACKUPDIR=../lute_my_files
+if [[ ! -f "${BACKUPDIR}/.env.local" ]]
+then
+    echo "Missing backup .env.local, quitting."
+    exit 1
+fi
+if [[ ! -f "${BACKUPDIR}/.env.test.local" ]]
+then
+    echo "Missing backup .env.test.local, quitting."
+    exit 1
+fi
+
 # Run this script from the project root directory.
 clear
 echo "Creating release."
@@ -11,47 +26,20 @@ php utils/write_app_manifest.php
 cat manifest.json
 echo
 
-BACKUPDIR=../lute_release_copies
-mkdir -p $BACKUPDIR
 echo
-echo "Backing up my files to ${BACKUPDIR}."
-echo "Backup of files during lute release gen" > $BACKUPDIR/README.txt
-cp .env.local "${BACKUPDIR}/"
-cp .env.test.local "${BACKUPDIR}/"
-cp public/css/styles-overrides.css "${BACKUPDIR}/"
-
-echo "Verify:"
-ls -a -1 $BACKUPDIR
+echo "Make .env[.test].local"
+cp .env.local.example .env.local
+cp .env.test.local.example .env.test.local
 
 echo
-echo "Make .env.local:"
-
-# single quote, so things don't get interpolated
-echo '# Your personal settings
-
-APP_ENV=prod
-DB_DATABASE=lute_demo
-
-DB_HOSTNAME=localhost
-DB_USER=root
-DB_PASSWORD=root
-
-# Leave the next line as-is :-)
-DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${DB_DATABASE}?serverVersion=8&charset=utf8' > .env.local
-
-echo ----------------------------
-cat .env.local
-echo ----------------------------
-
-echo
-echo "Remove .env.test.local:"
-rm .env.test.local
+echo "Removing dev dependencies to reduce zip size."
+APP_ENV=prod composer install --no-dev
 
 echo
 echo "Making the zip file:"
 touch ../lute_release.zip
 rm ../lute_release.zip
-zip -r ../lute_release.zip . -x "*.git*" -x "*tests*" -x "utils" -x "*var*" > /dev/null
+zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*"
 
 echo
 echo "Restoring my .env files"
@@ -59,5 +47,28 @@ cp "${BACKUPDIR}/.env.local" .
 cp "${BACKUPDIR}/.env.test.local" .
 
 echo
-echo "Done, backup created:"
+echo "Restoring dev dependencies."
+APP_ENV=dev composer install --dev
+
+echo
+echo "Done, release created:"
 ls -larth ../lute_release.zip
+
+echo
+echo "Make ../lute_release folder for local testing."
+RELTESTDIR="../lute_release"
+rm -rf "$RELTESTDIR"
+mkdir -p "$RELTESTDIR"
+cp ../lute_release.zip "$RELTESTDIR"
+echo "Unzipping to $RELTESTDIR ..."
+
+pushd "$RELTESTDIR"
+  unzip -q lute_release.zip
+  rm lute_release.zip
+  echo "Done."
+  # ls -larth
+popd
+
+echo
+echo "Done."
+echo "Change the .env.local in $RELTESTDIR for testing environment as needed."

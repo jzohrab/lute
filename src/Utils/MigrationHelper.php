@@ -133,6 +133,11 @@ class MigrationHelper {
         return ($dbname == 'lute_demo');
     }
 
+    public static function isLuteTest() {
+        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        return (str_starts_with($dbname, 'test_'));
+    }
+
     public static function isEmptyDemo() {
         if (! MigrationHelper::isLuteDemo())
             return false;
