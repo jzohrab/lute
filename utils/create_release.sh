@@ -32,6 +32,13 @@ echo '# Your personal settings
 APP_ENV=prod
 DB_DATABASE=lute_demo
 
+# DB_HOSTNAME varies, depending on your platform.
+# Use whichever line is appropriate for your system
+# as an example for the actual configuration.
+#
+# DB_HOSTNAME=localhost         # regular Apache/PHP
+# DB_HOSTNAME=127.0.0.1:8889    # MAMP
+
 DB_HOSTNAME=localhost
 DB_USER=root
 DB_PASSWORD=root
