@@ -145,6 +145,21 @@ class ReadingFacade {
     }
 
 
+    /**
+     * Get fully populated Term from database, or create a new one with available data.
+     *
+     * @param wid  int    WoID, an actual ID, or 0 if new.
+     * @param tid  int    TxID, text ID
+     * @param ord  int    Ti2Order, the order in the text
+     * @param text string Multiword text (overrides tid/ord text)
+     *
+     * @return Term
+     */
+    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term {
+        return $this->repo->load($wid, $tid, $ord, $text);
+    }
+
+
     /** Save a term, and return an array of UI updates. */
     public function save(Term $term, Text $text): array {
         // Need to know if the term is new or not, because if it's a
