@@ -2,11 +2,11 @@
 
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\ExpressionUpdater;
+use App\Repository\TextItemRepository;
 use App\Entity\Text;
 use App\Entity\Term;
 
-final class ExpressionUpdater_Test extends DatabaseTestBase
+final class TextItemRepository_Test extends DatabaseTestBase
 {
 
     public function childSetUp(): void
@@ -35,14 +35,14 @@ final class ExpressionUpdater_Test extends DatabaseTestBase
         $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], "nothing associated yet");
 
-        ExpressionUpdater::mapForTerm($bueno);
+        TextItemRepository::mapForTerm($bueno);
 
         $tid = $t->getID();
         DbHelpers::assertTableContains($sql, [ "{$tid}; bueno" ]);
     }
 
 
-    // ExpressionUpdater was treating "que" and "qué" as the same
+    // TextItemRepository was treating "que" and "qué" as the same
     // word, which is wrong.
     public function test_accented_words_are_different()
     {
@@ -60,7 +60,7 @@ final class ExpressionUpdater_Test extends DatabaseTestBase
         $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], "nothing associated yet");
 
-        ExpressionUpdater::mapForTerm($que);
+        TextItemRepository::mapForTerm($que);
 
         $tid = $t->getID();
         DbHelpers::assertTableContains($sql, [ "{$tid}; que" ]);

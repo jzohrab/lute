@@ -6,7 +6,7 @@ use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
 use App\Domain\Parser;
-use App\Domain\ExpressionUpdater;
+use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -55,7 +55,7 @@ class TextRepository extends ServiceEntityRepository
 
                 if ($parseTexts) {
                     Parser::parse($entity);
-                    ExpressionUpdater::mapForText($entity);
+                    TextItemRepository::mapForText($entity);
                 }
             }
         }

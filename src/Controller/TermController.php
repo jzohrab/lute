@@ -6,7 +6,7 @@ use App\Entity\Term;
 use App\Form\TermType;
 use App\Repository\TermRepository;
 use App\Repository\ReadingRepository;
-use App\Domain\ExpressionUpdater;
+use App\Repository\TextItemRepository;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,7 +55,7 @@ class TermController extends AbstractController
             return;
         if ($entity->getID() == null)
             throw new \Exception("associateTextItems can't be set for null ID (" . $entity->getText() . ")");
-        ExpressionUpdater::mapForTerm($entity);
+        TextItemRepository::mapForTerm($entity);
     }
 
 

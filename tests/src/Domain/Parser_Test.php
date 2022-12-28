@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../src/Domain/Parser.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\Parser;
-use App\Domain\ExpressionUpdater;
+use App\Repository\TextItemRepository;
 use App\Entity\Text;
 use App\Entity\Term;
 
@@ -65,7 +65,7 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, [], 'nothing in table before parsing.');
         
         Parser::parse($t);
-        ExpressionUpdater::mapForText($t);
+        TextItemRepository::mapForText($t);
 
         $expected = [
             "1; 1; Hola; hola",
@@ -106,7 +106,7 @@ final class Parser_Test extends DatabaseTestBase
         $t = $this->spanish_hola_text;
 
         Parser::parse($t);
-        ExpressionUpdater::mapForText($t);
+        TextItemRepository::mapForText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
@@ -159,7 +159,7 @@ final class Parser_Test extends DatabaseTestBase
         $this->text_repo->save($t, true, false);
 
         Parser::parse($t);
-        ExpressionUpdater::mapForText($t);
+        TextItemRepository::mapForText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -197,7 +197,7 @@ final class Parser_Test extends DatabaseTestBase
         $this->text_repo->save($t, true, false);
 
         Parser::parse($t);
-        ExpressionUpdater::mapForText($t);
+        TextItemRepository::mapForText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -250,7 +250,7 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::add_word($spid, 'Tanto daba', 'tanto daba', 1, 2);
 
         Parser::parse($t);
-        ExpressionUpdater::mapForText($t);
+        TextItemRepository::mapForText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
@@ -285,7 +285,7 @@ final class Parser_Test extends DatabaseTestBase
         $this->term_repo->save($term, true);
 
         Parser::parse($t);
-        ExpressionUpdater::mapForText($t);
+        TextItemRepository::mapForText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";

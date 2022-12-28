@@ -12,12 +12,12 @@ use App\Utils\Connection;
 // TODO:renameclass ... This is a bad name.  It's really a
 // TextItem-related method, perhaps TextItemRepository is best.
 // Then the method names could be associateFor[Text|Term].
-class ExpressionUpdater {
+class TextItemRepository {
 
     /** PUBLIC **/
     
     public static function mapForText(Text $text) {
-        $eu = new ExpressionUpdater();
+        $eu = new TextItemRepository();
         $eu->associate_all_exact_text_matches($text);
         $eu->add_multiword_terms_for_text($text);
     }
@@ -25,7 +25,7 @@ class ExpressionUpdater {
     public static function mapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
-        $eu = new ExpressionUpdater();
+        $eu = new TextItemRepository();
         $eu->associate_term_with_existing_texts($term);
         $p = $term->getParent();
         if ($p != null) {
@@ -36,7 +36,7 @@ class ExpressionUpdater {
     public static function unmapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
-        $eu = new ExpressionUpdater();
+        $eu = new TextItemRepository();
         $eu->unmap_all($term);
         $p = $term->getParent();
         if ($p != null) {
@@ -47,7 +47,7 @@ class ExpressionUpdater {
 
     /** Map all TextItems that match the TextLC of saved Terms in Text. */
     public static function mapStringMatchesForText(Text $text) {
-        $eu = new ExpressionUpdater();
+        $eu = new TextItemRepository();
         $eu->associate_all_exact_text_matches($text);
     }
 

@@ -8,7 +8,7 @@ use App\Entity\Sentence;
 use App\Entity\TextItem;
 use App\Entity\Language;
 use App\Domain\Parser;
-use App\Domain\ExpressionUpdater;
+use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
 use Doctrine\ORM\EntityManagerInterface;
  
@@ -234,11 +234,11 @@ class ReadingRepository
     // the TermRepository, because Terms themselves don't know about TextItems.
     public function save(Term $term): void {
         $this->term_repo->save($term, true);
-        ExpressionUpdater::mapForTerm($term);
+        TextItemRepository::mapForTerm($term);
     }
 
     public function remove(Term $term): void {
-        ExpressionUpdater::unmapForTerm($term);
+        TextItemRepository::unmapForTerm($term);
         $this->term_repo->remove($term, true);
     }
 

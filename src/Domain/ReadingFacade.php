@@ -56,7 +56,7 @@ class ReadingFacade {
             // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
             Parser::parse($text);
             // TODO:parsing - Seems odd to have to call this separately after parsing.
-            ExpressionUpdater::mapForText($text);
+            TextItemRepository::mapForText($text);
 
             $tis = $this->repo->getTextItems($text);
         }
@@ -67,7 +67,7 @@ class ReadingFacade {
     public function mark_unknowns_as_known(Text $text) {
         // Ensure that no words have been created that already map to
         // any of the $text's textitems2.
-        ExpressionUpdater::mapStringMatchesForText($text);
+        TextItemRepository::mapStringMatchesForText($text);
 
         $tis = $this->repo->getTextItems($text);
 
@@ -87,7 +87,7 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
 
-        ExpressionUpdater::mapStringMatchesForText($text);
+        TextItemRepository::mapStringMatchesForText($text);
     }
 
     public function update_status(Text $text, array $words, int $newstatus) {
@@ -105,7 +105,7 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
 
-        ExpressionUpdater::mapStringMatchesForText($text);
+        TextItemRepository::mapStringMatchesForText($text);
     }
 
     public function get_prev_next(Text $text) {
