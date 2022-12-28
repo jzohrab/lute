@@ -365,31 +365,6 @@ function handle_keydown (e) {
     return false;
   }
 
-  // Not ported (yet?)
-  /*
-  if (e.which == 80) { // P : pronounce term
-    const lg = getLangFromDict(WBLINK3);
-    readTextAloud(txt, lg);
-    return false;
-  }
-  */
-
-  /*
-  if (e.which == 65) { // A : set audio pos.
-    let p = curr.attr('data_pos');
-    const t = parseInt($('#totalcharcount').text(), 10);
-    if (t == 0) return true;
-    p = 100 * (p - 5) / t;
-    if (p < 0) p = 0;
-    if (typeof (window.parent.frames.h.new_pos) === 'function') { 
-      window.parent.frames.h.new_pos(p); 
-    } else { 
-      return true; 
-    }
-    return false;
-  }
-  */
-  
   return true;
 }
 
