@@ -9,7 +9,9 @@ use App\Repository\TermRepository;
 use App\Utils\Connection;
 
 
-
+// TODO:renameclass ... This is a bad name.  It's really a
+// TextItem-related method, perhaps TextItemRepository is best.
+// Then the method names could be associateFor[Text|Term].
 class ExpressionUpdater {
 
     /** PUBLIC **/
