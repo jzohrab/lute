@@ -118,9 +118,7 @@ where ti2woid = 0";
 
     private function associate_term_with_existing_texts(Term $term)
     {
-        dump("associating for " . $term->getTextLC() . "\n");
         if ($term->getWordCount() == 1) {
-            dump("single");
             $woid = $term->getID();
             $lgid = $term->getLanguage()->getLgID();
             $updateti2sql = "UPDATE textitems2
