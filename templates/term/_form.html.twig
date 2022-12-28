@@ -189,7 +189,10 @@
       return;
     }
 
-    // TODO: the URL shouldn't be prepended with trash.
+    // TODO:fix_language_dict_asterisk
+    // The URL shouldn't be prepended with trash
+    // (e.g. "*http://" means "open an external window", while
+    // "http://" means "this can be opened in an iframe."
     // Instead, each dict should have an "is_external" property.
     if (is_external)
       dicturl = dicturl.slice(1);
