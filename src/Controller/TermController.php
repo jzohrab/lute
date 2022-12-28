@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TermController extends AbstractController
 {
     #[Route('/', name: 'app_term_index', methods: ['GET'])]
-    public function index(TermRepository $termRepository): Response
+    public function index(): Response
     {
         return $this->render('term/index.html.twig');
     }
