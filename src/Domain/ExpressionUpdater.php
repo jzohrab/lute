@@ -44,7 +44,9 @@ class ExpressionUpdater {
         }
     }
 
-    public static function associateAllExactMatches(?Text $text = null) {
+
+    /** Map all TextItems that match the TextLC of saved Terms in Text. */
+    public static function mapStringMatchesForText(Text $text) {
         $eu = new ExpressionUpdater();
         $eu->associate_all_exact_text_matches($text);
     }

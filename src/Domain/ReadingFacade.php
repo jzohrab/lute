@@ -67,7 +67,7 @@ class ReadingFacade {
     public function mark_unknowns_as_known(Text $text) {
         // Ensure that no words have been created that already map to
         // any of the $text's textitems2.
-        ExpressionUpdater::associateAllExactMatches($text);
+        ExpressionUpdater::mapStringMatchesForText($text);
 
         $tis = $this->repo->getTextItems($text);
 
@@ -87,7 +87,7 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
 
-        ExpressionUpdater::associateAllExactMatches($text);
+        ExpressionUpdater::mapStringMatchesForText($text);
     }
 
     public function update_status(Text $text, array $words, int $newstatus) {
@@ -105,7 +105,7 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
 
-        ExpressionUpdater::associateAllExactMatches($text);
+        ExpressionUpdater::mapStringMatchesForText($text);
     }
 
     public function get_prev_next(Text $text) {
