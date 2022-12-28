@@ -311,6 +311,40 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    private function get_text_textitem_matching($text, $textlc) {
+        $all_tis = $this->facade->getTextItems($text);
+        $matching_tis = array_filter($all_tis, fn($ti) => $ti->TextLC == $textlc);
+        $arr = array_values($matching_tis);
+        $this->assertEquals(count($arr), 1, "Guard against ambiguous return textitem!");
+        $ti = $arr[0];
+        $this->assertEquals($ti->TextLC, $textlc, "sanity check, got textitem for $textlc");
+        return $ti;
+    }
+
+    // Prod bug: setting all to known in one Text wasn't updating the TextItems in other texts!
+    /**
+     * @group prodbugknown
+     */
+    public function test_marking_as_known_updates_other_texts() {
+        $bebida_text = $this->create_text("Bebida", "Ella tiene una bebida.", $this->spanish);
+        $gato_text = $this->create_text("Gato", "Ella tiene un gato.", $this->spanish);
+        $this->facade->mark_unknowns_as_known($bebida_text);
+
+        $gti = function($textlc) use ($gato_text) {
+            return $this->get_text_textitem_matching($gato_text, $textlc);
+        };
+        $ella = $gti('ella');
+        $tiene = $gti('tiene');
+        $un = $gti('un');
+        $gato = $gti('gato');
+
+        $this->assertTrue($ella->WoID != 0, 'ella mapped');
+        $this->assertTrue($tiene->WoID != 0, 'tiene mapped');
+        $this->assertTrue($un->WoID == 0, 'un NOT mapped');
+        $this->assertTrue($gato->WoID == 0, 'gato NOT mapped');
+    }
+
+
     // Prod bug: when updating the status of an existing multi-term
     // TextItem (that hides other text items), the UI wasn't getting
     // updated, because the ID of the element to replace wasn't
