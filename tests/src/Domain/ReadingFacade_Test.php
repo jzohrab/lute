@@ -388,9 +388,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
-    /**
-     * @group prodbugparent
-     */
     public function test_update_textitem_with_parent() {
         $text = $this->create_text("Tener", "tiene y tener.", $this->spanish);
         $tid = $text->getID();
@@ -417,7 +414,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $term->setParentText('tener');
         $term->setStatus(1);
 
-        // The new term "tiene una bebida" should replace "tiene" on the UI.
+        // The new term "tiene" also updates "tener".
         [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
         $wid = $term->getID();
         $this->assertEquals(count($updatedTIs), 2, 'both updated');
@@ -436,6 +433,46 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($updated_tener->TextLC, 'tener', 'it says tener');
         $updated_tener_replaces = $updates[$updated_tener->getSpanID()]['replace'];
         $this->assertEquals($updated_tener_replaces, $tener->getSpanID(), 'it replaces "tener"');
+    }
+
+
+    private function get_sentence_textitem($sentence, $textlc) {
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $textlc);
+        $ti = array_values($tis)[0];
+        $this->assertEquals($ti->TextLC, $textlc, "sanity check, got textitem for $textlc");
+        return $ti;
+    }
+
+    // Updating a word with parent "que" was also updating "qué"
+    /**
+     * @group prodbugparent
+     */
+    public function test_update_textitem_with_parent_and_accent() {
+        $text = $this->create_text("Que", "Tengo que y qué.", $this->spanish);
+        $tid = $text->getID();
+
+        $sentences = $this->facade->getSentences($text);
+        $sentence = $sentences[0];
+
+        $spanid_to_text = [];
+        foreach ($sentence->getTextItems() as $ti) {
+            $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+        }
+
+        $tengo = $this->get_sentence_textitem($sentence, 'tengo');
+        $que = $this->get_sentence_textitem($sentence, 'que');
+        $que_accented = $this->get_sentence_textitem($sentence, 'qué');
+
+        $this->assertEquals($tengo->WoID, 0, 'sanity check, new word');
+
+        $term = $this->reading_repo->load(0, $tid, $tengo->Order, '');
+        $this->assertEquals($term->getText(), 'Tengo', 'sanity check, have Tengo');
+        $term->setParentText('que');
+
+        // The new term "tengo" also updates "que", but not "qué".
+        [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
+        $this->assertEquals(count($updatedTIs), 2, 'only 2 updated');
+        $wid = $term->getID();
     }
 
 
