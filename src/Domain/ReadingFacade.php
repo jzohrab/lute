@@ -9,6 +9,7 @@ use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TermRepository;
 use App\Repository\TextRepository;
+use App\Repository\TextItemRepository;
 use App\Repository\SettingsRepository;
 
 
