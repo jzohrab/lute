@@ -25,10 +25,10 @@ class TextItemRepository {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
         $eu = new TextItemRepository();
-        $eu->associate_term_with_existing_texts($term);
+        $eu->map_textitems_for_term($term);
         $p = $term->getParent();
         if ($p != null) {
-            $eu->associate_term_with_existing_texts($p);
+            $eu->map_textitems_for_term($p);
         }
     }
 
@@ -139,7 +139,7 @@ where ti2woid = 0 AND ti2lgid = {$lid}";
     }
 
 
-    private function associate_term_with_existing_texts(Term $term)
+    private function map_textitems_for_term(Term $term)
     {
         if ($term->getWordCount() == 1) {
             $this->associate_all_exact_text_matches($term->getLanguage(), null, $term);
