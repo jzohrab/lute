@@ -46,6 +46,31 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    /**
+     * @group associations
+     */
+    public function test_saving_term_associates_textitems()
+    {
+        $content = "Hola tengo un gato.";
+        $text = $this->create_text("Hola", $content, $this->spanish);
+
+        $sql = "select ti2woid, ti2textlc, wotextlc
+          from textitems2
+          left join words on wotextlc = ti2textlc
+          where ti2textlc = 'tengo'";
+        // DbHelpers::dumpTable($textitemssql);
+        $expected = [ '0; tengo; ' ];
+        DbHelpers::assertTableContains($sql, $expected, "No matches");
+
+        $term = $this->facade->load(0, $text->getID(), 0, 'tengo');
+        $this->facade->save($term, $text);
+
+        $expected = [ '1; tengo; tengo' ];
+        // DbHelpers::dumpTable($wordssql);
+        DbHelpers::assertTableContains($sql, $expected, "words created");
+    }
+
+
     public function test_mark_unknown_as_known_creates_words_and_updates_ti2s()
     {
         DbHelpers::add_word($this->spanish->getLgID(), "lista", "lista", 3, 1);
