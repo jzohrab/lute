@@ -339,19 +339,30 @@ function handle_keydown (e) {
   }
 
   if (e.which == kT) {
-    // TODO:translation
-    /*
-    const trans = 'trans.php?i=' + ord + '&t=' + tid;
-    const userdict = $('#translateURL').val();
-    if (userdict.substr(0, 5) == '*http') {
+    const selindex = current_word_index();
+    if (selindex == -1)
+      return;
+    const w = words.eq(selindex);
+    const seid = w.attr('seid');
+    const tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+    const sentence = tis.map(s => $(s).text()).join('');
+    // console.log(sentence);
+
+    const userdict = $('#translateURL').text();
+    if (userdict == null || userdict == '')
+      console.log('No userdict for lookup.  ???');
+
+    // console.log(userdict);
+    const url = userdict.replace('###', encodeURIComponent(sentence));
+    if (url[0] == '*') {
+      const finalurl = url.substring(1);  // drop first char.
       const settings = 'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no';
-      window.open(trans, 'dictwin', settings);
+      window.open(finalurl, 'dictwin', settings);
     }
     else {
-      showDictionaryFrame(trans);
+      top.frames.dictframe.location.href = url;
     }
     return false;
-    */
   }
 
   // Not ported (yet?)
