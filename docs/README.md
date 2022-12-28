@@ -17,7 +17,7 @@ _Everything is, of course, a work in progress._
 
 * [Development](./development.md)
 * [Exporting and restoring the db](./db_export_restore.md): notes about mysqldump, restoring.
-* Making `lute_release.zip`: run `composer app:release`, and attach the zipfile to a GitHub release.
+* [Making a release](./making_a_release.md)
 
 ## About Lute
 
