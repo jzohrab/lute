@@ -84,7 +84,11 @@ class TextItemRepository {
     }
 
 
-    private function associate_all_exact_text_matches(Language $lang, ?Text $text = null) {
+    private function associate_all_exact_text_matches(
+        Language $lang,
+        ?Text $text = null,
+        ?Term $term = null
+    ) {
         $lid = $lang->getLgID();
         $sql = "update textitems2
 inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
@@ -93,6 +97,10 @@ where ti2woid = 0 AND ti2lgid = {$lid}";
         if ($text != null) {
             $tid = $text->getID();
             $sql .= " AND ti2TxID = {$tid}";
+        }
+        if ($term != null) {
+            $wid = $term->getID();
+            $sql .= " AND WoID = {$wid}";
         }
         $this->exec_sql($sql);
     }
@@ -134,13 +142,7 @@ where ti2woid = 0 AND ti2lgid = {$lid}";
     private function associate_term_with_existing_texts(Term $term)
     {
         if ($term->getWordCount() == 1) {
-            $woid = $term->getID();
-            $lgid = $term->getLanguage()->getLgID();
-            $updateti2sql = "UPDATE textitems2
-              SET Ti2WoID = {$woid}
-              WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
-            $params = array("s", $term->getTextLC());
-            $this->exec_sql($updateti2sql, $params);
+            $this->associate_all_exact_text_matches($term->getLanguage(), null, $term);
         }
         else {
             $this->add_multiword_textitems(
