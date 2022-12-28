@@ -16,7 +16,7 @@ class TextItemRepository {
     /** Map all matching TextItems in a Text to all saved Terms. */
     public static function mapForText(Text $text) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches($text->getLanguage(), $text);
+        $eu->map_by_textlc($text->getLanguage(), $text);
         $eu->add_multiword_terms_for_text($text);
     }
 
@@ -47,14 +47,14 @@ class TextItemRepository {
     /** Map all TextItems in *this text* that match the TextLC of saved Terms. */
     public static function mapStringMatchesForText(Text $text) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches($text->getLanguage(), $text);
+        $eu->map_by_textlc($text->getLanguage(), $text);
     }
 
     /** Map all TextItems in *this and other texts* that match the
      * TextLC of saved Terms in this Text. */
     public static function mapStringMatchesForLanguage(Language $lang) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches($lang);
+        $eu->map_by_textlc($lang);
     }
 
 
@@ -84,7 +84,7 @@ class TextItemRepository {
     }
 
 
-    private function associate_all_exact_text_matches(
+    private function map_by_textlc(
         Language $lang,
         ?Text $text = null,
         ?Term $term = null
@@ -142,7 +142,7 @@ where ti2woid = 0 AND ti2lgid = {$lid}";
     private function map_textitems_for_term(Term $term)
     {
         if ($term->getWordCount() == 1) {
-            $this->associate_all_exact_text_matches($term->getLanguage(), null, $term);
+            $this->map_by_textlc($term->getLanguage(), null, $term);
         }
         else {
             $this->add_multiword_textitems(
