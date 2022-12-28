@@ -150,18 +150,16 @@ where ti2woid = 0";
 
     // Note that sentence range feels redundant, but is used elsewhere when new expr defined and ll texts in language have to be updated.
     /**
-     * Alter the database to add a new word
-     *
      * @param string $textlc Text in lower case
      * @param Language the language
-     * @param string $len
+     * @param string $wordcount
      * @param array  $sentenceIDRange   [ lower SeID, upper SeID ] to consider.
      */
     private function insertExpressions(
-        $textlc, Language $lang, $wid, $len, $sentenceIDRange = NULL
+        $textlc, Language $lang, $wid, $wordcount, $sentenceIDRange = NULL
     )
     {
-        if ($len < 2) {
+        if ($wordcount < 2) {
             throw new \Exception("Only call this for multi-word terms.");
         }
 
@@ -174,7 +172,7 @@ where ti2woid = 0";
         // dump("got sentences:");
         // dump($sentences);
         $this->insert_standard_expression(
-            $sentences, $lang, $textlc, $wid, $len
+            $sentences, $lang, $textlc, $wid, $wordcount
         );
     }
     
@@ -315,7 +313,7 @@ where ti2woid = 0";
      * @param array  $sentenceIDRange
      */
     private function insert_standard_expression(
-        $sentences, Language $lang, $textlc, $wid, $len
+        $sentences, Language $lang, $textlc, $wid, $wordcount
     )
     {
         $lid = $lang->getLgID();
@@ -343,7 +341,7 @@ where ti2woid = 0";
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $params = array(
                     "iiiiiis",
-                    $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
+                    $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $wordcount, $txt);
                 $this->exec_sql($sql, $params);
 
             } // end foreach termmatches
