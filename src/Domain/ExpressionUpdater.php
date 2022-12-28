@@ -16,8 +16,9 @@ class ExpressionUpdater {
 
     /** PUBLIC **/
     
-    public static function associateExpressionsInText(Text $text) {
+    public static function mapForText(Text $text) {
         $eu = new ExpressionUpdater();
+        $eu->associate_all_exact_text_matches($text);
         $eu->add_multiword_terms_for_text($text);
     }
 
