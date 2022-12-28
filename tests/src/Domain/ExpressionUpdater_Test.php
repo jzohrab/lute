@@ -35,7 +35,7 @@ final class ExpressionUpdater_Test extends DatabaseTestBase
         $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], "nothing associated yet");
 
-        ExpressionUpdater::associateTermTextItems($bueno);
+        ExpressionUpdater::mapForTerm($bueno);
 
         $tid = $t->getID();
         DbHelpers::assertTableContains($sql, [ "{$tid}; bueno" ]);
@@ -60,7 +60,7 @@ final class ExpressionUpdater_Test extends DatabaseTestBase
         $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], "nothing associated yet");
 
-        ExpressionUpdater::associateTermTextItems($que);
+        ExpressionUpdater::mapForTerm($que);
 
         $tid = $t->getID();
         DbHelpers::assertTableContains($sql, [ "{$tid}; que" ]);

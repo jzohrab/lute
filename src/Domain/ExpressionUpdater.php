@@ -22,7 +22,7 @@ class ExpressionUpdater {
         $eu->add_multiword_terms_for_text($text);
     }
 
-    public static function associateTermTextItems(Term $term) {
+    public static function mapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
         $eu = new ExpressionUpdater();

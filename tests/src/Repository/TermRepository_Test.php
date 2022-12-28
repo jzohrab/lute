@@ -72,7 +72,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setRomanization('ho-la');
         $this->term_repo->save($t, true);
 
-        ExpressionUpdater::associateTermTextItems($t);
+        ExpressionUpdater::mapForTerm($t);
 
         $sql = "select Ti2WoID, Ti2LgID, Ti2Text from textitems2 order by Ti2LgID";
         $expected = [
@@ -259,7 +259,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->term_repo->save($t, true);
         DbHelpers::assertTableContains($sql, [], "still no");
 
-        ExpressionUpdater::associateTermTextItems($t);
+        ExpressionUpdater::mapForTerm($t);
         $expected = [ "{$t->getID()}; 1; 1; tengo" ];
         DbHelpers::assertTableContains($sql, $expected, "_NOW_ associated spanish text");
 
@@ -267,7 +267,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $t->setText("un gato");
         $this->term_repo->save($t, true);
-        ExpressionUpdater::associateTermTextItems($t);
+        ExpressionUpdater::mapForTerm($t);
 
         $expected[] = "{$t->getID()}; 1; 2; un gato";
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
@@ -285,7 +285,7 @@ final class TermRepository_Test extends DatabaseTestBase
 
         $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
         $expected[] = "{$t->getID()}; 1; 2; un gato";
-        ExpressionUpdater::associateTermTextItems($t);
+        ExpressionUpdater::mapForTerm($t);
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
 
         // Update and resave

@@ -55,7 +55,7 @@ class TermController extends AbstractController
             return;
         if ($entity->getID() == null)
             throw new \Exception("associateTextItems can't be set for null ID (" . $entity->getText() . ")");
-        ExpressionUpdater::associateTermTextItems($entity);
+        ExpressionUpdater::mapForTerm($entity);
     }
 
 
