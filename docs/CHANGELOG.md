@@ -1,3 +1,5 @@
 # Changelog
 
-* Working on Minimum Viable Product (MVP) right now.  Once the project is released, this should be updated.
+## 2022-12
+
+* Start of MVP, forked off of https://github.com/HugoFara/lwt.
