@@ -105,7 +105,7 @@ where ti2woid = 0";
         $mwordsql = "SELECT * FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
         $res = $this->conn->query($mwordsql);
         while ($record = mysqli_fetch_assoc($res)) {
-            $this->insertExpressions(
+            $this->add_multiword_textitems(
                 $record['WoTextLC'],
                 $text->getLanguage(),
                 $record['WoID'],
@@ -128,7 +128,7 @@ where ti2woid = 0";
             $this->exec_sql($updateti2sql, $params);
         }
         else {
-            $this->insertExpressions(
+            $this->add_multiword_textitems(
                 $term->getTextLC(),
                 $term->getLanguage(),
                 $term->getID(),
@@ -155,7 +155,7 @@ where ti2woid = 0";
      * @param string $wordcount
      * @param array  $sentenceIDRange   [ lower SeID, upper SeID ] to consider.
      */
-    private function insertExpressions(
+    private function add_multiword_textitems(
         $textlc, Language $lang, $wid, $wordcount, $sentenceIDRange = NULL
     )
     {
