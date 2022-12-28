@@ -33,14 +33,14 @@ class ExpressionUpdater {
         }
     }
 
-    public static function breakAll(Term $term) {
+    public static function unmapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
         $eu = new ExpressionUpdater();
-        $eu->break_all($term);
+        $eu->unmap_all($term);
         $p = $term->getParent();
         if ($p != null) {
-            $eu->break_all($p);
+            $eu->unmap_all($p);
         }
     }
 
@@ -145,7 +145,7 @@ where ti2woid = 0";
         }
     }
 
-    private function break_all(Term $term)
+    private function unmap_all(Term $term)
     {
         $woid = $term->getID();
         $updateti2sql = "UPDATE textitems2

@@ -238,7 +238,7 @@ class ReadingRepository
     }
 
     public function remove(Term $term): void {
-        ExpressionUpdater::breakAll($term);
+        ExpressionUpdater::unmapForTerm($term);
         $this->term_repo->remove($term, true);
     }
 
