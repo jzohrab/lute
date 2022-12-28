@@ -56,9 +56,6 @@ class ReadingFacade {
             // Catch-all to clean up bad parsing data.
             // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
             Parser::parse($text);
-            // TODO:parsing - Seems odd to have to call this separately after parsing.
-            TextItemRepository::mapForText($text);
-
             $tis = $this->repo->getTextItems($text);
         }
 
