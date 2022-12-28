@@ -16,7 +16,7 @@ class TextItemRepository {
     /** Map all matching TextItems in a Text to all saved Terms. */
     public static function mapForText(Text $text) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches($text);
+        $eu->associate_all_exact_text_matches($text->getLanguage(), $text);
         $eu->add_multiword_terms_for_text($text);
     }
 
@@ -47,14 +47,14 @@ class TextItemRepository {
     /** Map all TextItems in *this text* that match the TextLC of saved Terms. */
     public static function mapStringMatchesForText(Text $text) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches($text);
+        $eu->associate_all_exact_text_matches($text->getLanguage(), $text);
     }
 
     /** Map all TextItems in *this and other texts* that match the
      * TextLC of saved Terms in this Text. */
     public static function mapStringMatchesForLanguage(Language $lang) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches_for_language($lang);
+        $eu->associate_all_exact_text_matches($lang);
     }
 
 
@@ -84,24 +84,19 @@ class TextItemRepository {
     }
 
 
-    private function associate_all_exact_text_matches(Text $text) {
-        $tid = $text->getID();
+    private function associate_all_exact_text_matches(Language $lang, ?Text $text = null) {
+        $lid = $lang->getLgID();
         $sql = "update textitems2
 inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
 set ti2woid = woid
-where ti2woid = 0 AND ti2TxID = {$tid}";
+where ti2woid = 0 AND ti2lgid = {$lid}";
+        if ($text != null) {
+            $tid = $text->getID();
+            $sql .= " AND ti2TxID = {$tid}";
+        }
         $this->exec_sql($sql);
     }
     
-
-    private function associate_all_exact_text_matches_for_language(Language $lang) {
-        $lid = $lang->getLgID();
-        $sql = "update textitems2
-inner join words on wotextlc = ti2textlc and wolgid = ti2lgid
-set ti2woid = woid
-where ti2woid = 0 and ti2lgid = {$lid}";
-        $this->exec_sql($sql);
-    }
 
     private function add_multiword_terms_for_text(Text $text)
     {
