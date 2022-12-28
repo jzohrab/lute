@@ -172,6 +172,10 @@ class ReadingFacade {
         return $this->getUIUpdates($text, $term, $is_new);
     }
 
+    /** Remove term. */
+    public function remove(Term $term) {
+        $this->repo->remove($term, true);
+    }
 
     /**
      * Get the UI items to replace and hide (delete).

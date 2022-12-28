@@ -30,6 +30,17 @@ class ExpressionUpdater {
         }
     }
 
+    public static function breakAll(Term $term) {
+        if ($term->getTextLC() != null && $term->getID() == null)
+            throw new \Exception("Term {$term->getTextLC()} is not saved.");
+        $eu = new ExpressionUpdater();
+        $eu->break_all($term);
+        $p = $term->getParent();
+        if ($p != null) {
+            $eu->break_all($p);
+        }
+    }
+
     public static function associateAllExactMatches(?Text $text = null) {
         $eu = new ExpressionUpdater();
         $eu->associate_all_exact_text_matches($text);
@@ -123,6 +134,13 @@ where ti2woid = 0";
         }
     }
 
+    private function break_all(Term $term)
+    {
+        $woid = $term->getID();
+        $updateti2sql = "UPDATE textitems2
+           SET Ti2WoID = 0 WHERE Ti2WoID = {$woid}";
+        $this->exec_sql($updateti2sql);
+    }
 
     /** Expressions **************************/
 

@@ -77,7 +77,6 @@ class TermRepository extends ServiceEntityRepository
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
-            // TODO:mvp Remove textitem2 associations
             $this->getEntityManager()->flush();
         }
     }

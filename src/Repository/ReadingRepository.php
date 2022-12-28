@@ -235,4 +235,9 @@ class ReadingRepository
         ExpressionUpdater::associateTermTextItems($term);
     }
 
+    public function remove(Term $term): void {
+        ExpressionUpdater::breakAll($term);
+        $this->term_repo->remove($term, true);
+    }
+
 }
