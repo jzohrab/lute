@@ -48,16 +48,6 @@ class TermController extends AbstractController
     }
 
 
-    // Associating Terms with with texts happens here, rather than in
-    // the TermRepository, because we don't always want the
-    // associations to happen on every save (e.g., this slows down
-    // "set all to known", because each element is save separately).
-    // There are various things that could be fixed (eg, bulk Term
-    // saves could be batched), but it should suffice to handle the
-    // association at the form level, because the user is only
-    // submitting one item at a time.  If this is still too slow, then
-    // we should do something like a background queue/worker for
-    // updates.
     private function associateTextItems(?Term $entity): void
     {
         if ($entity == null)
