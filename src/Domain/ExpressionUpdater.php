@@ -18,7 +18,7 @@ class ExpressionUpdater {
     
     public static function associateExpressionsInText(Text $text) {
         $eu = new ExpressionUpdater();
-        $eu->loadExpressionsForText($text);
+        $eu->add_multiword_terms_for_text($text);
     }
 
     public static function associateTermTextItems(Term $term) {
@@ -88,7 +88,7 @@ where ti2woid = 0";
     
 
 
-    private function loadExpressionsForText(Text $text)
+    private function add_multiword_terms_for_text(Text $text)
     {
         $id = $text->getID();
         $lid = $text->getLanguage()->getLgID();
