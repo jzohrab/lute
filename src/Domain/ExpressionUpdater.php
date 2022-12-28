@@ -171,7 +171,7 @@ where ti2woid = 0";
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
         // dump("got sentences:");
         // dump($sentences);
-        $this->insert_standard_expression(
+        $this->add_multiword_textitems_for_sentences(
             $sentences, $lang, $textlc, $wid, $wordcount
         );
     }
@@ -306,13 +306,12 @@ where ti2woid = 0";
 
 
     /**
-     * Insert an expression.
      * @param string $textlc Text to insert in lower case
      * @param string $lid    Language ID
      * @param int    $wid    Word ID of the expression
      * @param array  $sentenceIDRange
      */
-    private function insert_standard_expression(
+    private function add_multiword_textitems_for_sentences(
         $sentences, Language $lang, $textlc, $wid, $wordcount
     )
     {
