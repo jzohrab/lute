@@ -118,11 +118,14 @@ where ti2woid = 0";
 
     private function associate_term_with_existing_texts(Term $term)
     {
+        dump("associating for " . $term->getTextLC() . "\n");
         if ($term->getWordCount() == 1) {
+            dump("single");
             $woid = $term->getID();
             $lgid = $term->getLanguage()->getLgID();
             $updateti2sql = "UPDATE textitems2
-              SET Ti2WoID = {$woid} WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
+              SET Ti2WoID = {$woid}
+              WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
             $params = array("s", $term->getTextLC());
             $this->exec_sql($updateti2sql, $params);
         }

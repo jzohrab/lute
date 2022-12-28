@@ -32,11 +32,37 @@ final class ExpressionUpdater_Test extends DatabaseTestBase
         $bueno->setText('bueno');
         $this->term_repo->save($bueno, true);
 
+        $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
+        DbHelpers::assertTableContains($sql, [], "nothing associated yet");
+
         ExpressionUpdater::associateTermTextItems($bueno);
 
-        $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
         $tid = $t->getID();
         DbHelpers::assertTableContains($sql, [ "{$tid}; bueno" ]);
     }
 
+
+    // ExpressionUpdater was treating "que" and "qué" as the same
+    // word, which is wrong.
+    public function test_accented_words_are_different()
+    {
+        $t = new Text();
+        $t->setTitle("Gato.");
+        $t->setText("Gato que qué.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
+
+        $que = new Term();
+        $que->setLanguage($this->spanish);
+        $que->setText('que');
+        $this->term_repo->save($que, true);
+
+        $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
+        DbHelpers::assertTableContains($sql, [], "nothing associated yet");
+
+        ExpressionUpdater::associateTermTextItems($que);
+
+        $tid = $t->getID();
+        DbHelpers::assertTableContains($sql, [ "{$tid}; que" ]);
+    }
 }
