@@ -44,10 +44,17 @@ class TextItemRepository {
         }
     }
 
-    /** Map all TextItems that match the TextLC of saved Terms in Text. */
+    /** Map all TextItems in *this text* that match the TextLC of saved Terms. */
     public static function mapStringMatchesForText(Text $text) {
         $eu = new TextItemRepository();
         $eu->associate_all_exact_text_matches($text);
+    }
+
+    /** Map all TextItems in *this and other texts* that match the
+     * TextLC of saved Terms in this Text. */
+    public static function mapStringMatchesForLanguage(Language $lang) {
+        $eu = new TextItemRepository();
+        $eu->associate_all_exact_text_matches_for_language($lang);
     }
 
 
@@ -87,6 +94,14 @@ where ti2woid = 0 AND ti2TxID = {$tid}";
     }
     
 
+    private function associate_all_exact_text_matches_for_language(Language $lang) {
+        $lid = $lang->getLgID();
+        $sql = "update textitems2
+inner join words on wotextlc = ti2textlc and wolgid = ti2lgid
+set ti2woid = woid
+where ti2woid = 0 and ti2lgid = {$lid}";
+        $this->exec_sql($sql);
+    }
 
     private function add_multiword_terms_for_text(Text $text)
     {
