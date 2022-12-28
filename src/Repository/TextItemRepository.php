@@ -9,19 +9,18 @@ use App\Repository\TermRepository;
 use App\Utils\Connection;
 
 
-// TODO:renameclass ... This is a bad name.  It's really a
-// TextItem-related method, perhaps TextItemRepository is best.
-// Then the method names could be associateFor[Text|Term].
 class TextItemRepository {
 
     /** PUBLIC **/
-    
+
+    /** Map all matching TextItems in a Text to all saved Terms. */
     public static function mapForText(Text $text) {
         $eu = new TextItemRepository();
         $eu->associate_all_exact_text_matches($text);
         $eu->add_multiword_terms_for_text($text);
     }
 
+    /** Map all matching TextItems to a Term. */
     public static function mapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
@@ -33,6 +32,7 @@ class TextItemRepository {
         }
     }
 
+    /** Break any TextItem-Term mappings for the Term. */
     public static function unmapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
@@ -43,7 +43,6 @@ class TextItemRepository {
             $eu->unmap_all($p);
         }
     }
-
 
     /** Map all TextItems that match the TextLC of saved Terms in Text. */
     public static function mapStringMatchesForText(Text $text) {
@@ -78,14 +77,12 @@ class TextItemRepository {
     }
 
 
-    private function associate_all_exact_text_matches(?Text $text) {
+    private function associate_all_exact_text_matches(Text $text) {
+        $tid = $text->getID();
         $sql = "update textitems2
 inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
 set ti2woid = woid
-where ti2woid = 0";
-        if ($text != null) {
-            $sql .= " AND ti2TxID = {$text->getID()}";
-        }
+where ti2woid = 0 AND ti2TxID = {$tid}";
         $this->exec_sql($sql);
     }
     
