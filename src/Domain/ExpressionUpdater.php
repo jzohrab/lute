@@ -100,8 +100,13 @@ where ti2woid = 0";
         $firstSeID = intval($rec['minseid']);
         $lastSeID = intval($rec['maxseid']);
     
-        // For each expession in the language, add expressions for the sentence range.
-        // Inefficient, but for now I don't care -- will see how slow it is.
+        // For each expession in the language, add expressions for the
+        // sentence range.  Inefficient, but for now I don't care --
+        // will see how slow it is.  Note it's not useful to limit it
+        // to multi-word terms that aren't in the text, since _most_
+        // of them won't be in the text.  The only useful check would
+        // be for new things added since the last parse date, which
+        // currently isn't tracked.
         $sentenceRange = [ $firstSeID, $lastSeID ];
         $mwordsql = "SELECT * FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
         $res = $this->conn->query($mwordsql);
