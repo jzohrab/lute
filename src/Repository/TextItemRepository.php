@@ -16,7 +16,7 @@ class TextItemRepository {
     /** Map all matching TextItems in a Text to all saved Terms. */
     public static function mapForText(Text $text) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches($text);
+        $eu->map_by_textlc($text->getLanguage(), $text);
         $eu->add_multiword_terms_for_text($text);
     }
 
@@ -25,10 +25,10 @@ class TextItemRepository {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
         $eu = new TextItemRepository();
-        $eu->associate_term_with_existing_texts($term);
+        $eu->map_textitems_for_term($term);
         $p = $term->getParent();
         if ($p != null) {
-            $eu->associate_term_with_existing_texts($p);
+            $eu->map_textitems_for_term($p);
         }
     }
 
@@ -44,10 +44,17 @@ class TextItemRepository {
         }
     }
 
-    /** Map all TextItems that match the TextLC of saved Terms in Text. */
+    /** Map all TextItems in *this text* that match the TextLC of saved Terms. */
     public static function mapStringMatchesForText(Text $text) {
         $eu = new TextItemRepository();
-        $eu->associate_all_exact_text_matches($text);
+        $eu->map_by_textlc($text->getLanguage(), $text);
+    }
+
+    /** Map all TextItems in *this and other texts* that match the
+     * TextLC of saved Terms in this Text. */
+    public static function mapStringMatchesForLanguage(Language $lang) {
+        $eu = new TextItemRepository();
+        $eu->map_by_textlc($lang);
     }
 
 
@@ -77,16 +84,27 @@ class TextItemRepository {
     }
 
 
-    private function associate_all_exact_text_matches(Text $text) {
-        $tid = $text->getID();
+    private function map_by_textlc(
+        Language $lang,
+        ?Text $text = null,
+        ?Term $term = null
+    ) {
+        $lid = $lang->getLgID();
         $sql = "update textitems2
 inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
 set ti2woid = woid
-where ti2woid = 0 AND ti2TxID = {$tid}";
+where ti2woid = 0 AND ti2lgid = {$lid}";
+        if ($text != null) {
+            $tid = $text->getID();
+            $sql .= " AND ti2TxID = {$tid}";
+        }
+        if ($term != null) {
+            $wid = $term->getID();
+            $sql .= " AND WoID = {$wid}";
+        }
         $this->exec_sql($sql);
     }
     
-
 
     private function add_multiword_terms_for_text(Text $text)
     {
@@ -121,16 +139,10 @@ where ti2woid = 0 AND ti2TxID = {$tid}";
     }
 
 
-    private function associate_term_with_existing_texts(Term $term)
+    private function map_textitems_for_term(Term $term)
     {
         if ($term->getWordCount() == 1) {
-            $woid = $term->getID();
-            $lgid = $term->getLanguage()->getLgID();
-            $updateti2sql = "UPDATE textitems2
-              SET Ti2WoID = {$woid}
-              WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
-            $params = array("s", $term->getTextLC());
-            $this->exec_sql($updateti2sql, $params);
+            $this->map_by_textlc($term->getLanguage(), null, $term);
         }
         else {
             $this->add_multiword_textitems(

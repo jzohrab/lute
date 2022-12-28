@@ -63,8 +63,9 @@ class ReadingFacade {
     }
 
     public function mark_unknowns_as_known(Text $text) {
-        // Ensure that no words have been created that already map to
-        // any of the $text's textitems2.
+        // Map any TextItems in the text to existing Terms.  This
+        // ensures that we don't try to create new Terms for
+        // TextItems, if that Term already exists.
         TextItemRepository::mapStringMatchesForText($text);
 
         $tis = $this->repo->getTextItems($text);
@@ -85,7 +86,7 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
 
-        TextItemRepository::mapStringMatchesForText($text);
+        TextItemRepository::mapStringMatchesForLanguage($text->getLanguage());
     }
 
     public function update_status(Text $text, array $words, int $newstatus) {
