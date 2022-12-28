@@ -339,46 +339,32 @@ function handle_keydown (e) {
   }
 
   if (e.which == kT) {
-    // TODO:translation
-    /*
-    const trans = 'trans.php?i=' + ord + '&t=' + tid;
-    const userdict = $('#translateURL').val();
-    if (userdict.substr(0, 5) == '*http') {
+    const selindex = current_word_index();
+    if (selindex == -1)
+      return;
+    const w = words.eq(selindex);
+    const seid = w.attr('seid');
+    const tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+    const sentence = tis.map(s => $(s).text()).join('');
+    // console.log(sentence);
+
+    const userdict = $('#translateURL').text();
+    if (userdict == null || userdict == '')
+      console.log('No userdict for lookup.  ???');
+
+    // console.log(userdict);
+    const url = userdict.replace('###', encodeURIComponent(sentence));
+    if (url[0] == '*') {
+      const finalurl = url.substring(1);  // drop first char.
       const settings = 'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no';
-      window.open(trans, 'dictwin', settings);
+      window.open(finalurl, 'dictwin', settings);
     }
     else {
-      showDictionaryFrame(trans);
-    }
-    return false;
-    */
-  }
-
-  // Not ported (yet?)
-  /*
-  if (e.which == 80) { // P : pronounce term
-    const lg = getLangFromDict(WBLINK3);
-    readTextAloud(txt, lg);
-    return false;
-  }
-  */
-
-  /*
-  if (e.which == 65) { // A : set audio pos.
-    let p = curr.attr('data_pos');
-    const t = parseInt($('#totalcharcount').text(), 10);
-    if (t == 0) return true;
-    p = 100 * (p - 5) / t;
-    if (p < 0) p = 0;
-    if (typeof (window.parent.frames.h.new_pos) === 'function') { 
-      window.parent.frames.h.new_pos(p); 
-    } else { 
-      return true; 
+      top.frames.dictframe.location.href = url;
     }
     return false;
   }
-  */
-  
+
   return true;
 }
 

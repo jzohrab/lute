@@ -20,7 +20,7 @@ $d = date("Ymd_His");
 $filename = "{$outdir}/{$d}_{$name}.sql";
 
 $f = fopen($filename, "w") or die("Unable to open file!");
-fwrite($f, "-- TODO");
+fwrite($f, "-- fill this in");
 fclose($f);
 
 echo "New migration file: $filename\n\n";

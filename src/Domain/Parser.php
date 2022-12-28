@@ -4,6 +4,7 @@ namespace App\Domain;
 
 use App\Entity\Text;
 use App\Entity\Language;
+use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
 use App\Utils\Connection;
 
@@ -79,6 +80,8 @@ class Parser {
         $arr = $this->build_insert_array($newcleantext);
         $this->load_temptextitems_from_array($arr);
         $this->import_temptextitems($text);
+
+        TextItemRepository::mapForText($text);
 
         TextStatsCache::force_refresh($text);
 

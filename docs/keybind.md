@@ -14,6 +14,7 @@
 | Home           | Move to first word  |
 | End            | Move to last word   |
 | Esc            | Reset marked term(s)                                                |
+| T              | Translate the sentence of the selected word   |
 
 
 ## Updating status

@@ -9,6 +9,7 @@ use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TermRepository;
 use App\Repository\TextRepository;
+use App\Repository\TextItemRepository;
 use App\Repository\SettingsRepository;
 
 
@@ -55,9 +56,6 @@ class ReadingFacade {
             // Catch-all to clean up bad parsing data.
             // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
             Parser::parse($text);
-            // TODO:parsing - Seems odd to have to call this separately after parsing.
-            ExpressionUpdater::associateExpressionsInText($text);
-
             $tis = $this->repo->getTextItems($text);
         }
 
@@ -67,7 +65,7 @@ class ReadingFacade {
     public function mark_unknowns_as_known(Text $text) {
         // Ensure that no words have been created that already map to
         // any of the $text's textitems2.
-        ExpressionUpdater::associateAllExactMatches($text);
+        TextItemRepository::mapStringMatchesForText($text);
 
         $tis = $this->repo->getTextItems($text);
 
@@ -87,7 +85,7 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
 
-        ExpressionUpdater::associateAllExactMatches($text);
+        TextItemRepository::mapStringMatchesForText($text);
     }
 
     public function update_status(Text $text, array $words, int $newstatus) {
@@ -105,7 +103,7 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
 
-        ExpressionUpdater::associateAllExactMatches($text);
+        TextItemRepository::mapStringMatchesForText($text);
     }
 
     public function get_prev_next(Text $text) {
@@ -145,6 +143,21 @@ class ReadingFacade {
     }
 
 
+    /**
+     * Get fully populated Term from database, or create a new one with available data.
+     *
+     * @param wid  int    WoID, an actual ID, or 0 if new.
+     * @param tid  int    TxID, text ID
+     * @param ord  int    Ti2Order, the order in the text
+     * @param text string Multiword text (overrides tid/ord text)
+     *
+     * @return Term
+     */
+    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term {
+        return $this->repo->load($wid, $tid, $ord, $text);
+    }
+
+
     /** Save a term, and return an array of UI updates. */
     public function save(Term $term, Text $text): array {
         // Need to know if the term is new or not, because if it's a
@@ -157,6 +170,10 @@ class ReadingFacade {
         return $this->getUIUpdates($text, $term, $is_new);
     }
 
+    /** Remove term. */
+    public function remove(Term $term) {
+        $this->repo->remove($term, true);
+    }
 
     /**
      * Get the UI items to replace and hide (delete).

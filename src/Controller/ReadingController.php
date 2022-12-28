@@ -7,7 +7,6 @@ use App\Repository\TextRepository;
 use App\Repository\TermRepository;
 use App\Repository\ReadingRepository;
 use App\Domain\Parser;
-use App\Domain\ExpressionUpdater;
 use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Form\TermType;

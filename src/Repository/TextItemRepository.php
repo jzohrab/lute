@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain;
+namespace App\Repository;
 
 use App\Entity\Text;
 use App\Entity\Term;
@@ -9,20 +9,22 @@ use App\Repository\TermRepository;
 use App\Utils\Connection;
 
 
-
-class ExpressionUpdater {
+class TextItemRepository {
 
     /** PUBLIC **/
-    
-    public static function associateExpressionsInText(Text $text) {
-        $eu = new ExpressionUpdater();
-        $eu->loadExpressionsForText($text);
+
+    /** Map all matching TextItems in a Text to all saved Terms. */
+    public static function mapForText(Text $text) {
+        $eu = new TextItemRepository();
+        $eu->associate_all_exact_text_matches($text);
+        $eu->add_multiword_terms_for_text($text);
     }
 
-    public static function associateTermTextItems(Term $term) {
+    /** Map all matching TextItems to a Term. */
+    public static function mapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
-        $eu = new ExpressionUpdater();
+        $eu = new TextItemRepository();
         $eu->associate_term_with_existing_texts($term);
         $p = $term->getParent();
         if ($p != null) {
@@ -30,8 +32,21 @@ class ExpressionUpdater {
         }
     }
 
-    public static function associateAllExactMatches(?Text $text = null) {
-        $eu = new ExpressionUpdater();
+    /** Break any TextItem-Term mappings for the Term. */
+    public static function unmapForTerm(Term $term) {
+        if ($term->getTextLC() != null && $term->getID() == null)
+            throw new \Exception("Term {$term->getTextLC()} is not saved.");
+        $eu = new TextItemRepository();
+        $eu->unmap_all($term);
+        $p = $term->getParent();
+        if ($p != null) {
+            $eu->unmap_all($p);
+        }
+    }
+
+    /** Map all TextItems that match the TextLC of saved Terms in Text. */
+    public static function mapStringMatchesForText(Text $text) {
+        $eu = new TextItemRepository();
         $eu->associate_all_exact_text_matches($text);
     }
 
@@ -62,20 +77,18 @@ class ExpressionUpdater {
     }
 
 
-    private function associate_all_exact_text_matches(?Text $text) {
+    private function associate_all_exact_text_matches(Text $text) {
+        $tid = $text->getID();
         $sql = "update textitems2
 inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
 set ti2woid = woid
-where ti2woid = 0";
-        if ($text != null) {
-            $sql .= " AND ti2TxID = {$text->getID()}";
-        }
+where ti2woid = 0 AND ti2TxID = {$tid}";
         $this->exec_sql($sql);
     }
     
 
 
-    private function loadExpressionsForText(Text $text)
+    private function add_multiword_terms_for_text(Text $text)
     {
         $id = $text->getID();
         $lid = $text->getLanguage()->getLgID();
@@ -86,13 +99,18 @@ where ti2woid = 0";
         $firstSeID = intval($rec['minseid']);
         $lastSeID = intval($rec['maxseid']);
     
-        // For each expession in the language, add expressions for the sentence range.
-        // Inefficient, but for now I don't care -- will see how slow it is.
+        // For each expession in the language, add expressions for the
+        // sentence range.  Inefficient, but for now I don't care --
+        // will see how slow it is.  Note it's not useful to limit it
+        // to multi-word terms that aren't in the text, since _most_
+        // of them won't be in the text.  The only useful check would
+        // be for new things added since the last parse date, which
+        // currently isn't tracked.
         $sentenceRange = [ $firstSeID, $lastSeID ];
         $mwordsql = "SELECT * FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
         $res = $this->conn->query($mwordsql);
         while ($record = mysqli_fetch_assoc($res)) {
-            $this->insertExpressions(
+            $this->add_multiword_textitems(
                 $record['WoTextLC'],
                 $text->getLanguage(),
                 $record['WoID'],
@@ -109,12 +127,13 @@ where ti2woid = 0";
             $woid = $term->getID();
             $lgid = $term->getLanguage()->getLgID();
             $updateti2sql = "UPDATE textitems2
-              SET Ti2WoID = {$woid} WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
+              SET Ti2WoID = {$woid}
+              WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
             $params = array("s", $term->getTextLC());
             $this->exec_sql($updateti2sql, $params);
         }
         else {
-            $this->insertExpressions(
+            $this->add_multiword_textitems(
                 $term->getTextLC(),
                 $term->getLanguage(),
                 $term->getID(),
@@ -123,24 +142,29 @@ where ti2woid = 0";
         }
     }
 
+    private function unmap_all(Term $term)
+    {
+        $woid = $term->getID();
+        $updateti2sql = "UPDATE textitems2
+           SET Ti2WoID = 0 WHERE Ti2WoID = {$woid}";
+        $this->exec_sql($updateti2sql);
+    }
 
     /** Expressions **************************/
 
 
     // Note that sentence range feels redundant, but is used elsewhere when new expr defined and ll texts in language have to be updated.
     /**
-     * Alter the database to add a new word
-     *
      * @param string $textlc Text in lower case
      * @param Language the language
-     * @param string $len
+     * @param string $wordcount
      * @param array  $sentenceIDRange   [ lower SeID, upper SeID ] to consider.
      */
-    private function insertExpressions(
-        $textlc, Language $lang, $wid, $len, $sentenceIDRange = NULL
+    private function add_multiword_textitems(
+        $textlc, Language $lang, $wid, $wordcount, $sentenceIDRange = NULL
     )
     {
-        if ($len < 2) {
+        if ($wordcount < 2) {
             throw new \Exception("Only call this for multi-word terms.");
         }
 
@@ -152,8 +176,8 @@ where ti2woid = 0";
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
         // dump("got sentences:");
         // dump($sentences);
-        $this->insert_standard_expression(
-            $sentences, $lang, $textlc, $wid, $len
+        $this->add_multiword_textitems_for_sentences(
+            $sentences, $lang, $textlc, $wid, $wordcount
         );
     }
     
@@ -287,14 +311,13 @@ where ti2woid = 0";
 
 
     /**
-     * Insert an expression.
      * @param string $textlc Text to insert in lower case
      * @param string $lid    Language ID
      * @param int    $wid    Word ID of the expression
      * @param array  $sentenceIDRange
      */
-    private function insert_standard_expression(
-        $sentences, Language $lang, $textlc, $wid, $len
+    private function add_multiword_textitems_for_sentences(
+        $sentences, Language $lang, $textlc, $wid, $wordcount
     )
     {
         $lid = $lang->getLgID();
@@ -322,7 +345,7 @@ where ti2woid = 0";
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $params = array(
                     "iiiiiis",
-                    $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
+                    $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $wordcount, $txt);
                 $this->exec_sql($sql, $params);
 
             } // end foreach termmatches
