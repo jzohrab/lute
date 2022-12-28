@@ -12,7 +12,7 @@ if [[ "$SINCE" == "" ]]; then
 fi
 
 echo "
-## `date '+%Y-%M-%d'`
+## `date '+%Y-%m-%d'`
 
 ---
 
