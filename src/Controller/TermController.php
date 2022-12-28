@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Term;
 use App\Form\TermType;
 use App\Repository\TermRepository;
+use App\Repository\ReadingRepository;
 use App\Domain\ExpressionUpdater;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -62,27 +63,23 @@ class TermController extends AbstractController
         \Symfony\Component\Form\Form $form,
         Request $request,
         Term $term,
-        TermRepository $repo
+        ReadingRepository $repo
     ): ?Response
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $repo->save($term, true);
-
-            $this->associateTextItems($term);
-            $this->associateTextItems($term->getParent());
-
+            $repo->save($term);
             return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
         }
         return null;
     }
 
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, TermRepository $termRepository): Response
+    public function new(Request $request, ReadingRepository $repo): Response
     {
         $term = new Term();
         $form = $this->createForm(TermType::class, $term);
-        $resp = $this->processTermForm($form, $request, $term, $termRepository);
+        $resp = $this->processTermForm($form, $request, $term, $repo);
         if ($resp != null)
             return $resp;
 
@@ -103,10 +100,10 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_term_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Term $term, TermRepository $termRepository): Response
+    public function edit(Request $request, Term $term, ReadingRepository $repo): Response
     {
         $form = $this->createForm(TermType::class, $term);
-        $resp = $this->processTermForm($form, $request, $term, $termRepository);
+        $resp = $this->processTermForm($form, $request, $term, $repo);
         if ($resp != null)
             return $resp;
 
@@ -119,10 +116,11 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_term_delete', methods: ['POST'])]
-    public function delete(Request $request, Term $term, TermRepository $termRepository): Response
+    public function delete(Request $request, Term $term, ReadingRepository $repo): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$term->getId(), $request->request->get('_token'))) {
-            $termRepository->remove($term, true);
+        $reqtok = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete'.$term->getId(), $reqtok)) {
+            $repo->remove($term);
         }
 
         return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
