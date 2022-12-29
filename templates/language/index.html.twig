@@ -10,10 +10,12 @@
   <p>No languages defined.</p>
 {% else %}
   
-<table class="table dataTable no-footer">
+<table class="table dataTable no-footer" style="width: 50%; margin: 0;">
   <thead>
     <tr>
       <th>Language</th>
+      <th>Texts</th>
+      <th>Terms</th>
     </tr>
   </thead>
   <tbody>
@@ -21,9 +23,24 @@
     <tr>
       <td>
         <a href="/language/{{ language.LgID }}/edit">
-          <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+          {{ language.LgName }}
         </a>
-        {{ language.LgName }}
+      </td>
+      <td>
+        {% set ltl = language.texts|length %}
+        {% if ltl > 0 %}
+        <a href="/text/index/{{ language.LgName }}">{{ ltl }}</a>
+        {% else %}
+        -
+        {% endif %}
+      </td>
+      <td>
+        {% set ltl = language.terms|length %}
+        {% if ltl > 0 %}
+        <a href="/term/index/{{ language.LgName }}">{{ ltl }}</a>
+        {% else %}
+        -
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

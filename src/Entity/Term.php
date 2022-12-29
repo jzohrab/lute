@@ -17,7 +17,7 @@ class Term
     #[ORM\Column(name: 'WoID', type: Types::SMALLINT)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
+    #[ORM\ManyToOne(targetEntity: 'Language', inversedBy: 'terms', fetch: 'EAGER')]
     #[ORM\JoinColumn(name: 'WoLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $language = null;
 

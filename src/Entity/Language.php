@@ -51,8 +51,16 @@ class Language
     #[ORM\Column(name: 'LgRightToLeft')]
     private ?bool $LgRightToLeft = false;
 
+    #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
+    private Collection $texts;
+
+    #[ORM\OneToMany(targetEntity: 'Term', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
+    private Collection $terms;
+
     public function __construct()
     {
+        $this->texts = new ArrayCollection();
+        $this->terms = new ArrayCollection();
     }
 
     public function getLgID(): ?int
@@ -197,6 +205,22 @@ class Language
         $this->LgRightToLeft = $LgRightToLeft;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Text[]
+     */
+    public function getTexts(): Collection
+    {
+        return $this->texts;
+    }
+
+    /**
+     * @return Collection|Term[]
+     */
+    public function getTerms(): Collection
+    {
+        return $this->terms;
     }
 
 

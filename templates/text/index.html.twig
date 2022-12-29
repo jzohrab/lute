@@ -44,7 +44,7 @@
 
 <script>
   
-  let setup_text_datatable = function() {
+  let setup_text_datatable = function(initial_search) {
     var table = $('#texttable').DataTable({
       responsive: true,
       select: true,
@@ -54,6 +54,7 @@
       searching: true,
       processing: true,
       serverSide: true,
+      search: { search: initial_search },
       columnDefs: [
         // "name" is the column name in your main SQL query.
         // If the "name" is blank, it's not considered in the SQL query.  This is useful for fields that aren't exact maps of SQL columns (e.g. for rendered cells.)
@@ -143,8 +144,11 @@
     //    $('table#texttable > td:nth-child(5),th:nth-child(5)').hide();
     // }
   } // end setup_text_datatable
-  
-  $(document).ready(function () { setup_text_datatable(); });
+
+
+  $(document).ready(function () {
+    setup_text_datatable("{{ initial_search ?? '' }}");
+  });
 
   
   function do_action_post(action, textid) {
