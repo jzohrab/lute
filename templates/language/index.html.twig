@@ -27,14 +27,20 @@
         </a>
       </td>
       <td>
-        <a href="/text/index/{{ language.LgName }}">
-          {{ language.texts|length }}
-        </a>
+        {% set ltl = language.texts|length %}
+        {% if ltl > 0 %}
+        <a href="/text/index/{{ language.LgName }}">{{ ltl }}</a>
+        {% else %}
+        -
+        {% endif %}
       </td>
       <td>
-        <a href="/term/index/{{ language.LgName }}">
-          {{ language.terms|length }}
-        </a>
+        {% set ltl = language.terms|length %}
+        {% if ltl > 0 %}
+        <a href="/term/index/{{ language.LgName }}">{{ ltl }}</a>
+        {% else %}
+        -
+        {% endif %}
       </td>
     </tr>
     {% endfor %}
