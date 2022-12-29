@@ -14,6 +14,7 @@
   <thead>
     <tr>
       <th>Language</th>
+      <th>Texts</th>
     </tr>
   </thead>
   <tbody>
@@ -24,6 +25,11 @@
           <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
         </a>
         {{ language.LgName }}
+      </td>
+      <td>
+        <a href="/text/index/{{ language.LgName }}">
+          Texts
+        </a>
       </td>
     </tr>
     {% endfor %}
