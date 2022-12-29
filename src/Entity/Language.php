@@ -54,9 +54,13 @@ class Language
     #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $texts;
 
+    #[ORM\OneToMany(targetEntity: 'Term', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
+    private Collection $terms;
+
     public function __construct()
     {
         $this->texts = new ArrayCollection();
+        $this->terms = new ArrayCollection();
     }
 
     public function getLgID(): ?int
@@ -209,6 +213,14 @@ class Language
     public function getTexts(): Collection
     {
         return $this->texts;
+    }
+
+    /**
+     * @return Collection|Term[]
+     */
+    public function getTerms(): Collection
+    {
+        return $this->terms;
     }
 
 
