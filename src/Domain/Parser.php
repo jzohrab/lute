@@ -382,7 +382,7 @@ class Parser {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param($parmtypes, ...$prmarray);
         if (!$stmt->execute()) {
-            throw new Exception($stmt->error);
+            throw new \Exception($stmt->error);
         }
     }
 
