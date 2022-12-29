@@ -32,7 +32,9 @@
         </a>
       </td>
       <td>
-        {{ language.terms|length }}
+        <a href="/term/index/{{ language.LgName }}">
+          {{ language.terms|length }}
+        </a>
       </td>
     </tr>
     {% endfor %}
