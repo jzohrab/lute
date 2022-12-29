@@ -259,7 +259,8 @@ class Language
         $german = new Language();
         $german
             ->setLgName('German')
-            ->setLgDict1URI('http://de-en.syn.dict.cc/?s=###')
+            ->setLgDict1URI('https://de.thefreedictionary.com/###')
+            ->setLgDict2URI('https://www.wordreference.com/deen/###')
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#de/en/###');
         return $german;
     }
