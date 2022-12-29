@@ -18,7 +18,7 @@ class Text
     #[ORM\Column(name: 'TxID', type: Types::SMALLINT)]
     private ?int $TxID = null;
 
-    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
+    #[ORM\ManyToOne(targetEntity: 'Language', inversedBy: 'texts', fetch: 'EAGER')]
     #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $language = null;
 
