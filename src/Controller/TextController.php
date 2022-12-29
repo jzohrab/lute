@@ -16,11 +16,14 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/text')]
 class TextController extends AbstractController
 {
-    #[Route('/index', name: 'app_text_index', methods: ['GET'])]
-    public function index(TextRepository $textRepository): Response
+
+    #[Route('/index/{search?}', name: 'app_text_index', methods: ['GET'])]
+    public function index(?string $search, TextRepository $textRepository): Response
     {
+        // Can pass an initial search string.  If nothing is passed, $search = null.
         return $this->render('text/index.html.twig', [
             'status' => 'Active',
+            'initial_search' => $search
         ]);
     }
 
