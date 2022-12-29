@@ -30,12 +30,6 @@ class Language
     #[ORM\Column(name: 'LgGoogleTranslateURI', length: 200)]
     private ?string $LgGoogleTranslateURI = null;
 
-    #[ORM\Column(name: 'LgExportTemplate', length: 1000, nullable: true)]
-    private ?string $LgExportTemplate = '$y\t$t\n';
-
-    #[ORM\Column(name: 'LgTextSize', type: Types::SMALLINT)]
-    private ?int $LgTextSize = 100;
-
     #[ORM\Column(name: 'LgCharacterSubstitutions', length: 500)]
     private ?string $LgCharacterSubstitutions = "´='|`='|’='|‘='|...=…|..=‥";
 
@@ -117,30 +111,6 @@ class Language
     public function setLgGoogleTranslateURI(string $LgGoogleTranslateURI): self
     {
         $this->LgGoogleTranslateURI = $LgGoogleTranslateURI;
-
-        return $this;
-    }
-
-    public function getLgExportTemplate(): ?string
-    {
-        return $this->LgExportTemplate;
-    }
-
-    public function setLgExportTemplate(?string $LgExportTemplate): self
-    {
-        $this->LgExportTemplate = $LgExportTemplate;
-
-        return $this;
-    }
-
-    public function getLgTextSize(): ?int
-    {
-        return $this->LgTextSize;
-    }
-
-    public function setLgTextSize(int $LgTextSize): self
-    {
-        $this->LgTextSize = $LgTextSize;
 
         return $this;
     }
