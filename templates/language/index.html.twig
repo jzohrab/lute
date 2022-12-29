@@ -15,6 +15,7 @@
     <tr>
       <th>Language</th>
       <th>Texts</th>
+      <th>Terms</th>
     </tr>
   </thead>
   <tbody>
@@ -22,13 +23,12 @@
     <tr>
       <td>
         <a href="/language/{{ language.LgID }}/edit">
-          <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+          {{ language.LgName }}
         </a>
-        {{ language.LgName }}
       </td>
       <td>
         <a href="/text/index/{{ language.LgName }}">
-          Texts {{ language.texts|length }}
+          {{ language.texts|length }}
         </a>
       </td>
     </tr>
