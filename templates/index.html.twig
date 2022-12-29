@@ -52,12 +52,11 @@
   <ul>
 
     <li><a href="/language">Languages</a></li>
-    <li><a href="/text/index">Texts</a></li>
+    <li><a href="/text/index">Texts</a>
     {% if currtxid is not null %}
-    <li>
-      <a href="/read/{{ currtxid }}">Continue reading</a> &quot;{{ currtxtitle }}&quot;
-    </li>
+      (continue reading <a href="/read/{{ currtxid }}">&quot;{{ currtxtitle }}&quot;</a>)
     {% endif %}
+    </li>
     <li><a href="/text/archived">Text Archive</a></li>
     <li><a href="/term">Terms</a></li>
   </ul>
