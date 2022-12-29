@@ -22,20 +22,31 @@ class LanguageController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_language_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, LanguageRepository $languageRepository): Response
+    #[Route('/new/{template?-}', name: 'app_language_new', methods: ['GET', 'POST'])]
+    public function new(string $template, Request $request, LanguageRepository $languageRepository): Response
     {
+        $predefined = array_values(Language::getPredefined());
         $language = new Language();
+        $template_lc = strtolower($template);
+        $cands = array_filter($predefined, fn($p) => $template_lc == strtolower($p->getLgName()));
+        if (count($cands) > 0) {
+            dump($cands);
+            $language = array_values($cands)[0];
+        }
+
         $form = $this->createForm(LanguageType::class, $language);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $languageRepository->save($language, true);
-
             return $this->redirectToRoute('app_language_index', [], Response::HTTP_SEE_OTHER);
         }
 
+
+        $langnames = array_map(fn($p) => $p->getLgName(), $predefined);
+        array_unshift($langnames, '-');
         return $this->renderForm('language/new.html.twig', [
+            'predefined' => $langnames,
             'language' => $language,
             'form' => $form,
         ]);

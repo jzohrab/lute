@@ -270,8 +270,16 @@ class Language
             ->setLgName('English')
             ->setLgDict1URI('https://en.thefreedictionary.com/###')
             ->setLgDict2URI('https://www.wordreference.com/en/###')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#en/fr/###');
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#en/en/###');
         return $english;
     }
 
+    public static function getPredefined(): array {
+        return [
+            Language::makeEnglish(),
+            Language::makeFrench(),
+            Language::makeGerman(),
+            Language::makeSpanish(),
+        ];
+    }
 }
