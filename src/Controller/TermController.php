@@ -17,10 +17,13 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/term')]
 class TermController extends AbstractController
 {
-    #[Route('/', name: 'app_term_index', methods: ['GET'])]
-    public function index(): Response
+    #[Route('/index/{search?}', name: 'app_term_index', methods: ['GET'])]
+    public function index(?string $search): Response
     {
-        return $this->render('term/index.html.twig');
+        // Can pass an initial search string.  If nothing is passed, $search = null.
+        return $this->render('term/index.html.twig', [
+            'initial_search' => $search
+        ]);
     }
 
     #[Route('/datatables', name: 'app_term_datatables', methods: ['POST'])]

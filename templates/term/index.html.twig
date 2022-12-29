@@ -30,7 +30,7 @@
 
 <script>
 
-  let setup_term_datatable = function() {
+  let setup_term_datatable = function(initial_search) {
     var table = $('#termtable').DataTable({
       responsive: true,
       select: true,
@@ -40,6 +40,7 @@
       searching: true,
       processing: true,
       serverSide: true,
+      search: { search: initial_search },
       columnDefs: [
         // "name" is the column name in your main SQL query.
         // The fields in each row in the data ajax response are ordered as they are declared here.
@@ -72,7 +73,9 @@
     });
   } // end setup_term_datatable
   
-  $(document).ready(function () { setup_term_datatable(); });
+  $(document).ready(function () {
+    setup_term_datatable("{{ initial_search ?? '' }}");
+  });
 
 
 </script>

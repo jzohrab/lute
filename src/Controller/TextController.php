@@ -18,7 +18,7 @@ class TextController extends AbstractController
 {
 
     #[Route('/index/{search?}', name: 'app_text_index', methods: ['GET'])]
-    public function index(?string $search, TextRepository $textRepository): Response
+    public function index(?string $search): Response
     {
         // Can pass an initial search string.  If nothing is passed, $search = null.
         return $this->render('text/index.html.twig', [
