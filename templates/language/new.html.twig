@@ -5,6 +5,17 @@
 {% block body %}
     <h1>Create new Language</h1>
 
+    <p><i>Load from predefined:</i>
+      <select id="predefined">
+        {% for p in predefined %}
+        <option value="{{ p }}">{{ p }}</option>
+        {% endfor %}
+      </select>
+      <button onclick="location.href='/language/new/' + document.getElementById('predefined').value;">go</button>
+    </p>
+
+    <br />
+
     {{ include('language/_form.html.twig') }}
 
     <a href="{{ path('app_language_index') }}">back to list</a>

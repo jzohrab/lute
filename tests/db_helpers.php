@@ -125,7 +125,7 @@ you must use a dedicated test database when running tests.
 
     public static function load_language_spanish() {
         $url = "http://something.com/###";
-        $sql = "INSERT INTO `languages` (`LgID`, `LgName`, `LgDict1URI`, `LgDict2URI`, `LgGoogleTranslateURI`, `LgExportTemplate`, `LgTextSize`, `LgCharacterSubstitutions`, `LgRegexpSplitSentences`, `LgExceptionsSplitSentences`, `LgRegexpWordCharacters`, `LgRemoveSpaces`, `LgSplitEachChar`, `LgRightToLeft`) VALUES (1,'Spanish','{$url}','{$url}','{$url}','\$y\\t\$t\\n',150,'´=\'|`=\'|’=\'|‘=\'|...=…|..=‥','.!?:;','Mr.|Dr.|[A-Z].|Vd.|Vds.','a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ',0,0,0)";
+        $sql = "INSERT INTO `languages` (`LgID`, `LgName`, `LgDict1URI`, `LgDict2URI`, `LgGoogleTranslateURI`, `LgCharacterSubstitutions`, `LgRegexpSplitSentences`, `LgExceptionsSplitSentences`, `LgRegexpWordCharacters`, `LgRemoveSpaces`, `LgSplitEachChar`, `LgRightToLeft`) VALUES (1,'Spanish','{$url}','{$url}','{$url}','´=\'|`=\'|’=\'|‘=\'|...=…|..=‥','.!?:;','Mr.|Dr.|[A-Z].|Vd.|Vds.','a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ',0,0,0)";
         DbHelpers::exec_sql($sql);
     }
 

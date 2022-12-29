@@ -45,17 +45,6 @@ class LanguageType extends AbstractType
                     'required' => true
                   ]
             )
-            ->add('LgTextSize',
-                  ChoiceType::class,
-                  [ 'choices'  => [
-                      '100%' => 100,
-                      '150%' => 150,
-                      '200%' => 200,
-                      '250%' => 250 ],
-                    'label' => 'Text size',
-                    'required' => true
-                  ]
-            )
             ->add('LgCharacterSubstitutions',
                   TextType::class,
                   [ 'label' => 'Character substitutions',
@@ -106,13 +95,6 @@ class LanguageType extends AbstractType
                     'label' => 'Right-To-Left Script',
                     'help' => 'e.g., for Arabic, Hebrew, Farsi, Urdu, etc.',
                     'required' => true
-                  ]
-            )
-            ->add('LgExportTemplate',
-                  TextType::class,
-                  [ 'label' => 'Export Template',
-                    'attr' => [ 'class' => 'form-text' ],
-                    'required' => false
                   ]
             )
         ;
