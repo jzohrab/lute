@@ -72,7 +72,7 @@
           "orderable": false,
           "render": function ( data, type, row, meta ) {
             // columns are defined below.
-            let mkspan = (col, style) => `<span class="${style}">${row[col]}</span>`;
+            let mkspan = (col, style) => row[col] == null ? '' : `<span class="${style}">${row[col]}</span>`;
             const arr = [
               mkspan(7, 'status0'),
               mkspan(8, 'status1'),
