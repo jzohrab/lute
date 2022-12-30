@@ -37,6 +37,7 @@ class TermRepository extends ServiceEntityRepository
         }
     }
 
+    // TODO:remove
     /**
      * Convert parent_text text box content back into a real Term
      * instance, creating a new Term if needed.

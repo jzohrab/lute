@@ -19,8 +19,45 @@ class Dictionary {
     }
 
     public function add(Term $term) {
+        $parent = $this->findOrCreateParent($term);
+        $term->setParent($parent);
+
         $this->manager->persist($term);
         $this->manager->flush();
+    }
+
+    /**
+     * Convert parent_text into a real Term, creating a new Term if
+     * needed.
+     */
+    private function findOrCreateParent(Term $entity): ?Term
+    {
+        $pt = $entity->getParentText();
+        if ($pt == null || $pt == '')
+            return null;
+
+        if (is_null($entity->getLanguage())) {
+            throw new \Exception('Language not set for Entity?');
+        }
+
+        $p = $this->find($pt, $entity->getLanguage());
+
+        if ($p !== null)
+            return $p;
+
+        $p = new Term();
+        $p->setText($pt);
+        $p->setLanguage($entity->getLanguage());
+        $p->setStatus($entity->getStatus());
+        $p->setTranslation($entity->getTranslation());
+        $p->setSentence($entity->getSentence());
+        foreach ($entity->getTermTags() as $termtag) {
+            /**
+             * @psalm-suppress InvalidArgument
+             */
+            $p->addTermTag($termtag);
+        }
+        return $p;
     }
 
     /**

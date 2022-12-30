@@ -52,4 +52,12 @@ class TermTag
         return $this;
     }
 
+    public static function makeTermTag(string $text, ?string $comment = null): TermTag
+    {
+        $tt = new TermTag();
+        $tt->setText($text);
+        if ($comment != null)
+            $tt->setComment($comment);
+        return $tt;
+    }
 }

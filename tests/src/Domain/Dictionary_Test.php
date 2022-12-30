@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\Dictionary;
 use App\Entity\Term;
+use App\Entity\TermTag;
 
 final class Dictionary_Test extends DatabaseTestBase
 {
@@ -128,6 +129,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $t->setText('perros');
         $t->setParentText('perro');
+        $t->addTermTag(TermTag::makeTermTag('noun'));
         $this->dictionary->add($t);
 
         foreach(['perros', 'perro'] as $text) {
@@ -144,7 +146,7 @@ final class Dictionary_Test extends DatabaseTestBase
             INNER JOIN wordtags on WtWoID = w.WoID
             INNER JOIN tags on TgID = WtTgID
             WHERE w.WoText = 'perros'";
-        $exp = [ "perros; perro; tag" ];
+        $exp = [ "perros; perro; noun" ];
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
     }
 
