@@ -194,63 +194,6 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertTrue($p == null, 'french terms not checked');
     }
 
-    // TODO:remove
-    public function test_findByTextMatch_matching()
-    {
-        $fp = new Term();
-        $fp->setLanguage($this->french);
-        $fp->setText("PARENT");
-        $fp->setStatus(1);
-        $fp->setWordCount(1);
-        $this->term_repo->save($fp, true);
-
-        $spid = $this->spanish->getLgID();
-        $cases = [ 'ARE', 'are', 'AR' ];
-        foreach ($cases as $c) {
-            $p = $this->term_repo->findByTextMatchInLanguage($c, $spid);
-            $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
-            $this->assertEquals($p[0]->getText(), 'PARENT', 'parent found for case ' . $c);
-        }
-    }
-
-    // TODO:remove
-    public function test_findByTextMatch_no_sql_injection()
-    {
-        $spid = $this->spanish->getLgID();
-        $injection = "a%'; select count(*) from words;";
-        $p = $this->term_repo->findByTextMatchInLanguage($injection, $spid);
-        $this->assertEquals(count($p), 0);
-    }
-
-    // TODO:remove
-    public function test_findByTextMatch_returns_empty_if_blank_string()
-    {
-        $spid = $this->spanish->getLgID();
-        $p = $this->term_repo->findByTextMatchInLanguage('', $spid);
-        $this->assertEquals(count($p), 0);
-    }
-
-    // TODO:remove
-    public function test_findByTextMatch_returns_empty_for_wrong_language()
-    {
-        $ft = new Term();
-        $ft->setLanguage($this->french);
-        $ft->setText("bonjour");
-        $ft->setStatus(1);
-        $ft->setWordCount(1);
-        $this->term_repo->save($ft, true);
-
-        $et = new Term();
-        $et->setLanguage($this->english);
-        $et->setText("ours");
-        $et->setStatus(1);
-        $et->setWordCount(1);
-        $this->term_repo->save($et, true);
-
-        $spid = $this->spanish->getLgID();
-        $p = $this->term_repo->findByTextMatchInLanguage('our', $spid);
-        $this->assertEquals(count($p), 0);
-    }
 
     public function test_save_does_not_update_associated_textitems() {
         $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);

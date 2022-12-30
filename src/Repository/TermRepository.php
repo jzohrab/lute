@@ -104,27 +104,6 @@ class TermRepository extends ServiceEntityRepository
         return $terms[0];
     }
 
-    public function findByTextMatchInLanguage(string $value, int $langid, int $maxResults = 50): array
-    {
-        $search = mb_strtolower(trim($value));
-        if ($search == '')
-            return [];
-        $search = '%' . $search . '%';
-
-        $dql = "SELECT t FROM App\Entity\Term t
-        JOIN App\Entity\Language L WITH L = t.language
-        WHERE L.LgID = :langid AND t.WoTextLC LIKE :search
-        ORDER BY t.WoTextLC";
-        $em = $this->getEntityManager();
-        $query = $em
-               ->createQuery($dql)
-               ->setParameter('langid', $langid)
-               ->setParameter('search', $search)
-               ->setMaxResults($maxResults);
-        return $query->getResult();
-    }
-
-
     /** Returns data for ajax paging. */
     public function getDataTablesList($parameters) {
 
