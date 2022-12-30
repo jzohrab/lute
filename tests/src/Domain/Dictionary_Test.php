@@ -22,7 +22,10 @@ final class Dictionary_Test extends DatabaseTestBase
             $this->entity_manager,
             $this->term_repo
         );
+    }
 
+    public function test_find_by_text_is_found()
+    {
         $p = new Term();
         $p->setLanguage($this->spanish);
         $p->setText("PARENT");
@@ -30,16 +33,6 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->term_repo->save($p, true);
         $this->p = $p;
 
-        $p2 = new Term();
-        $p2->setLanguage($this->spanish);
-        $p2->setText("OTHER");
-        $p2->setStatus(1);
-        $this->term_repo->save($p2, true);
-        $this->p2 = $p2;
-    }
-
-    public function test_find_by_text_is_found()
-    {
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
         foreach ($cases as $c) {
             $p = $this->dictionary->find($c, $this->spanish);
@@ -68,6 +61,13 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_findMatches_matching()
     {
+        $p = new Term();
+        $p->setLanguage($this->spanish);
+        $p->setText("PARENT");
+        $p->setStatus(1);
+        $this->term_repo->save($p, true);
+        $this->p = $p;
+
         $fp = new Term();
         $fp->setLanguage($this->french);
         $fp->setText("PARENT");
@@ -125,6 +125,11 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_add_term_with_new_parent_text_creates_new_parent()
     {
+        foreach(['perros', 'perro'] as $text) {
+            $f = $this->dictionary->find($text, $this->spanish);
+            $this->assertTrue($f == null, 'Term not found at first');
+        }
+
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText('perros');
