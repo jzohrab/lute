@@ -81,6 +81,34 @@ final class Dictionary_Test extends DatabaseTestBase
         }
     }
 
+    public function test_findMatches_no_sql_injection_thanks()
+    {
+        $injection = "a%'; select count(*) from words;";
+        $p = $this->dictionary->findMatches($injection, $this->spanish);
+        $this->assertEquals(count($p), 0);
+    }
+
+    public function test_findMatches_returns_empty_if_blank_string()
+    {
+        $p = $this->dictionary->findMatches('', $this->spanish);
+        $this->assertEquals(count($p), 0);
+    }
+
+    public function test_findMatches_returns_empty_if_different_language()
+    {
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText('chien');
+        $fp->setStatus(1);
+        $this->term_repo->save($fp, true);
+
+        $p = $this->dictionary->findMatches('chien', $this->spanish);
+        $this->assertEquals(count($p), 0, "no chien in spanish");
+
+        $p = $this->dictionary->findMatches('chien', $this->french);
+        $this->assertEquals(count($p), 1, "mais oui il y a un chien ici");
+    }
+    
     // TESTS:
     // find term
     // find term match
