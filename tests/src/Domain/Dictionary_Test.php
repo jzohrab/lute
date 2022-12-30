@@ -108,11 +108,72 @@ final class Dictionary_Test extends DatabaseTestBase
         $p = $this->dictionary->findMatches('chien', $this->french);
         $this->assertEquals(count($p), 1, "mais oui il y a un chien ici");
     }
-    
-    // TESTS:
-    // add term saves
-    // remove term removes
 
+
+    public function test_add_term_saves_term() {
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText('perro');
+        $t->setStatus(1);
+        $this->dictionary->add($t);
+
+        $f = $this->dictionary->find('perro', $this->spanish);
+        $this->assertEquals($f->getText(), 'perro', 'Term found');
+        DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 1, 'in db');
+    }
+
+    public function DISABLED_test_add_term_with_new_parent_text_creates_new_parent()
+    {
+/*
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("HOLA");
+        $t->setStatus(1);
+        $t->setWordCount(1);
+        $t->setParent($this->p);
+        $t->addTermTag($this->tag);
+        $this->term_repo->save($t, true);
+
+        $sql = "select WoID, WoText, WoTextLC from words";
+        $expected = [ "1; PARENT; parent", "2; OTHER; other", "3; HOLA; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        // Hacky sql check.
+        $sql = "select w.WoText, p.WoText as ptext, tags.TgText 
+            FROM words w
+            INNER JOIN wordparents on WpWoID = w.WoID
+            INNER JOIN words p on p.WoID = wordparents.WpParentWoID
+            INNER JOIN wordtags on WtWoID = w.WoID
+            INNER JOIN tags on TgID = WtTgID";
+        $exp = [ "HOLA; PARENT; tag" ];
+        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
+*/
+    }
+
+    public function DISABLED_test_add_term_existing_parent_creates_link() {
+
+    }
+
+    public function DISABLED_test_add_existing_term_throws() {
+
+    }
+
+    public function DISABLED_test_update_existing_term_updates() {
+
+    }
+
+    public function DISABLED_test_update_new_term_throws() {
+
+    }
+
+    public function DISABLED_test_remove_term_removes_term() {
+
+    }
+
+    public function DISABLED_test_remove_term_leaves_parent_breaks_wordparent_association() {
+
+    }
+    
     // TODO:move
     // search for findTermInLanguage, point to dict
     // remove TermRepository find tests
