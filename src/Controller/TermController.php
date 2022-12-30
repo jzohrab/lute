@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\Term;
 use App\Form\TermType;
 use App\Repository\TermRepository;
+use App\Repository\LanguageRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\TextItemRepository;
+use App\Domain\Dictionary;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,9 +39,15 @@ class TermController extends AbstractController
 
 
     #[Route('/search/{text}/{langid}', name: 'app_term_search', methods: ['GET'])]
-    public function search_by_text_in_language($text, $langid, Request $request, TermRepository $repo): JsonResponse
+    public function search_by_text_in_language(
+        $text,
+        $langid,
+        LanguageRepository $lang_repo,
+        Dictionary $dictionary
+    ): JsonResponse
     {
-        $terms = $repo->findByTextMatchInLanguage($text, intval($langid));
+        $lang = $lang_repo->find($langid);
+        $terms = $dictionary->findMatches($text, $lang);
         $result = [];
         foreach ($terms as $t) {
             $trans = $t->getTranslation();
