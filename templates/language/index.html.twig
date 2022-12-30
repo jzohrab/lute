@@ -14,7 +14,7 @@
   <thead>
     <tr>
       <th>Language</th>
-      <th>Texts</th>
+      <th>Active Texts</th>
       <th>Terms</th>
     </tr>
   </thead>
@@ -27,7 +27,7 @@
         </a>
       </td>
       <td>
-        {% set ltl = language.texts|length %}
+        {% set ltl = language.activeTexts|length %}
         {% if ltl > 0 %}
         <a href="/text/index/{{ language.LgName }}">{{ ltl }}</a>
         {% else %}
