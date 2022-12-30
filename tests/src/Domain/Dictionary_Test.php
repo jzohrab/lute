@@ -110,8 +110,6 @@ final class Dictionary_Test extends DatabaseTestBase
     }
     
     // TESTS:
-    // find term
-    // find term match
     // add term saves
     // remove term removes
 

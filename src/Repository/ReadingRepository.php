@@ -10,12 +10,14 @@ use App\Entity\Language;
 use App\Domain\Parser;
 use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
+use App\Domain\Dictionary;
 use Doctrine\ORM\EntityManagerInterface;
  
 
 class ReadingRepository
 {
     private EntityManagerInterface $manager;
+    private Dictionary $dictionary;
     private TermRepository $term_repo;
     private LanguageRepository $lang_repo;
 
@@ -26,6 +28,7 @@ class ReadingRepository
     )
     {
         $this->manager = $manager;
+        $this->dictionary = new Dictionary($manager);
         $this->term_repo = $term_repo;
         $this->lang_repo = $lang_repo;
     }
@@ -205,7 +208,7 @@ class ReadingRepository
 
     private function loadFromText(string $text, Language $lang): Term {
         $textlc = mb_strtolower($text);
-        $t = $this->term_repo->findTermInLanguage($text, $lang);
+        $t = $this->dictionary->find($text, $lang);
         if (null != $t)
             return $t;
 

@@ -162,6 +162,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
+    // TODO:remove
     public function test_find_by_text_is_found()
     {
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
@@ -172,12 +173,14 @@ final class TermRepository_Test extends DatabaseTestBase
         }
     }
 
+    // TODO:remove
     public function test_find_by_text_not_found_returns_null()
     {
         $p = $this->term_repo->findTermInLanguage('SOMETHING_MISSING', $this->spanish);
         $this->assertTrue($p == null, 'nothing found');
     }
 
+    // TODO:remove
     public function test_findTermInLanguage_only_looks_in_specified_language()
     {
         $fp = new Term();
@@ -191,6 +194,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertTrue($p == null, 'french terms not checked');
     }
 
+    // TODO:remove
     public function test_findByTextMatch_matching()
     {
         $fp = new Term();
@@ -209,6 +213,7 @@ final class TermRepository_Test extends DatabaseTestBase
         }
     }
 
+    // TODO:remove
     public function test_findByTextMatch_no_sql_injection()
     {
         $spid = $this->spanish->getLgID();
@@ -217,6 +222,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals(count($p), 0);
     }
 
+    // TODO:remove
     public function test_findByTextMatch_returns_empty_if_blank_string()
     {
         $spid = $this->spanish->getLgID();
@@ -224,6 +230,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals(count($p), 0);
     }
 
+    // TODO:remove
     public function test_findByTextMatch_returns_empty_for_wrong_language()
     {
         $ft = new Term();

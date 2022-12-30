@@ -11,14 +11,11 @@ use App\Repository\TermRepository;
 class Dictionary {
 
     private EntityManagerInterface $manager;
-    private TermRepository $termrepo;
 
     public function __construct(
-        EntityManagerInterface $manager,
-        TermRepository $term_repo
+        EntityManagerInterface $manager
     ) {
         $this->manager = $manager;
-        $this->term_repo = $term_repo;
     }
 
     /**
