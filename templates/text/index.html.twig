@@ -90,15 +90,15 @@
           "render": function ( data, type, row, meta ) {
             // TODO:security - add CSRF token
             let ret = '';
-            const txid = row[0];
-            if (row[5] == 0) {
+            const txid = row[5];
+            if (row[6] == 0) {
               // not archived
               ret += `<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${txid})" />`;
             }
             else {
               ret += `<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${txid})" />`;
             }
-            ret += `<img src="/icn/minus-button.png" title="Delete onclick="confirm_delete(${txid})" />`;
+            ret += `<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${txid})" />`;
             return ret;
           }
         },
