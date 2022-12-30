@@ -18,6 +18,11 @@ class Dictionary {
         $this->manager = $manager;
     }
 
+    public function add(Term $term) {
+        $this->manager->persist($term);
+        $this->manager->flush();
+    }
+
     /**
      * Find a term by an exact match.
      */
