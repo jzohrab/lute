@@ -21,7 +21,10 @@ class Dictionary {
         $this->term_repo = $term_repo;
     }
 
-    public function findTerm(string $value, Language $lang) {
+    /**
+     * Find a term by an exact match.
+     */
+    public function find(string $value, Language $lang) {
         // Using Doctrine Query Language --
         // Interesting, but am not totally confident with it.
         // e.g. That I had to use the private field WoTextLC

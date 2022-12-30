@@ -43,7 +43,7 @@ final class Dictionary_Test extends DatabaseTestBase
     {
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
         foreach ($cases as $c) {
-            $p = $this->dictionary->findTerm($c, $this->spanish);
+            $p = $this->dictionary->find($c, $this->spanish);
             $this->assertTrue(! is_null($p), 'parent found for case ' . $c);
             $this->assertEquals($p->getText(), 'PARENT', 'parent found for case ' . $c);
         }
