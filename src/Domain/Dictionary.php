@@ -44,4 +44,25 @@ class Dictionary {
         return $terms[0];
     }
 
+    /**
+     * Find Terms by matching text.
+     */
+    public function findMatches(string $value, Language $lang, int $maxResults = 50): array
+    {
+        $search = mb_strtolower(trim($value));
+        if ($search == '')
+            return [];
+        $search = '%' . $search . '%';
+
+        $dql = "SELECT t FROM App\Entity\Term t
+        JOIN App\Entity\Language L WITH L = t.language
+        WHERE L.LgID = :langid AND t.WoTextLC LIKE :search
+        ORDER BY t.WoTextLC";
+        $query = $this->manager
+               ->createQuery($dql)
+               ->setParameter('langid', $lang->getLgID())
+               ->setParameter('search', $search)
+               ->setMaxResults($maxResults);
+        return $query->getResult();
+    }
 }

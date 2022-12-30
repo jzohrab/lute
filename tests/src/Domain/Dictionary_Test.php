@@ -26,7 +26,6 @@ final class Dictionary_Test extends DatabaseTestBase
         $p->setLanguage($this->spanish);
         $p->setText("PARENT");
         $p->setStatus(1);
-        $p->setWordCount(1);
         $this->term_repo->save($p, true);
         $this->p = $p;
 
@@ -34,7 +33,6 @@ final class Dictionary_Test extends DatabaseTestBase
         $p2->setLanguage($this->spanish);
         $p2->setText("OTHER");
         $p2->setStatus(1);
-        $p2->setWordCount(1);
         $this->term_repo->save($p2, true);
         $this->p2 = $p2;
     }
@@ -46,6 +44,40 @@ final class Dictionary_Test extends DatabaseTestBase
             $p = $this->dictionary->find($c, $this->spanish);
             $this->assertTrue(! is_null($p), 'parent found for case ' . $c);
             $this->assertEquals($p->getText(), 'PARENT', 'parent found for case ' . $c);
+        }
+    }
+
+    public function test_find_by_text_not_found_returns_null()
+    {
+        $p = $this->dictionary->find('SOMETHING_MISSING', $this->spanish);
+        $this->assertTrue($p == null, 'nothing found');
+    }
+
+    public function test_find_only_looks_in_specified_language()
+    {
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText('bonjour');
+        $fp->setStatus(1);
+        $this->term_repo->save($fp, true);
+
+        $p = $this->dictionary->find('bonjour', $this->spanish);
+        $this->assertTrue($p == null, 'french terms not checked');
+    }
+
+    public function test_findMatches_matching()
+    {
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText("PARENT");
+        $fp->setStatus(1);
+        $this->term_repo->save($fp, true);
+
+        $cases = [ 'ARE', 'are', 'AR' ];
+        foreach ($cases as $c) {
+            $p = $this->dictionary->findMatches($c, $this->spanish);
+            $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
+            $this->assertEquals($p[0]->getText(), 'PARENT', 'parent found for case ' . $c);
         }
     }
 
