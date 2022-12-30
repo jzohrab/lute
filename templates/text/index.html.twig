@@ -9,25 +9,21 @@
 <table id="texttable" class="table dataTable stripe" style="table-layout:fixed;" >
   <thead>
     <tr>
-      <th style="width: 5%;">&nbsp;</th>
       <th>Title</th>
       <th>Language</th>
       <th>Tags</th>
       <th>Word count</th>
       <th title="Unknown, learn 1-2, learn 3-4, learn 5.">Stats</th>
-      <th>Archived</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tfoot>
     <tr>
-      <th>&nbsp;</th>
       <th>Title</th>
       <th>Language</th>
       <th>Tags</th>
       <th>Word count</th>
       <th>Stats</th>
-      <th>Archived</th>
       <th>Actions</th>
     </tr>
   </tfoot>
@@ -61,31 +57,22 @@
         // The fields in each row in the data ajax response are ordered as they are declared here.
         // All fields default to "orderable" = true, "searchable" = true.
         {
-          "name": "TxID",
-          "targets": 0,
-          "searchable": false,
-          "orderable": false,
+          "name": "TxTitle", "targets": 0,
           "render": function ( data, type, row, meta ) {
-            return `<a href="/read/${row[0]}">
-              <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
-            </a>
-            <a href="/text/${row[0]}/edit">
-              <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
-            </a>`;
+            return `<a href="/read/${row[5]}">${row[0]}</a>`;
           }
         },
-        { "name": "TxTitle", "targets": 1 },
-        { "name": "LgName", "targets": 2 },
-        { "name": "TagList", "targets": 3 },
-        { "name": "WordCount", "targets": 4 },
+        { "name": "LgName", "targets": 1 },
+        { "name": "TagList", "targets": 2 },
+        { "name": "WordCount", "targets": 3 },
         {
           "name": "TermStats",
-          "targets": 5,
+          "targets": 4,
           "searchable": false,
           "orderable": false,
           "render": function ( data, type, row, meta ) {
             // columns are defined below.
-            let mkspan = (col, style) => `<span class="${style}">${row[col]}</span>`;
+            let mkspan = (col, style) => row[col] == null ? '' : `<span class="${style}">${row[col]}</span>`;
             const arr = [
               mkspan(7, 'status0'),
               mkspan(8, 'status1'),
@@ -96,34 +83,29 @@
           }
         },
         {
-          "name": "TxArchived",
-          "targets": 6,
-          "searchable": false,
-          "orderable": false,
-          "visible": false
-        },
-        {
-          "targets": 7,
+          "targets": 5,
           "data": null,
           "searchable": false,
           "orderable": false,
           "render": function ( data, type, row, meta ) {
             // TODO:security - add CSRF token
             let ret = '';
-            const txid = row[0];
-            if (row[5] == 0) {
+            const txid = row[5];
+            if (row[6] == 0) {
               // not archived
               ret += `<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${txid})" />`;
             }
             else {
               ret += `<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${txid})" />`;
             }
-            ret += `<img src="/icn/minus-button.png" title="Delete onclick="confirm_delete(${txid})" />`;
+            ret += `<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${txid})" />`;
             return ret;
           }
         },
 
         /* Extra data that is returned in the row for rendering, but not shown. */
+        { "name": "TxID", "targets": 6, "data": null, "visible": false },
+        { "name": "TxArchived", "targets": 7, "data": null, "visible": false },
         { "name": "Unknown", "targets": 8, "data": null, "visible": false },
         { "name": "Learn1_2", "targets": 9, "data": null, "visible": false },
         { "name": "Learn3_4", "targets": 10, "data": null, "visible": false },
@@ -152,9 +134,6 @@
 
   
   function do_action_post(action, textid) {
-    if (!confirm(`Calling ${action}, click OK to confirm.`)) {
-      return;
-    }
     let f = $('#actionposter');
     f.attr('action', `/text/${textid}/${action}`);
     f.submit();
@@ -169,6 +148,9 @@
   }
 
   function confirm_delete(textid) {
+    if (!confirm(`Deleting a text.  Click OK to proceed, or Cancel.`)) {
+      return;
+    }
     do_action_post('delete', textid);
   }
 

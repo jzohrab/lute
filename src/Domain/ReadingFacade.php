@@ -50,10 +50,16 @@ class ReadingFacade {
         if ($text->getID() == null)
             return [];
 
+        if ($text->isArchived()) {
+            $text->setArchived(false);
+            $this->textrepo->save($text, true);
+        }
+
         $tis = $this->repo->getTextItems($text);
 
         if (count($tis) == 0) {
-            // Catch-all to clean up bad parsing data.
+            // Catch-all to clean up missing parsing data,
+            // if the user has cleaned out the existing text items.
             // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
             Parser::parse($text);
             $tis = $this->repo->getTextItems($text);

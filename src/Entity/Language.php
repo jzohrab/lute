@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\LanguageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -213,6 +214,13 @@ class Language
     public function getTexts(): Collection
     {
         return $this->texts;
+    }
+
+    public function getActiveTexts(): Collection
+    {
+        $criteria = Criteria::create()
+            ->andWhere(Criteria::expr()->eq('TxArchived', 0));
+        return $this->texts->matching($criteria);
     }
 
     /**

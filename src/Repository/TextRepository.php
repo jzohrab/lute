@@ -47,14 +47,10 @@ class TextRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
             $this->removeSentencesAndWords($entity->getID());
-            TextStatsCache::markStale([$entity->getID()]);
 
-            if (! $entity->isArchived() ) {
-                $langid = $entity->getLanguage()->getLgID();
-
-                if ($parseTexts) {
-                    Parser::parse($entity);
-                }
+            if (! $entity->isArchived() && $parseTexts ) {
+                TextStatsCache::markStale([$entity->getID()]);
+                Parser::parse($entity);
             }
         }
     }
