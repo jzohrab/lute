@@ -155,8 +155,20 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
     }
 
-    public function DISABLED_test_add_term_existing_parent_creates_link() {
+    public function test_add_term_existing_parent_creates_link() {
+        $p = new Term();
+        $p->setLanguage($this->spanish);
+        $p->setText('perro');
+        $this->dictionary->add($p);
 
+        $perros = new Term();
+        $perros->setLanguage($this->spanish);
+        $perros->setText('perros');
+        $perros->setParentText('perro');
+        $this->dictionary->add($perros);
+
+        $f = $this->dictionary->find('perros', $this->spanish);
+        $this->assertEquals($perros->getParent()->getID(), $p->getID(), 'parent set');
     }
 
     public function DISABLED_test_add_existing_term_throws() {
