@@ -134,9 +134,6 @@
 
   
   function do_action_post(action, textid) {
-    if (!confirm(`Calling ${action}, click OK to confirm.`)) {
-      return;
-    }
     let f = $('#actionposter');
     f.attr('action', `/text/${textid}/${action}`);
     f.submit();
@@ -151,6 +148,9 @@
   }
 
   function confirm_delete(textid) {
+    if (!confirm(`Deleting a text.  Click OK to proceed, or Cancel.`)) {
+      return;
+    }
     do_action_post('delete', textid);
   }
 
