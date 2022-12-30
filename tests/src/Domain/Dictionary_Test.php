@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../src/Domain/ReadingFacade.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\Dictionary;
+use App\Entity\Term;
 
 final class Dictionary_Test extends DatabaseTestBase
 {
@@ -17,6 +18,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->load_languages();
 
         $this->dictionary = new Dictionary(
+            $this->entity_manager,
             $this->term_repo
         );
 
