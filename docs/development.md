@@ -52,7 +52,8 @@ composer test:group xxx
   db:which                 What db connecting to
  dev
   dev:class                Show public interface methods of class
-  dev:data                 Abuse the testing system to load the dev db with some data.
+  dev:data:load            Abuse the testing system to load the dev db with some data.
+  dev:data:clear           Abuse the testing system to wipe the dev db.
   dev:dumpserver           Start the dump server
   dev:find                 search specific parts of code using grep
   dev:nukecache            blow things away, b/c symfony likes to cache

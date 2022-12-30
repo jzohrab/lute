@@ -115,7 +115,8 @@
     "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
     "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
     "dev:find": "./utils/findstring.sh",
-    "dev:data": "./bin/phpunit -c phpunit.xml.dist tests/LoadTestData_Test.php",
+    "dev:data:load": "composer test:group dev:data:load",
+    "dev:data:clear": "composer test:group dev:data:clear",
     "dev:nukecache": [
       "rm -rf var/cache",
       "php bin/console cache:clear",
@@ -152,7 +153,8 @@
     "dev:psalm": "Run psalm and start crying",
     "test": "Run tests",
     "test:group": "Run tests with a given '@group xxxx' annotation",
-    "dev:data": "Abuse the testing system to load the dev db with some data."
+    "dev:data:load": "Abuse the testing system to load the dev db with some data.",
+    "dev:data:clear": "Abuse the testing system to wipe the dev db."
   },
   "conflict": {
     "symfony/symfony": "*"

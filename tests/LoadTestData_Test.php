@@ -11,7 +11,18 @@ use App\Entity\Language;
 final class LoadTestData_Test extends DatabaseTestBase
 {
 
-    public function childSetUp(): void
+    /**
+     * @group dev:data:clear
+     */
+    public function test_clea_dev_data(): void {
+        // the db clear in DatabaseTestBase wipes everything.
+        $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
+    }
+
+    /**
+     * @group dev:data:load
+     */
+    public function test_load_dev_data(): void
     {
         $this->load_languages();
         $this->load_spanish_words();
@@ -43,29 +54,8 @@ Cuando Caperucita se disponía  a salir de casa, su mamá, con gesto un poco ser
         $this->load_spanish_texts();
 
         $this->load_french_data();
-    }
 
-    private function load_terms($terms) {
-        $spid = $this->spanish->getLgID();
-        $term_batches = array_chunk($terms, 100);
-        $n = 0;
-        echo "\nAdding " . count($term_batches) . " batches.\n";
-        foreach ($term_batches as $term_batch) {
-            $n += 1;
-            echo "  ... batch {$n} (" . $term_batch[0] . ")\n";
-
-            $term_vals = fn($t) => "({$spid}, '{$t}', '{$t}', 1, 1)";
-            $vals = array_map($term_vals, $term_batch);
-            $sql = "insert into words (WoLgID, WoText, WoTextLC, WoStatus, WoWordCount) values " .
-                 implode(',', $vals);
-
-            DbHelpers::exec_sql($sql);
-        }
-    }
-
-    public function test_smoke_test()
-    {
-        $this->assertEquals(1, 1, 'dummy test to stop phpunit complaint');
+        $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }
 
 }
