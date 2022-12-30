@@ -122,21 +122,19 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 1, 'in db');
     }
 
-    public function DISABLED_test_add_term_with_new_parent_text_creates_new_parent()
+    public function test_add_term_with_new_parent_text_creates_new_parent()
     {
-/*
         $t = new Term();
         $t->setLanguage($this->spanish);
-        $t->setText("HOLA");
-        $t->setStatus(1);
-        $t->setWordCount(1);
-        $t->setParent($this->p);
-        $t->addTermTag($this->tag);
-        $this->term_repo->save($t, true);
+        $t->setText('perros');
+        $t->setParentText('perro');
+        $this->dictionary->add($t);
 
-        $sql = "select WoID, WoText, WoTextLC from words";
-        $expected = [ "1; PARENT; parent", "2; OTHER; other", "3; HOLA; hola" ];
-        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+        foreach(['perros', 'perro'] as $text) {
+            $f = $this->dictionary->find($text, $this->spanish);
+            $this->assertEquals($f->getText(), $text, 'Term found');
+            DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='{$text}'", 1, 'in db');
+        }
 
         // Hacky sql check.
         $sql = "select w.WoText, p.WoText as ptext, tags.TgText 
@@ -144,10 +142,10 @@ final class Dictionary_Test extends DatabaseTestBase
             INNER JOIN wordparents on WpWoID = w.WoID
             INNER JOIN words p on p.WoID = wordparents.WpParentWoID
             INNER JOIN wordtags on WtWoID = w.WoID
-            INNER JOIN tags on TgID = WtTgID";
-        $exp = [ "HOLA; PARENT; tag" ];
+            INNER JOIN tags on TgID = WtTgID
+            WHERE w.WoText = 'perros'";
+        $exp = [ "perros; perro; tag" ];
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
-*/
     }
 
     public function DISABLED_test_add_term_existing_parent_creates_link() {
@@ -178,5 +176,5 @@ final class Dictionary_Test extends DatabaseTestBase
     // search for findTermInLanguage, point to dict
     // remove TermRepository find tests
     // remove findTermInLanguage
-    
+    // remove TermRepository save ?
 }
