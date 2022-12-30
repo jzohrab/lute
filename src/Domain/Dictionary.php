@@ -60,6 +60,14 @@ class Dictionary {
         return $p;
     }
 
+
+    public function remove(Term $term): void
+    {
+        $this->manager->remove($term);
+        $this->manager->flush();
+    }
+
+
     /**
      * Find a term by an exact match.
      */

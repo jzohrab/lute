@@ -171,21 +171,23 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertEquals($perros->getParent()->getID(), $p->getID(), 'parent set');
     }
 
-    public function DISABLED_test_add_existing_term_throws() {
+    public function test_remove_term_removes_term() {
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText('perro');
+        $t->setStatus(1);
+        $this->dictionary->add($t);
 
+        $f = $this->dictionary->find('perro', $this->spanish);
+        $this->assertEquals($f->getText(), 'perro', 'Term found');
+        DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 1, 'in db');
+
+        $this->dictionary->remove($t);
+        $f = $this->dictionary->find('perro', $this->spanish);
+        $this->assertTrue($f == null, 'Term not found');
+        DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 0, 'not in db');
     }
 
-    public function DISABLED_test_update_existing_term_updates() {
-
-    }
-
-    public function DISABLED_test_update_new_term_throws() {
-
-    }
-
-    public function DISABLED_test_remove_term_removes_term() {
-
-    }
 
     public function DISABLED_test_remove_term_leaves_parent_breaks_wordparent_association() {
 
