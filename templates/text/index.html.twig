@@ -74,7 +74,13 @@
             </a>`;
           }
         },
-        { "name": "TxTitle", "targets": 1 },
+        {
+          "name": "TxTitle",
+          "targets": 1,
+          "render": function ( data, type, row, meta ) {
+            return `<a href="/read/${row[0]}">${row[1]}</a>`;
+          }
+        },
         { "name": "LgName", "targets": 2 },
         { "name": "TagList", "targets": 3 },
         { "name": "WordCount", "targets": 4 },
