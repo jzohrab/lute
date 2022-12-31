@@ -6,7 +6,7 @@ use App\Entity\Term;
 use App\Entity\Language;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TermRepository;
-
+use App\Repository\TextItemRepository;
 
 class Dictionary {
 
@@ -24,6 +24,7 @@ class Dictionary {
 
         $this->manager->persist($term);
         $this->manager->flush();
+        TextItemRepository::mapForTerm($term);
     }
 
     /**
@@ -63,6 +64,7 @@ class Dictionary {
 
     public function remove(Term $term): void
     {
+        TextItemRepository::unmapForTerm($term);
         $this->manager->remove($term);
         $this->manager->flush();
     }

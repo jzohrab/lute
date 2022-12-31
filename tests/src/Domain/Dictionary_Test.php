@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\Dictionary;
 use App\Entity\Term;
+use App\Entity\Text;
 use App\Entity\TermTag;
 
 final class Dictionary_Test extends DatabaseTestBase
@@ -230,6 +231,47 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertEquals($f->getText(), 'perros', 'viven los perros');
 
         DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
+    }
+
+    public function test_add_term_links_existing_TextItems()
+    {
+        $text = new Text();
+        $text->setLanguage($this->spanish);
+        $text->setTitle('hola');
+        $text->setText('tengo un gato');
+        $this->text_repo->save($text, true);
+
+        $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
+        DbHelpers::assertTableContains($sql, [], 'no terms');
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText('gato');
+        $this->dictionary->add($t);
+
+        DbHelpers::assertTableContains($sql, [ 'gato' ], '1 term');
+    }
+
+    public function test_remove_term_unlinks_existing_TextItems()
+    {
+        $text = new Text();
+        $text->setLanguage($this->spanish);
+        $text->setTitle('hola');
+        $text->setText('tengo un gato');
+        $this->text_repo->save($text, true);
+
+        $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
+        DbHelpers::assertTableContains($sql, [], 'no terms');
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText('gato');
+        $this->dictionary->add($t);
+
+        DbHelpers::assertTableContains($sql, [ 'gato' ], '1 term');
+
+        $this->dictionary->remove($t);
+        DbHelpers::assertTableContains($sql, [], 'again no terms');
     }
 
     // TODO:move
