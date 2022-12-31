@@ -32,7 +32,7 @@ class Dictionary {
     }
 
     public function flush() {
-        dump('flushing ' . count($this->pendingTerms) . ' terms.');
+        // dump('flushing ' . count($this->pendingTerms) . ' terms.');
         $this->manager->flush();
         TextItemRepository::bulkMap($this->pendingTerms);
         $this->pendingTerms = array();
