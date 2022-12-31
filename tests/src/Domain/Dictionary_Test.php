@@ -300,8 +300,32 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, explode(' ', $sentence), 'terms created');
     }
 
-    // TODO
-    // bulk add terms, also have multi-word terms
+    /**
+     * @group dictflush
+     */
+    public function test_save_and_flush_with_multiword_terms_bulk_updates_text_items() {
+        $sentence = 'tengo un gato en mi cuarto';
+        $text = new Text();
+        $text->setLanguage($this->spanish);
+        $text->setTitle('hola');
+        $text->setText($sentence);
+        $this->text_repo->save($text, true);
+
+        $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
+        DbHelpers::assertTableContains($sql, [], 'no terms');
+
+        $terms = [ 'tengo', 'un gato' ];
+        foreach ($terms as $s) {
+            $t = new Term();
+            $t->setLanguage($this->spanish);
+            $t->setText($s);
+            $this->dictionary->add($t, false);
+        }
+        DbHelpers::assertTableContains($sql, [], 'still no mappings');
+        $this->dictionary->flush();
+
+        DbHelpers::assertTableContains($sql, $terms, 'terms created');
+    }
 
     // TODO:move
     // search for findTermInLanguage, point to dict
