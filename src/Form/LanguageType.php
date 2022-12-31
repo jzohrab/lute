@@ -23,7 +23,7 @@ class LanguageType extends AbstractType
             )
             ->add('LgDict1URI',
                   TextType::class,
-                  [ 'label' => 'Dictionary 1 URI',
+                  [ 'label' => 'Dictionary 1',
                     'help' => 'e.g., https://es.thefreedictionary.com/###.  "###" is replaced by the term.',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
@@ -31,14 +31,14 @@ class LanguageType extends AbstractType
             )
             ->add('LgDict2URI',
                   TextType::class,
-                  [ 'label' => 'Dictionary 2 URI',
+                  [ 'label' => 'Dictionary 2',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
                   ]
             )
             ->add('LgGoogleTranslateURI',
                   TextType::class,
-                  [ 'label' => 'Sentence translation URI',
+                  [ 'label' => 'Sentence translation',
                     'help' => 'e.g., *https://www.deepl.com/translator#es/en/###.',
                     'help_html' => true,
                     'attr' => [ 'class' => 'form-text' ],
@@ -54,14 +54,14 @@ class LanguageType extends AbstractType
             )
             ->add('LgRegexpSplitSentences',
                   TextType::class,
-                  [ 'label' => 'Regex split sentences',
+                  [ 'label' => 'Split sentences regex',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
                   ]
             )
             ->add('LgExceptionsSplitSentences',
                   TextType::class,
-                  [ 'label' => 'Regex split sentence regex exceptions',
+                  [ 'label' => 'Split sentences regex exceptions',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
                   ]
@@ -73,6 +73,9 @@ class LanguageType extends AbstractType
                     'required' => true
                   ]
             )
+
+            /*
+            // Currently disabling the below as Lute doesn't support these languages.
             ->add('LgSplitEachChar',
                   ChoiceType::class,
                   [ 'choices'  => [ 'No' => 0, 'Yes' => 1 ],
@@ -97,6 +100,7 @@ class LanguageType extends AbstractType
                     'required' => true
                   ]
             )
+            */
         ;
     }
 

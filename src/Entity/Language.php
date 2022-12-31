@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -23,12 +24,15 @@ class Language
     private ?string $LgName = null;
 
     #[ORM\Column(name: 'LgDict1URI', length: 200)]
+    #[Assert\Regex('/###/', message: 'Please specify the term placeholder with ###')]
     private ?string $LgDict1URI = null;
 
     #[ORM\Column(name: 'LgDict2URI', length: 200)]
+    #[Assert\Regex('/###/', message: 'Please specify the term placeholder with ###')]
     private ?string $LgDict2URI = null;
 
     #[ORM\Column(name: 'LgGoogleTranslateURI', length: 200)]
+    #[Assert\Regex('/###/', message: 'Please specify the term placeholder with ###')]
     private ?string $LgGoogleTranslateURI = null;
 
     #[ORM\Column(name: 'LgCharacterSubstitutions', length: 500)]

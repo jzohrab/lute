@@ -1,6 +1,33 @@
 {% form_theme form 'form_table_layout.html.twig' %}
 
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+<table id="language">
+  <tbody>
+
+    {{ form_row(form.LgName) }}
+    {{ form_row(form.LgDict1URI) }}
+    {{ form_row(form.LgDict2URI) }}
+    {{ form_row(form.LgGoogleTranslateURI) }}
+
+    <tr style="line-height: 40px;">
+      <td><h3>Parsing</h3></td><td />
+    </tr>
+    {{ form_row(form.LgCharacterSubstitutions) }}
+    {{ form_row(form.LgRegexpSplitSentences) }}
+    {{ form_row(form.LgExceptionsSplitSentences) }}
+    {{ form_row(form.LgRegexpWordCharacters) }}
+
+    {# Currently hiding the below as Lute doesn't support these languages. #}
+    {% if false %}
+    {{ form_row(form.LgSplitEachChar) }}
+    {{ form_row(form.LgRemoveSpaces) }}
+    {{ form_row(form.LgRightToLeft) }}
+    {% endif %}
+    
+  </tbody>
+</table>
+
+
+<button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}
