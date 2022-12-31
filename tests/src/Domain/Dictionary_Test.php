@@ -327,9 +327,4 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $terms, 'terms created');
     }
 
-    // TODO:move
-    // search for findTermInLanguage, point to dict
-    // remove TermRepository find tests
-    // remove findTermInLanguage
-    // remove TermRepository save ?
 }

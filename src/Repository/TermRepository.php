@@ -36,33 +36,9 @@ class TermRepository extends ServiceEntityRepository
     public function remove(Term $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
-
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-    }
-
-
-    public function findTermInLanguage(string $value, Language $lang): ?Term
-    {
-        // Using Doctrine Query Language --
-        // Interesting, but am not totally confident with it.
-        // e.g. That I had to use the private field WoTextLC
-        // instead of the public property was surprising.
-        // Anyway, it works. :-P
-        $dql = "SELECT t FROM App\Entity\Term t
-        LEFT JOIN App\Entity\Language L WITH L = t.language
-        WHERE L.LgID = :langid AND t.WoTextLC = :val";
-        $em = $this->getEntityManager();
-        $query = $em
-               ->createQuery($dql)
-               ->setParameter('langid', $lang->getLgID())
-               ->setParameter('val', mb_strtolower($value));
-        $terms = $query->getResult();
-
-        if (count($terms) == 0)
-            return null;
-        return $terms[0];
     }
 
     /** Returns data for ajax paging. */

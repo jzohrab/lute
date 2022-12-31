@@ -162,38 +162,6 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
-    // TODO:remove
-    public function test_find_by_text_is_found()
-    {
-        $cases = [ 'PARENT', 'parent', 'pAReNt' ];
-        foreach ($cases as $c) {
-            $p = $this->term_repo->findTermInLanguage($c, $this->spanish);
-            $this->assertTrue(! is_null($p), 'parent found for case ' . $c);
-            $this->assertEquals($p->getText(), 'PARENT', 'parent found for case ' . $c);
-        }
-    }
-
-    // TODO:remove
-    public function test_find_by_text_not_found_returns_null()
-    {
-        $p = $this->term_repo->findTermInLanguage('SOMETHING_MISSING', $this->spanish);
-        $this->assertTrue($p == null, 'nothing found');
-    }
-
-    // TODO:remove
-    public function test_findTermInLanguage_only_looks_in_specified_language()
-    {
-        $fp = new Term();
-        $fp->setLanguage($this->french);
-        $fp->setText("bonjour");
-        $fp->setStatus(1);
-        $fp->setWordCount(1);
-        $this->term_repo->save($fp, true);
-
-        $p = $this->term_repo->findTermInLanguage('bonjour', $this->spanish);
-        $this->assertTrue($p == null, 'french terms not checked');
-    }
-
 
     public function test_save_does_not_update_associated_textitems() {
         $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
