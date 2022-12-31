@@ -84,6 +84,10 @@ class ReadingFacade {
         $uniques = array_unique($words_lc, SORT_STRING);
         sort($uniques);
         $lang =$text->getLanguage();
+
+        // Note using the termrepo here, vs. the Domain\Dictionary,
+        // because the Dictionary does a pile of processing whenever
+        // dict->add($term) is called.
         foreach ($uniques as $u) {
             $t = new Term();
             $t->setLanguage($lang);
@@ -103,6 +107,10 @@ class ReadingFacade {
 
         $lang =$text->getLanguage();
         $tid = $text->getID();
+
+        // Note using the termrepo here, vs. the Domain\Dictionary,
+        // because the Dictionary does a pile of processing whenever
+        // dict->add($term) is called.
         foreach ($uniques as $u) {
             $t = $this->repo->load(0, $tid, 0, $u);
             $t->setLanguage($lang);

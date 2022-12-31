@@ -64,8 +64,8 @@ class Dictionary {
 
     public function remove(Term $term): void
     {
-        TextItemRepository::unmapForTerm($term);
         $this->manager->remove($term);
+        TextItemRepository::unmapForTerm($term);
         $this->manager->flush();
     }
 
