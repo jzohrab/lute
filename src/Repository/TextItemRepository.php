@@ -37,6 +37,16 @@ class TextItemRepository {
         // First pass: map exact string matches.
         $eu = new TextItemRepository();
         $eu->map_by_textlc();
+
+        $mword_terms = array_filter($terms, fn($t) => ($t->getWordCount() > 1));
+        foreach ($mword_terms as $term) {
+            $eu->add_multiword_textitems(
+                $term->getTextLC(),
+                $term->getLanguage(),
+                $term->getID(),
+                $term->getWordCount()
+            );
+        }
     }
 
     /** Break any TextItem-Term mappings for the Term. */
