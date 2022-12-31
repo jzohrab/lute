@@ -5,7 +5,6 @@ namespace App\Domain;
 use App\Entity\Term;
 use App\Entity\Language;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Repository\TermRepository;
 use App\Repository\TextItemRepository;
 
 class Dictionary {
