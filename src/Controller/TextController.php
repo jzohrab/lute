@@ -65,8 +65,7 @@ class TextController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $textRepository->save($text, true);
-
-            return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('text/new.html.twig', [
