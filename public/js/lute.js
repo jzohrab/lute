@@ -373,7 +373,7 @@ function update_selected_statuses(newStatus) {
     ltext = curr.text().toLowerCase();
     matches = $('span.word').toArray().filter(el => $(el).text().toLowerCase() == ltext);
     matches.forEach(function (m) {
-      $(m).removeClass('status98 status99 status1 status2 status3 status4 status5 shiftClicked')
+      $(m).removeClass('status98 status99 status0 status1 status2 status3 status4 status5 shiftClicked')
         .addClass(newClass)
         .attr('data_status',`${newStatus}`);
     });
