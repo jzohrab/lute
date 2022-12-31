@@ -67,12 +67,34 @@ class TermController extends AbstractController
     ): ?Response
     {
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+        $submitted_valid = $form->isSubmitted() && $form->isValid();
+        if (! $submitted_valid)
+            return null;
+
+        try {
             $dict->add($term);
             return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
         }
-        return null;
+        catch (\Exception $e) {
+            $errcode = intval($e->getCode());
+            $INTEGRITY_CONSTRAINT_VIOLATION = 1062;
+            if ($errcode != $INTEGRITY_CONSTRAINT_VIOLATION) {
+                // Some different error, throw b/c I'm not sure what's
+                // happening.
+                throw $e;
+            }
+
+            $msg = $term->getText() . " already exists.";
+            $this->addFlash('notice', $msg);
+            $existing = $dict->find($term->getTextLC(), $term->getLanguage());
+            return $this->redirectToRoute(
+                'app_term_edit',
+                [ 'id' => $existing->getID() ],
+                Response::HTTP_SEE_OTHER
+            );
+        }
     }
+
 
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
     public function new(Request $request, Dictionary $dict): Response
