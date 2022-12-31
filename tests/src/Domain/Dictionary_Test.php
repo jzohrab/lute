@@ -189,10 +189,49 @@ final class Dictionary_Test extends DatabaseTestBase
     }
 
 
-    public function DISABLED_test_remove_term_leaves_parent_breaks_wordparent_association() {
+    public function test_remove_term_leaves_parent_breaks_wordparent_association() {
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText('perros');
+        $t->setParentText('perro');
+        $t->addTermTag(TermTag::makeTermTag('noun'));
+        $this->dictionary->add($t);
 
+        foreach(['perros', 'perro'] as $text) {
+            $f = $this->dictionary->find($text, $this->spanish);
+            $this->assertEquals($f->getText(), $text, 'Term found');
+            DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='{$text}'", 1, 'in db');
+        }
+
+        $this->dictionary->remove($t);
+        $f = $this->dictionary->find('perros', $this->spanish);
+        $this->assertTrue($f == null, 'perros was removed');
+        $f = $this->dictionary->find('perro', $this->spanish);
+        $this->assertTrue($f != null, 'perro (parent term) still exists');
+        $this->assertEquals($f->getText(), 'perro', 'vive el perro');
+
+        DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
     }
-    
+
+    public function test_remove_parent_removes_wordparent_record() {
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText('perros');
+        $t->setParentText('perro');
+        $t->addTermTag(TermTag::makeTermTag('noun'));
+        $this->dictionary->add($t);
+
+        $p = $this->dictionary->find('perro', $this->spanish);
+        $this->dictionary->remove($p);
+        $f = $this->dictionary->find('perro', $this->spanish);
+        $this->assertTrue($f == null, 'perro (parent) was removed');
+        $f = $this->dictionary->find('perros', $this->spanish);
+        $this->assertTrue($f != null, 'perros (child term) still exists');
+        $this->assertEquals($f->getText(), 'perros', 'viven los perros');
+
+        DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
+    }
+
     // TODO:move
     // search for findTermInLanguage, point to dict
     // remove TermRepository find tests
