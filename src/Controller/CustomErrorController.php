@@ -52,13 +52,13 @@ class CustomErrorController extends AbstractController
         };
 
         $data = [
-            "status_code" => $exception->getStatusCode(),
-            "status_text" => $exception->getStatusText(),
-            'message' => $exception->getMessage(),
+            'Error message' => $exception->getMessage(),
+            'status code' => $exception->getStatusCode(),
+            'status text' => $exception->getStatusText(),
 
-            'tag' => $gittag,
-            'commit' => $commit,
-            'release_date' => $releasedate
+            'Lute version tag' => $gittag,
+            'Lute commit' => $commit,
+            'Lute version release date' => $releasedate,
         ];
 
         $alldata = array_merge($data, $allkeys);
