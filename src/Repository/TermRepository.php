@@ -29,11 +29,11 @@ class TermRepository extends ServiceEntityRepository
     public function getDataTablesList($parameters) {
 
         $base_sql = "SELECT
-w.WoID as WoID, LgName, WoText as WoText, ifnull(tags.taglist, '') as TagList, w.WoStatus
+w.WoID as WoID, LgName, WoText as WoText, ifnull(tags.taglist, '') as TagList, StText
 FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
-
+INNER JOIN statuses S on S.StID = w.WoStatus
 LEFT OUTER JOIN (
   SELECT WtWoID as WoID, GROUP_CONCAT(TgText ORDER BY TgText SEPARATOR ', ') AS taglist
   FROM
