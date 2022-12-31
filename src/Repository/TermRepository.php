@@ -25,22 +25,6 @@ class TermRepository extends ServiceEntityRepository
         parent::__construct($registry, Term::class);
     }
 
-    public function save(Term $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    public function remove(Term $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
     /** Returns data for ajax paging. */
     public function getDataTablesList($parameters) {
 
