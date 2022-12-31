@@ -11,20 +11,30 @@ use App\Repository\TextItemRepository;
 class Dictionary {
 
     private EntityManagerInterface $manager;
+    private array $pendingTerms;
 
     public function __construct(
         EntityManagerInterface $manager
     ) {
         $this->manager = $manager;
+        $this->pendingTerms = array();
     }
 
-    public function add(Term $term) {
+    public function add(Term $term, bool $flush = true) {
         $parent = $this->findOrCreateParent($term);
         $term->setParent($parent);
 
+        $this->pendingTerms[] = $term;
         $this->manager->persist($term);
+        if ($flush) {
+            $this->flush();
+        }
+    }
+
+    public function flush() {
         $this->manager->flush();
-        TextItemRepository::mapForTerm($term);
+        TextItemRepository::bulkMap($this->pendingTerms);
+        $this->pendingTerms = array();
     }
 
     /**

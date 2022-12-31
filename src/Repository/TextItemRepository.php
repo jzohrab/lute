@@ -32,6 +32,13 @@ class TextItemRepository {
         }
     }
 
+    /** Bulk map. */
+    public static function bulkMap(array $terms) {
+        // First pass: map exact string matches.
+        $eu = new TextItemRepository();
+        $eu->map_by_textlc();
+    }
+
     /** Break any TextItem-Term mappings for the Term. */
     public static function unmapForTerm(Term $term) {
         if ($term->getTextLC() != null && $term->getID() == null)
@@ -85,15 +92,18 @@ class TextItemRepository {
 
 
     private function map_by_textlc(
-        Language $lang,
+        ?Language $lang = null,
         ?Text $text = null,
         ?Term $term = null
     ) {
-        $lid = $lang->getLgID();
         $sql = "update textitems2
 inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
 set ti2woid = woid
-where ti2woid = 0 AND ti2lgid = {$lid}";
+where ti2woid = 0";
+        if ($lang != null) {
+            $lid = $lang->getLgID();
+            $sql .= " AND ti2lgid = {$lid}";
+        }
         if ($text != null) {
             $tid = $text->getID();
             $sql .= " AND ti2TxID = {$tid}";
@@ -104,7 +114,6 @@ where ti2woid = 0 AND ti2lgid = {$lid}";
         }
         $this->exec_sql($sql);
     }
-    
 
     private function add_multiword_terms_for_text(Text $text)
     {
