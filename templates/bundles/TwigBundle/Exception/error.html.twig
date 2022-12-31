@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>An error has occurred</h1>
+
+<p>Details:</p>
+<ul>
+  <li>status_code: {{ status_code }}</li>
+  <li>status_text: {{ status_text }}</li>
+</ul>
+
+<p>Exception:</p>
+<pre><code>
+    {{ exception.traceAsString }}
+</code></pre>
+
+
+<h1>Release info</h1>
+
+<table>
+  <tr>
+    <td>Release date</td>
+    <td>{{ release_date }}</td>
+  </tr>
+  <tr>
+    <td>Tag</td>
+    <td>{{ tag }}</td>
+  </tr>
+  <tr>
+    <td>Commit</td>
+    <td>{{ commit }}</td>
+  </tr>
+</table>
+
+
+<h1>Your server</h1>
+
+<table>
+  <tr>
+    <td>Db name</td>
+    <td>{{ dbname }}</td>
+  </tr>
+  <tr>
+    <td>Server</td>
+    <td>{{ server }}</td>
+  </tr>
+  <tr>
+    <td>Connection</td>
+    <td>{{ symfconn }}</td>
+  </tr>
+  <tr>
+    <td>Web host</td>
+    <td>{{ webhost }}</td>
+  </tr>
+  <tr>
+    <td>Running</td>
+    <td>{{ apache }}</td>
+  </tr>
+  <tr>
+    <td>PHP version</td>
+    <td>{{ php }}</td>
+  </tr>
+</table>
+
+
+<br />
+
+<h2>Environment vars (dev only)</h2>
+
+<hr />
+
+<p>All environment vars:</p>
+
+<table>
+  <tr><th>Key</th><th>Value</th></tr>
+  {% for k, v in allenv %}
+  <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+  {% endfor %}
+</table>
+
+<hr />
+
+<p>_ENV:</p>
+
+<table>
+  <tr><th>Key</th><th>Value</th></tr>
+  {% for k, v in ENV %}
+  <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+  {% endfor %}
+</table>
+
+<hr />
+
+<p>_SERVER:</p>
+
+<table>
+  <tr><th>Key</th><th>Value</th></tr>
+  {% for k, v in SERVER %}
+  <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+  {% endfor %}
+</table>
+
+{% endblock %}
