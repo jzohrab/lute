@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>An error has occurred</h1>
+
+<p class="flash-notice">If you feel this is a problem with Lute (as opposed to, say, a problem with your server configuration that you can sort out), please
+
+  <a href="https://github.com/jzohrab/lute/issues/new?template=bug_report.md" target="_blank">
+    open an issue on GitHub
+  </a>, including the contents of the table below in the new issue.
+
+</p>
+
+<br />
+<hr />
+
+<table>
+  <tr>
+    <td>Item</td>
+    <td>Info</td>
+  </tr>
+  {% for k, v in data %}
+  <tr>
+    <td>{{ k }}</td>
+    <td>{{ v }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}
