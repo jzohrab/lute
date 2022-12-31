@@ -233,16 +233,12 @@ class ReadingRepository
     }
 
 
-    // Associating Terms with with texts happens here, rather than in
-    // the TermRepository, because Terms themselves don't know about TextItems.
     public function save(Term $term): void {
-        $this->term_repo->save($term, true);
-        TextItemRepository::mapForTerm($term);
+        $this->dictionary->add($term);
     }
 
     public function remove(Term $term): void {
-        TextItemRepository::unmapForTerm($term);
-        $this->term_repo->remove($term, true);
+        $this->dictionary->remove($term);
     }
 
 }
