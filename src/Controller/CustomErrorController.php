@@ -19,37 +19,36 @@ class CustomErrorController extends AbstractController
 
         $filterkeys = function($key) {
             $keys = array(
-                'DATABASE_URL',
-                'REDIRECT_STATUS',
-                'HTTP_USER_AGENT',
-                'CONTENT_TYPE',
-                'HTTP_REFERER',
-                'SERVER_SOFTWARE',
-                'REDIRECT_URL',
-                'REQUEST_METHOD',
-                'REQUEST_URI',
-                'DB_HOSTNAME',
-                'DB_USER',
-                'DB_PASSWORD',
-                'DB_DATABASE',
-                'APP_ENV'
+                'SERVER[DATABASE_URL]',
+                'SERVER[REDIRECT_STATUS]',
+                'SERVER[HTTP_USER_AGENT]',
+                'SERVER[CONTENT_TYPE]',
+                'SERVER[HTTP_REFERER]',
+                'SERVER[SERVER_SOFTWARE]',
+                'SERVER[REDIRECT_URL]',
+                'SERVER[REQUEST_METHOD]',
+                'SERVER[REQUEST_URI]',
+                'SERVER[DB_HOSTNAME]',
+                'SERVER[DB_USER]',
+                'SERVER[DB_PASSWORD]',
+                'SERVER[DB_DATABASE]',
+                'ENV[APP_ENV]'
             );
             return in_array($key, $keys);
         };
 
         $allkeys = [];
-        $allenv = array_filter(getenv(), $filterkeys, ARRAY_FILTER_USE_KEY);
-        foreach($allenv as $k => $v) {
+        foreach(getenv() as $k => $v) {
             $allkeys["getenv()[$k]"] = $v;
         };
-        $env = array_filter($_ENV, $filterkeys, ARRAY_FILTER_USE_KEY);
-        foreach($env as $k => $v) {
+        foreach($_ENV as $k => $v) {
             $allkeys["ENV[$k]"] = $v;
         };
-        $server = array_filter($_SERVER, $filterkeys, ARRAY_FILTER_USE_KEY);
-        foreach($server as $k => $v) {
+        foreach($_SERVER as $k => $v) {
             $allkeys["SERVER[$k]"] = $v;
         };
+
+        $allkeys = array_filter($allkeys, $filterkeys, ARRAY_FILTER_USE_KEY);
 
         $data = [
             'Error message' => $exception->getMessage(),
