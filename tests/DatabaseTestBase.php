@@ -10,6 +10,7 @@ require_once __DIR__ . '/db_helpers.php';
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Language;
 use App\Entity\Text;
+use App\Entity\Term;
 use App\Entity\TextTag;
 use App\Entity\TermTag;
 
@@ -20,6 +21,7 @@ use App\Repository\TermTagRepository;
 use App\Repository\TermRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
+use App\Domain\Dictionary;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -57,6 +59,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
         $this->termtag_repo = $this->entity_manager->getRepository(App\Entity\TermTag::class);
         $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
+
         $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo, $this->language_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
@@ -173,6 +176,15 @@ abstract class DatabaseTestBase extends WebTestCase
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
         return $t;
+    }
+
+    public function make_term(Language $lang, string $s) {
+        $dict = new Dictionary($this->entity_manager);
+        $term = new Term();
+        $term->setLanguage($lang);
+        $term->setText($s);
+        $dict->add($term, true);
+        return $term;
     }
 
 }

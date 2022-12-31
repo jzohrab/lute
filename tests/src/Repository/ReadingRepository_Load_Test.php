@@ -31,12 +31,7 @@ where ti2order in (1, 12, 25) order by ti2order";
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
 
-        $term = new Term();
-        $term->setLanguage($this->spanish);
-        $term->setText("BEBIDA");
-        $term->setStatus(1);
-        $term->setWordCount(1);
-        $this->term_repo->save($term, true);
+        $term = $this->make_term($this->spanish, 'BEBIDA');
         $this->bebida = $term;
         TextItemRepository::mapForTerm($term);
 

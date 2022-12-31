@@ -6,21 +6,24 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\TermTag;
 use App\Entity\Term;
 use App\Entity\Text;
+use App\Domain\Dictionary;
 
 // Tests for checking WoStatusChanged field updates.
-final class TermRepository_WoStatusChanged_Test extends DatabaseTestBase
+final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
 {
 
     private Term $term;
+    private Dictionary $dictionary;
 
     public function childSetUp() {
+        $this->dictionary = new Dictionary($this->entity_manager);
         $this->load_languages();
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("PARENT");
         $t->setStatus(1);
         $t->setWordCount(1);
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
         $this->term = $t;
     }
 
@@ -60,14 +63,14 @@ final class TermRepository_WoStatusChanged_Test extends DatabaseTestBase
     public function test_updating_status_updates_field() {
         $this->set_WoStatusChanged("1970-01-01");
         $this->term->setStatus(2);
-        $this->term_repo->save($this->term, true);
+        $this->dictionary->add($this->term, true);
         $this->assertUpdated();
     }
 
     public function test_setting_status_to_same_value_leaves_date() {
         $this->set_WoStatusChanged("1970-01-01 00:00:00");
         $this->term->setStatus(1);
-        $this->term_repo->save($this->term, true);
+        $this->dictionary->add($this->term, true);
         [ $val, $diff ] = $this->get_field_value();
         $this->assertEquals($val, "1970-01-01 00:00:00", "not changed");
     }

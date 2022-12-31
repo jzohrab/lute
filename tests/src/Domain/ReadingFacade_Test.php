@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\ReadingFacade;
 use App\Entity\Text;
+use App\Domain\Dictionary;
 
 final class ReadingFacade_Test extends DatabaseTestBase
 {
@@ -15,11 +16,12 @@ final class ReadingFacade_Test extends DatabaseTestBase
     {
         $this->load_languages();
 
+        $dict = new Dictionary($this->entity_manager);
         $this->facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,
-            $this->term_repo,
-            $this->settings_repo
+            $this->settings_repo,
+            $dict
         );
     }
 

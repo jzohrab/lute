@@ -5,8 +5,9 @@ namespace App\Controller;
 use App\Entity\Term;
 use App\Form\TermType;
 use App\Repository\TermRepository;
-use App\Repository\ReadingRepository;
+use App\Repository\LanguageRepository;
 use App\Repository\TextItemRepository;
+use App\Domain\Dictionary;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,9 +38,15 @@ class TermController extends AbstractController
 
 
     #[Route('/search/{text}/{langid}', name: 'app_term_search', methods: ['GET'])]
-    public function search_by_text_in_language($text, $langid, Request $request, TermRepository $repo): JsonResponse
+    public function search_by_text_in_language(
+        $text,
+        $langid,
+        LanguageRepository $lang_repo,
+        Dictionary $dictionary
+    ): JsonResponse
     {
-        $terms = $repo->findByTextMatchInLanguage($text, intval($langid));
+        $lang = $lang_repo->find($langid);
+        $terms = $dictionary->findMatches($text, $lang);
         $result = [];
         foreach ($terms as $t) {
             $trans = $t->getTranslation();
@@ -52,37 +59,27 @@ class TermController extends AbstractController
     }
 
 
-    private function associateTextItems(?Term $entity): void
-    {
-        if ($entity == null)
-            return;
-        if ($entity->getID() == null)
-            throw new \Exception("associateTextItems can't be set for null ID (" . $entity->getText() . ")");
-        TextItemRepository::mapForTerm($entity);
-    }
-
-
     private function processTermForm(
         \Symfony\Component\Form\Form $form,
         Request $request,
         Term $term,
-        ReadingRepository $repo
+        Dictionary $dict
     ): ?Response
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $repo->save($term);
+            $dict->add($term);
             return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
         }
         return null;
     }
 
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, ReadingRepository $repo): Response
+    public function new(Request $request, Dictionary $dict): Response
     {
         $term = new Term();
         $form = $this->createForm(TermType::class, $term);
-        $resp = $this->processTermForm($form, $request, $term, $repo);
+        $resp = $this->processTermForm($form, $request, $term, $dict);
         if ($resp != null)
             return $resp;
 
@@ -103,10 +100,10 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_term_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Term $term, ReadingRepository $repo): Response
+    public function edit(Request $request, Term $term, Dictionary $dict): Response
     {
         $form = $this->createForm(TermType::class, $term);
-        $resp = $this->processTermForm($form, $request, $term, $repo);
+        $resp = $this->processTermForm($form, $request, $term, $dict);
         if ($resp != null)
             return $resp;
 
@@ -119,11 +116,11 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_term_delete', methods: ['POST'])]
-    public function delete(Request $request, Term $term, ReadingRepository $repo): Response
+    public function delete(Request $request, Term $term, Dictionary $dict): Response
     {
         $reqtok = $request->request->get('_token');
         if ($this->isCsrfTokenValid('delete'.$term->getId(), $reqtok)) {
-            $repo->remove($term);
+            $dict->remove($term);
         }
 
         return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);

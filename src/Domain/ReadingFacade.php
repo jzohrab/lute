@@ -7,11 +7,10 @@ use App\Entity\Term;
 use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
-use App\Repository\TermRepository;
 use App\Repository\TextRepository;
 use App\Repository\TextItemRepository;
 use App\Repository\SettingsRepository;
-
+use App\Domain\Dictionary;
 
 class ReadingFacade {
 
@@ -20,9 +19,9 @@ class ReadingFacade {
     private TermRepository $termrepo;
     private SettingsRepository $settingsrepo;
 
-    public function __construct(ReadingRepository $repo, TextRepository $textrepo, TermRepository $termrepo, SettingsRepository $settingsrepo) {
+    public function __construct(ReadingRepository $repo, TextRepository $textrepo, SettingsRepository $settingsrepo, Dictionary $dictionary) {
         $this->repo = $repo;
-        $this->termrepo = $termrepo;
+        $this->dictionary = $dictionary;
         $this->textrepo = $textrepo;
         $this->settingsrepo = $settingsrepo;
     }
@@ -84,15 +83,22 @@ class ReadingFacade {
         $uniques = array_unique($words_lc, SORT_STRING);
         sort($uniques);
         $lang =$text->getLanguage();
+
+        $batchSize = 100;
+        $i = 0;
         foreach ($uniques as $u) {
             $t = new Term();
             $t->setLanguage($lang);
             $t->setText($u);
             $t->setStatus(Status::WELLKNOWN);
-            $this->termrepo->save($t, true);
+            $this->dictionary->add($t, false);
+            $i += 1;
+            if (($i % $batchSize) === 0) {
+                $this->dictionary->flush();
+            }
         }
-
-        TextItemRepository::mapStringMatchesForLanguage($text->getLanguage());
+        // Remaining items.
+        $this->dictionary->flush();
     }
 
     public function update_status(Text $text, array $words, int $newstatus) {
@@ -103,14 +109,21 @@ class ReadingFacade {
 
         $lang =$text->getLanguage();
         $tid = $text->getID();
+
+        $batchSize = 100;
+        $i = 0;
         foreach ($uniques as $u) {
             $t = $this->repo->load(0, $tid, 0, $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
-            $this->termrepo->save($t, true);
+            $this->dictionary->add($t, false);
+            $i += 1;
+            if (($i % $batchSize) === 0) {
+                $this->dictionary->flush();
+            }
         }
-
-        TextItemRepository::mapStringMatchesForText($text);
+        // Remaining items.
+        $this->dictionary->flush();
     }
 
     public function get_prev_next(Text $text) {
