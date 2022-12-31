@@ -99,6 +99,12 @@ class Term
         $realparts = array_filter($parts, $testlen);
         $cleanword = implode(' ', $realparts);
 
+        $text_changed = $this->WoText != null && $this->WoText != $cleanword;
+        if ($this->id != null && $text_changed) {
+            $msg = "Cannot change text of term '{$this->WoText}' (id = {$this->id}) once saved.";
+            throw new \Exception($msg);
+        }
+
         $this->WoText = $cleanword;
         $this->WoTextLC = mb_strtolower($cleanword);
 
