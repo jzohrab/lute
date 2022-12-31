@@ -51,17 +51,21 @@ class CustomErrorController extends AbstractController
             $allkeys["SERVER[$k]"] = $v;
         };
 
-        return $this->render('bundles/TwigBundle/Exception/error.html.twig', [
+        $data = [
             "status_code" => $exception->getStatusCode(),
             "status_text" => $exception->getStatusText(),
-            'exception' => $exception,
+            'message' => $exception->getMessage(),
 
             'tag' => $gittag,
             'commit' => $commit,
-            'release_date' => $releasedate,
+            'release_date' => $releasedate
+        ];
 
-            'isdev' => ($_ENV['APP_ENV'] == 'dev'),
-            'env_vars' => $allkeys
+        $alldata = array_merge($data, $allkeys);
+        $alldata['isdev'] = ($_ENV['APP_ENV'] == 'dev');
+        
+        return $this->render('bundles/TwigBundle/Exception/error.html.twig', [
+            'data' => $alldata
         ]);
     }
 }

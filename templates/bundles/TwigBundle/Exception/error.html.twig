@@ -3,43 +3,12 @@
 {% block body %}
 <h1>An error has occurred</h1>
 
-<p>Details:</p>
-<ul>
-  <li>status_code: {{ status_code }}</li>
-  <li>status_text: {{ status_text }}</li>
-</ul>
-
-<p>Exception:</p>
-<p>{{ exception.message }}</p>
-<pre><code>
-    {{ exception.traceAsString }}
-</code></pre>
-
-
-<h1>Release info</h1>
-
 <table>
+  {% for k, v in data %}
   <tr>
-    <td>Release date</td>
-    <td>{{ release_date }}</td>
+    <td>{{ k }}</td>
+    <td><code>{{ v }}</code></td>
   </tr>
-  <tr>
-    <td>Tag</td>
-    <td>{{ tag }}</td>
-  </tr>
-  <tr>
-    <td>Commit</td>
-    <td>{{ commit }}</td>
-  </tr>
-</table>
-
-
-<h2>Environment vars</h2>
-
-<table>
-  <tr><th>Key</th><th>Value</th></tr>
-  {% for k, v in env_vars %}
-  <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
   {% endfor %}
 </table>
 
