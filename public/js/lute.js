@@ -269,10 +269,6 @@ function handle_keydown (e) {
   const currindex = current_word_index();
   let newindex = currindex;
 
-  if (e.which == kESC) {
-    $('span.kwordmarked').removeClass('kwordmarked');
-    return;
-  }
   if (e.which == kHOME) {
     newindex = 0;
   }
@@ -295,11 +291,9 @@ function handle_keydown (e) {
     newindex = next_unknown_word_index(currindex);
   }
 
-  if (newindex < 0) {
-    newindex = 0;
-  }
-  if (newindex > maxindex) {
-    newindex = maxindex;
+  if (e.which == kESC || newindex < 0 || newindex > maxindex) {
+    $('span.kwordmarked').removeClass('kwordmarked');
+    return;
   }
 
   // If moved, update UI and exit.
