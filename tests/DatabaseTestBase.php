@@ -10,6 +10,7 @@ require_once __DIR__ . '/db_helpers.php';
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Language;
 use App\Entity\Text;
+use App\Entity\Term;
 use App\Entity\TextTag;
 use App\Entity\TermTag;
 
@@ -175,6 +176,15 @@ abstract class DatabaseTestBase extends WebTestCase
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
         return $t;
+    }
+
+    public function make_term(Language $lang, string $s) {
+        $dict = new Dictionary($this->entity_manager);
+        $term = new Term();
+        $term->setLanguage($lang);
+        $term->setText($s);
+        $dict->add($term, true);
+        return $term;
     }
 
 }
