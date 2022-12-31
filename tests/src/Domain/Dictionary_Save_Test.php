@@ -6,16 +6,19 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\TermTag;
 use App\Entity\Term;
 use App\Entity\Text;
-use App\Repository\TextItemRepository;
+use App\Domain\Dictionary;
 
-final class TermRepository_Test extends DatabaseTestBase
+// Tests to validate the Doctrine mappings.
+final class Dictionary_Save_Test extends DatabaseTestBase
 {
 
+    private Dictionary $dictionary;
     private TermTag $tag;
     private Term $p;
     private Term $p2;
 
     public function childSetUp() {
+        $this->dictionary = new Dictionary($this->entity_manager);
         $this->load_languages();
 
         $tag = new TermTag();
@@ -29,7 +32,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $p->setText("PARENT");
         $p->setStatus(1);
         $p->setWordCount(1);
-        $this->term_repo->save($p, true);
+        $this->dictionary->add($p, true);
         $this->p = $p;
 
         $p2 = new Term();
@@ -37,7 +40,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $p2->setText("OTHER");
         $p2->setStatus(1);
         $p2->setWordCount(1);
-        $this->term_repo->save($p2, true);
+        $this->dictionary->add($p2, true);
         $this->p2 = $p2;
     }
 
@@ -50,7 +53,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setWordCount(1);
         $t->setTranslation('hi');
         $t->setRomanization('ho-la');
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
 
         $this->assertEquals($t->getTextLC(), 'hola', "sanity check of case");
 
@@ -70,9 +73,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setWordCount(1);
         $t->setTranslation('hi');
         $t->setRomanization('ho-la');
-        $this->term_repo->save($t, true);
-
-        TextItemRepository::mapForTerm($t);
+        $this->dictionary->add($t, true);
 
         $sql = "select Ti2WoID, Ti2LgID, Ti2Text from textitems2 order by Ti2LgID";
         $expected = [
@@ -91,7 +92,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setWordCount(1);
         $t->setParent($this->p);
         $t->addTermTag($this->tag);
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
 
         $sql = "select WoID, WoText, WoTextLC from words";
         $expected = [ "1; PARENT; parent", "2; OTHER; other", "3; HOLA; hola" ];
@@ -116,7 +117,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setStatus(1);
         $t->setWordCount(1);
         $t->setParent($this->p);
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
 
         // Hacky sql check.
         $sql = "select w.WoText, p.WoText as ptext
@@ -130,7 +131,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setParent($this->p2);
         // TODO:TermDTO - see Term.php.
         $t->setParentText($this->p2->getText());
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
         $exp = [ "HOLA; OTHER" ];
         DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
     }
@@ -143,7 +144,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setStatus(1);
         $t->setWordCount(1);
         $t->setParent($this->p);
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
 
         // Hacky sql check.
         $sql = "select w.WoText, p.WoText as ptext
@@ -157,13 +158,13 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setParent(null);
         // TODO:TermDTO - see Term.php.
         $t->setParentText(null);
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
         $exp = [ "HOLA; " ];
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
 
-    public function test_save_does_not_update_associated_textitems() {
+    public function test_add_updates_associated_textitems() {
         $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
 
@@ -174,18 +175,14 @@ final class TermRepository_Test extends DatabaseTestBase
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("tengo");
-        $this->term_repo->save($t, true);
-        DbHelpers::assertTableContains($sql, [], "still no");
-
-        TextItemRepository::mapForTerm($t);
+        $this->dictionary->add($t, true);
         $expected = [ "{$t->getID()}; 1; 1; tengo" ];
         DbHelpers::assertTableContains($sql, $expected, "_NOW_ associated spanish text");
 
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("un gato");
-        $this->term_repo->save($t, true);
-        TextItemRepository::mapForTerm($t);
+        $this->dictionary->add($t, true);
 
         $expected[] = "{$t->getID()}; 1; 2; un gato";
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
@@ -199,16 +196,15 @@ final class TermRepository_Test extends DatabaseTestBase
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("un gato");
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
 
         $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
         $expected[] = "{$t->getID()}; 1; 2; un gato";
-        TextItemRepository::mapForTerm($t);
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
 
         // Update and resave
         $t->setStatus(5);
-        $this->term_repo->save($t, true);
+        $this->dictionary->add($t, true);
         DbHelpers::assertTableContains($sql, $expected, "still associated correctly");
     }
 

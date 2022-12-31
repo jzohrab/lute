@@ -273,11 +273,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setLanguage($this->english);
         $this->text_repo->save($t, true, false);
 
-        $term = new Term();
-        $term->setLanguage($this->english);
-        $term->setText("the cat's pyjamas");
-        $this->term_repo->save($term, true);
-
+        $term = $this->make_term($this->english, "the cat's pyjamas");
         Parser::parse($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2

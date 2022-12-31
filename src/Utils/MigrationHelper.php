@@ -9,7 +9,7 @@ use App\Repository\LanguageRepository;
 use App\Entity\Text;
 use App\Repository\TextRepository;
 use App\Entity\Term;
-use App\Repository\TermRepository;
+use App\Domain\Dictionary;
 
 // Class for namespacing only.
 class MigrationHelper {
@@ -167,7 +167,7 @@ class MigrationHelper {
     public static function loadDemoData(
         LanguageRepository $lang_repo,
         TextRepository $text_repo,
-        TermRepository $term_repo
+        Dictionary $dictionary
     ) {
         $e = Language::makeEnglish();
         $f = Language::makeFrench();
@@ -186,7 +186,7 @@ class MigrationHelper {
         $term->setText("your local environment file");
         $term->setStatus(3);
         $term->setTranslation("This is \".env.local\", your personal file in the project root folder :-)");
-        $term_repo->save($term, true);
+        $dictionary->add($term, true);
 
         $files = [
             'tutorial.txt',

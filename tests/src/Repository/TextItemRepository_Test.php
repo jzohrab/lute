@@ -45,16 +45,9 @@ final class TextItemRepository_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
 
-        $que = new Term();
-        $que->setLanguage($this->spanish);
-        $que->setText('que');
-        $this->term_repo->save($que, true);
+        $que = $this->make_term($this->spanish, 'que');
 
         $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
-        DbHelpers::assertTableContains($sql, [], "nothing associated yet");
-
-        TextItemRepository::mapForTerm($que);
-
         $tid = $t->getID();
         DbHelpers::assertTableContains($sql, [ "{$tid}; que" ]);
     }

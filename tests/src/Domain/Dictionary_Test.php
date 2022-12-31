@@ -27,13 +27,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_find_by_text_is_found()
     {
-        $p = new Term();
-        $p->setLanguage($this->spanish);
-        $p->setText("PARENT");
-        $p->setStatus(1);
-        $this->term_repo->save($p, true);
-        $this->p = $p;
-
+        $this->make_term($this->spanish, 'PARENT');
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
         foreach ($cases as $c) {
             $p = $this->dictionary->find($c, $this->spanish);
@@ -50,30 +44,15 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_find_only_looks_in_specified_language()
     {
-        $fp = new Term();
-        $fp->setLanguage($this->french);
-        $fp->setText('bonjour');
-        $fp->setStatus(1);
-        $this->term_repo->save($fp, true);
-
+        $this->make_term($this->french, 'bonjour');
         $p = $this->dictionary->find('bonjour', $this->spanish);
         $this->assertTrue($p == null, 'french terms not checked');
     }
 
     public function test_findMatches_matching()
     {
-        $p = new Term();
-        $p->setLanguage($this->spanish);
-        $p->setText("PARENT");
-        $p->setStatus(1);
-        $this->term_repo->save($p, true);
-        $this->p = $p;
-
-        $fp = new Term();
-        $fp->setLanguage($this->french);
-        $fp->setText("PARENT");
-        $fp->setStatus(1);
-        $this->term_repo->save($fp, true);
+        $this->make_term($this->spanish, 'PARENT');
+        $this->make_term($this->french, 'PARENT');
 
         $cases = [ 'ARE', 'are', 'AR' ];
         foreach ($cases as $c) {
@@ -98,11 +77,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_findMatches_returns_empty_if_different_language()
     {
-        $fp = new Term();
-        $fp->setLanguage($this->french);
-        $fp->setText('chien');
-        $fp->setStatus(1);
-        $this->term_repo->save($fp, true);
+        $this->make_term($this->french, 'chien');
 
         $p = $this->dictionary->findMatches('chien', $this->spanish);
         $this->assertEquals(count($p), 0, "no chien in spanish");
@@ -113,11 +88,10 @@ final class Dictionary_Test extends DatabaseTestBase
 
 
     public function test_add_term_saves_term() {
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText('perro');
-        $t->setStatus(1);
-        $this->dictionary->add($t);
+        $term = new Term();
+        $term->setLanguage($this->spanish);
+        $term->setText('perro');
+        $this->dictionary->add($term);
 
         $f = $this->dictionary->find('perro', $this->spanish);
         $this->assertEquals($f->getText(), 'perro', 'Term found');
