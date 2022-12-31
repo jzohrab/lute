@@ -30,7 +30,7 @@ class LanguageController extends AbstractController
         $template_lc = strtolower($template);
         $cands = array_filter($predefined, fn($p) => $template_lc == strtolower($p->getLgName()));
         if (count($cands) > 0) {
-            dump($cands);
+            // dump($cands);
             $language = array_values($cands)[0];
         }
 

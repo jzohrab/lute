@@ -127,7 +127,7 @@ class DataTablesMySqlQuery
             }
         }
         catch (\Exception $e) {
-            dump($sqla);
+            // dump($sqla);
             throw $e;
         }
 
