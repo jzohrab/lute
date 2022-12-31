@@ -8,9 +8,8 @@ use App\Entity\Term;
 use App\Entity\Text;
 use App\Domain\Dictionary;
 
-// TODO:rename!  Now this is Dictionary test
 // Tests for checking WoStatusChanged field updates.
-final class TermRepository_WoStatusChanged_Test extends DatabaseTestBase
+final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
 {
 
     private Term $term;
