@@ -1,8 +1,8 @@
 # Changelog
 
-## 2022-12-28
+## 2022-12-31
 
-Finished MVP:
+Finished minimum viable product (MVP):
 
 * create texts
 * define languages and terms
