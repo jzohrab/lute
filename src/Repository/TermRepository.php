@@ -27,51 +27,11 @@ class TermRepository extends ServiceEntityRepository
 
     public function save(Term $entity, bool $flush = false): void
     {
-        // If the term's parent is new, throw some data into it.
-        $parent = $this->findOrCreateParent($entity);
-        $entity->setParent($parent);
         $this->getEntityManager()->persist($entity);
-
         if ($flush) {
             $this->getEntityManager()->flush();
         }
     }
-
-    // TODO:remove
-    /**
-     * Convert parent_text text box content back into a real Term
-     * instance, creating a new Term if needed.
-     */
-    private function findOrCreateParent(Term $entity): ?Term
-    {
-        $pt = $entity->getParentText();
-        if ($pt == null || $pt == '')
-            return null;
-
-        if (is_null($entity->getLanguage())) {
-            throw new \Exception('Language not set for Entity?');
-        }
-
-        $p = $this->findTermInLanguage($pt, $entity->getLanguage());
-
-        if ($p !== null)
-            return $p;
-
-        $p = new Term();
-        $p->setText($pt);
-        $p->setLanguage($entity->getLanguage());
-        $p->setStatus($entity->getStatus());
-        $p->setTranslation($entity->getTranslation());
-        $p->setSentence($entity->getSentence());
-        foreach ($entity->getTermTags() as $termtag) {
-            /**
-             * @psalm-suppress InvalidArgument
-             */
-            $p->addTermTag($termtag);
-        }
-        return $p;
-    }
-
 
     public function remove(Term $entity, bool $flush = false): void
     {
