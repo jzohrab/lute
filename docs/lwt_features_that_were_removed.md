@@ -6,6 +6,7 @@ These features *might* be re-introduced after the MVP is done.
 
 | Feature | Notes |
 | --- | --- |
+| Japanese / Chinese, and right-to-left languages | For Japanese, parsing using MECAB isn't implemented, simply because I didn't have accurate test cases or expertise in its uses with LWT.  I couldn't port the existing LWT code over for these languages, because it was too complex and untested.  With good use cases -- sample stories and expected behaviour -- this should be implementable.  Same goes for right-to-left languages like Hebrew. |
 | anki-like testing | The current testing code isn't the best.  It assumes that it should just potentially test everything.  I should be able to select the terms I want to test, especially parent terms that implicitly include many child sentences.  Needs a big rearchitecture. |
 | multi-word edit screen | i.e. `/edit_words.php` - to be replaced by a datatables-type view. |
 | bulk translation | A good idea, but the code was pretty rough. |
