@@ -8,3 +8,6 @@
 #
 # This could be generalized later if needed.
 open http://lute_release.local:8080/
+
+# Same for debug.
+open http://lute_debug.local:8080/

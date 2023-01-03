@@ -27,7 +27,7 @@ This is time-consuming and should be automated!
 
 ## Part 2: create test release
 
-* `composer app:release` : generate a `lute_release.zip`, and open local testing environment (pre-configured in my virtual hosts).
+* `composer app:release` : generate a `lute_release.zip` and `lute_debug.zip`, and open local testing environments (pre-configured in my virtual hosts).
 * In the demo environment, run through a few tutorial steps:
   * create terms
   * multi-words
@@ -44,4 +44,4 @@ This is time-consuming and should be automated!
 ## Part 4: release
 
 * Push the tag to GitHub: `git push origin <new_tag_name>`
-* Attach the lute release zip to the github release.  Maybe update the release notes in the GitHub release.
+* Attach the lute_release.zip and lute_debug.zip to the github release.  Maybe update the release notes in the GitHub release.
