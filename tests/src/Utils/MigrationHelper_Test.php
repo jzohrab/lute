@@ -6,12 +6,27 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Utils\MigrationHelper;
 use App\Domain\Dictionary;
 
-/** Smoke tests only. */
+// Smoke tests
+/**
+ * @backupGlobals enabled
+ */
 final class MigrationHelper_Test extends DatabaseTestBase
 {
 
+    private string $dummydb = 'zzzz_test_setup';
+
+    public function childSetUp() {
+        DbHelpers::exec_sql('drop database if exists ' . $this->dummydb);
+    }
+
+    public function childTearDown(): void
+    {
+        DbHelpers::exec_sql('drop database if exists ' . $this->dummydb);
+    }
+
     public function test_smoke_tests() {
         $this->assertFalse(MigrationHelper::isLuteDemo(), 'test db is not demo');
+        $this->assertFalse(MigrationHelper::isLuteTest(), 'test db is test!');
         $this->assertFalse(MigrationHelper::hasPendingMigrations(), 'everything done');
     }
 
@@ -26,4 +41,14 @@ final class MigrationHelper_Test extends DatabaseTestBase
         $this->assertEquals($t->getTitle(), 'Tutorial', 'got tutorial, index link to /read/1 is good.');
     }
 
+    /**
+     * @group dbsetup
+     */
+    public function test_doSetup_new_db_valid_password() {
+        $_ENV['DB_DATABASE'] = $this->dummydb;
+        [ $messages, $error ] = MigrationHelper::doSetup();
+        $this->assertEquals(null, $error, 'no error');
+        $this->assertEquals('New database created.', $messages[0]);
+        $this->assertFalse(MigrationHelper::hasPendingMigrations(), 'fully migrated');
+    }
 }
