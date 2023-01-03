@@ -14,19 +14,25 @@ final class MigrationHelper_Test extends DatabaseTestBase
 {
 
     private string $dummydb = 'zzzz_test_setup';
+    private string $oldpass;
+    private string $olddb;
 
     public function childSetUp() {
+        $this->oldpass =  $_ENV['DB_PASSWORD'];
+        $this->olddb = $_ENV['DB_DATABASE'];
         DbHelpers::exec_sql('drop database if exists ' . $this->dummydb);
     }
 
     public function childTearDown(): void
     {
+        $_ENV['DB_PASSWORD'] = $this->oldpass;
+        $_ENV['DB_DATABASE'] = $this->olddb;
         DbHelpers::exec_sql('drop database if exists ' . $this->dummydb);
     }
 
     public function test_smoke_tests() {
         $this->assertFalse(MigrationHelper::isLuteDemo(), 'test db is not demo');
-        $this->assertFalse(MigrationHelper::isLuteTest(), 'test db is test!');
+        $this->assertTrue(MigrationHelper::isLuteTest(), 'test db is test!');
         $this->assertFalse(MigrationHelper::hasPendingMigrations(), 'everything done');
     }
 
@@ -51,4 +57,17 @@ final class MigrationHelper_Test extends DatabaseTestBase
         $this->assertEquals('New database created.', $messages[0]);
         $this->assertFalse(MigrationHelper::hasPendingMigrations(), 'fully migrated');
     }
+
+    /**
+     * @group dbsetup
+     */
+    public function test_doSetup_new_db_bad_password() {
+        $_ENV['DB_DATABASE'] = $this->dummydb;
+        $_ENV['DB_PASSWORD'] = 'invalid_password';
+        [ $messages, $error ] = MigrationHelper::doSetup();
+        $this->assertTrue($error != null, 'got error');
+        $this->assertTrue(strstr($error, 'Access denied for user') !== false, 'got access denied msg');
+        $this->assertEquals(0, count($messages), 'no messages');
+    }
+
 }
