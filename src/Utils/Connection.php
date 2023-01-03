@@ -5,12 +5,12 @@ namespace App\Utils;
 class Connection {
 
     // Returns [ server, user, pass, dbname ]
-    private static function getParams() {
-        $getOrThrow = function($key) {
+    public static function getParams() {
+        $getOrThrow = function($key, $throwIfMissing = true) {
             if (! isset($_ENV[$key]))
                 throw new \Exception("Missing ENV key $key");
             $ret = $_ENV[$key];
-            if ($ret == null || $ret == '')
+            if ($throwIfMissing && ($ret == null || $ret == ''))
                 throw new \Exception("Empty ENV key $key");
             return $ret;
         };
@@ -18,7 +18,7 @@ class Connection {
         return [
             $getOrThrow('DB_HOSTNAME'),
             $getOrThrow('DB_USER'),
-            $getOrThrow('DB_PASSWORD'),
+            $getOrThrow('DB_PASSWORD', false),
             $getOrThrow('DB_DATABASE')
         ];
     }
