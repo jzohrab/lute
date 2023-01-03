@@ -1,6 +1,14 @@
 # Changelog
 
-## 2022-12-31
+## 2023-01-03 - v1.0.1
+
+* Notes for installing on XAMPP.
+* Test coverage for db setup.
+* Allow blank database password in .env.
+* Fix text tags available tags source.
+* Note on missing language support.
+
+## 2022-12-31 - v1.0.0
 
 Finished minimum viable product (MVP):
 
