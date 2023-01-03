@@ -14,20 +14,8 @@ use App\Domain\Dictionary;
 // Class for namespacing only.
 class MigrationHelper {
 
-    private static function getOrThrow($key) {
-        if (! isset($_ENV[$key]))
-            throw new \Exception("Missing ENV key $key");
-        $ret = $_ENV[$key];
-        if ($ret == null || $ret == '')
-            throw new \Exception("Empty ENV key $key");
-        return $ret;
-    }
-
     private static function getMigrator($showlogging = false) {
-        $server = MigrationHelper::getOrThrow('DB_HOSTNAME');
-        $userid = MigrationHelper::getOrThrow('DB_USER');
-        $passwd = MigrationHelper::getOrThrow('DB_PASSWORD');
-        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
 
         $dir = __DIR__ . '/../../db/migrations';
         $repdir = __DIR__ . '/../../db/migrations_repeatable';
@@ -54,9 +42,10 @@ class MigrationHelper {
             $dbexists = Connection::databaseExists();
 
             if ($dbexists && MigrationHelper::isLearningWithTextsDb()) {
+                [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
                 $args = [
-                    'dbname' => MigrationHelper::getOrThrow('DB_DATABASE'),
-                    'username' => MigrationHelper::getOrThrow('DB_USER')
+                    'dbname' => $dbname,
+                    'username' => $userid
                 ];
                 $error = MigrationHelper::renderError('will_not_migrate_lwt_automatically.html.twig', $args);
                 return [ $messages, $error ];
@@ -98,7 +87,7 @@ class MigrationHelper {
     }
 
     public static function runMigrations($showlogging = false) {
-        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
         $migration = MigrationHelper::getMigrator($showlogging);
         $migration->exec("ALTER DATABASE `{$dbname}` CHARACTER SET utf8 COLLATE utf8_general_ci");
         $migration->process();
@@ -129,12 +118,12 @@ class MigrationHelper {
     }
 
     public static function isLuteDemo() {
-        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
         return ($dbname == 'lute_demo');
     }
 
     public static function isLuteTest() {
-        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
         return (str_starts_with($dbname, 'test_'));
     }
 
@@ -151,7 +140,7 @@ class MigrationHelper {
     }
 
     public static function isLearningWithTextsDb() {
-        $dbname = MigrationHelper::getOrThrow('DB_DATABASE');
+        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
         $sql = "select count(*) as c from information_schema.tables
           where table_schema = '{$dbname}'
           and table_name = '_lwtgeneral'";
