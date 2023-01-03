@@ -14,7 +14,7 @@ My personal Lute is running Apache/2.4.54, with PHP version 8.1.13.
 
 ## Set up your environment
 
-This part can be tricky, so see the [installation readme](./installation/README.md).
+See the [installation readme](./installation/README.md).
 
 Also included are some [actual apache config files](./installation/sample_apache_config_files/README.md) as I use them on my personal machine.  These are for reference only, but maybe they will help someone.
 
