@@ -6,7 +6,10 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Utils\Connection;
 use PHPUnit\Framework\TestCase;
 
-/** Smoke tests only. */
+// Smoke tests only.
+/**
+ * @backupGlobals enabled
+ */
 final class Connection_Test extends TestCase
 {
 
