@@ -183,6 +183,9 @@
    * Either open a new window, or show the result in the correct frame.
    */
   let show_lookup_page = function(dicturl, text, allow_open_new_web_page = true) {
+
+    dicturl = `/bing/term/${encodeURIComponent(text)}`;
+
     const is_external = (dicturl.charAt(0) == '*');
     if (is_external && !allow_open_new_web_page) {
       console.log('Declining to open external web page.');
@@ -201,6 +204,7 @@
       open_new_lookup_window(url);
     else
       top.frames.dictframe.location.href = url;
+
   };
 
   function do_term_lookup(allow_open_new_web_page = true) {
