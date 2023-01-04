@@ -246,7 +246,7 @@ class Language
         $spanish
             ->setLgName('Spanish')
             ->setLgDict1URI('https://es.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.wordreference.com/es/en/translation.asp?spen=###')
+            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#es/en/###');
         return $spanish;
     }
@@ -256,7 +256,7 @@ class Language
         $french
             ->setLgName('French')
             ->setLgDict1URI('https://fr.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.wordreference.com/fren/###')
+            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#fr/en/###');
         return $french;
     }
@@ -276,7 +276,7 @@ class Language
         $english
             ->setLgName('English')
             ->setLgDict1URI('https://en.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.wordreference.com/en/###')
+            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#en/en/###');
         return $english;
     }

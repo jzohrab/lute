@@ -182,10 +182,13 @@
   /**
    * Either open a new window, or show the result in the correct frame.
    */
-  let show_lookup_page = function(dicturl, text, allow_open_new_web_page = true) {
-    const is_external = (dicturl.charAt(0) == '*');
-    if (is_external && !allow_open_new_web_page) {
-      console.log('Declining to open external web page.');
+  let show_lookup_page = function(dicturl, text, langid, allow_open_new_web_page = true) {
+
+    const is_bing = (dicturl.indexOf('www.bing.com') != -1);
+    if (is_bing) {
+      const binghash = dicturl.replace('https://www.bing.com/images/search?', '');
+      const url = `/bing/term/${encodeURIComponent(text)}/${encodeURIComponent(binghash)}`;
+      top.frames.dictframe.location.href = url;
       return;
     }
 
@@ -194,14 +197,23 @@
     // (e.g. "*http://" means "open an external window", while
     // "http://" means "this can be opened in an iframe."
     // Instead, each dict should have an "is_external" property.
-    if (is_external)
+    const is_external = (dicturl.charAt(0) == '*');
+    if (is_external) {
+      if (!allow_open_new_web_page) {
+        console.log('Declining to open external web page.');
+        return;
+      }
       dicturl = dicturl.slice(1);
-    const url = get_lookup_url(dicturl, text);
-    if (is_external)
+      const url = get_lookup_url(dicturl, text);
       open_new_lookup_window(url);
-    else
-      top.frames.dictframe.location.href = url;
+      return;
+    }
+
+    // Fallback: open in frame.
+    const url = get_lookup_url(dicturl, text);
+    top.frames.dictframe.location.href = url;
   };
+
 
   function do_term_lookup(allow_open_new_web_page = true) {
     const langid = $('#term_language').val();
@@ -212,7 +224,7 @@
 
     const termdicts = LANGUAGES[langid].term;
     const usedict = termdicts[termdictindex];
-    show_lookup_page(usedict, $('#term_Text').val(), allow_open_new_web_page);
+    show_lookup_page(usedict, $('#term_Text').val(), langid, allow_open_new_web_page);
 
     termdictindex++;
     if (termdictindex >= termdicts.length)
@@ -227,7 +239,7 @@
     }
 
     const usedict = LANGUAGES[langid].sentence;
-    show_lookup_page(usedict, $('#term_Sentence').val());
+    show_lookup_page(usedict, $('#term_Sentence').val(), langid);
   }
 
 </script>
