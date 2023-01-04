@@ -15,7 +15,7 @@ class BingImageSearchController extends AbstractController
     #[Route('/term/{LgID}/{text?-}', name: 'app_bingsearch', methods: ['GET'])]
     public function getit(Language $language, string $text): Response
     {
-        dump("searching for " . $text . " in " . $language->getLgName());
+        // dump("searching for " . $text . " in " . $language->getLgName());
         $search = rawurlencode($text);
         $url = "https://www.bing.com/images/search?q={$search}&qs=n&form=QBIR&sp=-1&pq={$search}&sc=3-21&cvid=2040690D7A154D8B998A5437C689BE2A&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle";
         $content = file_get_contents($url);
