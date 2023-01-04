@@ -9,6 +9,10 @@
           border: solid 2px red;
       }
 
+      .saved {
+          border: solid 2px green;
+      }
+
       span > img {
           display:inline;
       }
@@ -27,6 +31,8 @@
         },
         function(data, status){
           console.log("Saved: " + data + "\nStatus: " + status);
+          $('.saved').removeClass('saved');
+          $('.highlight').addClass('saved').removeClass('highlight');
         });
     }
 
@@ -41,7 +47,7 @@
   </script>
 
   <body>
-    <p>Clicking an image saves it in media/images</p>
+    <p>Clicking an image will save it in media/images/{{ langid }}/{{ text }}.jpeg</p>
 
     {% for image in images %}
     <span style="margin: 2px; display:inline-block;"
