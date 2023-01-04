@@ -44,6 +44,13 @@ let word_hover_out = function() {
 }
 
 
+// src/Controller/BingImageSearchController saves images in
+// public/media/images, so they're servable.
+let image_path_for = function(langid, text) {
+  return `/media/images/${langid}/${text}.jpeg`;
+}
+
+
 let tooltip_textitem_content = function (el) {
   let content = `<p><b style="font-size:120%">${el.text()}</b></p>`;
 
@@ -62,12 +69,16 @@ let tooltip_textitem_content = function (el) {
   const statname = `${st['name']} [${st['abbr']}]`;
   content += `<p><b>Status</b>: <span class="status${status}">${statname}</span></p>`;
 
+  const lid = parseInt(el.attr('lid'));
+  content += `<p><img src="${image_path_for(lid, el.text())}"></p>`;
+
   const parent_text = el.attr('parent_text')
   if (parent_text && parent_text != '') {
     content += '<hr /><p><i>Parent term:</i></p>';
-    content += "<p><b style='font-size:120%'>" + el.attr('parent_text') + "</b></p>";
+    content += "<p><b style='font-size:120%'>${parent_text}</b></p>";
     let ptrans = el.attr('parent_trans');
     content += '<p><b>Transl.</b>: ' + ptrans + '</p>';
+    content += `<p><img src="${image_path_for(lid, parent_text)}"></p>`;
   }
 
   return content;
