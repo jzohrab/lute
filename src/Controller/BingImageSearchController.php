@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class BingImageSearchController extends AbstractController
 {
 
-    #[Route('/search/{langid}/{text}/{searchstring?-}', name: 'app_bingsearch', methods: ['GET'])]
+    #[Route('/search/{langid}/{text}/{searchstring?-}', name: 'app_bing_search', methods: ['GET'])]
     public function bing_search(int $langid, string $text, string $searchstring): Response
     {
         // dump("searching for " . $text . " in " . $language->getLgName());
@@ -81,7 +81,7 @@ class BingImageSearchController extends AbstractController
     // Images would *not* need to be added on bulk term save (e.g. on
     // "set all to known") because they wouldn't be there.
     //
-    #[Route('/save', name: 'app_bingsave', methods: ['POST'])]
+    #[Route('/save', name: 'app_bing_save', methods: ['POST'])]
     public function bing_save(Request $request): JsonResponse
     {
         $src = $_POST['src'];
@@ -100,7 +100,7 @@ class BingImageSearchController extends AbstractController
     }
 
     // Returns the path of the image file if it exists, else empty string.
-    #[Route('/get/{langid}/{text}', name: 'app_bingsearch', methods: ['GET'])]
+    #[Route('/get/{langid}/{text}', name: 'app_bing_get', methods: ['GET'])]
     public function bing_path(int $langid, string $text): JsonResponse
     {
         $reldir = __DIR__ . '/../../public';
