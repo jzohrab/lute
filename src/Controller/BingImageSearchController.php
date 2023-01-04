@@ -12,8 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class BingImageSearchController extends AbstractController
 {
 
-    #[Route('/term/{text}/{searchstring?-}', name: 'app_bingsearch', methods: ['GET'])]
-    public function bing_search(string $text, string $searchstring): Response
+    #[Route('/term/{langid}/{text}/{searchstring?-}', name: 'app_bingsearch', methods: ['GET'])]
+    public function bing_search(int $langid, string $text, string $searchstring): Response
     {
         // dump("searching for " . $text . " in " . $language->getLgName());
         $search = rawurlencode($text);
@@ -44,11 +44,25 @@ class BingImageSearchController extends AbstractController
         };
         $images = array_map($fix_data_src, $images);
 
-        // Don't kill the sub-page.
+        // Reduce image load count so we don't kill subpage loading.
         $images = array_slice($images, 0, 25);
 
-        $list = implode('; ', $images);
-        $r = new Response($list);
-        return $r;
+        $build_struct = function($image) {
+            $src = 'missing';
+            $ret = preg_match('/src="(.*?)"/', $image, $matches, PREG_OFFSET_CAPTURE);
+            if ($ret == 1)
+                $src = $matches[1][0];
+            return [
+                'html' => $image,
+                'src' => $src
+            ];
+        };
+        $data = array_map($build_struct, $images);
+
+        return $this->render('imagesearch/index.html.twig', [
+            'langid' => $langid,
+            'text' => $text,
+            'images' => $data
+        ]);
     }
 }
