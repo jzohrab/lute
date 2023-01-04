@@ -70,15 +70,15 @@ let tooltip_textitem_content = function (el) {
   content += `<p><b>Status</b>: <span class="status${status}">${statname}</span></p>`;
 
   const lid = parseInt(el.attr('lid'));
-  content += `<p><img src="${image_path_for(lid, el.text())}"></p>`;
+  content += `<p><img src="${image_path_for(lid, el.text())}" onerror="this.src=''"></p>`;
 
   const parent_text = el.attr('parent_text')
   if (parent_text && parent_text != '') {
     content += '<hr /><p><i>Parent term:</i></p>';
-    content += "<p><b style='font-size:120%'>${parent_text}</b></p>";
+    content += `<p><b style='font-size:120%'>${parent_text}</b></p>`;
     let ptrans = el.attr('parent_trans');
     content += '<p><b>Transl.</b>: ' + ptrans + '</p>';
-    content += `<p><img src="${image_path_for(lid, parent_text)}"></p>`;
+    content += `<p><img src="${image_path_for(lid, parent_text)} onerror="this.src=''""></p>`;
   }
 
   return content;
