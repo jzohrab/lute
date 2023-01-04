@@ -67,6 +67,17 @@ class BingImageSearchController extends AbstractController
         ]);
     }
 
+    /**
+     * Make a filename for the text.
+     * php's file_exists() doesn't work if the filename contains spaces.
+     */
+    private function make_filename(string $text): string
+    {
+        $ret = preg_replace('/\s+/u', '_', $text) . '.jpeg';
+        return $ret;
+    }
+
+
     // TODO:store_image_with_term?  Not sure if we should store the
     // image path in the data model.  Could add Term->imagePath(), or
     // TermImage->get() or similar.  Few terms will have images, so
@@ -93,7 +104,7 @@ class BingImageSearchController extends AbstractController
         if (! file_exists($imgdir)) {
             mkdir($imgdir, 0777, true);
         }
-        $img = $imgdir . '/' . $text . '.jpeg';
+        $img = $imgdir . '/' . $this->make_filename($text);
         file_put_contents($img, file_get_contents($src));
 
         return $this->json('ok');
@@ -110,10 +121,12 @@ class BingImageSearchController extends AbstractController
             mkdir($realdir, 0777, true);
         }
 
-        $realfile = $realdir . '/' . $text . '.jpeg';
+        $f = $this->make_filename($text);
+        $realfile = $realdir . '/' . $f;
+        // dump('looking for ' . $realfile);
         if (! file_exists($realfile))
             return $this->json('');
 
-        return $this->json($imgdir . '/' . $text . '.jpeg');
+        return $this->json($imgdir . '/' . $f);
     }
 }
