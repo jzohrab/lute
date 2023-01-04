@@ -45,6 +45,7 @@ class ReadingRepository
 
         $sql = "SELECT
            $textid AS TextID,
+           Ti2LgID as LangID,
            Ti2WordCount AS WordCount,
            Ti2Text AS Text,
            Ti2TextLC AS TextLC,
@@ -101,7 +102,7 @@ class ReadingRepository
             foreach ($row as $key => $val) {
                 $t->$key = $val;
             }
-            $intkeys = [ 'TextID', 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
+            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
             foreach ($intkeys as $key) {
                 $t->$key = intval($t->$key);
             }
