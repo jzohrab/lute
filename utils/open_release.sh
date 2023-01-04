@@ -9,5 +9,10 @@
 # This could be generalized later if needed.
 open http://lute_release.local:8080/
 
-# Same for debug.
-open http://lute_debug.local:8080/
+# Don't bother opening the debug release.  It is the same as the other
+# release except for additional dev composer dependencies.  More
+# importantly, opening it up at the same time as the release can cause
+# problems if both of them try to run migrations at the same time on
+# the same database.
+#
+# open http://lute_debug.local:8080/

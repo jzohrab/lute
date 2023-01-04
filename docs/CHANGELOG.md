@@ -1,5 +1,10 @@
 # Changelog
 
+## 2023-01-04 - v1.0.2
+
+* Save selected bing image to public/media/images.
+* Include local files in term hovers.
+
 ## 2023-01-03 - v1.0.1
 
 * Notes for installing on XAMPP.
