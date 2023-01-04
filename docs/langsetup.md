@@ -22,6 +22,8 @@ https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle
 
 _(I admit I'm not 100% sure on how to specify French only images, or German-only images, but just using a standard string above appears to work for the languages I've tried!)_
 
+Note that the Term form (the right-hand frame when reading) has an "eye" icon next to the term ... you can click on that and it does a common bing image search (disregarding your custom image search url you might have saved with the language).
+
 ## Sentence lookups
 
 You could use either DeepL or Google translate for sentence lookups.

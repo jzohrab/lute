@@ -44,6 +44,20 @@ let word_hover_out = function() {
 }
 
 
+let add_image_if_exists = function(langid, text) {
+  const url = `/bing/get/${langid}/${encodeURIComponent(text)}`;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, false); // false = *not* asynchronous.
+  xhr.send();
+
+  const filename = xhr.response;
+  // console.log('got filename = ' + filename);
+  if (filename == '""')
+    return '';
+  return `<p><img src="${JSON.parse(filename)}" /></p>`;
+}
+
+
 let tooltip_textitem_content = function (el) {
   let content = `<p><b style="font-size:120%">${el.text()}</b></p>`;
 
@@ -51,6 +65,9 @@ let tooltip_textitem_content = function (el) {
   if (roman != '') {
     content += '<p><b>Roman.</b>: ' + roman + '</p>';
   }
+
+  const lid = parseInt(el.attr('lid'));
+  content += add_image_if_exists(lid, el.text());
 
   const trans = el.attr('data_trans');
   if (trans != '' && trans != '*') {
@@ -65,7 +82,8 @@ let tooltip_textitem_content = function (el) {
   const parent_text = el.attr('parent_text')
   if (parent_text && parent_text != '') {
     content += '<hr /><p><i>Parent term:</i></p>';
-    content += "<p><b style='font-size:120%'>" + el.attr('parent_text') + "</b></p>";
+    content += `<p><b style='font-size:120%'>${parent_text}</b></p>`;
+    content += add_image_if_exists(lid, parent_text);
     let ptrans = el.attr('parent_trans');
     content += '<p><b>Transl.</b>: ' + ptrans + '</p>';
   }

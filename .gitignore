@@ -1,4 +1,3 @@
-media/
 *.bak
 /vendor/
 composer.phar
@@ -14,6 +13,9 @@ composer.phar
 
 # User config
 /public/css/styles-overrides.css
+
+# User media in root, or in public/media (e.g. saved images).
+media/
 
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/

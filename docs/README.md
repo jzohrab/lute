@@ -8,9 +8,10 @@ _Everything is, of course, a work in progress._
 
 ## Usage
 
+* [language setup](./langsetup.md): Setting up a new language
+* [reading](./reading.md): Notes about reading (copied from the tutorial)
 * [links](./links.md): Links to various posts about LWT and the method of "learning with texts"
 * [key bindings](./keybind.md): Key bindings while reading
-* [language setup](./langsetup.md): Setting up a new language
 * [customizing styles](./customizing_styles.md): Primitive styling/theme support
 
 ## For devs

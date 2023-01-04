@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Images</title>
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+    <style>
+      .highlight {
+          border: solid 2px red;
+      }
+
+      .saved {
+          border: solid 2px green;
+      }
+
+      span > img {
+          display:inline;
+      }
+    </style>
+  </head>
+
+  <script>
+    function save_image_locally(src, langid, text) {
+      console.log(`saving ${src} for ${langid}/${text}`);
+      $.post(
+        '/bing/save',
+        {
+          src: src,
+          langid: langid,
+          text: text
+        },
+        function(data, status){
+          console.log("Saved: " + data + "\nStatus: " + status);
+          $('.saved').removeClass('saved');
+          $('.highlight').addClass('saved').removeClass('highlight');
+        });
+    }
+
+    function highlight_image(el) {
+      $(el).addClass('highlight');
+    }
+
+    function un_highlight_image(el) {
+      $(el).removeClass('highlight');
+    }
+
+  </script>
+
+  <body>
+    <p>Clicking an image will save it in public/media/images/{{ langid }}/{{ text }}.jpeg</p>
+
+    {% for image in images %}
+    <span style="margin: 2px; display:inline-block;"
+          onmouseover="highlight_image(this);"
+          onmouseout="un_highlight_image(this);"
+          onclick='save_image_locally("{{ image['src'] }}", {{ langid }}, "{{ text }}")'
+          >
+      {{ image['html']|raw }}
+    </span>
+    {% endfor %}
+  </body>
+
+</html>

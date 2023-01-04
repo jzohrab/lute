@@ -6,14 +6,15 @@ use App\Entity\Language;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/bing')]
 class BingImageSearchController extends AbstractController
 {
 
-    #[Route('/term/{text}/{searchstring?-}', name: 'app_bingsearch', methods: ['GET'])]
-    public function bing_search(string $text, string $searchstring): Response
+    #[Route('/search/{langid}/{text}/{searchstring?-}', name: 'app_bing_search', methods: ['GET'])]
+    public function bing_search(int $langid, string $text, string $searchstring): Response
     {
         // dump("searching for " . $text . " in " . $language->getLgName());
         $search = rawurlencode($text);
@@ -44,11 +45,75 @@ class BingImageSearchController extends AbstractController
         };
         $images = array_map($fix_data_src, $images);
 
-        // Don't kill the sub-page.
+        // Reduce image load count so we don't kill subpage loading.
         $images = array_slice($images, 0, 25);
 
-        $list = implode('; ', $images);
-        $r = new Response($list);
-        return $r;
+        $build_struct = function($image) {
+            $src = 'missing';
+            $ret = preg_match('/src="(.*?)"/', $image, $matches, PREG_OFFSET_CAPTURE);
+            if ($ret == 1)
+                $src = $matches[1][0];
+            return [
+                'html' => $image,
+                'src' => $src
+            ];
+        };
+        $data = array_map($build_struct, $images);
+
+        return $this->render('imagesearch/index.html.twig', [
+            'langid' => $langid,
+            'text' => $text,
+            'images' => $data
+        ]);
+    }
+
+    // TODO:store_image_with_term?  Not sure if we should store the
+    // image path in the data model.  Could add Term->imagePath(), or
+    // TermImage->get() or similar.  Few terms will have images, so
+    // storing them in the words table doesn't make much sense.
+    //
+    // Storing images explicitly with terms would allow for image
+    // management, and maybe export to Anki etc in the future.
+    //
+    // If the images _are_ stored in the table, the term would have to
+    // be saved first, obvs.  Could be managed by Dictionary->add().
+    //
+    // Images would *not* need to be added on bulk term save (e.g. on
+    // "set all to known") because they wouldn't be there.
+    //
+    #[Route('/save', name: 'app_bing_save', methods: ['POST'])]
+    public function bing_save(Request $request): JsonResponse
+    {
+        $src = $_POST['src'];
+        $text = $_POST['text'];
+        $langid = $_POST['langid'];
+        // dump($src);
+
+        $imgdir = __DIR__ . '/../../public/media/images/' . $langid;
+        if (! file_exists($imgdir)) {
+            mkdir($imgdir, 0777, true);
+        }
+        $img = $imgdir . '/' . $text . '.jpeg';
+        file_put_contents($img, file_get_contents($src));
+
+        return $this->json('ok');
+    }
+
+    // Returns the path of the image file if it exists, else empty string.
+    #[Route('/get/{langid}/{text}', name: 'app_bing_get', methods: ['GET'])]
+    public function bing_path(int $langid, string $text): JsonResponse
+    {
+        $reldir = __DIR__ . '/../../public';
+        $imgdir = '/media/images/' . $langid;
+        $realdir = $reldir . $imgdir;
+        if (! file_exists($realdir)) {
+            mkdir($realdir, 0777, true);
+        }
+
+        $realfile = $realdir . '/' . $text . '.jpeg';
+        if (! file_exists($realfile))
+            return $this->json('');
+
+        return $this->json($imgdir . '/' . $text . '.jpeg');
     }
 }
