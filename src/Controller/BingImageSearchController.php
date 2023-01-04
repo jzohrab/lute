@@ -76,7 +76,9 @@ class BingImageSearchController extends AbstractController
         // dump($src);
 
         $imgdir = __DIR__ . '/../../media/images/' . $langid;
-        mkdir($imgdir, 0777, true);
+        if (! file_exists($imgdir)) {
+            mkdir($imgdir, 0777, true);
+        }
         $img = $imgdir . '/' . $text . '.jpeg';
         file_put_contents($img, file_get_contents($src));
 
