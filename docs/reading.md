@@ -1,6 +1,9 @@
-# title: Tutorial
-# language: English
-#
+# Reading
+
+_(Note: The below information is a copy-paste of the Tutorial loaded in the demo.)_
+
+---
+
 Welcome to Lute!  This short guide should get you going.
 
 1. The Basics
