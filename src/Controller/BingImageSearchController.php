@@ -12,12 +12,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class BingImageSearchController extends AbstractController
 {
 
-    #[Route('/term/{LgID}/{text?-}', name: 'app_bingsearch', methods: ['GET'])]
-    public function getit(Language $language, string $text): Response
+    #[Route('/term/{text}/{searchstring?-}', name: 'app_bingsearch', methods: ['GET'])]
+    public function bing_search(string $text, string $searchstring): Response
     {
         // dump("searching for " . $text . " in " . $language->getLgName());
         $search = rawurlencode($text);
-        $url = "https://www.bing.com/images/search?q={$search}&qs=n&form=QBIR&sp=-1&pq={$search}&sc=3-21&cvid=2040690D7A154D8B998A5437C689BE2A&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle";
+        $searchparams = str_replace("###", $search, $searchstring);
+        $url = "https://www.bing.com/images/search?" . $searchparams;
         $content = file_get_contents($url);
 
         // Samples
