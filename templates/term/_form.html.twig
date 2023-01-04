@@ -182,9 +182,9 @@
   /**
    * Either open a new window, or show the result in the correct frame.
    */
-  let show_lookup_page = function(dicturl, text, allow_open_new_web_page = true) {
+  let show_lookup_page = function(dicturl, text, langid, allow_open_new_web_page = true) {
 
-    dicturl = `/bing/term/${encodeURIComponent(text)}`;
+    dicturl = `/bing/term/${langid}/${encodeURIComponent(text)}`;
 
     const is_external = (dicturl.charAt(0) == '*');
     if (is_external && !allow_open_new_web_page) {
@@ -216,7 +216,7 @@
 
     const termdicts = LANGUAGES[langid].term;
     const usedict = termdicts[termdictindex];
-    show_lookup_page(usedict, $('#term_Text').val(), allow_open_new_web_page);
+    show_lookup_page(usedict, $('#term_Text').val(), langid, allow_open_new_web_page);
 
     termdictindex++;
     if (termdictindex >= termdicts.length)
@@ -231,7 +231,7 @@
     }
 
     const usedict = LANGUAGES[langid].sentence;
-    show_lookup_page(usedict, $('#term_Sentence').val());
+    show_lookup_page(usedict, $('#term_Sentence').val(), langid);
   }
 
 </script>

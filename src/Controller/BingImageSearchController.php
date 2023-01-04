@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Language;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,12 +12,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class BingImageSearchController extends AbstractController
 {
 
-    #[Route('/term/{v?-}', name: 'app_bingsearch', methods: ['GET'])]
-    public function getit(string $v): Response
+    #[Route('/term/{LgID}/{text?-}', name: 'app_bingsearch', methods: ['GET'])]
+    public function getit(Language $language, string $text): Response
     {
-
-        $searchv = rawurlencode($v);
-        $url = "https://www.bing.com/images/search?q={$searchv}&qs=n&form=QBIR&sp=-1&pq={$searchv}&sc=3-21&cvid=2040690D7A154D8B998A5437C689BE2A&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle";
+        dump("searching for " . $text . " in " . $language->getLgName());
+        $search = rawurlencode($text);
+        $url = "https://www.bing.com/images/search?q={$search}&qs=n&form=QBIR&sp=-1&pq={$search}&sc=3-21&cvid=2040690D7A154D8B998A5437C689BE2A&ghsh=0&ghacc=0&first=1&tsc=ImageHoverTitle";
         $content = file_get_contents($url);
 
         // Samples
