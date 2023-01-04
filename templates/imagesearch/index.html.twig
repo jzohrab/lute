@@ -3,11 +3,23 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Images</title>
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
   </head>
 
   <script>
     function save_image_locally(src, langid, text) {
-      alert(`saving ${src} for ${langid}/${text}`);
+      console.log(`saving ${src} for ${langid}/${text}`);
+
+      $.post(
+        '/bing/save',
+        {
+          src: src,
+          langid: langid,
+          text: text
+        },
+        function(data, status){
+          alert("Data: " + data + "\nStatus: " + status);
+        });
     }
   </script>
 

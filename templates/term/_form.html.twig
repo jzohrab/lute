@@ -187,7 +187,7 @@
     const is_bing = (dicturl.indexOf('www.bing.com') != -1);
     if (is_bing) {
       const binghash = dicturl.replace('https://www.bing.com/images/search?', '');
-      const url = `/bing/term/${langid}/${encodeURIComponent(text)}/${encodeURIComponent(binghash)}`;
+      const url = `/bing/search/${langid}/${encodeURIComponent(text)}/${encodeURIComponent(binghash)}`;
       top.frames.dictframe.location.href = url;
       return;
     }

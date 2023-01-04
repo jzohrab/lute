@@ -6,13 +6,14 @@ use App\Entity\Language;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/bing')]
 class BingImageSearchController extends AbstractController
 {
 
-    #[Route('/term/{langid}/{text}/{searchstring?-}', name: 'app_bingsearch', methods: ['GET'])]
+    #[Route('/search/{langid}/{text}/{searchstring?-}', name: 'app_bingsearch', methods: ['GET'])]
     public function bing_search(int $langid, string $text, string $searchstring): Response
     {
         // dump("searching for " . $text . " in " . $language->getLgName());
@@ -65,4 +66,15 @@ class BingImageSearchController extends AbstractController
             'images' => $data
         ]);
     }
+
+    #[Route('/save', name: 'app_bingsave', methods: ['POST'])]
+    public function bing_save(Request $request): JsonResponse
+    {
+        $src = $_POST['src'];
+        $text = $_POST['text'];
+        $langid = $_POST['langid'];
+        dump($src);
+        return $this->json('ok');
+    }
+
 }
