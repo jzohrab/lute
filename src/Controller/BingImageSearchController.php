@@ -73,7 +73,11 @@ class BingImageSearchController extends AbstractController
         $src = $_POST['src'];
         $text = $_POST['text'];
         $langid = $_POST['langid'];
-        dump($src);
+        // dump($src);
+
+        $img = __DIR__ . '/../../media/' . $text . '.jpeg';
+        file_put_contents($img, file_get_contents($src));
+
         return $this->json('ok');
     }
 
