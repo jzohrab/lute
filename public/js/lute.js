@@ -44,10 +44,17 @@ let word_hover_out = function() {
 }
 
 
-// src/Controller/BingImageSearchController saves images in
-// public/media/images, so they're servable.
-let image_path_for = function(langid, text) {
-  return `/media/images/${langid}/${text}.jpeg`;
+let add_image_if_exists = function(langid, text) {
+  const url = `/bing/get/${langid}/${encodeURIComponent(text)}`;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, false); // false = *not* asynchronous.
+  xhr.send();
+
+  const filename = xhr.response;
+  // console.log('got filename = ' + filename);
+  if (filename == '""')
+    return '';
+  return `<p><img src="${JSON.parse(filename)}" /></p>`;
 }
 
 
@@ -70,7 +77,8 @@ let tooltip_textitem_content = function (el) {
   content += `<p><b>Status</b>: <span class="status${status}">${statname}</span></p>`;
 
   const lid = parseInt(el.attr('lid'));
-  content += `<p><img src="${image_path_for(lid, el.text())}" onerror="this.src=''"></p>`;
+  content += add_image_if_exists(lid, el.text());
+  // console.log(content);
 
   const parent_text = el.attr('parent_text')
   if (parent_text && parent_text != '') {
@@ -78,7 +86,7 @@ let tooltip_textitem_content = function (el) {
     content += `<p><b style='font-size:120%'>${parent_text}</b></p>`;
     let ptrans = el.attr('parent_trans');
     content += '<p><b>Transl.</b>: ' + ptrans + '</p>';
-    content += `<p><img src="${image_path_for(lid, parent_text)} onerror="this.src=''""></p>`;
+    content += add_image_if_exists(lid, parent_text);
   }
 
   return content;

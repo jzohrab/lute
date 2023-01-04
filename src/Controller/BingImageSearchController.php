@@ -67,6 +67,20 @@ class BingImageSearchController extends AbstractController
         ]);
     }
 
+    // TODO:store_image_with_term?  Not sure if we should store the
+    // image path in the data model.  Could add Term->imagePath(), or
+    // TermImage->get() or similar.  Few terms will have images, so
+    // storing them in the words table doesn't make much sense.
+    //
+    // Storing images explicitly with terms would allow for image
+    // management, and maybe export to Anki etc in the future.
+    //
+    // If the images _are_ stored in the table, the term would have to
+    // be saved first, obvs.  Could be managed by Dictionary->add().
+    //
+    // Images would *not* need to be added on bulk term save (e.g. on
+    // "set all to known") because they wouldn't be there.
+    //
     #[Route('/save', name: 'app_bingsave', methods: ['POST'])]
     public function bing_save(Request $request): JsonResponse
     {
@@ -85,4 +99,21 @@ class BingImageSearchController extends AbstractController
         return $this->json('ok');
     }
 
+    // Returns the path of the image file if it exists, else empty string.
+    #[Route('/get/{langid}/{text}', name: 'app_bingsearch', methods: ['GET'])]
+    public function bing_path(int $langid, string $text): JsonResponse
+    {
+        $reldir = __DIR__ . '/../../public';
+        $imgdir = '/media/images/' . $langid;
+        $realdir = $reldir . $imgdir;
+        if (! file_exists($realdir)) {
+            mkdir($realdir, 0777, true);
+        }
+
+        $realfile = $realdir . '/' . $text . '.jpeg';
+        if (! file_exists($realfile))
+            return $this->json('');
+
+        return $this->json($imgdir . '/' . $text . '.jpeg');
+    }
 }
