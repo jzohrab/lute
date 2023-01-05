@@ -1,7 +1,7 @@
 alter table textstatscache
-add column UpdatedDate timestamp default '1970-01-01 00:00:00'
+add column UpdatedDate timestamp NULL
 after TxID;
 
 alter table textstatscache
-add column LastParse timestamp default '1970-01-01 00:00:00'
+add column LastParse timestamp NULL
 after TxID;

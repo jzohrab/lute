@@ -165,7 +165,7 @@ from (
   group by t.TxID
 ) src
 inner join textstatscache tsc on tsc.TxID = src.TxID
-where maxwsc > tsc.updatedDate";
+where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
 
         TextStatsCache::do_refresh($sql_text_ids_with_updated_words);
     }
