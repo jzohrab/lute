@@ -223,7 +223,14 @@ you must use a dedicated test database when running tests.
         $content = [];
         $res = DbHelpers::exec_sql_get_result($sql);
         while($row = mysqli_fetch_assoc($res)) {
-            $content[] = implode('; ', $row);
+            $rowvals = array_values($row);
+            $null_to_NULL = function($v) {
+                // TODO: reactivate this, clarifies test assertions.
+                // if ($v == NULL)
+                //    return 'NULL';
+                return $v;
+            };
+            $content[] = implode('; ', array_map($null_to_NULL, $rowvals));
         }
         mysqli_free_result($res);
 
