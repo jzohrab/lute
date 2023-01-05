@@ -107,6 +107,8 @@
     "dev:class": "./utils/entityInterface.sh",
     "todo:list": "composer dev:find TODO",
     "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
+    "db:setup:prod": "APP_ENV=prod php db/setup.php",
+    "db:setup:test": "APP_ENV=test php db/setup.php",
     "db:migrate:prod": "APP_ENV=prod php db/migrate.php",
     "db:migrate:test": "APP_ENV=test php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",
