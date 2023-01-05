@@ -9,6 +9,7 @@ Then install dependencies:
 ## Branches
 
 * **master**: the main branch I use for Lute.
+* **develop**: the development branch.  PRs should go into this branch.  When this branch passes CI, it's merged into master.
 * other branches: features I'm working on.
 
 ## Tests
