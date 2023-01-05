@@ -68,8 +68,7 @@ class MysqlMigrator {
       catch (Exception $e) {
         $msg = $e->getMessage();
         echo "\nFile {$file} exception:\n{$msg}\n";
-        echo "Quitting.\n\n";
-        die;
+        throw $e;
       }
       $this->add_migration_to_database($file);
     }
