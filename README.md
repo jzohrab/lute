@@ -1,5 +1,7 @@
 # LUTE - Learning Using Texts
 
+[![Symfony-CI](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml/badge.svg)](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml)
+
 This is a fork and ground-up rewrite of [Hugo Fara's fork](https://github.com/hugofara) of the original Learning with Texts project on [Sourceforge](https://sourceforge.net/projects/learning-with-texts).
 
 > Lute would never have existed without the original Learning With Texts and Hugo Fara's subsequent efforts, so **a big thanks to both of these projects.**

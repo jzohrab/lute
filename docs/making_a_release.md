@@ -4,11 +4,28 @@ This is the process I currently run on my Mac.  Maybe in the future it can be a 
 
 If any step fails, or things look bad, sort that stuff out.
 
+## Part 0: merge passing `develop` branch into `master`
+
+* New code should be merged into `develop`
+* Run `composer test` for `develop`
+* Push `develop` to GitHub
+* Wait for GitHub CI to pass
+* Merge code into `master`
+
+If `master` contained code (hotfixes) that were not in `develop` (`git log develop..master --oneline` has commits):
+
+* Run `composer test` for `master`
+* Push `master` to GitHub
+* Potentially wait for GitHub CI to pass
+
+
+**All following steps should be done off of `master`, unless there's a special fix release going out.**
+
+
 ## Part 1: catch the obvious.
 
 This is time-consuming and should be automated!
 
-* `composer test` : run all the tests.
 * change .env.local to use lute_demo.  Drop the lute_demo db.
 * go to home page, load the demo db
 * go through some steps in the tutorial:
