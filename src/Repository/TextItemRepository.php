@@ -85,9 +85,7 @@ class TextItemRepository {
     /** PRIVATE **/
 
     private function exec_sql($sql, $params = null) {
-        // echo $sql . "\n";
         $stmt = $this->conn->prepare($sql);
-        // dump("running $sql");
         if (!$stmt) {
             throw new \Exception($this->conn->error);
         }
@@ -214,7 +212,6 @@ where ti2woid = 0";
     
     
     // Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
-    // Leaving the "echo" comments in, in case more future debugging needed.
     
     /**
      * Returns array of matches in same format as preg_match or preg_match_all
@@ -258,8 +255,6 @@ where ti2woid = 0";
                 $result = $result[0];
             }
         }
-        // echo "Returning:\n";
-        // var_dump($result);
         return $result;
     }
 
