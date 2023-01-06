@@ -50,18 +50,23 @@ class TermDTO
         $t->setRomanization($dto->Romanization);
         $t->setSentence($dto->Sentence);
 
-        $parent = TermDTO::findOrCreateParent($dto, $dictionary, $ttr);
+        $termtags = array();
+        foreach ($dto->termTags as $s) {
+            $termtags[] = $ttr->findOrCreateByText($s);
+        }
+
+        $parent = TermDTO::findOrCreateParent($dto, $dictionary, $termtags);
         $t->setParent($parent);
 
         $t->removeAllTermTags();
-        foreach ($dto->termTags as $tag) {
-            $t->addTermTag($ttr->findOrCreateByText($tag));
+        foreach ($termtags as $tt) {
+            $t->addTermTag($tt);
         }
 
         return $t;
     }
 
-    private static function findOrCreateParent(TermDTO $dto, Dictionary $dictionary, TermTagRepository $ttr): ?Term
+    private static function findOrCreateParent(TermDTO $dto, Dictionary $dictionary, array $termtags): ?Term
     {
         $pt = $dto->ParentText;
         if ($pt == null || $pt == '')
@@ -82,9 +87,9 @@ class TermDTO
         $p->setStatus($dto->Status);
         $p->setTranslation($dto->Translation);
         $p->setSentence($dto->Romanization);
-        foreach ($dto->termTags as $s) {
-            $p->addTermTag($ttr->findOrCreateByText($s));
-        }
+        foreach ($termtags as $tt)
+            $p->addTermTag($tt);
+
         return $p;
     }
 
