@@ -59,15 +59,15 @@
       // console.log('directly entered text, nothing to do.');
       return;
     }
-    $('#term_ParentText').val(ui.item.word);
+    $('#term_dto_ParentText').val(ui.item.word);
     return false;
   };
   
   let set_up_parent_autocomplete = function() {
-    $("#term_ParentText").autocomplete({
+    $("#term_dto_ParentText").autocomplete({
       source: function(request, response) {
         const s = encodeURIComponent(request.term);
-        const langid = parseInt($('#term_language').val());
+        const langid = parseInt($('#term_dto_language').val());
         $.ajax({
           url: `/term/search/${s}/${langid}`,
           type: 'GET',
@@ -138,13 +138,13 @@
     set_up_parent_autocomplete();
 
     // Approx good size for the text area:
-    const w = $('#term_Text').css('width');
+    const w = $('#term_dto_Text').css('width');
     // Textareas seem to have their own dimensional quirks.
     const hackTextareaWidth = parseInt(parseInt(w) * 1.10);
-    // console.log(`got term_Text width = ${w} giving hack width ${hackTextareaWidth}`);
-    $('#term_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
+    // console.log(`got term_dto_Text width = ${w} giving hack width ${hackTextareaWidth}`);
+    $('#term_dto_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
 
-    if (($('#term_Text').val() ?? '') != '') {
+    if (($('#term_dto_Text').val() ?? '') != '') {
       do_term_lookup(false);
     }
 
@@ -183,9 +183,9 @@
 
 
   let do_image_lookup = function() {
-    const langid = $('#term_language').val();
-    const text = $('#term_Text').val();
-    const parent_text = $('#term_ParentText').val();
+    const langid = $('#term_dto_language').val();
+    const text = $('#term_dto_Text').val();
+    const parent_text = $('#term_dto_ParentText').val();
 
     if (langid == null || langid == '' || parseInt(langid) == 0 || text == null || text == '') {
       alert('Please select a language and enter the term.');
@@ -243,7 +243,7 @@
 
 
   function do_term_lookup(allow_open_new_web_page = true) {
-    const langid = $('#term_language').val();
+    const langid = $('#term_dto_language').val();
     if (langid == null || langid == '' || parseInt(langid) == 0) {
       alert('Please select a language.');
       return;
@@ -251,7 +251,7 @@
 
     const termdicts = LANGUAGES[langid].term;
     const usedict = termdicts[termdictindex];
-    show_lookup_page(usedict, $('#term_Text').val(), $('#term_ParentText').val(), langid, allow_open_new_web_page);
+    show_lookup_page(usedict, $('#term_dto_Text').val(), $('#term_dto_ParentText').val(), langid, allow_open_new_web_page);
 
     termdictindex++;
     if (termdictindex >= termdicts.length)
@@ -259,14 +259,14 @@
   }
 
   function do_sentence_lookup() {
-    const langid = $('#term_language').val();
+    const langid = $('#term_dto_language').val();
     if (langid == null || langid == '' || parseInt(langid) == 0) {
       alert('Please select a language.');
       return;
     }
 
     const usedict = LANGUAGES[langid].sentence;
-    show_lookup_page(usedict, $('#term_Sentence').val(), $('#term_ParentText').val(), langid);
+    show_lookup_page(usedict, $('#term_dto_Sentence').val(), $('#term_dto_ParentText').val(), langid);
   }
 
 </script>
