@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Term;
-use App\Form\TermType;
+use App\DTO\TermDTO;
+use App\Form\TermDTOType;
 use App\Repository\TermRepository;
+use App\Repository\TermTagRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\TextItemRepository;
 use App\Domain\Dictionary;
@@ -62,8 +64,9 @@ class TermController extends AbstractController
     private function processTermForm(
         \Symfony\Component\Form\Form $form,
         Request $request,
-        Term $term,
-        Dictionary $dict
+        TermDTO $termdto,
+        Dictionary $dict,
+        TermTagRepository $termtag_repo
     ): ?Response
     {
         $form->handleRequest($request);
@@ -71,6 +74,7 @@ class TermController extends AbstractController
         if (! $submitted_valid)
             return null;
 
+        $term = TermDTO::buildTerm($termdto, $dict, $termtag_repo);
         try {
             $dict->add($term);
             return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
@@ -97,16 +101,16 @@ class TermController extends AbstractController
 
 
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, Dictionary $dict): Response
+    public function new(Request $request, Dictionary $dict, TermTagRepository $termtag_repo): Response
     {
-        $term = new Term();
-        $form = $this->createForm(TermType::class, $term);
-        $resp = $this->processTermForm($form, $request, $term, $dict);
+        $dto = new TermDTO();
+        $form = $this->createForm(TermDTOType::class, $dto);
+        $resp = $this->processTermForm($form, $request, $dto, $dict, $termtag_repo);
         if ($resp != null)
             return $resp;
 
         return $this->renderForm('term/formframes.html.twig', [
-            'term' => $term,
+            'termdto' => $dto,
             'form' => $form,
             'showlanguageselector' => true,
             'disabletermediting' => false
@@ -118,19 +122,21 @@ class TermController extends AbstractController
     {
         return $this->render('term/show.html.twig', [
             'term' => $term,
+            'termdto' => $term->createTermDTO()
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_term_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Term $term, Dictionary $dict): Response
+    public function edit(Request $request, Term $term, Dictionary $dict, TermTagRepository $termtag_repo): Response
     {
-        $form = $this->createForm(TermType::class, $term);
-        $resp = $this->processTermForm($form, $request, $term, $dict);
+        $dto = $term->createTermDTO();
+        $form = $this->createForm(TermDTOType::class, $dto);
+        $resp = $this->processTermForm($form, $request, $dto, $dict, $termtag_repo);
         if ($resp != null)
             return $resp;
 
         return $this->renderForm('term/formframes.html.twig', [
-            'term' => $term,
+            'termdto' => $dto,
             'form' => $form,
             'showlanguageselector' => false,
             'disabletermediting' => true

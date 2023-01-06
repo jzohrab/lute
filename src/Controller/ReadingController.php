@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Domain\ReadingFacade;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
+use App\Repository\TermTagRepository;
 use App\Repository\ReadingRepository;
 use App\Domain\Parser;
+use App\DTO\TermDTO;
 use App\Entity\Text;
 use App\Entity\Sentence;
-use App\Form\TermType;
+use App\Form\TermDTOType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,6 +60,7 @@ class ReadingController extends AbstractController
         ]);
     }
 
+    // TODO:refactor - too many dependencies injected here, perhaps can be managed by the ReadingFacade.
     #[Route('/termform/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
         $wid,
@@ -67,7 +70,8 @@ class ReadingController extends AbstractController
         Request $request,
         ReadingRepository $readingRepository,
         TextRepository $textRepository,
-        ReadingFacade $facade
+        ReadingFacade $facade,
+        TermTagRepository $termTagRepository,
     ): Response
     {
         // The $text is set to '-' if there *is* no text,
@@ -75,10 +79,11 @@ class ReadingController extends AbstractController
         if ($text == '-')
             $text = '';
         $term = $readingRepository->load($wid, $textid, $ord, $text);
-
-        $form = $this->createForm(TermType::class, $term);
+        $termdto = $term->createTermDTO();
+        $form = $this->createForm(TermDTOType::class, $termdto);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $term = TermDTO::buildTerm($termdto, $facade->getDictionary(), $termTagRepository);
             $textentity = $textRepository->find($textid);
             [ $updateitems, $update_js ] = $facade->save($term, $textentity);
 
@@ -94,7 +99,7 @@ class ReadingController extends AbstractController
         }
 
         return $this->renderForm('read/frameform.html.twig', [
-            'term' => $term,
+            'term' => $termdto,
             'form' => $form,
             'extra' => $request->query,
             'showlanguageselector' => false,

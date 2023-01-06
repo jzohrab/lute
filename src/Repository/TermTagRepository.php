@@ -49,4 +49,14 @@ class TermTagRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findOrCreateByText($value): ?TermTag
+    {
+        $t = $this->findByText($value);
+        if ($t != null)
+            return $t;
+        $t = new TermTag();
+        $t->setText($value);
+        return $t;
+    }
+
 }

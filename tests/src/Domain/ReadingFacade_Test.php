@@ -6,17 +6,20 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Domain\ReadingFacade;
 use App\Entity\Text;
 use App\Domain\Dictionary;
+use App\DTO\TermDTO;
 
 final class ReadingFacade_Test extends DatabaseTestBase
 {
 
     private ReadingFacade $facade;
+    private Dictionary $dictionary;
 
     public function childSetUp(): void
     {
         $this->load_languages();
 
         $dict = new Dictionary($this->entity_manager);
+        $this->dictionary = $dict;
         $this->facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,
@@ -447,8 +450,11 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tener->WoID, 0, 'sanity check, new word');
 
         $term = $this->reading_repo->load(0, $tid, $tiene->Order, 'tiene');
-        $term->setParentText('tener');
-        $term->setStatus(1);
+
+        $dto = $term->createTermDTO();
+        $dto->ParentText = 'tener';
+        $dto->WoStatus = 1;
+        $term = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
 
         // The new term "tiene" also updates "tener".
         [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
@@ -503,7 +509,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $term = $this->reading_repo->load(0, $tid, $tengo->Order, '');
         $this->assertEquals($term->getText(), 'Tengo', 'sanity check, have Tengo');
-        $term->setParentText('que');
+
+        $dto = $term->createTermDTO();
+        $dto->ParentText = 'que';
+        $term = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
 
         // The new term "tengo" also updates "que", but not "qué".
         [ $updatedTIs, $updates ] = $this->facade->save($term, $text);

@@ -225,7 +225,7 @@ you must use a dedicated test database when running tests.
         while($row = mysqli_fetch_assoc($res)) {
             $rowvals = array_values($row);
             $null_to_NULL = function($v) {
-                // TODO: reactivate this, clarifies test assertions.
+                // TODO:better_tests reactivate this, clarifies test assertions.
                 // if ($v == NULL)
                 //    return 'NULL';
                 return $v;

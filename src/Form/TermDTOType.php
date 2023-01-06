@@ -2,10 +2,8 @@
 
 namespace App\Form;
 
-use App\Entity\Term;
+use App\DTO\TermDTO;
 use App\Entity\Language;
-use App\Form\DataTransformer\TermParentTransformer;
-use App\Form\DataTransformer\TermTagsCollection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,15 +14,9 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Doctrine\ORM\EntityManagerInterface;
 
-class TermType extends AbstractType
+
+class TermDTOType extends AbstractType
 {
-
-    private EntityManagerInterface $manager;
-
-    public function __construct(EntityManagerInterface $manager)
-    {
-        $this->manager = $manager;
-    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -89,34 +81,19 @@ class TermType extends AbstractType
                   ]
             )
             ->add('termTags',
-                  CollectionType::class,
-                  [
-                    'entry_type' => TermTagType::class,
+                   CollectionType::class,
+                  [ 'label' => 'Term tags',
                     'allow_add' => true,
                     'allow_delete' => true,
                     'required' => false
                   ])
         ;
-
-        // The term being used in the form is available as follows
-        // ref https://symfonycasts.com/screencast/symfony-forms/form-options-data.
-        // We need the term to help set some things in the parent.
-        $term = $options['data'];
-
-        // Data Transformers
-        $builder
-            ->get('ParentText')
-            ->addModelTransformer(new TermParentTransformer($this->manager, $term));
-        $builder
-            ->get('termTags')
-            ->addModelTransformer(new TermTagsCollection($this->manager));
-
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Term::class,
+            'data_class' => TermDTO::class,
         ]);
     }
 }

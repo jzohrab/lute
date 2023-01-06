@@ -39,7 +39,7 @@
       <ul id="termtagslist" class="tags nomarginblock">
         {% for termTag in form.termTags %}
         <li>
-          {{ termTag.vars.value.text }}
+          {{ termTag.vars.value }}
         </li>
         {% endfor %}
       </ul>
@@ -98,7 +98,8 @@
   };
 
   let setupTagit = function() {
-    var prototypeFieldName = 'term[termTags][__name__][text]';
+    // term_dto is what symfony calls the form.
+    var prototypeFieldName = 'term_dto[termTags][__name__]';
     var fieldIndex = 0;
     
     let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
@@ -113,7 +114,7 @@
           $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
         },
         availableTags: TAGS,
-        fieldName: 'term[termTags][0][text]'
+        fieldName: 'term_dto[termTags][0]'
       });
 
   };
@@ -152,7 +153,7 @@
     // make sure it's enabled.
     // Ref https://stackoverflow.com/questions/8925716/
     //   disabled-form-fields-not-submitting-data
-    $('form[name="term"]').submit(function(e) {
+    $('form[name="term_dto"]').submit(function(e) {
       $(':disabled').each(function(e) {
         $(this).removeAttr('disabled');
       })

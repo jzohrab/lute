@@ -14,7 +14,7 @@ final class LoadTestData_Test extends DatabaseTestBase
     /**
      * @group dev:data:clear
      */
-    public function test_clea_dev_data(): void {
+    public function test_clear_dev_data(): void {
         // the db clear in DatabaseTestBase wipes everything.
         $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }

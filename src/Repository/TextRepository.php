@@ -28,7 +28,6 @@ class TextRepository extends ServiceEntityRepository
 
     private function removeSentencesAndWords(int $textid): void
     {
-        // TODO - if create sentence and textitem entities, find and delete?
         $conn = $this->getEntityManager()->getConnection();
         $sqls = [
             "delete from sentences where SeTxID = $textid",
