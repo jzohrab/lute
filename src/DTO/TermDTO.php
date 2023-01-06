@@ -39,6 +39,13 @@ class TermDTO
      */
     public static function buildTerm(TermDTO $dto, Dictionary $dictionary, TermTagRepository $ttr): Term
     {
+        if (is_null($dto->language)) {
+            throw new \Exception('Language not set for term dto');
+        }
+        if (is_null($dto->Text)) {
+            throw new \Exception('Text not set for term dto');
+        }
+
         $t = $dictionary->find($dto->Text, $dto->language);
         if ($t == null)
             $t = new Term();
@@ -71,10 +78,6 @@ class TermDTO
         $pt = $dto->ParentText;
         if ($pt == null || $pt == '')
             return null;
-
-        if (is_null($dto->language)) {
-            throw new \Exception('Language not set for dto?');
-        }
 
         $p = $dictionary->find($pt, $dto->language);
 
