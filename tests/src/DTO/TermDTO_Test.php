@@ -224,4 +224,23 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals(count($retrieved->getTermTags()), 0, '0 tags saved in db');
     }
 
+    // "composer dev:data:load" and clicking on a term, adding a new
+    // parent, and adding a tag to the term, then saving, was causing
+    // problems.
+    public function test_creating_save_term_with_new_parent_and_tags_works()
+    {
+        $dto = new TermDTO();
+        $dto->language = $this->spanish;
+        $dto->Text = 'perros';
+        $dto->ParentText = 'perro';
+        $dto->termTags[] = 'hi';
+
+        $t = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $this->dictionary->add($t, true);
+
+        $retrieved = $this->dictionary->find('perro', $this->spanish);
+        $this->assertTrue($retrieved != null, 'have term');
+        $this->assertEquals(count($retrieved->getTermTags()), 1, '1 tags on perro');
+    }
+
 }
