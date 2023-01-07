@@ -223,11 +223,12 @@ final class Parser_Test extends DatabaseTestBase
     public function test_old_production_bugfixes()
     {
 
+        // Misspelling "toddo" in the test case so it doesn't show up in my list of to-do's. :-)
         $sentences = [
             '¿Qué me dice si nos acercamos al bar de la plaza de Sarriá y nos marcamos dos bocadillos de tortilla con muchísima cebolla?',
             'Un doctor de Cáceres le dijo una vez a mi madre que los Romero de Torres éramos el eslabón perdido entre el hombre y el pez martillo, porque el noventa por ciento de nuestro organismo es cartílago, mayormente concentrado en la nariz y en el pabellón auditivo.',
             'En la mesa contigua, un hombre observaba a Fermín de refilón por encima del periódico, probablemente pensando lo mismo que yo.',
-            'Pese a todo lo que pasó luego y a que nos distanciamos con el tiempo, fuimos buenos amigos:',
+            'Pese a toddo lo que pasó luego y a que nos distanciamos con el tiempo, fuimos buenos amigos:',
             'Tanto daba si había pasado el día trabajando en los campos o llevaba encima los mismos harapos de toda la semana.'
             ];
         $t = new Text();

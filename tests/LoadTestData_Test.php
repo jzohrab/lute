@@ -14,7 +14,7 @@ final class LoadTestData_Test extends DatabaseTestBase
     /**
      * @group dev:data:clear
      */
-    public function test_clea_dev_data(): void {
+    public function test_clear_dev_data(): void {
         // the db clear in DatabaseTestBase wipes everything.
         $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }
@@ -27,7 +27,7 @@ final class LoadTestData_Test extends DatabaseTestBase
         $this->load_languages();
         $this->load_spanish_words();
 
-        $story = "Érase una vez una preciosa niña que siempre llevaba una capa roja con capucha para protegerse del frío. Por eso, todo el mundo la llamaba Caperucita Roja.
+        $story = "Érase una vez una preciosa niña que siempre llevaba una capa roja con capucha para protegerse del frío. Por eso, la gente llamaba Caperucita Roja.
 
 Caperucita vivía en una casita cerca del bosque. Un día, la mamá de  Caperucita le dijo:
 
@@ -39,7 +39,7 @@ Cuando Caperucita se disponía  a salir de casa, su mamá, con gesto un poco ser
 
 – Ten mucho cuidado, cariño. No te entretengas con nada y no hables con extraños. Sabes que en el bosque vive el lobo y es muy peligroso. Si ves que aparece, sigue tu camino sin detenerte.
 
-– No te preocupes, mamita – dijo la niña -. Tendré en cuenta todo lo que me dices.
+– No te preocupes, mamita – dijo la niña -. Tendré en cuenta lo que me dices.
 
 – Está bien – contestó la mamá, confiada –. Dame un besito y no tardes en regresar.
 

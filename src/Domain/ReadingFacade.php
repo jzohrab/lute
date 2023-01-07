@@ -16,14 +16,18 @@ class ReadingFacade {
 
     private ReadingRepository $repo;
     private TextRepository $textrepo;
-    private TermRepository $termrepo;
     private SettingsRepository $settingsrepo;
+    private Dictionary $dictionary;
 
     public function __construct(ReadingRepository $repo, TextRepository $textrepo, SettingsRepository $settingsrepo, Dictionary $dictionary) {
         $this->repo = $repo;
         $this->dictionary = $dictionary;
         $this->textrepo = $textrepo;
         $this->settingsrepo = $settingsrepo;
+    }
+
+    public function getDictionary() {
+        return $this->dictionary;
     }
 
     public function getTextItems(Text $text)

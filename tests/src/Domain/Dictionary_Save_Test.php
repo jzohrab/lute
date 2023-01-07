@@ -129,8 +129,6 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
 
         $t->setParent($this->p2);
-        // TODO:TermDTO - see Term.php.
-        $t->setParentText($this->p2->getText());
         $this->dictionary->add($t, true);
         $exp = [ "HOLA; OTHER" ];
         DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
@@ -156,8 +154,6 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
 
         $t->setParent(null);
-        // TODO:TermDTO - see Term.php.
-        $t->setParentText(null);
         $this->dictionary->add($t, true);
         $exp = [ "HOLA; " ];
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
@@ -208,7 +204,4 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "still associated correctly");
     }
 
-    /* Tests
-    // TODO:fix Can't change the text of a saved word.
-    */
 }

@@ -54,20 +54,6 @@ class Text
         return $this->TxID;
     }
 
-    // TODO - remove this.  I only created this to use this class as a
-    // DTO in the texts listing page, but that should have a dedicated
-    // DTO class.
-    public function setID(int $TxID): self
-    {
-        if ($this->TxID != null) {
-            // Prevent dumb logic errors.
-            throw new \Exception("Can't change ID if already set");
-        }
-        $this->TxID = $TxID;
-
-        return $this;
-    }
-
     public function getTitle(): string
     {
         return $this->TxTitle;

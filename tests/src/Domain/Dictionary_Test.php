@@ -98,17 +98,16 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 1, 'in db');
     }
 
-    public function test_add_term_with_new_parent_text_creates_new_parent()
+    public function test_add_term_with_new_parent()
     {
         foreach(['perros', 'perro'] as $text) {
             $f = $this->dictionary->find($text, $this->spanish);
             $this->assertTrue($f == null, 'Term not found at first');
         }
 
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText('perros');
-        $t->setParentText('perro');
+        $p = new Term($this->spanish, 'perro');
+        $t = new Term($this->spanish, 'perros');
+        $t->setParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
         $this->dictionary->add($t);
 
@@ -131,15 +130,11 @@ final class Dictionary_Test extends DatabaseTestBase
     }
 
     public function test_add_term_existing_parent_creates_link() {
-        $p = new Term();
-        $p->setLanguage($this->spanish);
-        $p->setText('perro');
+        $p = new Term($this->spanish, 'perro');
         $this->dictionary->add($p);
 
-        $perros = new Term();
-        $perros->setLanguage($this->spanish);
-        $perros->setText('perros');
-        $perros->setParentText('perro');
+        $perros = new Term($this->spanish, 'perros');
+        $perros->setParent($p);
         $this->dictionary->add($perros);
 
         $f = $this->dictionary->find('perros', $this->spanish);
@@ -165,10 +160,9 @@ final class Dictionary_Test extends DatabaseTestBase
 
 
     public function test_remove_term_leaves_parent_breaks_wordparent_association() {
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText('perros');
-        $t->setParentText('perro');
+        $p = new Term($this->spanish, 'perro');
+        $t = new Term($this->spanish, 'perros');
+        $t->setParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
         $this->dictionary->add($t);
 
@@ -189,10 +183,10 @@ final class Dictionary_Test extends DatabaseTestBase
     }
 
     public function test_remove_parent_removes_wordparent_record() {
-        $t = new Term();
-        $t->setLanguage($this->spanish);
+        $p = new Term($this->spanish, 'perro');
+        $t = new Term($this->spanish, 'perros');
         $t->setText('perros');
-        $t->setParentText('perro');
+        $t->setParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
         $this->dictionary->add($t);
 
@@ -204,6 +198,37 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertTrue($f != null, 'perros (child term) still exists');
         $this->assertEquals($f->getText(), 'perros', 'viven los perros');
 
+        DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
+    }
+
+    public function test_change_parent_removes_old_wordparent_record() {
+        $parent = new Term();
+        $parent->setLanguage($this->spanish);
+        $parent->setText('perro');
+        $this->dictionary->add($parent, true);
+
+        $newpar = new Term();
+        $newpar->setLanguage($this->spanish);
+        $newpar->setText('gato');
+        $this->dictionary->add($newpar, true);
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText('perros');
+        $t->setParent($parent);
+        $this->dictionary->add($t, true);
+
+        $expected = [ "{$t->getID()}; {$parent->getID()}" ];
+        DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "parent set");
+
+        $t->setParent($newpar);
+        $this->dictionary->add($t, true);
+
+        $expected = [ "{$t->getID()}; {$newpar->getID()}" ];
+        DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "NEW parent set");
+
+        $t->setParent(null);
+        $this->dictionary->add($t, true);
         DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
     }
 

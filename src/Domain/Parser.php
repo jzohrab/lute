@@ -69,11 +69,11 @@ class Parser {
         $cleantext = $this->legacy_clean_standard_text($text);
         $newcleantext = $this->new_clean_standard_text($text);
         if ($cleantext != $newcleantext) {
-            echo "Legacy\n:";
-            echo $cleantext . "\n\n";
-            echo "New\n:";
-            echo $newcleantext . "\n\n";
-            throw new \Exception("not equal cleaning?");
+            // echo "Legacy\n:";
+            // echo $cleantext . "\n\n";
+            // echo "New\n:";
+            // echo $newcleantext . "\n\n";
+            throw new \Exception("not equal cleaning?  Legacy = " . $cleantext . "; new = " . $newcleantext);
         }
         // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
 

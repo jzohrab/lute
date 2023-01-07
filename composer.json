@@ -114,9 +114,16 @@
     "db:newscript": "php db/create_migration_script.php",
     "db:newrepeat": "php db/create_repeatable_migration_script.php",
     "dev:dumpserver": "php bin/console server:dump",
-    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
-    "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
+    "test": [
+      "composer db:setup:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist"
+    ],
+    "test:group": [
+      "composer db:setup:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group "
+    ],
     "dev:find": "./utils/findstring.sh",
+    "dev:finddump": "./utils/finddump.sh",
     "dev:data:load": "composer test:group dev:data:load",
     "dev:data:clear": "composer test:group dev:data:clear",
     "dev:nukecache": [
@@ -151,6 +158,7 @@
     "db:which": "What db connecting to",
     "dev:dumpserver": "Start the dump server",
     "dev:find": "search specific parts of code using grep",
+    "dev:finddump": "search src for 'dump', shouldn't make it into prod",
     "dev:nukecache": "blow things away, b/c symfony likes to cache",
     "dev:psalm": "Run psalm and start crying",
     "test": "Run tests",

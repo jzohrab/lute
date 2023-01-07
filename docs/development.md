@@ -8,8 +8,10 @@ Then install dependencies:
 
 ## Branches
 
-* **master**: the main branch I use for Lute.
-* **develop**: the development branch.  PRs should go into this branch.  When this branch passes CI, it's merged into master.
+This project uses [gitflow](https://www.gitkraken.com/learn/git/git-flow).
+
+* **master**: the main branch, used for release.  It should only contain stable code.
+* **develop**: the development branch.  I use this branch for my day-to-day Lute usage, so that I can be reasonably sure that the code is well-baked before it's merged into master.  All PRs should go into this branch, unless it's a prod hotfix.  When this branch passes CI and has been stable for a reasonable length of time, it's merged into master.
 * other branches: features I'm working on.
 
 ## Tests
