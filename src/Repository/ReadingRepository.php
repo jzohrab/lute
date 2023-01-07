@@ -28,7 +28,7 @@ class ReadingRepository
     )
     {
         $this->manager = $manager;
-        $this->dictionary = new Dictionary($manager);
+        $this->dictionary = new Dictionary($term_repo);
         $this->term_repo = $term_repo;
         $this->lang_repo = $lang_repo;
     }

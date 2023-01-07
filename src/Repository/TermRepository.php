@@ -47,6 +47,53 @@ class TermRepository extends ServiceEntityRepository
     }
 
 
+    /**
+     * Find a term by an exact match with the specification (only
+     * looks at Text and Language).
+     */
+    public function findBySpecification(Term $specification): ?Term {
+        // Using Doctrine Query Language --
+        // Interesting, but am not totally confident with it.
+        // e.g. That I had to use the private field WoTextLC
+        // instead of the public property was surprising.
+        // Anyway, it works. :-P
+        $dql = "SELECT t FROM App\Entity\Term t
+        LEFT JOIN App\Entity\Language L WITH L = t.language
+        WHERE L.LgID = :langid AND t.WoTextLC = :val";
+        $query = $this->getEntityManager()
+               ->createQuery($dql)
+               ->setParameter('langid', $specification->getLanguage()->getLgID())
+               ->setParameter('val', mb_strtolower($specification->getText()));
+        $terms = $query->getResult();
+
+        if (count($terms) == 0)
+            return null;
+        return $terms[0];
+    }
+
+    /**
+     * Find Terms by text.
+     */
+    public function findLikeSpecification(Term $specification, int $maxResults = 50): array
+    {
+        $search = mb_strtolower(trim($specification->getText() ?? ''));
+        if ($search == '')
+            return [];
+        $search = '%' . $search . '%';
+
+        $dql = "SELECT t FROM App\Entity\Term t
+        JOIN App\Entity\Language L WITH L = t.language
+        WHERE L.LgID = :langid AND t.WoTextLC LIKE :search
+        ORDER BY t.WoTextLC";
+        $query = $this->getEntityManager()
+               ->createQuery($dql)
+               ->setParameter('langid', $specification->getLanguage()->getLgID())
+               ->setParameter('search', $search)
+               ->setMaxResults($maxResults);
+        return $query->getResult();
+    }
+
+
     /** Returns data for ajax paging. */
     public function getDataTablesList($parameters) {
 

@@ -19,7 +19,6 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->load_languages();
 
         $this->dictionary = new Dictionary(
-            $this->entity_manager,
             $this->term_repo
         );
     }

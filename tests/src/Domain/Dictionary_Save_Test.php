@@ -18,7 +18,7 @@ final class Dictionary_Save_Test extends DatabaseTestBase
     private Term $p2;
 
     public function childSetUp() {
-        $this->dictionary = new Dictionary($this->entity_manager);
+        $this->dictionary = new Dictionary($this->term_repo);
         $this->load_languages();
 
         $tag = new TermTag();

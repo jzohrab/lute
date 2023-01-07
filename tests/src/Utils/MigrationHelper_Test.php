@@ -39,7 +39,7 @@ final class MigrationHelper_Test extends DatabaseTestBase
      * @group demo
      */
     public function test_smoke_can_load_demo_data() {
-        $dict = new Dictionary($this->entity_manager);
+        $dict = new Dictionary($this->term_repo);
         MigrationHelper::loadDemoData($this->language_repo, $this->text_repo, $dict);
         $this->assertTrue(true, 'dummy');
         $t = $this->text_repo->find(1);
