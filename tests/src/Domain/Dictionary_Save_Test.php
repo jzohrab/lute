@@ -51,8 +51,9 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, [], "No associations");
 
         $t1 = new Term($this->spanish, "tengo");
-        $this->dictionary->add($t1, false);
         $t2 = new Term($this->spanish, "un gato");
+
+        $this->dictionary->add($t1, false);
         $this->dictionary->add($t2, false);
 
         DbHelpers::assertTableContains($sql, [], "No associations, not flushed");
@@ -64,6 +65,43 @@ final class Dictionary_Save_Test extends DatabaseTestBase
             "{$t2->getID()}; 1; 2; un gato"
         ];
         DbHelpers::assertTableContains($sql, $expected, "Now associated textitems (in spanish text only)");
+    }
+
+
+    public function test_textitems_un_associated_after_remove() {
+        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+        $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
+
+        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2Text in ('tengo', 'un gato')";
+        $expected = [
+            "0; 1; 1; tengo",
+            "0; 2; 1; tengo"
+        ];
+
+        DbHelpers::assertTableContains($sql, $expected, "No associations");
+
+        $t1 = new Term($this->spanish, "tengo");
+        $t2 = new Term($this->spanish, "un gato");
+
+        $this->dictionary->add($t1, false);
+        $this->dictionary->add($t2, false);
+        $this->dictionary->flush();
+        $expected = [
+            "1; 1; 1; tengo",
+            "0; 2; 1; tengo",
+            "2; 1; 2; un gato"
+        ];
+        DbHelpers::assertTableContains($sql, $expected, "Now associated textitems (in spanish text only)");
+
+        $this->dictionary->remove($t1, false);
+        $this->dictionary->remove($t2, false);
+        $this->dictionary->flush();
+        $expected = [
+            "0; 1; 1; tengo",
+            "0; 2; 1; tengo"
+        ];
+        DbHelpers::assertTableContains($sql, $expected, "No associated textitems");
+
     }
 
 
