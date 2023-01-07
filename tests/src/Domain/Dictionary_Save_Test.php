@@ -43,6 +43,30 @@ final class Dictionary_Save_Test extends DatabaseTestBase
     }
 
 
+    public function test_textitems_not_associated_until_flush() {
+        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+        $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
+
+        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
+        DbHelpers::assertTableContains($sql, [], "No associations");
+
+        $t1 = new Term($this->spanish, "tengo");
+        $this->dictionary->add($t1, false);
+        $t2 = new Term($this->spanish, "un gato");
+        $this->dictionary->add($t2, false);
+
+        DbHelpers::assertTableContains($sql, [], "No associations, not flushed");
+
+        $this->dictionary->flush();
+
+        $expected = [
+            "{$t1->getID()}; 1; 1; tengo",
+            "{$t2->getID()}; 1; 2; un gato"
+        ];
+        DbHelpers::assertTableContains($sql, $expected, "Now associated textitems (in spanish text only)");
+    }
+
+
     // Production bug.
     public function test_save_multiword_term_multiple_times_is_ok() {
         $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
