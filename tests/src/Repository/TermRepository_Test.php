@@ -30,4 +30,15 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms, removed");
     }
 
+    public function test_flush()
+    {
+        DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms");
+        $t = new Term($this->spanish, 'perro');
+        $this->term_repo->save($t, false);
+        DbHelpers::assertRecordcountEquals("select * from words", 0, "not saved yet!");
+        $this->term_repo->flush();
+        DbHelpers::assertRecordcountEquals("select * from words", 1, "now saved");
+
+    }
+
 }

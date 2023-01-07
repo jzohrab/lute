@@ -41,6 +41,12 @@ class TermRepository extends ServiceEntityRepository
         }
     }
 
+    public function flush(): void
+    {
+        $this->getEntityManager()->flush();
+    }
+
+
     /** Returns data for ajax paging. */
     public function getDataTablesList($parameters) {
 
