@@ -51,6 +51,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
+    - name: Make var dir so psalm config is valid.
+      run: mkdir -p var
+
     - name: Psalm check
       run: ./vendor/bin/psalm --config=psalm.xml --no-cache --no-file-cache --debug
 
