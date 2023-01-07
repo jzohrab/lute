@@ -224,6 +224,12 @@ class Language
     {
         $criteria = Criteria::create()
             ->andWhere(Criteria::expr()->eq('TxArchived', 0));
+
+        // Psalm says that this method isn't defined, but a) the code works,
+        // and b) symfony docs say this works.
+        /**
+         * @psalm-suppress UndefinedInterfaceMethod
+         */
         return $this->texts->matching($criteria);
     }
 

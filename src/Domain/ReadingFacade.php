@@ -16,7 +16,6 @@ class ReadingFacade {
 
     private ReadingRepository $repo;
     private TextRepository $textrepo;
-    private TermRepository $termrepo;
     private SettingsRepository $settingsrepo;
     private Dictionary $dictionary;
 

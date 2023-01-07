@@ -453,7 +453,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $dto = $term->createTermDTO();
         $dto->ParentText = 'tener';
-        $dto->WoStatus = 1;
+        $dto->Status = 1;
         $term = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
 
         // The new term "tiene" also updates "tener".
