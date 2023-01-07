@@ -87,6 +87,13 @@ class TermDTOType extends AbstractType
                     'allow_delete' => true,
                     'required' => false
                   ])
+            ->add('NewImage',
+                  TextType::class,
+                  [ 'label' => 'NewImage',
+                    'attr' => [ 'class' => 'form-text' ],
+                    'required' => false
+                  ]
+            )
         ;
     }
 

@@ -21,7 +21,13 @@
 
   <script>
     function save_image_locally(src, langid, text) {
-      console.log(`saving ${src} for ${langid}/${text}`);
+
+      // Well, this took **far** too long to figure out ...
+      const fr = window.parent.frames['wordframe'];
+      var el = fr.document.getElementById('term_dto_NewImage');
+      el.value = src;
+      return;
+
       $.post(
         '/bing/save',
         {

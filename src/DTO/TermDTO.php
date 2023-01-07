@@ -28,6 +28,8 @@ class TermDTO
 
     public ?string $ParentText = null;
 
+    public ?string $NewImage = null;
+
     public function __construct()
     {
         $this->termTags = array();
@@ -69,6 +71,8 @@ class TermDTO
         foreach ($termtags as $tt) {
             $t->addTermTag($tt);
         }
+
+        // TODO:termimage - save the term image.
 
         return $t;
     }
