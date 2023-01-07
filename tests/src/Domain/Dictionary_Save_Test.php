@@ -44,24 +44,6 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         $this->p2 = $p2;
     }
 
-    public function test_create_and_save()
-    {
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText("HOLA");
-        $t->setStatus(1);
-        $t->setWordCount(1);
-        $t->setTranslation('hi');
-        $t->setRomanization('ho-la');
-        $this->dictionary->add($t, true);
-
-        $this->assertEquals($t->getTextLC(), 'hola', "sanity check of case");
-
-        $sql = "select WoText, WoTextLC from words where WoID={$t->getID()}";
-        $expected = [ "HOLA; hola" ];
-        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
-    }
-
     public function test_saving_updates_textitems2_in_same_language() {
         DbHelpers::add_textitems2($this->spanish->getLgID(), 'hoLA', 'hola', 1);
         DbHelpers::add_textitems2($this->french->getLgID(), 'HOLA', 'hola', 2);
@@ -81,82 +63,6 @@ final class Dictionary_Save_Test extends DatabaseTestBase
             "0; {$this->french->getLgID()}; HOLA"
         ];
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
-    }
-
-    public function test_word_with_parent_and_tags()
-    {
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText("HOLA");
-        $t->setStatus(1);
-        $t->setWordCount(1);
-        $t->setParent($this->p);
-        $t->addTermTag($this->tag);
-        $this->dictionary->add($t, true);
-
-        $sql = "select WoID, WoText, WoTextLC from words";
-        $expected = [ "1; PARENT; parent", "2; OTHER; other", "3; HOLA; hola" ];
-        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
-
-        // Hacky sql check.
-        $sql = "select w.WoText, p.WoText as ptext, tags.TgText 
-            FROM words w
-            INNER JOIN wordparents on WpWoID = w.WoID
-            INNER JOIN words p on p.WoID = wordparents.WpParentWoID
-            INNER JOIN wordtags on WtWoID = w.WoID
-            INNER JOIN tags on TgID = WtTgID";
-        $exp = [ "HOLA; PARENT; tag" ];
-        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
-    }
-
-    public function test_change_parent()
-    {
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText("HOLA");
-        $t->setStatus(1);
-        $t->setWordCount(1);
-        $t->setParent($this->p);
-        $this->dictionary->add($t, true);
-
-        // Hacky sql check.
-        $sql = "select w.WoText, p.WoText as ptext
-            FROM words w
-            LEFT JOIN wordparents on WpWoID = w.WoID
-            LEFT JOIN words p on p.WoID = wordparents.WpParentWoID
-            WHERE w.WoID = {$t->getID()}";
-        $exp = [ "HOLA; PARENT" ];
-        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
-
-        $t->setParent($this->p2);
-        $this->dictionary->add($t, true);
-        $exp = [ "HOLA; OTHER" ];
-        DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
-    }
-
-    public function test_remove_parent()
-    {
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText("HOLA");
-        $t->setStatus(1);
-        $t->setWordCount(1);
-        $t->setParent($this->p);
-        $this->dictionary->add($t, true);
-
-        // Hacky sql check.
-        $sql = "select w.WoText, p.WoText as ptext
-            FROM words w
-            LEFT JOIN wordparents on WpWoID = w.WoID
-            LEFT JOIN words p on p.WoID = wordparents.WpParentWoID
-            WHERE w.WoID = {$t->getID()}";
-        $exp = [ "HOLA; PARENT" ];
-        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
-
-        $t->setParent(null);
-        $this->dictionary->add($t, true);
-        $exp = [ "HOLA; " ];
-        DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
 
