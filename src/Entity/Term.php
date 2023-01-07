@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\DTO\TermDTO;
 use App\Repository\TermRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -58,21 +59,16 @@ class Term
        private members, but the interface will only have setParent()
        and getParent(). */
 
-    // An "override" of the parent text, to be set by the text form on
-    // submit.  This is a code smell -- the Symfony approach of using
-    // the entity as a DTO feels like it runs into problems.  Ref
-    // https://blog.martinhujer.cz/symfony-forms-with-request-objects/.
-    // In a nutshell, I can't determine the parent without also
-    // knowing the term's Language, but I don't know that until the
-    // form processes the request, which occurs after the builder and
-    // its transforms have been used.
-    private ?string $parentText = null;
 
-
-    public function __construct()
+    public function __construct(?Language $lang = null, ?string $text = null)
     {
         $this->termTags = new ArrayCollection();
         $this->parents = new ArrayCollection();
+
+        if ($lang != null)
+            $this->setLanguage($lang);
+        if ($text != null)
+            $this->setText($text);
     }
 
     public function getID(): ?int
@@ -167,7 +163,7 @@ class Term
         return $this->WoTranslation;
     }
 
-    public function setRomanization(string $WoRomanization): self
+    public function setRomanization(?string $WoRomanization): self
     {
         $this->WoRomanization = $WoRomanization;
         return $this;
@@ -196,6 +192,12 @@ class Term
     public function getTermTags(): Collection
     {
         return $this->termTags;
+    }
+
+    public function removeAllTermTags(): void {
+        foreach ($this->termTags as $tt) {
+            $this->removeTermTag($tt);
+        }
     }
 
     public function addTermTag(TermTag $termTag): self
@@ -231,28 +233,30 @@ class Term
              */
             $this->parents->add($parent);
         }
+        return $this;
+    }
 
-        // Hacky code to allow for set/getParentText.
-        // TODO:TermDTO create TermDTO so that the form doesn't directly use entity
-        if ($this->parentText == null && $parent != null) {
-            $this->parentText = $parent->getText();
+
+    public function createTermDTO(): TermDTO
+    {
+        $f = new TermDTO();
+        $f->id = $this->getID();
+        $f->language = $this->getLanguage();
+        $f->Text = $this->getText();
+        $f->Status = $this->getStatus();
+        $f->Translation = $this->getTranslation();
+        $f->Romanization = $this->getRomanization();
+        $f->Sentence = $this->getSentence();
+
+        $p = $this->getParent();
+        if ($p != null)
+            $f->ParentText = $p->getText();
+
+        foreach ($this->getTermTags() as $tt) {
+            $f->termTags[] = $tt->getText();
         }
 
-        return $this;
-    }
-
-
-    // Getter and setter parentText that should never be used, except
-    // by the TermType and its transform.
-    public function getParentText(): ?string
-    {
-        return $this->parentText;
-    }
-
-    public function setParentText(?string $s): self
-    {
-        $this->parentText = $s;
-        return $this;
+        return $f;
     }
 
 }
