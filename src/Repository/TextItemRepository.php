@@ -174,9 +174,18 @@ where ti2woid = 0";
     private function unmap_all(Term $term)
     {
         $woid = $term->getID();
-        $updateti2sql = "UPDATE textitems2
-           SET Ti2WoID = 0 WHERE Ti2WoID = {$woid}";
-        $this->exec_sql($updateti2sql);
+        $sql = "UPDATE textitems2 SET Ti2WoID = 0 WHERE Ti2WoID = {$woid}";
+
+        if ($term->getWordCount() > 1) {
+            // add_multiword_textitems_for_sentences adds new
+            // textitem2 records for multiword terms, so if a
+            // multiword term is removed, we need to remove those
+            // records.
+            // "Ti2WordCount > 1" is a sanity-check condition only.
+            $sql = "DELETE FROM textitems2 WHERE Ti2WoID = {$woid} and Ti2WordCount > 1";
+        }
+
+        $this->exec_sql($sql);
     }
 
     /** Expressions **************************/
