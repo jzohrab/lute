@@ -52,7 +52,7 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Psalm check
-      run: composer dev:psalm
+      run: ./vendor/bin/psalm --config=psalm.xml --no-cache --no-file-cache --debug
 
     - name: Install Dependencies
       run: composer install --no-progress
