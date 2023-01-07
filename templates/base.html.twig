@@ -3,7 +3,12 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>{% block title %}LUTE{% endblock %}</title>
+
+    {% if app.environment == 'dev' %}
+    <link rel="shortcut icon" href="/favicon_dev.ico" type="image/x-icon"/>
+    {% else %}
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    {% endif %}
 
     <meta name="viewport" content="width=900" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon-57x57.png');?>" />
