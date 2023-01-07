@@ -122,11 +122,6 @@ class MigrationHelper {
         return ($dbname == 'lute_demo');
     }
 
-    public static function isLuteTest() {
-        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
-        return (str_starts_with($dbname, 'test_'));
-    }
-
     public static function isEmptyDemo() {
         if (! MigrationHelper::isLuteDemo())
             return false;

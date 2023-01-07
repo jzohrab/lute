@@ -32,7 +32,6 @@ final class MigrationHelper_Test extends DatabaseTestBase
 
     public function test_smoke_tests() {
         $this->assertFalse(MigrationHelper::isLuteDemo(), 'test db is not demo');
-        $this->assertTrue(MigrationHelper::isLuteTest(), 'test db is test!');
         $this->assertFalse(MigrationHelper::hasPendingMigrations(), 'everything done');
     }
 
