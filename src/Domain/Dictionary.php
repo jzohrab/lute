@@ -4,24 +4,24 @@ namespace App\Domain;
 
 use App\Entity\Term;
 use App\Entity\Language;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TextItemRepository;
+use App\Repository\TermRepository;
 
 class Dictionary {
 
-    private EntityManagerInterface $manager;
+    private TermRepository $term_repo;
     private array $pendingTerms;
 
     public function __construct(
-        EntityManagerInterface $manager
+        TermRepository $term_repo
     ) {
-        $this->manager = $manager;
+        $this->term_repo = $term_repo;
         $this->pendingTerms = array();
     }
 
     public function add(Term $term, bool $flush = true) {
         $this->pendingTerms[] = $term;
-        $this->manager->persist($term);
+        $this->term_repo->save($term, false);
         if ($flush) {
             $this->flush();
         }
@@ -29,40 +29,24 @@ class Dictionary {
 
     public function flush() {
         // dump('flushing ' . count($this->pendingTerms) . ' terms.');
-        $this->manager->flush();
+        $this->term_repo->flush();
         TextItemRepository::bulkMap($this->pendingTerms);
         $this->pendingTerms = array();
     }
 
     public function remove(Term $term): void
     {
-        $this->manager->remove($term);
+        $this->term_repo->remove($term, false);
         TextItemRepository::unmapForTerm($term);
-        $this->manager->flush();
+        $this->term_repo->flush();
     }
-
 
     /**
      * Find a term by an exact match.
      */
     public function find(string $value, Language $lang): ?Term {
-        // Using Doctrine Query Language --
-        // Interesting, but am not totally confident with it.
-        // e.g. That I had to use the private field WoTextLC
-        // instead of the public property was surprising.
-        // Anyway, it works. :-P
-        $dql = "SELECT t FROM App\Entity\Term t
-        LEFT JOIN App\Entity\Language L WITH L = t.language
-        WHERE L.LgID = :langid AND t.WoTextLC = :val";
-        $query = $this->manager
-               ->createQuery($dql)
-               ->setParameter('langid', $lang->getLgID())
-               ->setParameter('val', mb_strtolower($value));
-        $terms = $query->getResult();
-
-        if (count($terms) == 0)
-            return null;
-        return $terms[0];
+        $spec = new Term($lang, $value);
+        return $this->term_repo->findBySpecification($spec);
     }
 
     /**
@@ -70,20 +54,8 @@ class Dictionary {
      */
     public function findMatches(string $value, Language $lang, int $maxResults = 50): array
     {
-        $search = mb_strtolower(trim($value));
-        if ($search == '')
-            return [];
-        $search = '%' . $search . '%';
-
-        $dql = "SELECT t FROM App\Entity\Term t
-        JOIN App\Entity\Language L WITH L = t.language
-        WHERE L.LgID = :langid AND t.WoTextLC LIKE :search
-        ORDER BY t.WoTextLC";
-        $query = $this->manager
-               ->createQuery($dql)
-               ->setParameter('langid', $lang->getLgID())
-               ->setParameter('search', $search)
-               ->setMaxResults($maxResults);
-        return $query->getResult();
+        $spec = new Term($lang, $value);
+        return $this->term_repo->findLikeSpecification($spec, $maxResults);
     }
+
 }

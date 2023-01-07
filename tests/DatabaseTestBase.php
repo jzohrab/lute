@@ -179,7 +179,7 @@ abstract class DatabaseTestBase extends WebTestCase
     }
 
     public function make_term(Language $lang, string $s) {
-        $dict = new Dictionary($this->entity_manager);
+        $dict = new Dictionary($this->term_repo);
         $term = new Term();
         $term->setLanguage($lang);
         $term->setText($s);
