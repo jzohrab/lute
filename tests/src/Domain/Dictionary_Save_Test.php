@@ -20,28 +20,6 @@ final class Dictionary_Save_Test extends DatabaseTestBase
     public function childSetUp() {
         $this->dictionary = new Dictionary($this->term_repo);
         $this->load_languages();
-
-        $tag = new TermTag();
-        $tag->setText("tag");
-        $tag->setComment("tag comment");
-        $this->termtag_repo->save($tag, true);
-        $this->tag = $tag;
-
-        $p = new Term();
-        $p->setLanguage($this->spanish);
-        $p->setText("PARENT");
-        $p->setStatus(1);
-        $p->setWordCount(1);
-        $this->dictionary->add($p, true);
-        $this->p = $p;
-
-        $p2 = new Term();
-        $p2->setLanguage($this->spanish);
-        $p2->setText("OTHER");
-        $p2->setStatus(1);
-        $p2->setWordCount(1);
-        $this->dictionary->add($p2, true);
-        $this->p2 = $p2;
     }
 
     public function test_saving_updates_textitems2_in_same_language() {
