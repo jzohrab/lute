@@ -129,5 +129,28 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
+    // Image saves:
+
+    /**
+     * @group images
+     */
+    public function test_save_with_image()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $t->setCurrentImage('hello.png');
+
+        $this->assertEquals($t->getCurrentImage(), 'hello.png');
+        $this->term_repo->save($t, true);
+
+        $sql = "select WiWoID, WiSrc from wordimages";
+        $exp = [ "1; hello.png" ];
+        DbHelpers::assertTableContains($sql, $exp, "image saved");
+    }
+
+    // set image
+    // set new current image removes old record
+    // term set current image - downloads if possible (use /public/img/lute.png for tests?)
+    // remove image
+    // remove term leaves its image in images folder
 
 }
