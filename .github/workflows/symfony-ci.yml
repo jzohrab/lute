@@ -39,9 +39,6 @@ jobs:
     - name: Prevent debug cruft
       run: composer dev:finddump
 
-    - name: Psalm check
-      run: composer dev:psalm
-
     - name: Copy .env.test.local
       run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
 
@@ -53,6 +50,9 @@ jobs:
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
+
+    - name: Psalm check
+      run: composer dev:psalm
 
     - name: Install Dependencies
       run: composer install --no-progress
