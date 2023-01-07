@@ -55,7 +55,7 @@ jobs:
       run: mkdir -p var
 
     - name: Psalm check
-      run: ./vendor/bin/psalm --config=psalm.xml --no-cache --no-file-cache --debug
+      run: ./vendor/bin/psalm --config=psalm.xml --no-progress
 
     - name: Install Dependencies
       run: composer install --no-progress
