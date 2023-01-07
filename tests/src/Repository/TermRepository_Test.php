@@ -142,7 +142,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals($t->getCurrentImage(), 'hello.png');
         $this->term_repo->save($t, true);
 
-        $sql = "select WiWoID, WiSrc from wordimages";
+        $sql = "select WiWoID, WiSource from wordimages";
         $exp = [ "1; hello.png" ];
         DbHelpers::assertTableContains($sql, $exp, "image saved");
     }

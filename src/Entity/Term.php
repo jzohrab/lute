@@ -59,11 +59,16 @@ class Term
        private members, but the interface will only have setParent()
        and getParent(). */
 
+    #[ORM\OneToMany(targetEntity: TermImage::class, mappedBy: 'WoID', cascade: ['persist', 'remove'])]
+    private Collection $images;
+    /* Currently, a word can only have one image. */
+
 
     public function __construct(?Language $lang = null, ?string $text = null)
     {
         $this->termTags = new ArrayCollection();
         $this->parents = new ArrayCollection();
+        $this->images = new ArrayCollection();
 
         if ($lang != null)
             $this->setLanguage($lang);
@@ -236,6 +241,27 @@ class Term
         return $this;
     }
 
+    public function getCurrentImage(): ?string
+    {
+        if ($this->images->isEmpty())
+            return null;
+        return $this->images[0]->getSource();
+    }
+
+    public function setCurrentImage(?string $s): self
+    {
+        $this->images = new ArrayCollection();
+        if ($s != null) {
+            $ti = new TermImage();
+            $ti->setTerm($this);
+            $ti->setSource($s);
+            /**
+             * @psalm-suppress InvalidArgument
+             */
+            $this->images->add($ti);
+        }
+        return $this;
+    }
 
     public function createTermDTO(): TermDTO
     {
