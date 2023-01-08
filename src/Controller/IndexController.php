@@ -42,7 +42,6 @@ class IndexController extends AbstractController
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
             'demoisempty' => MigrationHelper::isEmptyDemo(),
-            'istestdb' => MigrationHelper::isLuteTest(),
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
             'currtxtitle' => $txtitle

@@ -6,10 +6,12 @@ when@dev:
     monolog:
         handlers:
             main:
-                type: stream
+                type: rotating_file
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
                 channels: ["!event"]
+                max_files: 10
+
             # uncomment to get logging in your browser
             # you may have to allow bigger header sizes in your Web server configuration
             #firephp:
@@ -18,6 +20,7 @@ when@dev:
             #chromephp:
             #    type: chromephp
             #    level: info
+
             console:
                 type: console
                 process_psr_3_messages: false
@@ -40,6 +43,15 @@ when@test:
 when@prod:
     monolog:
         handlers:
+            # Ref https://symfony.com/doc/current/logging.html.
+            file_log:
+                type: rotating_file
+                # log to var/log/(environment).log
+                path: "%kernel.logs_dir%/prod.log"
+                # log *all* messages (debug is lowest level)
+                level: debug
+                channels: ["!event"]
+                max_files: 10
             main:
                 type: fingers_crossed
                 action_level: error

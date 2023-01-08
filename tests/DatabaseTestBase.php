@@ -86,8 +86,8 @@ abstract class DatabaseTestBase extends WebTestCase
         $spanish = new Language();
         $spanish
             ->setLgName('Spanish')
-            ->setLgDict1URI('https://es.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.wordreference.com/es/en/translation.asp?spen=###')
+            ->setLgDict1URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
+            ->setLgDict2URI('https://es.thefreedictionary.com/###')
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#es/en/###');
         $this->language_repo->save($spanish, true);
         $this->spanish = $spanish;
@@ -179,7 +179,7 @@ abstract class DatabaseTestBase extends WebTestCase
     }
 
     public function make_term(Language $lang, string $s) {
-        $dict = new Dictionary($this->entity_manager);
+        $dict = new Dictionary($this->term_repo);
         $term = new Term();
         $term->setLanguage($lang);
         $term->setText($s);

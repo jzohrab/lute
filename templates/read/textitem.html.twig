@@ -16,7 +16,9 @@
       data_code="{{ item.WordCount }}"
       data_text="{{ item.Text }}"
       data_wid="{{ item.WoID }}"
+      data_img_src="{{ item.ImageSource }}"
       parent_text="{{ item.ParentWoTextLC }}"
       parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}"
+      parent_img_src="{{ item.ParentImageSource }}"
 {% endif %}
 >{{ item.Text | replace({' ': '&nbsp;'})| raw }}</span>

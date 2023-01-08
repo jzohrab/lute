@@ -17,6 +17,8 @@ composer.phar
 # User media in root, or in public/media (e.g. saved images).
 media/
 
+/public/userimages/
+
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/

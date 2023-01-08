@@ -65,3 +65,12 @@
  {
    border: 0pt none;
  }
+
+ .zoomableTermImage {
+     width: 25px;
+     transition: transform .2s; /* Animation */
+ }
+
+ .zoomableTermImage:hover {
+     transform: scale(10) translate(10px);
+ }

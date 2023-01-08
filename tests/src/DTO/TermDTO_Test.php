@@ -19,7 +19,6 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->load_languages();
 
         $this->dictionary = new Dictionary(
-            $this->entity_manager,
             $this->term_repo
         );
     }
@@ -42,6 +41,7 @@ final class TermDTO_Test extends DatabaseTestBase
             'tr' => $t->getTranslation(),
             'r' => $t->getRomanization(),
             's' => $t->getSentence(),
+            'i' => $t->getCurrentImage(),
             'tt' => implode(', ', $tt),
             'pt' => $pt
         ];
@@ -59,6 +59,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $english->setLgName('English');
 
         $t = new Term($english, 'Hello');
+        $t->setCurrentImage('hello.png');
 
         $dto = $t->createTermDTO();
 

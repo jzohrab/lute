@@ -3,8 +3,10 @@
 This folder contains simple db scripts and and migrations for db schema management for Lute.  The schema is managed following the ideas outlined at https://github.com/jzohrab/DbMigrator/blob/master/docs/managing_database_changes.md:
 
 * Baseline schema and reference data are in `baseline`.
-* All migrations are stored in the `migrations` folder, and are applied once only, in filename-sorted order.
-* The main class `mysql_migrator.php` is lifted from https://github.com/jzohrab/php-migration.
+* All one-time migrations are stored in the `migrations` folder, and are applied once only, in filename-sorted order.
+* All repeatable migrations are stored in the `migrations_repeatable` folder, and are applied every single migration run.
+* See "code migrations" below for special PHP executors
+* The main class `mysql_migrator.php` was lifted from https://github.com/jzohrab/php-migration, and then modified.
 
 The front controller `index.php` calls `src/Utils/MigrationHelper.php` to apply changes automatically for users.
 
@@ -30,3 +32,37 @@ $ composer db:newrepeat <some_name_here>
 ```
 
 These migration scripts should be committed to the repo.
+
+## Code migrations
+
+Sometimes, database migrations, or even code changes, require a
+one-time job to be run.  Since that's a hassle for users, the
+DbMigrator class can call regular PHP scripts during migrations.
+
+For example, the following code could be placed inside of `src/Utils/OneTimeJobs/MigrationExecutionDemo.php`:
+
+```
+<?php
+namespace App\Utils\OneTimeJobs;
+
+// File src/Utils/OneTimeJobs/MigrationExecutionDemo.php
+// This is a regular PHP script that gets called by the Db migration.
+echo "This is a demo!\n";
+```
+
+Then a migration can be created for it, eg, `db/migrations_repeatable/20230108_180347_exec_job_demo.sql`:
+
+```
+-- EXEC_SCRIPT: src/Utils/OneTimeJobs/MigrationExecutionDemo.php
+```
+
+During the course of a regular `composer db:migrate:x` run, this file
+is read by the DbMigrator, and the specified `EXEC_SCRIPT` is included
+and run.
+
+Such a "code migration" file should ONLY contain a single
+`EXEC_SCRIPT` comment, and nothing else.
+
+This code works, but is not well tested.  It's a dangerous but
+effective idea; use it if you know what you're doing.  And that goes
+for me too.

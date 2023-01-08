@@ -18,7 +18,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     {
         $this->load_languages();
 
-        $dict = new Dictionary($this->entity_manager);
+        $dict = new Dictionary($this->term_repo);
         $this->dictionary = $dict;
         $this->facade = new ReadingFacade(
             $this->reading_repo,

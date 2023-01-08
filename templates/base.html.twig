@@ -3,7 +3,12 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>{% block title %}LUTE{% endblock %}</title>
+
+    {% if app.environment == 'dev' %}
+    <link rel="shortcut icon" href="/favicon_dev.ico" type="image/x-icon"/>
+    {% else %}
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    {% endif %}
 
     <meta name="viewport" content="width=900" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon-57x57.png');?>" />
@@ -59,6 +64,11 @@
   </head>
 
   <body>
+
+    {% if app.environment == 'dev' %}
+    <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DB_DATABASE') }}</p>
+    {% endif %}
+
     {% if block("hide_home_link") is not defined %}
 
     <!-- I'm not *supposed* to use tables for layout, but it works. -->
