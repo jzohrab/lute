@@ -17,30 +17,11 @@ function prepareTextInteractions(textid) {
 
   $('#thetext').tooltip({
     position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit flip' },
-    items: '.hword',
+    items: '.word:not(.status0)',
     show: { easing: 'easeOutCirc' },
     content: function () { return tooltip_textitem_hover_content($(this)); }
   });
 
-  $('#thetext').hoverIntent(
-    {
-      over: word_hover_over, 
-      out: word_hover_out, 
-      interval: 150, 
-      selector:".word:not(.status0)"
-    }
-  );
-
-}
-
-let word_hover_over = function() {
-  $(this).addClass('hword');
-  $(this).trigger('mouseover');
-}
-
-let word_hover_out = function() {
-  $('.hword').removeClass('hword');
-  $('.ui-helper-hidden-accessible>div[style]').remove();
 }
 
 
