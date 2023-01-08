@@ -28,7 +28,7 @@ class TermDTO
 
     public ?string $ParentText = null;
 
-    public ?string $NewImage = null;
+    public ?string $CurrentImage = null;
 
     public function __construct()
     {
@@ -58,6 +58,7 @@ class TermDTO
         $t->setTranslation($dto->Translation);
         $t->setRomanization($dto->Romanization);
         $t->setSentence($dto->Sentence);
+        $t->setCurrentImage($dto->CurrentImage);
 
         $termtags = array();
         foreach ($dto->termTags as $s) {
