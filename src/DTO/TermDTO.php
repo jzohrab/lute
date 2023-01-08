@@ -73,8 +73,6 @@ class TermDTO
             $t->addTermTag($tt);
         }
 
-        // TODO:termimage - save the term image.
-
         return $t;
     }
 
