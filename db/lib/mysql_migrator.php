@@ -128,7 +128,22 @@ class MysqlMigrator {
       $this->log("  running $file");
     }
     $commands = file_get_contents($file);
-    $this->exec_commands($commands);
+
+    preg_match_all('/^.*?EXEC_SCRIPT:(.*)/um', $commands, $matches);
+    # dump($matches);
+    $scripts = $matches[1];
+    $n = count($scripts);
+    if ($n > 1) {
+        throw new \Exception("{$file} has {$n} EXEC_SCRIPT lines, can only have 1.");
+    }
+    if ($n == 1) {
+        $rootdir = __DIR__ . '/../../';
+        include($rootdir . trim($scripts[0]));
+        return;
+    }
+    else {
+        $this->exec_commands($commands);
+    }
   }
 
   private function exec_commands($commands) {
