@@ -89,7 +89,7 @@ class TermDTOType extends AbstractType
                     'required' => false
                   ])
             ->add('CurrentImage',
-                  TextType::class,
+                  HiddenType::class,
                   [ 'label' => 'Image',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false

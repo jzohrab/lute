@@ -66,11 +66,11 @@
    border: 0pt none;
  }
 
- #term_image {
+ .zoomableTermImage {
      width: 25px;
      transition: transform .2s; /* Animation */
  }
 
- #term_image:hover {
-     transform: scale(5);
+ .zoomableTermImage:hover {
+     transform: scale(10) translate(10px);
  }
