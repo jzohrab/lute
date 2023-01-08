@@ -20,26 +20,31 @@
   </head>
 
   <script>
-    function save_image_locally(src, langid, text) {
 
+    let update_term_form = function(filename) {
       // Well, this took **far** too long to figure out ...
       const fr = window.parent.frames['wordframe'];
-      var el = fr.document.getElementById('term_dto_NewImage');
-      el.value = src;
-      return;
+      var el = fr.document.getElementById('term_dto_CurrentImage');
+      el.value = filename;
+    }
 
-      $.post(
-        '/bing/save',
-        {
+    function save_image_locally(src, langid, text) {
+      $.ajax({
+        url: '/bing/save',
+        data: {
           src: src,
           langid: langid,
           text: text
         },
-        function(data, status){
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
           console.log("Saved: " + data + "\nStatus: " + status);
+          update_term_form(data.filename);
           $('.saved').removeClass('saved');
           $('.highlight').addClass('saved').removeClass('highlight');
-        });
+        }
+      });
     }
 
     function highlight_image(el) {

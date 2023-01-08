@@ -100,14 +100,15 @@ class BingImageSearchController extends AbstractController
         $langid = $_POST['langid'];
         // dump($src);
 
-        $imgdir = __DIR__ . '/../../public/media/images/' . $langid;
-        if (! file_exists($imgdir)) {
-            mkdir($imgdir, 0777, true);
+        $publicdir = '/media/images/' . $langid . '/';
+        $realdir = __DIR__ . '/../../public' . $publicdir;
+        if (! file_exists($realdir)) {
+            mkdir($realdir, 0777, true);
         }
-        $img = $imgdir . '/' . $this->make_filename($text);
-        file_put_contents($img, file_get_contents($src));
+        $f = $this->make_filename($text);
+        file_put_contents($realdir . $f, file_get_contents($src));
 
-        return $this->json('ok');
+        return $this->json([ 'filename' => $publicdir . $f ]);
     }
 
     // Returns the path of the image file if it exists, else empty string.
