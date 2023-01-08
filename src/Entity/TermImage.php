@@ -17,7 +17,7 @@ class TermImage
     #[ORM\Column(name: 'WiID', type: Types::SMALLINT)]
     private ?int $id = null;
 
-    // One term has many images.
+    // Many images can be stored in the same term.  Currently the term API only allows for one image, however.
     #[ORM\ManyToOne(targetEntity: 'Term', inversedBy: 'images')]
     #[ORM\JoinColumn(name: 'WiWoID', referencedColumnName: 'WoID', nullable: false)]
     private Term $term;
@@ -38,7 +38,6 @@ class TermImage
     public function setTerm(Term $term): self
     {
         $this->term = $term;
-        $this->term_id = $term->getID();
         return $this;
     }
 

@@ -59,7 +59,8 @@ class Term
        private members, but the interface will only have setParent()
        and getParent(). */
 
-    #[ORM\OneToMany(targetEntity: TermImage::class, mappedBy: 'WoID', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: 'TermImage', mappedBy: 'term', fetch: 'EAGER', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'WiWoID', referencedColumnName: 'WoID', nullable: false)]
     private Collection $images;
     /* Currently, a word can only have one image. */
 
