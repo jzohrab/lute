@@ -114,12 +114,16 @@
     "db:newscript": "php db/create_migration_script.php",
     "db:newrepeat": "php db/create_repeatable_migration_script.php",
     "dev:dumpserver": "php bin/console server:dump",
-    "test": [
+    "testsetup": [
       "composer db:setup:test",
+      "bin/console doctrine:schema:validate  # <-- hash is a clever hack to suppress argument"
+    ],
+    "test": [
+      "composer testsetup",
       "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist"
     ],
     "test:group": [
-      "composer db:setup:test",
+      "composer testsetup",
       "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group "
     ],
     "dev:find": "./utils/findstring.sh",
