@@ -191,6 +191,15 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "image removed");
     }
 
+    // TODO:image_integration_tests Future integration-style tests.
+    //
+    // Integration tests should remove all images from the userimages
+    // folder.  To prevent problems/data loss, there should be a check
+    // for some sort of "control file" that the dev has to create in a
+    // particular location, or maybe a setting in .env.test/.local, to
+    // acknowledge that this will happen and is ok.  Don't want devs
+    // to accidentally kill their own personal images.
+    //
     // term set current image - downloads if possible (use /public/img/lute.png for tests?)
     // remove term leaves its image in images folder
 
