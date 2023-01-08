@@ -1,5 +1,15 @@
 # Changelog
 
+## 2023-01-08 - v1.0.3
+
+* saving user images in `public/userimages`, linking directly to terms.  (If you have been using v1.0.2 actively since its release a few days ago, you'll need to [clean up your data](https://github.com/jzohrab/lute/wiki/Migrating-to-userimages) ... sorry!)
+* cleaning up the term hover-over tooltip popup
+
+### back end work:
+
+* add TermDTO object to simplify term form processing
+* github CI
+
 ## 2023-01-04 - v1.0.2
 
 * Save selected bing image to public/media/images.
