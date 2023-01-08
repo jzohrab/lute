@@ -100,7 +100,7 @@ class BingImageSearchController extends AbstractController
         $langid = $_POST['langid'];
         // dump($src);
 
-        $publicdir = '/media/images/' . $langid . '/';
+        $publicdir = '/userimages/' . $langid . '/';
         $realdir = __DIR__ . '/../../public' . $publicdir;
         if (! file_exists($realdir)) {
             mkdir($realdir, 0777, true);
