@@ -28,11 +28,15 @@
   <tr>
     <td>Translation</td>
     <td>{{ form_widget(form.Translation) }}</td>
-    <td><img id="term_image" src="{{ form.CurrentImage.vars.value }}" width="50px"/></td>
   </tr>
 
   {{ form_row(form.Status) }}
   {{ form_row(form.CurrentImage) }}
+
+  <tr>
+    <td>Image</td>
+    <td><img id="term_image" src="{{ form.CurrentImage.vars.value }}" width="50px"/></td>
+  </tr>
 
   <tr>
     <td>Sentence</td>
