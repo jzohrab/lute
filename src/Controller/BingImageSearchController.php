@@ -111,23 +111,4 @@ class BingImageSearchController extends AbstractController
         return $this->json([ 'filename' => $publicdir . $f ]);
     }
 
-    // Returns the path of the image file if it exists, else empty string.
-    #[Route('/get/{langid}/{text}', name: 'app_bing_get', methods: ['GET'])]
-    public function bing_path(int $langid, string $text): JsonResponse
-    {
-        $reldir = __DIR__ . '/../../public';
-        $imgdir = '/media/images/' . $langid;
-        $realdir = $reldir . $imgdir;
-        if (! file_exists($realdir)) {
-            mkdir($realdir, 0777, true);
-        }
-
-        $f = $this->make_filename($text);
-        $realfile = $realdir . '/' . $f;
-        // dump('looking for ' . $realfile);
-        if (! file_exists($realfile))
-            return $this->json('');
-
-        return $this->json($imgdir . '/' . $f);
-    }
 }
