@@ -16,13 +16,21 @@
   <tr>
     <td>Term</td>
     <td>{{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}</td>
-    <td><img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" /></td>
-    <td><img src="/icn/eye.png" title="Image search" onclick="do_image_lookup()" /></td>
+    <td>
+      <img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" />
+      <img src="/icn/eye.png" title="Images" onclick="do_image_lookup()" />
+    </td>
   </tr>
 
   {{ form_row(form.ParentText) }}
   {{ form_row(form.Romanization) }}
-  {{ form_row(form.Translation) }}
+
+  <tr>
+    <td>Translation</td>
+    <td>{{ form_widget(form.Translation) }}</td>
+    <td><img id="term_image" src="{{ form.CurrentImage.vars.value }}" width="50px"/></td>
+  </tr>
+
   {{ form_row(form.Status) }}
   {{ form_row(form.CurrentImage) }}
 
