@@ -78,55 +78,24 @@ class BingImageSearchController extends AbstractController
     }
 
 
-    // TODO:store_image_with_term?  Not sure if we should store the
-    // image path in the data model.  Could add Term->imagePath(), or
-    // TermImage->get() or similar.  Few terms will have images, so
-    // storing them in the words table doesn't make much sense.
-    //
-    // Storing images explicitly with terms would allow for image
-    // management, and maybe export to Anki etc in the future.
-    //
-    // If the images _are_ stored in the table, the term would have to
-    // be saved first, obvs.  Could be managed by Dictionary->add().
-    //
-    // Images would *not* need to be added on bulk term save (e.g. on
-    // "set all to known") because they wouldn't be there.
-    //
+    // Save the image to disk, and return the new filename so it can
+    // be saved as a new TermImage.
     #[Route('/save', name: 'app_bing_save', methods: ['POST'])]
     public function bing_save(Request $request): JsonResponse
     {
         $src = $_POST['src'];
         $text = $_POST['text'];
         $langid = $_POST['langid'];
-        // dump($src);
 
-        $imgdir = __DIR__ . '/../../public/media/images/' . $langid;
-        if (! file_exists($imgdir)) {
-            mkdir($imgdir, 0777, true);
-        }
-        $img = $imgdir . '/' . $this->make_filename($text);
-        file_put_contents($img, file_get_contents($src));
-
-        return $this->json('ok');
-    }
-
-    // Returns the path of the image file if it exists, else empty string.
-    #[Route('/get/{langid}/{text}', name: 'app_bing_get', methods: ['GET'])]
-    public function bing_path(int $langid, string $text): JsonResponse
-    {
-        $reldir = __DIR__ . '/../../public';
-        $imgdir = '/media/images/' . $langid;
-        $realdir = $reldir . $imgdir;
+        $publicdir = '/userimages/' . $langid . '/';
+        $realdir = __DIR__ . '/../../public' . $publicdir;
         if (! file_exists($realdir)) {
             mkdir($realdir, 0777, true);
         }
-
         $f = $this->make_filename($text);
-        $realfile = $realdir . '/' . $f;
-        // dump('looking for ' . $realfile);
-        if (! file_exists($realfile))
-            return $this->json('');
+        file_put_contents($realdir . $f, file_get_contents($src));
 
-        return $this->json($imgdir . '/' . $f);
+        return $this->json([ 'filename' => $publicdir . $f ]);
     }
+
 }

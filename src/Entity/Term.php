@@ -59,11 +59,17 @@ class Term
        private members, but the interface will only have setParent()
        and getParent(). */
 
+    #[ORM\OneToMany(targetEntity: 'TermImage', mappedBy: 'term', fetch: 'EAGER', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'WiWoID', referencedColumnName: 'WoID', nullable: false)]
+    private Collection $images;
+    /* Currently, a word can only have one image. */
+
 
     public function __construct(?Language $lang = null, ?string $text = null)
     {
         $this->termTags = new ArrayCollection();
         $this->parents = new ArrayCollection();
+        $this->images = new ArrayCollection();
 
         if ($lang != null)
             $this->setLanguage($lang);
@@ -236,6 +242,31 @@ class Term
         return $this;
     }
 
+    public function getCurrentImage(): ?string
+    {
+        if (count($this->images) == 0) {
+            return null;
+        }
+        $i = $this->images->getValues()[0];
+        return $i->getSource();
+    }
+
+    public function setCurrentImage(?string $s): self
+    {
+        if (! $this->images->isEmpty()) {
+            $this->images->remove(0);
+        }
+        if ($s != null) {
+            $ti = new TermImage();
+            $ti->setTerm($this);
+            $ti->setSource($s);
+            /**
+             * @psalm-suppress InvalidArgument
+             */
+            $this->images->add($ti);
+        }
+        return $this;
+    }
 
     public function createTermDTO(): TermDTO
     {
@@ -247,6 +278,7 @@ class Term
         $f->Translation = $this->getTranslation();
         $f->Romanization = $this->getRomanization();
         $f->Sentence = $this->getSentence();
+        $f->CurrentImage = $this->getCurrentImage();
 
         $p = $this->getParent();
         if ($p != null)

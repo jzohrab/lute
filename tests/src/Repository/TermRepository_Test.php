@@ -129,5 +129,78 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
+    // Image saves:
+
+    /**
+     * @group images
+     */
+    public function test_save_with_image()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $t->setCurrentImage('hello.png');
+
+        $this->assertEquals($t->getCurrentImage(), 'hello.png');
+        $this->term_repo->save($t, true);
+
+        $sql = "select WiWoID, WiSource from wordimages";
+        $exp = [ "1; hello.png" ];
+        DbHelpers::assertTableContains($sql, $exp, "image saved");
+    }
+
+    /**
+     * @group images
+     */
+    public function test_save_replace_image()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $t->setCurrentImage('hello.png');
+        $this->assertEquals($t->getCurrentImage(), 'hello.png');
+        $this->term_repo->save($t, true);
+
+        $sql = "select WiWoID, WiSource from wordimages";
+        $exp = [ "1; hello.png" ];
+        DbHelpers::assertTableContains($sql, $exp, "image saved");
+
+        $t->setCurrentImage('there.png');
+        $this->assertEquals($t->getCurrentImage(), 'there.png');
+        $this->term_repo->save($t, true);
+
+        $exp = [ "1; there.png" ];
+        DbHelpers::assertTableContains($sql, $exp, "image replaced");
+    }
+
+    /**
+     * @group images
+     */
+    public function test_save_remove_image()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $t->setCurrentImage('hello.png');
+        $this->assertEquals($t->getCurrentImage(), 'hello.png');
+        $this->term_repo->save($t, true);
+
+        $sql = "select WiWoID, WiSource from wordimages";
+        $exp = [ "1; hello.png" ];
+        DbHelpers::assertTableContains($sql, $exp, "image saved");
+
+        $t->setCurrentImage(null);
+        $this->assertEquals($t->getCurrentImage(), null);
+        $this->term_repo->save($t, true);
+
+        $exp = [ ];
+        DbHelpers::assertTableContains($sql, $exp, "image removed");
+    }
+
+    // TODO:image_integration_tests Future integration-style tests.
+    //
+    // Integration tests should remove all images from the userimages
+    // folder.  To prevent problems/data loss, there should be a check
+    // for some sort of "control file" that the dev has to create in a
+    // particular location, or maybe a setting in .env.test/.local, to
+    // acknowledge that this will happen and is ok.  Don't want devs
+    // to accidentally kill their own personal images.
+    //
+    // term set current image - downloads if possible (use /public/img/lute.png for tests?)
+    // remove term leaves its image in images folder
 
 }

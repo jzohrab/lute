@@ -16,78 +16,85 @@ function prepareTextInteractions(textid) {
   $(document).on('keydown', handle_keydown);
 
   $('#thetext').tooltip({
-    position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit' },
-    items: '.hword',
+    position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit flip' },
+    items: '.word:not(.status0)',
     show: { easing: 'easeOutCirc' },
-    content: function () { return tooltip_textitem_content($(this)); }
+    content: function () { return tooltip_textitem_hover_content($(this)); }
   });
 
-  $('#thetext').hoverIntent(
-    {
-      over: word_hover_over, 
-      out: word_hover_out, 
-      interval: 150, 
-      selector:".word:not(.status0)"
-    }
-  );
-
-}
-
-let word_hover_over = function() {
-  $(this).addClass('hword');
-  $(this).trigger('mouseover');
-}
-
-let word_hover_out = function() {
-  $('.hword').removeClass('hword');
-  $('.ui-helper-hidden-accessible>div[style]').remove();
 }
 
 
-let add_image_if_exists = function(langid, text) {
-  const url = `/bing/get/${langid}/${encodeURIComponent(text)}`;
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url, false); // false = *not* asynchronous.
-  xhr.send();
+/**
+ * Build the html content for jquery-ui tooltip.
+ */
+let tooltip_textitem_hover_content = function (el) {
 
-  const filename = xhr.response;
-  // console.log('got filename = ' + filename);
-  if (filename == '""')
-    return '';
-  return `<p><img src="${JSON.parse(filename)}" /></p>`;
-}
-
-
-let tooltip_textitem_content = function (el) {
-  let content = `<p><b style="font-size:120%">${el.text()}</b></p>`;
-
-  const roman = el.attr('data_rom');
-  if (roman != '') {
-    content += '<p><b>Roman.</b>: ' + roman + '</p>';
+  let tooltip_title = function() {
+    let t = el.text();
+    const parent_text = el.attr('parent_text') ?? '';
+    if (parent_text != '')
+      t = `${t} (${parent_text})`;
+    return t;
   }
 
-  const lid = parseInt(el.attr('lid'));
-  content += add_image_if_exists(lid, el.text());
-
-  const trans = el.attr('data_trans');
-  if (trans != '' && trans != '*') {
-    content += '<p><b>Transl.</b>: ' + trans + '</p>';
+  const status_span = function() {
+    const status = parseInt(el.attr('data_status'));
+    const st = STATUSES[status];
+    const statname = `${st['name']} [${st['abbr']}]`;
+    return `<span style="margin-left: 12px; float: right;" class="status${status}">${statname}</span>`;
   }
 
-  const status = parseInt(el.attr('data_status'));
-  const st = STATUSES[status];
-  const statname = `${st['name']} [${st['abbr']}]`;
-  content += `<p><b>Status</b>: <span class="status${status}">${statname}</span></p>`;
-
-  const parent_text = el.attr('parent_text')
-  if (parent_text && parent_text != '') {
-    content += '<hr /><p><i>Parent term:</i></p>';
-    content += `<p><b style='font-size:120%'>${parent_text}</b></p>`;
-    content += add_image_if_exists(lid, parent_text);
-    let ptrans = el.attr('parent_trans');
-    content += '<p><b>Transl.</b>: ' + ptrans + '</p>';
+  let image_if_src = function(el, attr) {
+    const filename = el.attr(attr) ?? '';
+    if (filename == '')
+      return '';
+    return `<img class="tooltip-image" src="${filename}" />`;
   }
 
+  let tooltip_images = function() {
+    const haveimages = (el.attr('data_img_src') || el.attr('parent_img_src'));
+    if (!haveimages)
+      return '';
+    return `<p>${image_if_src(el, 'parent_img_src')} ${image_if_src(el, 'data_img_src')}</p>`;
+  }
+
+  let build_entry = function(term, transl, roman) {
+    let have_val = (v) => v != null && `${v}`.trim() != '';
+    if (!have_val(term))
+      return '';
+    let ret = [ `<b>${term}</b>` ];
+    if (have_val(roman))
+      ret.push(` <i>(${roman})</i>`);
+    if (have_val(transl))
+      ret.push(`: ${transl}`);
+    return `<p>${ret.join('')}</p>`;
+  }
+
+  let get_attr = a => (el.attr(a) ?? '').
+      trim().
+      replace(/(\r\n|\n|\r)/gm, "<br />");  // Some translations have cr/lf.
+  ptrans = get_attr('parent_trans');
+  ctrans = get_attr('data_trans');
+
+  let translation_content = ctrans;
+  if (ptrans != '' && ctrans != '' && ctrans != ptrans) {
+    // show both.
+    translation_content = [
+      build_entry(el.text(), ctrans, el.attr('data_rom')),
+      build_entry(el.attr('parent_text'), ptrans, null)
+    ].join('');
+  }
+  if (ptrans != '' && ctrans == '') {
+    translation_content = build_entry(el.attr('parent_text'), ptrans, null);
+  }
+
+  let content = `<p><b style="font-size:120%">${tooltip_title()}</b>${status_span()}</p>`;
+  const rom = get_attr('data_rom');
+  if (rom != '')
+    content += `<p><i>${rom}</i></p>`;
+  content += translation_content;
+  content += tooltip_images();
   return content;
 }
 

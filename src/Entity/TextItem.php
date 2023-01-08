@@ -19,11 +19,13 @@ class TextItem
     public ?int $WoStatus;
     public ?string $WoTranslation;
     public ?string $WoRomanization;
+    public ?string $ImageSource;
     public ?string $Tags;
 
     public ?int $ParentWoID;
     public ?string $ParentWoTextLC;
     public ?string $ParentWoTranslation;
+    public ?string $ParentImageSource;
     public ?string $ParentTags;
 
 

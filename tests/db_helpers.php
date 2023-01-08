@@ -105,6 +105,7 @@ you must use a dedicated test database when running tests.
             "tts",
             "words",
             "wordparents",
+            "wordimages",
             "wordtags"
         ];
         foreach ($tables as $t) {

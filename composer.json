@@ -113,13 +113,18 @@
     "db:migrate:test": "APP_ENV=test php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",
     "db:newrepeat": "php db/create_repeatable_migration_script.php",
+    "db:suggestions": "bin/console doctrine:schema:update --dump-sql",
     "dev:dumpserver": "php bin/console server:dump",
-    "test": [
+    "testsetup": [
       "composer db:setup:test",
+      "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument"
+    ],
+    "test": [
+      "composer testsetup",
       "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist"
     ],
     "test:group": [
-      "composer db:setup:test",
+      "composer testsetup",
       "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group "
     ],
     "dev:find": "./utils/findstring.sh",
@@ -155,6 +160,7 @@
     "db:migrate:prod": "Run db migrations on db in .env / .env.local",
     "db:newscript": "Make a new db migration script",
     "db:newrepeat": "Make a new repeatable db migration script (for triggers, etc)",
+    "db:suggestions": "See the db changes symfony suggests.  Some are good, some are terrible",
     "db:which": "What db connecting to",
     "dev:dumpserver": "Start the dump server",
     "dev:find": "search specific parts of code using grep",

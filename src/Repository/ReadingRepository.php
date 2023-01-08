@@ -59,14 +59,17 @@ class ReadingRepository
            w.WoTranslation,
            w.WoRomanization,
            IF (wordtags IS NULL, '', CONCAT('[', wordtags, ']')) as Tags,
+           wi.WiSource as ImageSource,
 
            pw.WoID as ParentWoID,
            pw.WoTextLC as ParentWoTextLC,
            pw.WoTranslation as ParentWoTranslation,
-           IF (parenttags IS NULL, '', CONCAT('[', parenttags, ']')) as ParentTags
+           IF (parenttags IS NULL, '', CONCAT('[', parenttags, ']')) as ParentTags,
+           pwi.WiSource as ParentImageSource
 
            FROM textitems2
            LEFT JOIN words AS w ON Ti2WoID = w.WoID
+           LEFT JOIN wordimages wi on wi.WiWoID = w.WoID
            LEFT JOIN (
              SELECT
              WtWoID,
@@ -77,6 +80,7 @@ class ReadingRepository
            ) wordtaglist on wordtaglist.WtWoID = w.WoID
 
            LEFT JOIN wordparents ON wordparents.WpWoID = w.WoID
+           LEFT JOIN wordimages pwi on pwi.WiWoID = wordparents.WpParentWoID
            LEFT JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
            LEFT JOIN (
              SELECT

@@ -20,20 +20,41 @@
   </head>
 
   <script>
+
+    let update_term_form = function(filename) {
+      // Well, this took **far** too long to figure out ...
+      const fr = window.parent.frames['wordframe'];
+      var el = fr.document.getElementById('term_dto_CurrentImage');
+      el.value = filename;
+      const img = fr.document.getElementById('term_image');
+
+      // Force image reload by by adding a cache-busting string
+      // to the image URL.
+      // https://stackoverflow.com/questions/1077041/
+      //   refresh-image-with-a-new-one-at-the-same-url
+      // This fills the local browser cache on each image change,
+      // but I imagine that it won't be used that frequently.
+      cachebuster =  "?t=" + new Date().getTime();
+      img.src = filename + cachebuster;
+    }
+
     function save_image_locally(src, langid, text) {
-      console.log(`saving ${src} for ${langid}/${text}`);
-      $.post(
-        '/bing/save',
-        {
+      $.ajax({
+        url: '/bing/save',
+        data: {
           src: src,
           langid: langid,
           text: text
         },
-        function(data, status){
-          console.log("Saved: " + data + "\nStatus: " + status);
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+          // console.log("Saved: " + data + "\nStatus: " + status);
+          update_term_form(data.filename);
           $('.saved').removeClass('saved');
           $('.highlight').addClass('saved').removeClass('highlight');
-        });
+        }
+      });
     }
 
     function highlight_image(el) {
@@ -47,7 +68,7 @@
   </script>
 
   <body>
-    <p>Clicking an image will save it in public/media/images/{{ langid }}/{{ text }}.jpeg</p>
+    <p>Clicking an image will save it in public/userimages/{{ langid }}/{{ text }}.jpeg</p>
 
     {% for image in images %}
     <span style="margin: 2px; display:inline-block;"
