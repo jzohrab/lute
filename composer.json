@@ -115,17 +115,12 @@
     "db:newrepeat": "php db/create_repeatable_migration_script.php",
     "db:suggestions": "bin/console doctrine:schema:update --dump-sql",
     "dev:dumpserver": "php bin/console server:dump",
-    "testsetup": [
+    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
+    "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
+    "test:full": [
       "composer db:setup:test",
-      "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument"
-    ],
-    "test": [
-      "composer testsetup",
-      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist"
-    ],
-    "test:group": [
-      "composer testsetup",
-      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group "
+      "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument",
+      "composer test"
     ],
     "dev:find": "./utils/findstring.sh",
     "dev:finddump": "./utils/finddump.sh",
@@ -169,6 +164,7 @@
     "dev:psalm": "Run psalm and start crying",
     "test": "Run tests",
     "test:group": "Run tests with a given '@group xxxx' annotation",
+    "test:full": "Setup the test db, check orm mappings, and run all tests",
     "dev:data:load": "Abuse the testing system to load the dev db with some data.",
     "dev:data:clear": "Abuse the testing system to wipe the dev db."
   },
