@@ -24,7 +24,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
             $this->reading_repo,
             $this->text_repo,
             $this->settings_repo,
-            $dict
+            $dict,
+            $this->termtag_repo
         );
     }
 
@@ -67,8 +68,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $expected = [ '0; tengo; ' ];
         DbHelpers::assertTableContains($sql, $expected, "No matches");
 
-        $term = $this->facade->load(0, $text->getID(), 0, 'tengo');
-        $this->facade->save($term, $text);
+        $term = $this->facade->loadDTO(0, $text->getID(), 0, 'tengo');
+        $this->facade->saveDTO($term, $text->getID());
 
         $expected = [ '1; tengo; tengo' ];
         // DbHelpers::dumpTable($wordssql);
@@ -82,7 +83,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     {
         $content = "Hola tengo un gato.";
         $text = $this->create_text("Hola", $content, $this->spanish);
-
+        $tid = $text->getID();
         $sql = "select ti2woid, ti2textlc, wotextlc
           from textitems2
           left join words on wotextlc = ti2textlc
@@ -91,14 +92,14 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $expected = [ '0; tengo; ' ];
         DbHelpers::assertTableContains($sql, $expected, "No matches");
 
-        $term = $this->facade->load(0, $text->getID(), 0, 'tengo');
-        $this->facade->save($term, $text);
+        $term = $this->facade->loadDTO(0, $tid, 0, 'tengo');
+        $this->facade->saveDTO($term, $tid);
 
         $expected = [ '1; tengo; tengo' ];
         // DbHelpers::dumpTable($wordssql);
         DbHelpers::assertTableContains($sql, $expected, "words created");
 
-        $this->facade->remove($term);
+        $this->facade->removeDTO($term);
         $expected = [ '0; tengo; ' ];
         DbHelpers::assertTableContains($sql, $expected, "mapped back to nothing");
     }
@@ -310,9 +311,9 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
-        $formterm = $this->reading_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
-        $this->assertEquals($formterm->getText(), 'tiene una bebida', 'text loaded');
-        $this->assertTrue($formterm->getID() == null, 'should be a new term');
+        $formterm = $this->facade->loadDTO($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
+        $this->assertEquals($formterm->Text, 'tiene una bebida', 'text loaded');
+        $this->assertTrue($formterm->id == null, 'should be a new term');
     }
 
 
@@ -375,15 +376,14 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
 
         $mword_text = 'tiene una bebida';
-        $mword_term = $this->reading_repo->load($tiene->WoID, $tid, $tiene->Order, $mword_text);
-        $mword_term->setStatus(1);
+        $mword_term = $this->facade->loadDTO($tiene->WoID, $tid, $tiene->Order, $mword_text);
+        $mword_term->Status = 1;
 
         // The new term "tiene una bebida" should replace "tiene" on the UI.
-        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
-        $wid = $mword_term->getID();
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($mword_term, $tid);
         $this->assertEquals(count($updatedTIs), 1, 'just one update');
         $theTI = $updatedTIs[0];
-        $this->assertEquals($theTI->WoID, $wid, 'which is the new term');
+        $this->assertTrue($theTI->WoID > 0, 'which has an ID');
         $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
         $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
         $this->assertEquals($theTI_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
@@ -404,16 +404,16 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertTrue($mword_ti->WoID > 0, 'and it has a WoID');
 
         // Load and update the status for "tiene una bebida":        
-        $mword_term = $this->reading_repo->load($mword_ti->WoID, $tid, $mword_ti->Order, '');
-        $this->assertEquals($mword_term->getID(), $mword_ti->WoID, 'sanity check, id');
-        $mword_term->setStatus(1);
+        $mword_term = $this->facade->loadDTO($mword_ti->WoID, $tid, $mword_ti->Order, '');
+        $this->assertEquals($mword_term->id, $mword_ti->WoID, 'sanity check, id');
+        $mword_term->Status = 1;
 
         // The updated term "tiene una bebida" should replace itself on the UI,
         // and hides other things.
-        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($mword_term, $tid);
         $this->assertEquals(count($updatedTIs), 1, 'just one update');
         $theTI = $updatedTIs[0];
-        $this->assertEquals($theTI->WoID, $mword_term->getID(), 'which is the new term');
+        $this->assertEquals($theTI->WoID, $mword_term->id, 'which is the new term');
         $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
         $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
         $this->assertEquals($theTI_replaces, $theTI->getSpanID(), 'it replaces itself!');
@@ -449,29 +449,26 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tener->TextLC, 'tener', 'sanity check, got tener');
         $this->assertEquals($tener->WoID, 0, 'sanity check, new word');
 
-        $term = $this->reading_repo->load(0, $tid, $tiene->Order, 'tiene');
+        $term = $this->facade->loadDTO(0, $tid, $tiene->Order, 'tiene');
 
-        $dto = $term->createTermDTO();
-        $dto->ParentText = 'tener';
-        $dto->Status = 1;
-        $term = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $term->ParentText = 'tener';
+        $term->Status = 1;
 
         // The new term "tiene" also updates "tener".
-        [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
-        $wid = $term->getID();
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($term, $tid);
         $this->assertEquals(count($updatedTIs), 2, 'both updated');
 
         $updated_tiene = $updatedTIs[0];
-        $this->assertEquals($updated_tiene->WoID, $wid, 'first is tiene');
-        $this->assertEquals($updated_tiene->TextLC, 'tiene', 'it says tiene');
+        $this->assertEquals($updated_tiene->TextLC, 'tiene', 'first update is for tiene');
+        $this->assertTrue($updated_tiene->WoID > 0, 'it has an id');
         $updated_tiene_replaces = $updates[$updated_tiene->getSpanID()]['replace'];
         $this->assertEquals($updated_tiene_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
 
-        $tener_term = $this->reading_repo->load(0, $tid, $tiene->Order, 'tener');
-        $this->assertTrue($tener_term->getID() != 0, 'sanity check, tener also saved.');
+        $tener_term = $this->facade->loadDTO(0, $tid, $tiene->Order, 'tener');
+        $this->assertTrue($tener_term->id != 0, 'sanity check, tener also saved.');
 
         $updated_tener = $updatedTIs[1];
-        $this->assertEquals($updated_tener->WoID, $tener_term->getID(), 'id = tener');
+        $this->assertEquals($updated_tener->WoID, $tener_term->id, 'id = tener');
         $this->assertEquals($updated_tener->TextLC, 'tener', 'it says tener');
         $updated_tener_replaces = $updates[$updated_tener->getSpanID()]['replace'];
         $this->assertEquals($updated_tener_replaces, $tener->getSpanID(), 'it replaces "tener"');
@@ -507,17 +504,13 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->assertEquals($tengo->WoID, 0, 'sanity check, new word');
 
-        $term = $this->reading_repo->load(0, $tid, $tengo->Order, '');
-        $this->assertEquals($term->getText(), 'Tengo', 'sanity check, have Tengo');
-
-        $dto = $term->createTermDTO();
-        $dto->ParentText = 'que';
-        $term = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $term = $this->facade->loadDTO(0, $tid, $tengo->Order, '');
+        $this->assertEquals($term->Text, 'Tengo', 'sanity check, have Tengo');
+        $term->ParentText = 'que';
 
         // The new term "tengo" also updates "que", but not "qué".
-        [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($term, $tid);
         $this->assertEquals(count($updatedTIs), 2, 'only 2 updated');
-        $wid = $term->getID();
     }
 
 
