@@ -182,7 +182,7 @@ class ReadingFacade {
      * @param ord  int    Ti2Order, the order in the text
      * @param text string Multiword text (overrides tid/ord text)
      *
-     * @return Term
+     * @return TermDTO
      */
     public function loadDTO(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): TermDTO {
         $term = $this->repo->load($wid, $tid, $ord, $text);
