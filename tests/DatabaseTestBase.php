@@ -160,15 +160,6 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->text_repo->save($frt, true);
     }
 
-    public function load_all_test_data(): void
-    {
-        $this->load_languages();
-        $this->load_spanish_words();
-        $this->load_spanish_texts();
-
-        $this->load_french_data();
-    }
-
     public function make_text(string $title, string $text, Language $lang): Text {
         $t = new Text();
         $t->setTitle($title);
