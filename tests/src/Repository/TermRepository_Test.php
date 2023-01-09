@@ -125,7 +125,7 @@ final class TermRepository_Test extends DatabaseTestBase
 
         $t->setParent(null);
         $this->term_repo->save($t, true);
-        $exp = [ "HOLA; " ];
+        $exp = [ "HOLA; NULL" ];
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 

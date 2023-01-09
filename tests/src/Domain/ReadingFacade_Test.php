@@ -65,7 +65,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
           left join words on wotextlc = ti2textlc
           where ti2textlc = 'tengo'";
         // DbHelpers::dumpTable($textitemssql);
-        $expected = [ '0; tengo; ' ];
+        $expected = [ '0; tengo; NULL' ];
         DbHelpers::assertTableContains($sql, $expected, "No matches");
 
         $tengo = $this->facade->loadDTO(0, $text->getID(), 0, 'tengo');
@@ -89,7 +89,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
           left join words on wotextlc = ti2textlc
           where ti2textlc = 'tengo'";
         // DbHelpers::dumpTable($textitemssql);
-        $expected = [ '0; tengo; ' ];
+        $expected = [ '0; tengo; NULL' ];
         DbHelpers::assertTableContains($sql, $expected, "No matches");
 
         $tengo = $this->facade->loadDTO(0, $tid, 0, 'tengo');
@@ -100,7 +100,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "words created");
 
         $this->facade->removeDTO($tengo);
-        $expected = [ '0; tengo; ' ];
+        $expected = [ '0; tengo; NULL' ];
         DbHelpers::assertTableContains($sql, $expected, "mapped back to nothing");
     }
 
