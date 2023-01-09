@@ -149,8 +149,7 @@ final class Parser_Test extends DatabaseTestBase
 
     public function test_text_contains_same_term_many_times()
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+        $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -186,8 +185,7 @@ final class Parser_Test extends DatabaseTestBase
 
     public function test_text_same_sentence_contains_same_term_many_times()
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+        $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -240,13 +238,14 @@ final class Parser_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true, false);
 
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
-        DbHelpers::add_word($spid, 'de refilón', 'de refilón', 1, 2);
-        DbHelpers::add_word($spid, 'Con el tiempo', 'con el tiempo', 1, 3);
-        DbHelpers::add_word($spid, 'pabellón auditivo', 'pabellón auditivo', 1, 2);
-        DbHelpers::add_word($spid, 'nos marcamos', 'nos marcamos', 1, 2);
-        DbHelpers::add_word($spid, 'Tanto daba', 'tanto daba', 1, 2);
+        $this->addTerms($this->spanish, [
+            'Un gato',
+            'de refilón',
+            'Con el tiempo',
+            'pabellón auditivo',
+            'nos marcamos',
+            'Tanto daba'
+        ]);
 
         Parser::parse($t);
 

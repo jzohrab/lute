@@ -107,7 +107,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     public function test_mark_unknown_as_known_creates_words_and_updates_ti2s()
     {
-        DbHelpers::add_word($this->spanish->getLgID(), "lista", "lista", 3, 1);
+        $this->addTerms($this->spanish, [ 'lista' ]);
 
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
         $t = $this->create_text("Hola", $content, $this->spanish);
@@ -134,7 +134,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         // DbHelpers::dumpTable($wordssql);
         $expected = [
-            "lista; 1; 3",
+            "lista; 1; 1",
         ];
         DbHelpers::assertTableContains($wordssql, $expected, "initial words");
 
@@ -144,7 +144,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
           order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($joinedti2s);
         $expected = [
-            "16; lista; lista; 3",
+            "16; lista; lista; 1",
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "initial ti2s mapped to words");
 
@@ -159,7 +159,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
             "10; No; no; 99",
             "12; tengo; tengo; 99",
             "14; una; una; 99",
-            "16; lista; lista; 3",
+            "16; lista; lista; 1",
             "19; Ella; ella; 99",
             "21; tiene; tiene; 99",
             "23; una; una; 99",
@@ -191,8 +191,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         ];
         DbHelpers::assertTableContains($textitemssql, $expected, "initial ti2s");
 
-        // Hack db directly to add a word, no associations.
-        DbHelpers::add_word($this->spanish->getLgID(), 'perro', 'perro', 1, 1);
+        $this->addTerms($this->spanish, ['perro']);
 
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         $expected = [

@@ -139,13 +139,6 @@ you must use a dedicated test database when running tests.
      * also very inefficient!  Will fix if tests get stupid slow.
      */
 
-    // This just hacks directly into the table, it doesn't update textitems2 etc.
-    public static function add_word($WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount) {
-        $sql = "insert into words (WoLgID, WoText, WoTextLC, WoStatus, WoWordCount) values (?, ?, ?, ?, ?);";
-        $params = ["issii", $WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount];
-        return DbHelpers::exec_sql($sql, $params);
-    }
-
     public static function add_word_parent($langid, $wordtext, $parenttext) {
         $sql = "insert into wordparents (WpWoID, WpParentWoID)
           values (

@@ -113,11 +113,13 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_spanish_words(): void
     {
-        $terms = [
-            'Un gato', 'lista', 'tiene una', 'listo'
-        ];
-        foreach ($terms as $t) {
-            $this->term_repo->save(new Term($this->spanish, $t), true);
+        $terms = [ 'Un gato', 'lista', 'tiene una', 'listo' ];
+        $this->addTerms($this->spanish, $terms);
+    }
+
+    public function addTerms(Language $lang, $term_strings) {
+        foreach ($term_strings as $t) {
+            $this->term_repo->save(new Term($lang, $t), true);
         }
     }
 
@@ -142,8 +144,8 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_french_data(): void
     {
+        $this->addTerms($this->french, ['lista']);
         $frid = $this->french->getLgID();
-        DbHelpers::add_word($frid, "lista", "lista", 1, 1);
         DbHelpers::add_word_tag($frid, "lista", "nonsense");
         $frt = new Text();
         $frt->setTitle("Bonjour.");
