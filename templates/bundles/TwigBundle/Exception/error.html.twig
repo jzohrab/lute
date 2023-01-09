@@ -3,7 +3,10 @@
 {% block body %}
 <h1>An error has occurred</h1>
 
-<p class="flash-notice">If you feel this is a problem with Lute (as opposed to, say, a problem with your server configuration that you can sort out), please
+
+<p>If you have recently upgraded Lute, <a href="/cache/clear" onclick="this.style.cursor = 'wait';" >click here to clear Lute's cache</a>, and then try again.    <i>(Lute doesn't auto-clear the cache for you because it's time consuming, and may hide other errors.)</i></p>
+<br />
+<p>If you feel this is a problem with Lute (as opposed to a problem with your server configuration or usage), please
 
   <a href="https://github.com/jzohrab/lute/issues/new?template=bug_report.md" target="_blank">
     open an issue on GitHub
