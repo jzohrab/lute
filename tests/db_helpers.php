@@ -139,24 +139,10 @@ you must use a dedicated test database when running tests.
      * also very inefficient!  Will fix if tests get stupid slow.
      */
 
-    public static function add_text($text, $langid, $title = 'testing') {
-        $sql = "INSERT INTO texts (TxLgID, TxTitle, TxText) VALUES (?, ?, ?)";
-        return DbHelpers::exec_sql($sql, ["iss", $langid, $title, $text]);
-    }
-
     // This just hacks directly into the table, it doesn't update textitems2 etc.
     public static function add_word($WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount) {
         $sql = "insert into words (WoLgID, WoText, WoTextLC, WoStatus, WoWordCount) values (?, ?, ?, ?, ?);";
         $params = ["issii", $WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount];
-        return DbHelpers::exec_sql($sql, $params);
-    }
-
-    // This just hacks directly into the table.
-    public static function add_textitems2($Ti2LgID, $Ti2Text, $Ti2TextLC, $Ti2TxID= 1, $Ti2WoID = 0, $Ti2SeID = 1, $Ti2Order = 1, $Ti2WordCount = 1) {
-        $sql = "insert into textitems2
-          (Ti2WoID, Ti2LgID, Ti2TxID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text, Ti2TextLC)
-          values (?, ?, ?, ?, ?, ?, ?, ?)";
-        $params = ["iiiiiiss", $Ti2WoID, $Ti2LgID, $Ti2TxID, $Ti2SeID, $Ti2Order, $Ti2WordCount, $Ti2Text, $Ti2TextLC];
         return DbHelpers::exec_sql($sql, $params);
     }
 

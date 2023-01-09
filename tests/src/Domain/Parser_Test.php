@@ -27,9 +27,12 @@ final class Parser_Test extends DatabaseTestBase
     public function test_existing_cruft_deleted() {
         $this->load_spanish_texts(false);
         $t = $this->spanish_hola_text;
-        DbHelpers::add_textitems2(1, "CRAP", "crap", $t->getID());
 
-        $sql = "select * FROM textitems2 where ti2Text = 'CRAP'";
+        $sql = "insert into textitems2
+          (Ti2WoID, Ti2LgID, Ti2TxID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text, Ti2TextLC)
+          values (0, 1, {$t->getID()}, 1, 1, 1, 'STUFF', 'stuff')";
+        DbHelpers::exec_sql($sql);
+        $sql = "select * FROM textitems2 where ti2Text = 'STUFF'";
         DbHelpers::assertRecordcountEquals($sql, 1, 'before');
 
         Parser::parse($t);
