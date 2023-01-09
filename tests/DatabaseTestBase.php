@@ -113,14 +113,13 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_spanish_words(): void
     {
+        $terms = [
+            'Un gato', 'lista', 'tiene una', 'listo'
+        ];
+        foreach ($terms as $t) {
+            $this->term_repo->save(new Term($this->spanish, $t), true);
+        }
         $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
-        DbHelpers::add_word($spid, "lista", "lista", 1, 1);
-        DbHelpers::add_word($spid, "tiene una", "tiene una", 1, 2);
-
-        // A parent term.
-        DbHelpers::add_word($spid, "listo", "listo", 1, 1);
-        DbHelpers::add_word_parent($spid, "lista", "listo");
 
         DbHelpers::add_word_tag($spid, "Un gato", "furry");
         DbHelpers::add_word_tag($spid, "lista", "adj");
