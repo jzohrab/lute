@@ -4,12 +4,14 @@ namespace App\Domain;
 
 use App\Entity\Text;
 use App\Entity\Term;
+use App\DTO\TermDTO;
 use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TextRepository;
 use App\Repository\TextItemRepository;
 use App\Repository\SettingsRepository;
+use App\Repository\TermTagRepository;
 use App\Domain\Dictionary;
 
 class ReadingFacade {
@@ -18,18 +20,23 @@ class ReadingFacade {
     private TextRepository $textrepo;
     private SettingsRepository $settingsrepo;
     private Dictionary $dictionary;
+    private TermTagRepository $termtagrepo;
 
-    public function __construct(ReadingRepository $repo, TextRepository $textrepo, SettingsRepository $settingsrepo, Dictionary $dictionary) {
+    public function __construct(
+        ReadingRepository $repo,
+        TextRepository $textrepo,
+        SettingsRepository $settingsrepo,
+        Dictionary $dictionary,
+        TermTagRepository $termTagRepository
+    ) {
         $this->repo = $repo;
         $this->dictionary = $dictionary;
         $this->textrepo = $textrepo;
         $this->settingsrepo = $settingsrepo;
+        $this->termtagrepo = $termTagRepository;
     }
 
-    public function getDictionary() {
-        return $this->dictionary;
-    }
-
+    
     public function getTextItems(Text $text)
     {
         return $this->repo->getTextItems($text);
@@ -177,13 +184,20 @@ class ReadingFacade {
      *
      * @return Term
      */
-    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term {
-        return $this->repo->load($wid, $tid, $ord, $text);
+    public function loadDTO(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): TermDTO {
+        $term = $this->repo->load($wid, $tid, $ord, $text);
+        return $term->createTermDTO();
     }
 
 
     /** Save a term, and return an array of UI updates. */
-    public function save(Term $term, Text $text): array {
+    public function saveDTO(TermDTO $termdto, int $textid): array {
+
+        $term = TermDTO::buildTerm(
+            $termdto, $this->dictionary, $this->termtagrepo
+        );
+        $text = $this->textrepo->find($textid);
+
         // Need to know if the term is new or not, because if it's a
         // multi-word term, it will be a *new element* in the rendered
         // HTML, and so will have to replace one of the elements it
@@ -195,7 +209,10 @@ class ReadingFacade {
     }
 
     /** Remove term. */
-    public function remove(Term $term) {
+    public function removeDTO(TermDTO $dto) {
+        $term = TermDTO::buildTerm(
+            $dto, $this->dictionary, $this->termtagrepo
+        );
         $this->repo->remove($term, true);
     }
 

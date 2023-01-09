@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Domain\ReadingFacade;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
-use App\Repository\TermTagRepository;
 use App\Repository\ReadingRepository;
 use App\Domain\Parser;
 use App\DTO\TermDTO;
@@ -60,7 +59,6 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    // TODO:refactor - too many dependencies injected here, perhaps can be managed by the ReadingFacade.
     #[Route('/termform/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
         $wid,
@@ -68,31 +66,25 @@ class ReadingController extends AbstractController
         $ord,
         $text,
         Request $request,
-        ReadingRepository $readingRepository,
-        TextRepository $textRepository,
-        ReadingFacade $facade,
-        TermTagRepository $termTagRepository,
+        ReadingFacade $facade
     ): Response
     {
         // The $text is set to '-' if there *is* no text,
         // b/c otherwise the route didn't work.
         if ($text == '-')
             $text = '';
-        $term = $readingRepository->load($wid, $textid, $ord, $text);
-        $termdto = $term->createTermDTO();
+        $termdto = $facade->loadDTO($wid, $textid, $ord, $text);
         $form = $this->createForm(TermDTOType::class, $termdto);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $term = TermDTO::buildTerm($termdto, $facade->getDictionary(), $termTagRepository);
-            $textentity = $textRepository->find($textid);
-            [ $updateitems, $update_js ] = $facade->save($term, $textentity);
+            [ $updateitems, $update_js ] = $facade->saveDTO($termdto, $textid);
 
             // The updates are encoded here, and decoded in the
             // twig javascript.  Thanks to
             // https://stackoverflow.com/questions/38072085/
             //   how-to-render-json-into-a-twig-in-symfony2
             return $this->render('read/updated.html.twig', [
-                'term' => $term,
+                'termdto' => $termdto,
                 'textitems' => $updateitems,
                 'updates' => json_encode($update_js)
             ]);
