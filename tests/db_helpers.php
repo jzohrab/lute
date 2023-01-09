@@ -124,64 +124,6 @@ you must use a dedicated test database when running tests.
         }
     }
 
-    public static function load_language_spanish() {
-        $url = "http://something.com/###";
-        $sql = "INSERT INTO `languages` (`LgID`, `LgName`, `LgDict1URI`, `LgDict2URI`, `LgGoogleTranslateURI`, `LgCharacterSubstitutions`, `LgRegexpSplitSentences`, `LgExceptionsSplitSentences`, `LgRegexpWordCharacters`, `LgRemoveSpaces`, `LgSplitEachChar`, `LgRightToLeft`) VALUES (1,'Spanish','{$url}','{$url}','{$url}','´=\'|`=\'|’=\'|‘=\'|...=…|..=‥','.!?:;','Mr.|Dr.|[A-Z].|Vd.|Vds.','a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ',0,0,0)";
-        DbHelpers::exec_sql($sql);
-    }
-
-    /**
-     * Data loaders.
-     *
-     * These might belong in an /api/db/ or similar.
-     *
-     * These are very hacky, not handling weird chars etc., and are
-     * also very inefficient!  Will fix if tests get stupid slow.
-     */
-
-    public static function add_word_parent($langid, $wordtext, $parenttext) {
-        $sql = "insert into wordparents (WpWoID, WpParentWoID)
-          values (
-            (select WoID from words where WoText = ? and WoLgID = ?),
-            (select WoID from words where WoText = ? and WoLgID = ?)
-          )";
-        DbHelpers::exec_sql($sql, ["sisi", $wordtext, $langid, $parenttext, $langid]);
-    }
-
-    public static function add_word_tag($langid, $wordtext, $tagtext) {
-        // sql injection, who cares, it's my test.
-        $sql = "insert ignore into tags(TgText, TgComment)
-          values ('{$tagtext}', '{$tagtext}')";
-        DbHelpers::exec_sql($sql);
-        $sql = "insert ignore into wordtags (WtWoID, WtTgID) values
-          ((select woid from words where wotext = '{$wordtext}' and wolgid = {$langid}),
-           (select tgid from tags where tgtext='{$tagtext}'))";
-        DbHelpers::exec_sql($sql);
-    }
-
-    public static function add_tags($tags) {
-        $ids = [];
-        foreach ($tags as $t) {
-            $sql = "insert into tags (TgText, TgComment)
-            values ('{$t}', '{$t} comment')";
-            $id = DbHelpers::exec_sql($sql);
-            $ids[] = $id;
-        };
-        return $ids;
-    }
-
-    public static function add_texttags($tags) {
-        $ids = [];
-        foreach ($tags as $t) {
-            $sql = "insert into tags2 (T2Text, T2Comment)
-            values ('{$t}', '{$t} comment')";
-            $id = DbHelpers::exec_sql($sql);
-            $ids[] = $id;
-        };
-        return $ids;
-    }
-
-
     /**
      * Checks.
      */

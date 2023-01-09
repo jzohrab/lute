@@ -146,7 +146,6 @@ abstract class DatabaseTestBase extends WebTestCase
     {
         $this->addTerms($this->french, ['lista']);
         $frid = $this->french->getLgID();
-        DbHelpers::add_word_tag($frid, "lista", "nonsense");
         $frt = new Text();
         $frt->setTitle("Bonjour.");
         $frt->setText("Bonjour je suis lista.");
