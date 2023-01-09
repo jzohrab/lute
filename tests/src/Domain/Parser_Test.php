@@ -321,8 +321,7 @@ final class Parser_Test extends DatabaseTestBase
 
         Parser::parse($h);
         $sql = "select wordcount from textstatscache where TxID = {$h->getID()}";
-        $d = DbHelpers::get_first_value($sql);
-        $this->assertEquals($d, 4, "loaded, spot check only");
+        DbHelpers::assertTableContains($sql, [ '4' ], "loaded, spot check only");
     }
 
 }
