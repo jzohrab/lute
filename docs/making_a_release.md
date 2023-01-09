@@ -22,12 +22,11 @@ If `master` contained code (hotfixes) that were not in `develop` (`git log devel
 **All following steps should be done off of `master`, unless there's a special fix release going out.**
 
 
-## Part 1: catch the obvious.
+## Part 1: catch the obvious - checking `master` in the `dev` environment.
 
 This is time-consuming and should be automated!
 
-* change .env.local to use lute_demo.  Drop the lute_demo db.
-* go to home page, load the demo db
+* run `composer dev:data:load` to load the demo data.
 * go through some steps in the tutorial:
   * read tutorial text
   * create and save term
@@ -42,23 +41,22 @@ This is time-consuming and should be automated!
 * create a new text
 * create a new language
 
-## Part 2: create test release
+## Part 2: create provisional changelog, tag and test release
 
+* `composer app:changelog` : generate some raw changelog notes.  Edit this and commit it.
+* Create a _provisional local_ tag (`git tag <new_tag_name>`) following the proper tag naming (`vX.Y.Z`) but **don't push it to origin**
 * `composer app:release` : generate a `lute_release.zip` and `lute_debug.zip`, and open local testing environments (pre-configured in my virtual hosts).
+* Check the tag version in the index page and on the Server page.
 * In the demo environment, run through a few tutorial steps:
   * create terms
   * multi-words
   * browse
   * etc.  (This should really be automated, too much work.)
 
-## Part 3: create actual release
+If there were problems, delete the provisional tag (`git tag -d <new_tag_name>`), and repeat parts 1 and 2 until resolved.
 
-* `composer app:changelog` : generate some raw changelog notes.  Edit this and commit it.
-* Create a _local_ tag (git tag `<new_tag_name>`) but **don't push it to origin**
-* **RE-RUN** `composer app:release` to include the tag in the manifest.
-  * Check the tag in the testing environment's "Server info" page.
+## Part 3: release
 
-## Part 4: release
-
+* Push master to GitHub.
 * Push the tag to GitHub: `git push origin <new_tag_name>`
 * Attach the lute_release.zip and lute_debug.zip to the github release.  Maybe update the release notes in the GitHub release.

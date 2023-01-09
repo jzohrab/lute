@@ -11,26 +11,13 @@ final class TextStatsCache_Test extends DatabaseTestBase
 
     public function childSetUp(): void
     {
-        // Set up db.
         $this->load_languages();
-
-        $lid = $this->spanish->getLgID();
-        DbHelpers::add_word($lid, "Un gato", "un gato", 1, 2);
-        DbHelpers::add_word($lid, "lista", "lista", 1, 1);
-        DbHelpers::add_word($lid, "tiene una", "tiene una", 1, 2);
-
-        // A parent term.
-        DbHelpers::add_word($lid, "listo", "listo", 1, 1);
-        DbHelpers::add_word_parent($lid, "lista", "listo");
-
-        // Some tags for fun.
-        DbHelpers::add_word_tag($lid, "Un gato", "furry");
-        DbHelpers::add_word_tag($lid, "lista", "adj");
-        DbHelpers::add_word_tag($lid, "lista", "another");
-        DbHelpers::add_word_tag($lid, "listo", "padj1");
-        DbHelpers::add_word_tag($lid, "listo", "padj2");
+        $this->addTerms($this->spanish, [
+            'Un gato',
+            'lista',
+            'tiene una'
+        ]);
     }
-
 
     public function test_saving_text_loads_cache()
     {

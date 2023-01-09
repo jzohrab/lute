@@ -113,20 +113,14 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_spanish_words(): void
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
-        DbHelpers::add_word($spid, "lista", "lista", 1, 1);
-        DbHelpers::add_word($spid, "tiene una", "tiene una", 1, 2);
+        $terms = [ 'Un gato', 'lista', 'tiene una', 'listo' ];
+        $this->addTerms($this->spanish, $terms);
+    }
 
-        // A parent term.
-        DbHelpers::add_word($spid, "listo", "listo", 1, 1);
-        DbHelpers::add_word_parent($spid, "lista", "listo");
-
-        DbHelpers::add_word_tag($spid, "Un gato", "furry");
-        DbHelpers::add_word_tag($spid, "lista", "adj");
-        DbHelpers::add_word_tag($spid, "lista", "another");
-        DbHelpers::add_word_tag($spid, "listo", "padj1");
-        DbHelpers::add_word_tag($spid, "listo", "padj2");
+    public function addTerms(Language $lang, $term_strings) {
+        foreach ($term_strings as $t) {
+            $this->term_repo->save(new Term($lang, $t), true);
+        }
     }
 
     public function create_text($title, $content, $language, $parseText = true): Text {
@@ -150,23 +144,13 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_french_data(): void
     {
+        $this->addTerms($this->french, ['lista']);
         $frid = $this->french->getLgID();
-        DbHelpers::add_word($frid, "lista", "lista", 1, 1);
-        DbHelpers::add_word_tag($frid, "lista", "nonsense");
         $frt = new Text();
         $frt->setTitle("Bonjour.");
         $frt->setText("Bonjour je suis lista.");
         $frt->setLanguage($this->french);
         $this->text_repo->save($frt, true);
-    }
-
-    public function load_all_test_data(): void
-    {
-        $this->load_languages();
-        $this->load_spanish_words();
-        $this->load_spanish_texts();
-
-        $this->load_french_data();
     }
 
     public function make_text(string $title, string $text, Language $lang): Text {

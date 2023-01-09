@@ -72,9 +72,10 @@ where ti2order = 25";
     }
 
     public function test_multi_word_returns_existing_word_if_it_matches_the_text() {
-        $wid = DbHelpers::add_word(1, 'TENGO UNA', 'tengo una', 4, 2);
+        $this->addTerms($this->spanish, ['TENGO UNA']);
         $t = $this->reading_repo->load(0, 1, 12, 'TENGO una');
-        $this->assertEquals($t->getID(), $wid, 'maps to existing word');
+        $this->assertTrue($t->getID() > 0, 'maps to existing word');
+        $this->assertEquals($t->getText(), 'TENGO UNA', 'with the right text!');
     }
 
 

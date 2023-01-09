@@ -23,7 +23,7 @@ class AppManifest {
 
         $m = [
             'commit' => $git('log --pretty="%h" -n 1'),
-            'tag' => $git('tag --points-at HEAD', '(not set)'),
+            'tag' => $git('tag --points-at HEAD', ''),
             'release_date' => trim($reldate)
         ];
 

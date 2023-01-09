@@ -27,9 +27,12 @@ final class Parser_Test extends DatabaseTestBase
     public function test_existing_cruft_deleted() {
         $this->load_spanish_texts(false);
         $t = $this->spanish_hola_text;
-        DbHelpers::add_textitems2(1, "CRAP", "crap", $t->getID());
 
-        $sql = "select * FROM textitems2 where ti2Text = 'CRAP'";
+        $sql = "insert into textitems2
+          (Ti2WoID, Ti2LgID, Ti2TxID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text, Ti2TextLC)
+          values (0, 1, {$t->getID()}, 1, 1, 1, 'STUFF', 'stuff')";
+        DbHelpers::exec_sql($sql);
+        $sql = "select * FROM textitems2 where ti2Text = 'STUFF'";
         DbHelpers::assertRecordcountEquals($sql, 1, 'before');
 
         Parser::parse($t);
@@ -146,8 +149,7 @@ final class Parser_Test extends DatabaseTestBase
 
     public function test_text_contains_same_term_many_times()
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+        $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -183,8 +185,7 @@ final class Parser_Test extends DatabaseTestBase
 
     public function test_text_same_sentence_contains_same_term_many_times()
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+        $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -237,13 +238,14 @@ final class Parser_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true, false);
 
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
-        DbHelpers::add_word($spid, 'de refilón', 'de refilón', 1, 2);
-        DbHelpers::add_word($spid, 'Con el tiempo', 'con el tiempo', 1, 3);
-        DbHelpers::add_word($spid, 'pabellón auditivo', 'pabellón auditivo', 1, 2);
-        DbHelpers::add_word($spid, 'nos marcamos', 'nos marcamos', 1, 2);
-        DbHelpers::add_word($spid, 'Tanto daba', 'tanto daba', 1, 2);
+        $this->addTerms($this->spanish, [
+            'Un gato',
+            'de refilón',
+            'Con el tiempo',
+            'pabellón auditivo',
+            'nos marcamos',
+            'Tanto daba'
+        ]);
 
         Parser::parse($t);
 
@@ -321,8 +323,7 @@ final class Parser_Test extends DatabaseTestBase
 
         Parser::parse($h);
         $sql = "select wordcount from textstatscache where TxID = {$h->getID()}";
-        $d = DbHelpers::get_first_value($sql);
-        $this->assertEquals($d, 4, "loaded, spot check only");
+        DbHelpers::assertTableContains($sql, [ '4' ], "loaded, spot check only");
     }
 
 }
