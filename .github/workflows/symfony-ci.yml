@@ -24,14 +24,6 @@ jobs:
       with:
         php-version: '8.1'
 
-    - uses: shogo82148/actions-setup-mysql@v1
-      with:
-        mysql-version: '8.0'
-        root-password: 'root'
-
-    - name: check DB
-      run: mysql -u root -proot -h127.0.0.1 -e 'SELECT version()'
-
     - uses: actions/checkout@v3
 
     # "dump()" appears to cause problems in prod,
@@ -59,6 +51,14 @@ jobs:
 
     - name: Install Dependencies
       run: composer install --no-progress
+
+    - uses: shogo82148/actions-setup-mysql@v1
+      with:
+        mysql-version: '8.0'
+        root-password: 'root'
+
+    - name: check DB
+      run: mysql -u root -proot -h127.0.0.1 -e 'SELECT version()'
 
     - name: Setup testing db
       run: composer db:setup:test
