@@ -119,13 +119,6 @@ abstract class DatabaseTestBase extends WebTestCase
         foreach ($terms as $t) {
             $this->term_repo->save(new Term($this->spanish, $t), true);
         }
-        $spid = $this->spanish->getLgID();
-
-        DbHelpers::add_word_tag($spid, "Un gato", "furry");
-        DbHelpers::add_word_tag($spid, "lista", "adj");
-        DbHelpers::add_word_tag($spid, "lista", "another");
-        DbHelpers::add_word_tag($spid, "listo", "padj1");
-        DbHelpers::add_word_tag($spid, "listo", "padj2");
     }
 
     public function create_text($title, $content, $language, $parseText = true): Text {
