@@ -31,16 +31,15 @@ where ti2order in (1, 12, 25) order by ti2order";
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
 
-        $term = $this->make_term($this->spanish, 'BEBIDA');
-        $this->bebida = $term;
-        TextItemRepository::mapForTerm($term);
-
+        $term = $this->addTerms($this->spanish, 'BEBIDA')[0];
         $spot_check_sql = "select ti2woid, Ti2TxID, Ti2Order, ti2seid, ti2text from textitems2
 where ti2order = 25";
         $expected = [
             "{$term->getID()}; 1; 25; 3; bebida"
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
+
+        $this->bebida = $term;
     }
 
     public function test_load_existing_wid() {

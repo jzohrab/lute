@@ -276,7 +276,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setLanguage($this->english);
         $this->text_repo->save($t, true, false);
 
-        $term = $this->make_term($this->english, "the cat's pyjamas");
+        $term = $this->addTerms($this->english, "the cat's pyjamas");
         Parser::parse($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2

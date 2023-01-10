@@ -26,7 +26,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_find_by_text_is_found()
     {
-        $this->make_term($this->spanish, 'PARENT');
+        $this->addTerms($this->spanish, 'PARENT');
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
         foreach ($cases as $c) {
             $p = $this->dictionary->find($c, $this->spanish);
@@ -43,15 +43,15 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_find_only_looks_in_specified_language()
     {
-        $this->make_term($this->french, 'bonjour');
+        $this->addTerms($this->french, 'bonjour');
         $p = $this->dictionary->find('bonjour', $this->spanish);
         $this->assertTrue($p == null, 'french terms not checked');
     }
 
     public function test_findMatches_matching()
     {
-        $this->make_term($this->spanish, 'PARENT');
-        $this->make_term($this->french, 'PARENT');
+        $this->addTerms($this->spanish, 'PARENT');
+        $this->addTerms($this->french, 'PARENT');
 
         $cases = [ 'ARE', 'are', 'AR' ];
         foreach ($cases as $c) {
@@ -76,7 +76,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_findMatches_returns_empty_if_different_language()
     {
-        $this->make_term($this->french, 'chien');
+        $this->addTerms($this->french, 'chien');
 
         $p = $this->dictionary->findMatches('chien', $this->spanish);
         $this->assertEquals(count($p), 0, "no chien in spanish");
