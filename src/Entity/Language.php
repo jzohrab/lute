@@ -57,7 +57,7 @@ class Language
     private ?bool $LgRightToLeft = false;
 
     #[ORM\Column(name: 'LgShowRomanization')]
-    private ?bool $LgShowRomanization = false;
+    private bool $LgShowRomanization = false;
 
     #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $texts;
