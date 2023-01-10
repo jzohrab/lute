@@ -70,7 +70,7 @@ class TermDTOType extends AbstractType
                   ]
             )
             ->add('Sentence',
-                  TextType::class,
+                  $options['hide_sentences'] ? HiddenType::class : TextType::class,
                   [ 'label' => 'Sentence',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
@@ -114,6 +114,7 @@ class TermDTOType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => TermDTO::class,
+            'hide_sentences' => false,
         ]);
     }
 }

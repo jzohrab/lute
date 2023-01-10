@@ -74,7 +74,7 @@ class ReadingController extends AbstractController
         if ($text == '-')
             $text = '';
         $termdto = $facade->loadDTO($wid, $textid, $ord, $text);
-        $form = $this->createForm(TermDTOType::class, $termdto);
+        $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             [ $updateitems, $update_js ] = $facade->saveDTO($termdto, $textid);
