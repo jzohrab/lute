@@ -17,7 +17,7 @@ function prepareTextInteractions(textid) {
 
   $('#thetext').tooltip({
     position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit flip' },
-    items: '.word:not(.status0)',
+    items: '.word.showtooltip',
     show: { easing: 'easeOutCirc' },
     content: function () { return tooltip_textitem_hover_content($(this)); }
   });
