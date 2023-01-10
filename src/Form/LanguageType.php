@@ -73,6 +73,13 @@ class LanguageType extends AbstractType
                     'required' => true
                   ]
             )
+            ->add('LgShowRomanization',
+                  ChoiceType::class,
+                  [ 'choices'  => [ 'No' => 0, 'Yes' => 1 ],
+                    'label' => 'Show Romanization field',
+                    'required' => true
+                  ]
+            )
 
             /*
             // Currently disabling the below as Lute doesn't support these languages.

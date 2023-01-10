@@ -56,6 +56,9 @@ class Language
     #[ORM\Column(name: 'LgRightToLeft')]
     private ?bool $LgRightToLeft = false;
 
+    #[ORM\Column(name: 'LgShowRomanization')]
+    private bool $LgShowRomanization = false;
+
     #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $texts;
 
@@ -209,6 +212,17 @@ class Language
     {
         $this->LgRightToLeft = $LgRightToLeft;
 
+        return $this;
+    }
+
+    public function getLgShowRomanization(): bool
+    {
+        return $this->LgShowRomanization;
+    }
+
+    public function setLgShowRomanization(bool $b): self
+    {
+        $this->LgShowRomanization = $b;
         return $this;
     }
 

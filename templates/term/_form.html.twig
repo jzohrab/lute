@@ -18,6 +18,8 @@
     <td>{{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}</td>
     <td>
       <img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" />
+    </td>
+    <td>
       <img src="/icn/eye.png" title="Images" onclick="do_image_lookup()" />
     </td>
   </tr>
@@ -32,12 +34,7 @@
 
   {{ form_row(form.Status) }}
   {{ form_row(form.CurrentImage) }}
-
-  <tr>
-    <td>Sentence</td>
-    <td>{{ form_widget(form.Sentence) }}</td>
-    <td><img src="/icn/external.png" title="Lookup" onclick="do_sentence_lookup()" /></td>
-  </tr>
+  {{ form_row(form.Sentence) }}
 
   {% do form.termTags.setRendered %}
   {# manually write list so it can be managed by tagit. #}
