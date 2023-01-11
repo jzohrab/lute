@@ -50,8 +50,6 @@ class TextRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
             $tid = $entity->getID();
-            $this->removeSentences($tid);
-            $this->removeTi2s($tid);
             TextStatsCache::markStale([$entity->getID()]);
             Parser::parse($entity);
 
