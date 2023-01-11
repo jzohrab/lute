@@ -118,6 +118,7 @@
     "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
     "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
     "test:full": [
+      "composer dev:psalm",
       "composer db:setup:test",
       "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument",
       "composer test"
