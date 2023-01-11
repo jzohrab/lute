@@ -9,40 +9,59 @@
           font-style: italic;
       }
     </style>
+
+    <script>
+      function open_sentence_text(textid) {
+        window.top.location = `/read/${textid}`;
+      }
+    </script>
+
   </head>
 
   <body>
 
     <p>Sentences with this term:</p>
-    <ul>
+    <ul class="sentencelist">
       {% for dto in term %}
-      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Sentence }}</a></li>
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
       {% endfor %}
     </ul>
 
     {% if parent|length > 0 %}
     <p>Sentences containing the parent term:</p>
-    <ul>
+    <ul class="sentencelist">
       {% for dto in parent %}
-      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Sentence }}</a></li>
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
       {% endfor %}
     </ul>
     {% endif %}
 
     {% if siblings|length > 0 %}
     <p>Sentences contain sibling terms (with the same parent):</p>
-    <ul>
+    <ul class="sentencelist">
       {% for dto in siblings %}
-      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Sentence }}</a></li>
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
       {% endfor %}
     </ul>
     {% endif %}
 
     {% if archived|length > 0 %}
     <p>Archived texts containing the term (clicking will unarchive the texts):</p>
-    <ul>
+    <ul class="sentencelist">
       {% for dto in archived %}
-      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Title }}</a></li>
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
       {% endfor %}
     </ul>
     {% endif %}

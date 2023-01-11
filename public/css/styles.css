@@ -537,3 +537,7 @@ a:active {
      width: auto;
      height: auto;
  }
+
+ ul.sentencelist {
+     margin-block-start: 3px;
+ }
