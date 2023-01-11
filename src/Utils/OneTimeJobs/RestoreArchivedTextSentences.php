@@ -7,6 +7,7 @@ require __DIR__.'/../../../vendor/autoload.php';
 use App\Kernel;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Entity\Text;
+use App\Utils\Connection;
 
 /**
  * Restore sentences for archived texts.
@@ -32,11 +33,16 @@ class RestoreArchivedTextSentences {
         $repo = $kernel->getContainer()->get('doctrine.orm.entity_manager')->getRepository(Text::class);
 
         $texts = array_filter($repo->findAll(), fn($t) => $t->isArchived());
+        $conn = Connection::getFromEnvironment();
         $c = count($texts);
-        $echo("Restoring sentences for {$c} archived text(s).\n");
+        $echo("Restoring sentences for {$c} archived text(s), as needed.\n");
         foreach ($texts as $t) {
-            $echo("  {$t->getTitle()}\n");
-            $repo->save($t, true);
+            $sql = "select count(*) as c from sentences where SeTxID = {$t->getID()}";
+            $c = $conn->query($sql)->fetch_array();
+            if ($c['c'] == '0') {
+                $echo("  {$t->getTitle()}\n");
+                $repo->save($t, true);
+            }
         }
         $echo("Done.\n");
     }
