@@ -53,6 +53,10 @@ class TextRepository extends ServiceEntityRepository
             TextStatsCache::markStale([$entity->getID()]);
             Parser::parse($entity);
 
+            // TODO:optimization_stop_wasteful_parsing - no need to
+            // map words, expressions etc if a text is about to be
+            // archived, just need to load sentences.  This is a very
+            // small savings, though.
             if ($entity->isArchived())
                 $this->removeTi2s($tid);
         }
