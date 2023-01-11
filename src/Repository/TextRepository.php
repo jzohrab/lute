@@ -26,17 +26,21 @@ class TextRepository extends ServiceEntityRepository
         parent::__construct($registry, Text::class);
     }
 
-    private function removeSentencesAndWords(int $textid): void
+    private function exec_sql(string $sql): void
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sqls = [
-            "delete from sentences where SeTxID = $textid",
-            "delete from textitems2 where Ti2TxID = $textid"
-        ];
-        foreach ($sqls as $sql) {
-            $stmt = $conn->prepare($sql);
-            $stmt->executeQuery();
-        }
+        $stmt = $conn->prepare($sql);
+        $stmt->executeQuery();
+    }
+
+    private function removeTi2s(int $textid): void
+    {
+        $this->exec_sql("delete from textitems2 where Ti2TxID = $textid");
+    }
+
+    private function removeSentences(int $textid): void
+    {
+        $this->exec_sql("delete from sentences where SeTxID = $textid");
     }
 
     public function save(Text $entity, bool $flush = false, bool $parseTexts = true): void
@@ -45,12 +49,14 @@ class TextRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            $this->removeSentencesAndWords($entity->getID());
+            $tid = $entity->getID();
+            $this->removeSentences($tid);
+            $this->removeTi2s($tid);
+            TextStatsCache::markStale([$entity->getID()]);
+            Parser::parse($entity);
 
-            if (! $entity->isArchived() && $parseTexts ) {
-                TextStatsCache::markStale([$entity->getID()]);
-                Parser::parse($entity);
-            }
+            if ($entity->isArchived())
+                $this->removeTi2s($tid);
         }
     }
 
@@ -61,7 +67,8 @@ class TextRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            $this->removeSentencesAndWords($textid);
+            $this->removeSentences($textid);
+            $this->removeTi2s($textid);
         }
     }
 
