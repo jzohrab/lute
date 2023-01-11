@@ -48,7 +48,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hola");
         $t->setText("Hola");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, true);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2text, concat('*', ti2textlc, '*') from textitems2 where ti2txid = {$t->getID()}";
         $expected = [ "Hola; *hola*" ];
@@ -65,7 +65,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, true);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text, ti2textlc from textitems2 where ti2woid = 0 order by ti2order";
 
@@ -109,7 +109,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, true);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
@@ -158,7 +158,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Gato.");
         $t->setText("Un gato es bueno. No hay un gato.  Veo a un gato.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, true);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -192,7 +192,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Gato.");
         $t->setText("Un gato es bueno, no hay un gato, veo a un gato.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -235,7 +235,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Problemas.");
         $t->setText(implode(' ', $sentences));
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, true);
+        $this->text_repo->save($t, true);
 
         $this->addTerms($this->spanish, [
             'Un gato',
@@ -271,7 +271,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Jammies.");
         $t->setText("This is the cat's pyjamas.");
         $t->setLanguage($this->english);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
         $term = $this->addTerms($this->english, "the cat's pyjamas");
 
@@ -289,7 +289,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hacky");
         $t->setText("{Hola} `como...`\nYo.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
         Parser::parse($t);
 
@@ -301,7 +301,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hacky");
         $t->setText("{Hola}.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
         $this->spanish->setLgSplitEachChar(true);
         Parser::parse($t);
@@ -315,7 +315,7 @@ final class Parser_Test extends DatabaseTestBase
         $h->setTitle("Hola");
         $h->setText("Hola tengo un gato.");
         $h->setLanguage($this->spanish);
-        $this->text_repo->save($h, true, true);
+        $this->text_repo->save($h, true);
 
         $sql = "select wordcount from textstatscache where TxID = {$h->getID()}";
         DbHelpers::assertTableContains($sql, [ '4' ], "loaded, spot check only");

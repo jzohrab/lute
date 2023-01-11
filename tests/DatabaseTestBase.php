@@ -131,12 +131,12 @@ abstract class DatabaseTestBase extends WebTestCase
         return $ret;
     }
 
-    public function create_text($title, $content, $language, $parseText = true): Text {
+    public function create_text($title, $content, $language): Text {
         $t = new Text();
         $t->setTitle($title);
         $t->setText($content);
         $t->setLanguage($language);
-        $this->text_repo->save($t, true, $parseText);
+        $this->text_repo->save($t, true);
         return $t;
     }
 

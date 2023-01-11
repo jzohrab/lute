@@ -43,7 +43,7 @@ class TextRepository extends ServiceEntityRepository
         $this->exec_sql("delete from sentences where SeTxID = $textid");
     }
 
-    public function save(Text $entity, bool $flush = false, bool $parseTexts = true): void
+    public function save(Text $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
