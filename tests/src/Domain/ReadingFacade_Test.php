@@ -204,8 +204,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
           inner join words on woid = ti2woid
           order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($joinedti2s);
-        $expected = [];
-        DbHelpers::assertTableContains($joinedti2s, $expected, "no mappings");
+        $expected = [
+            "7; perro; perro; 1"
+        ];
+        DbHelpers::assertTableContains($joinedti2s, $expected, "just perro mapped");
         
         $this->facade->mark_unknowns_as_known($t);
 

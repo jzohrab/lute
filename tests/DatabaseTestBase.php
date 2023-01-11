@@ -118,9 +118,17 @@ abstract class DatabaseTestBase extends WebTestCase
     }
 
     public function addTerms(Language $lang, $term_strings) {
-        foreach ($term_strings as $t) {
-            $this->term_repo->save(new Term($lang, $t), true);
+        $dict = new Dictionary($this->term_repo);
+        $arr = $term_strings;
+        if (is_string($term_strings))
+            $arr = [ $term_strings ];
+        $ret = [];
+        foreach ($arr as $t) {
+            $term = new Term($lang, $t);
+            $dict->add($term, true);
+            $ret[] = $term;
         }
+        return $ret;
     }
 
     public function create_text($title, $content, $language, $parseText = true): Text {
@@ -160,15 +168,6 @@ abstract class DatabaseTestBase extends WebTestCase
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
         return $t;
-    }
-
-    public function make_term(Language $lang, string $s) {
-        $dict = new Dictionary($this->term_repo);
-        $term = new Term();
-        $term->setLanguage($lang);
-        $term->setText($s);
-        $dict->add($term, true);
-        return $term;
     }
 
 }

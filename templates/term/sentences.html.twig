@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Sentences</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <style>
+      p {
+          font-style: italic;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <p>Sentences with this term:</p>
+    <ul>
+      {% for dto in term %}
+      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Sentence }}</a></li>
+      {% endfor %}
+    </ul>
+
+    {% if parent|length > 0 %}
+    <p>Sentences containing the parent term:</p>
+    <ul>
+      {% for dto in parent %}
+      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Sentence }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if siblings|length > 0 %}
+    <p>Sentences contain sibling terms (with the same parent):</p>
+    <ul>
+      {% for dto in siblings %}
+      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Sentence }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if archived|length > 0 %}
+    <p>Archived texts containing the term (clicking will unarchive the texts):</p>
+    <ul>
+      {% for dto in archived %}
+      <li><a href="/read/{{ dto.TxID }}" target="_top" title="{{ dto.Title }}">{{ dto.Title }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+  </body>
+
+</html>
+

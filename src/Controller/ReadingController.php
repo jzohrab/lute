@@ -91,7 +91,7 @@ class ReadingController extends AbstractController
         }
 
         return $this->renderForm('read/frameform.html.twig', [
-            'term' => $termdto,
+            'termdto' => $termdto,
             'form' => $form,
             'extra' => $request->query,
             'showlanguageselector' => false,
