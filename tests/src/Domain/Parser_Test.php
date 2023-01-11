@@ -25,8 +25,11 @@ final class Parser_Test extends DatabaseTestBase
      * @group rewire
      */
     public function test_existing_cruft_deleted() {
-        $this->load_spanish_texts(false);
-        $t = $this->spanish_hola_text;
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
 
         $sql = "update textitems2 set ti2text = 'STUFF' where Ti2TxID = {$t->getID()}";
         DbHelpers::exec_sql($sql);

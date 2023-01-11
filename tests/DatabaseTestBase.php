@@ -140,16 +140,6 @@ abstract class DatabaseTestBase extends WebTestCase
         return $t;
     }
 
-    public function load_spanish_texts(bool $parseTexts = true): void
-    {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, $parseTexts);
-        $this->spanish_hola_text = $t;
-    }
-
     public function load_french_data(): void
     {
         $this->addTerms($this->french, ['lista']);
