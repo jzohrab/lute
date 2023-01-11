@@ -34,6 +34,9 @@ jobs:
     - name: Copy .env.test.local
       run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
 
+    - name: Copy .env.local
+      run: php -r "file_exists('.env.local') || copy('.env.test', '.env.local');"
+
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
