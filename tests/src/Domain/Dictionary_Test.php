@@ -392,7 +392,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertEquals("1, hola, Tengo un gato.", $tostring($refs['term'][0]), 'term');
         $this->assertEquals("1, hola, No quiero tener nada.", $tostring($refs['parent'][0]), 'p');
         $this->assertEquals("1, hola, Ella tiene un perro.", $tostring($refs['siblings'][0]), 's');
-        $this->assertEquals("2, luego, NULL", $tostring($refs['archived'][0]), 'a');
+        $this->assertEquals("2, luego, Tengo un coche.", $tostring($refs['archived'][0]), 'a');
     }
 
 }

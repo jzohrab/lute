@@ -177,7 +177,7 @@ you must use a dedicated test database when running tests.
             }
             mysqli_free_result($res);
             $content = implode("\n", $content);
-            $message = "{$message} ... got data:\n\n{$content}\n";
+            $message = "{$message} ... got data:\n\n[ {$content} ]\n";
         }
         PHPUnit\Framework\Assert::assertEquals($expected, $c, $message);
     }

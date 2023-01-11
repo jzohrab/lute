@@ -122,9 +122,10 @@ class Dictionary {
     private function getArchivedReferences($term, $conn): array {
         if ($term == null)
             return [];
-        $sql = "select distinct TxID, TxTitle, null as SeText
+        $sql = "select distinct TxID, TxTitle, SeText
           from texts
-          where TxText like concat('%', ?, '%') and TxArchived = 1
+          inner join sentences on SeTxID = TxID
+          where SeText like concat('%', ?, '%') and TxArchived = 1
           order by TxID limit 10";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
