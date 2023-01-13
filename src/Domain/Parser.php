@@ -12,16 +12,15 @@ class Parser {
 
     /** PUBLIC **/
     
-    public static function parse(Text $text) {
-        $p = new Parser();
-        $p->parseText($text);
-    }
-
     private $conn;
 
     public function __construct()
     {
         $this->conn = Connection::getFromEnvironment();
+    }
+
+    public function parse(Text $text) {
+        $this->parseText($text);
     }
 
     /** PRIVATE **/

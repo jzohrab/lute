@@ -51,7 +51,7 @@ class TextRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
             $tid = $entity->getID();
             TextStatsCache::markStale([$entity->getID()]);
-            Parser::parse($entity);
+            $entity->parse();
 
             // TODO:optimization_stop_wasteful_parsing - no need to
             // map words, expressions etc if a text is about to be

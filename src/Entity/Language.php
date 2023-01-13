@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Domain\Parser;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -257,6 +258,23 @@ class Language
 
 
     /**
+     * Get this language's parser.  Currently hardcoded to existing
+     * Parser, in future will have other parsers e.g. Japanese using
+     * MeCab, with the user selecting the parser strategy when
+     * creating the language.
+     */
+    private function getParser()
+    {
+        return new Parser();
+    }
+    
+    public function parse(Text $text): void
+    {
+        $this->getParser()->parse($text);
+    }
+
+
+    /**
      * Language "factories" to create sensible defaults.
      * Returns unsaved entities.
      */
@@ -309,4 +327,5 @@ class Language
             Language::makeSpanish(),
         ];
     }
+
 }

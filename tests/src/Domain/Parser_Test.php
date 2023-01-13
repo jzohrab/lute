@@ -36,7 +36,7 @@ final class Parser_Test extends DatabaseTestBase
         $sql = "select distinct Ti2TxID FROM textitems2 where ti2Text = 'STUFF'";
         DbHelpers::assertRecordcountEquals($sql, 1, 'before');
 
-        Parser::parse($t);
+        $t->parse();
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
     }
 
@@ -291,7 +291,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
 
-        Parser::parse($t);
+        $t->parse();
 
         $this->assertEquals(1, 1, 'ok');
     }
@@ -304,7 +304,7 @@ final class Parser_Test extends DatabaseTestBase
         $this->text_repo->save($t, true);
 
         $this->spanish->setLgSplitEachChar(true);
-        Parser::parse($t);
+        $t->parse();
         $this->assertEquals(1, 1, 'ok');
     }
     */
