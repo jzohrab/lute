@@ -60,6 +60,9 @@ class Language
     #[ORM\Column(name: 'LgShowRomanization')]
     private bool $LgShowRomanization = false;
 
+    #[ORM\Column(name: 'LgParserType', length: 20)]
+    private string $LgParserType = 'romance';
+
     #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $texts;
 
@@ -256,16 +259,25 @@ class Language
         return $this->terms;
     }
 
+    public function setLgParserType(string $s): self
+    {
+        $this->ParserType = $s;
+        return $this;
+    }
 
-    /**
-     * Get this language's parser.  Currently hardcoded to existing
-     * Parser, in future will have other parsers e.g. Japanese using
-     * MeCab, with the user selecting the parser strategy when
-     * creating the language.
-     */
+    public function getLgParserType(): string
+    {
+        return $this->LgParserType;
+    }
+
     private function getParser()
     {
-        return new RomanceLanguageParser();
+        switch ($this->LgParserType) {
+        case 'romance':
+            return new RomanceLanguageParser();
+        default:
+            throw new \Exception("Unknown parser type {$this->LgParserType} for {$this->getLgName()}");
+        }
     }
     
     public function parse(Text $text): void

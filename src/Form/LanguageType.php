@@ -80,6 +80,14 @@ class LanguageType extends AbstractType
                     'required' => true
                   ]
             )
+            ->add('LgParserType',
+                  ChoiceType::class,
+                  [ 'choices'  => [
+                      'Romance Language' => 'romance' ],
+                    'label' => 'Parse as',
+                    'required' => true
+                  ]
+            )
 
             /*
             // Currently disabling the below as Lute doesn't support these languages.
