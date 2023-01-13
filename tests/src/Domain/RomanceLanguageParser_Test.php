@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../../src/Domain/Parser.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\Parser;
+use App\Domain\RomanceLanguageParser;
 use App\Entity\Text;
 use App\Entity\Term;
 
-final class Parser_Test extends DatabaseTestBase
+final class RomanceLanguageParser_Test extends DatabaseTestBase
 {
 
     public function childSetUp(): void

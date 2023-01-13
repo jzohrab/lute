@@ -8,7 +8,7 @@ use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
 use App\Utils\Connection;
 
-class Parser {
+class RomanceLanguageParser {
 
     /** PUBLIC **/
     

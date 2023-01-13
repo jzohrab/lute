@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../../src/Domain/Parser.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Utils\Connection;

@@ -6,7 +6,6 @@ use App\Repository\LanguageRepository;
 use App\Repository\TextRepository;
 use App\Domain\Dictionary;
 
-use App\Domain\Parser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

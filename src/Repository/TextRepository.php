@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
-use App\Domain\Parser;
 use App\Domain\TextStatsCache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

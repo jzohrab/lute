@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Domain\Parser;
+use App\Domain\RomanceLanguageParser;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -265,7 +265,7 @@ class Language
      */
     private function getParser()
     {
-        return new Parser();
+        return new RomanceLanguageParser();
     }
     
     public function parse(Text $text): void
