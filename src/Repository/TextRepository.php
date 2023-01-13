@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
-use App\Domain\Parser;
 use App\Domain\TextStatsCache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -51,7 +50,7 @@ class TextRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
             $tid = $entity->getID();
             TextStatsCache::markStale([$entity->getID()]);
-            Parser::parse($entity);
+            $entity->parse();
 
             // TODO:optimization_stop_wasteful_parsing - no need to
             // map words, expressions etc if a text is about to be

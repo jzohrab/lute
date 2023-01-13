@@ -147,4 +147,10 @@ class Text
         $this->textTags->removeElement($textTag);
         return $this;
     }
+
+    public function parse(): void
+    {
+        $this->getLanguage()->parse($this);
+    }
+
 }

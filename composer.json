@@ -116,6 +116,7 @@
     "db:suggestions": "bin/console doctrine:schema:update --dump-sql",
     "dev:dumpserver": "php bin/console server:dump",
     "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
+    "test:nofail": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --stop-on-error --stop-on-failure",
     "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
     "test:full": [
       "composer dev:psalm",
@@ -165,6 +166,7 @@
     "dev:nukecache": "blow things away, b/c symfony likes to cache",
     "dev:psalm": "Run psalm and start crying",
     "test": "Run tests",
+    "test:nofail": "Run tests and stop on first fail/error",
     "test:group": "Run tests with a given '@group xxxx' annotation",
     "test:full": "Setup the test db, check orm mappings, and run all tests",
     "dev:data:load": "Abuse the testing system to load the dev db with some data.",

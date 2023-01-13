@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../../src/Domain/Parser.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\Parser;
+use App\Domain\RomanceLanguageParser;
 use App\Entity\Text;
 use App\Entity\Term;
 
-final class Parser_Test extends DatabaseTestBase
+final class RomanceLanguageParser_Test extends DatabaseTestBase
 {
 
     public function childSetUp(): void
@@ -36,7 +35,7 @@ final class Parser_Test extends DatabaseTestBase
         $sql = "select distinct Ti2TxID FROM textitems2 where ti2Text = 'STUFF'";
         DbHelpers::assertRecordcountEquals($sql, 1, 'before');
 
-        Parser::parse($t);
+        $t->parse();
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
     }
 
@@ -291,7 +290,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
 
-        Parser::parse($t);
+        $t->parse();
 
         $this->assertEquals(1, 1, 'ok');
     }
@@ -304,7 +303,7 @@ final class Parser_Test extends DatabaseTestBase
         $this->text_repo->save($t, true);
 
         $this->spanish->setLgSplitEachChar(true);
-        Parser::parse($t);
+        $t->parse();
         $this->assertEquals(1, 1, 'ok');
     }
     */

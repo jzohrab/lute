@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Domain\RomanceLanguageParser;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -58,6 +59,9 @@ class Language
 
     #[ORM\Column(name: 'LgShowRomanization')]
     private bool $LgShowRomanization = false;
+
+    #[ORM\Column(name: 'LgParserType', length: 20)]
+    private string $LgParserType = 'romance';
 
     #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $texts;
@@ -255,6 +259,32 @@ class Language
         return $this->terms;
     }
 
+    public function setLgParserType(string $s): self
+    {
+        $this->ParserType = $s;
+        return $this;
+    }
+
+    public function getLgParserType(): string
+    {
+        return $this->LgParserType;
+    }
+
+    private function getParser()
+    {
+        switch ($this->LgParserType) {
+        case 'romance':
+            return new RomanceLanguageParser();
+        default:
+            throw new \Exception("Unknown parser type {$this->LgParserType} for {$this->getLgName()}");
+        }
+    }
+    
+    public function parse(Text $text): void
+    {
+        $this->getParser()->parse($text);
+    }
+
 
     /**
      * Language "factories" to create sensible defaults.
@@ -309,4 +339,5 @@ class Language
             Language::makeSpanish(),
         ];
     }
+
 }
