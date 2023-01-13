@@ -261,7 +261,7 @@ class Language
 
     public function setLgParserType(string $s): self
     {
-        $this->ParserType = $s;
+        $this->LgParserType = $s;
         return $this;
     }
 
