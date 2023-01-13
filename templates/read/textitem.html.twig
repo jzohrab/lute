@@ -22,3 +22,11 @@
       parent_img_src="{{ item.ParentImageSource }}"
 {% endif %}
 >{{ item.Text | replace({' ': '&nbsp;'})| raw }}</span>
+
+{# Pre-loading images for faster hover loads. #}
+{% if item.ImageSource is not empty %}
+<img style="display:none;" src="{{ item.ImageSource }}" />
+{% endif %}
+{% if item.ParentImageSource is not empty %}
+<img style="display:none;" src="{{ item.ParentImageSource }}" />
+{% endif %}
