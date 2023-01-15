@@ -9,9 +9,17 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
+
+        # TURNING OFF SECURITY FOR PROD.
+        # Yes, this looks bad, but Lute is designed to run locally only.
+        # There are _no security checks_.
+        prod:
+            pattern: ^/
+            security: false
+
+        # main:
+            # lazy: true
+            # provider: users_in_memory
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
