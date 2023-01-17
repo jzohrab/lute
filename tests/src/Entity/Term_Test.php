@@ -4,6 +4,7 @@ namespace tests\App\Entity;
  
 use App\Entity\Term;
 use App\Entity\Language;
+use App\Domain\JapaneseParser;
 use PHPUnit\Framework\TestCase;
  
 class Term_Test extends TestCase
@@ -75,6 +76,38 @@ class Term_Test extends TestCase
             $this->assertEquals($t->getText(), $c[2]);
             $this->assertEquals($t->getTextLC(), $c[3]);
         }
+    }
+
+    /**
+     * @group wordcount
+     */
+    public function test_getWordCount_japanese()
+    {
+        if (!JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
+        }
+
+        $cases = [ "私", "元気", "です" ];
+        $jp = Language::makeJapanese();
+
+        foreach ($cases as $c) {
+            $t = new Term($jp, $c);
+            $this->assertEquals($t->getWordCount(), 1, 'count got ' . $t->getWordCount());
+            $this->assertEquals($t->getText(), $c, 'text');
+            $this->assertEquals($t->getTextLC(), $c, 'lc');
+        }
+
+        $zws = mb_chr(0x200B);
+        $cases = [
+            [ "元気{$zws}です", 2 ],
+            [ "元気{$zws}です{$zws}です", 3 ]
+        ];
+
+        foreach ($cases as $c) {
+            $t = new Term($jp, $c[0]);
+            $this->assertEquals($t->getWordCount(), $c[1], "word count for " . $c[0]);
+        }
+
     }
 
 }

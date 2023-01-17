@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\TextItem;
+use App\Entity\Language;
 
 class Sentence
 {
@@ -14,10 +15,10 @@ class Sentence
     /**
      * @param TextItem[] $textitems
      */
-    public function __construct(int $sentence_id, array $textitems)
+    public function __construct(int $sentence_id, array $textitems, Language $lang)
     {
         $this->SeID = $sentence_id;
-        $this->_textitems = $this->calculate_hides($textitems);
+        $this->_textitems = $this->calculate_hides($textitems, $lang->isLgRemoveSpaces());
     }
 
     /**
@@ -45,10 +46,13 @@ class Sentence
      *
      * M is _not_ contained by anything else, so it is not hidden.
      */
-    private function calculate_hides($items) {
+    private function calculate_hides($items, bool $removeSpaces) {
         foreach($items as $ti) {
+            // TODO:tokencount - use token count here, not wordcount, clearer logic.
             $n = max($ti->WordCount, 1);
-            $ti->OrderEnd = $ti->Order + 2 * ($n - 1);
+            $spaceMult = $removeSpaces ? 1 : 2;
+            $tokencount = $spaceMult * ($n - 1);
+            $ti->OrderEnd = $ti->Order + $tokencount;
 
             $ti->hides = array();
             $ti->Render = true;  // Assume keep them all at first.

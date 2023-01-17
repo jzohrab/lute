@@ -10,6 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Domain\RomanceLanguageParser;
+use App\Domain\JapaneseParser;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -275,6 +276,8 @@ class Language
         switch ($this->LgParserType) {
         case 'romance':
             return new RomanceLanguageParser();
+        case 'japanese':
+            return new JapaneseParser();
         default:
             throw new \Exception("Unknown parser type {$this->LgParserType} for {$this->getLgName()}");
         }
@@ -331,13 +334,34 @@ class Language
         return $english;
     }
 
+    public static function makeJapanese() {
+        if (!JapaneseParser::MeCab_installed())
+            throw new \Exception("MeCab not installed.");
+        $japanese = new Language();
+        $japanese
+            ->setLgName('Japanese')
+            ->setLgDict1URI('https://jisho.org/search/###')
+            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#jp/en/###')
+            // Ref https://stackoverflow.com/questions/5797505/php-regex-expression-involving-japanese
+            ->setLgRegexpWordCharacters('\p{Han}\p{Katakana}\p{Hiragana}')
+            ->setLgRemoveSpaces(true)
+            ->setLgShowRomanization(true)
+            ->setLgParserType('japanese');
+        return $japanese;
+    }
+
     public static function getPredefined(): array {
-        return [
+        $ret = [
             Language::makeEnglish(),
             Language::makeFrench(),
             Language::makeGerman(),
             Language::makeSpanish(),
         ];
+
+        if (JapaneseParser::MeCab_installed())
+            $ret[] = Language::makeJapanese();
+        return $ret;
     }
 
 }

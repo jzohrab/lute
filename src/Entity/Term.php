@@ -278,6 +278,7 @@ class Term
         $f->Translation = $this->getTranslation();
         $f->Romanization = $this->getRomanization();
         $f->Sentence = $this->getSentence();
+        $f->WordCount = $this->getWordCount();
         $f->CurrentImage = $this->getCurrentImage();
 
         $p = $this->getParent();

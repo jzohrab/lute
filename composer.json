@@ -105,7 +105,7 @@
       "./utils/dump_changelog.sh"
     ],
     "dev:class": "./utils/entityInterface.sh",
-    "todo:list": "composer dev:find TODO",
+    "todo:list": "composer dev:find TODO | grep -v docs/",
     "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
     "db:setup:prod": "APP_ENV=prod php db/setup.php",
     "db:setup:test": "APP_ENV=test php db/setup.php",
@@ -115,9 +115,9 @@
     "db:newrepeat": "php db/create_repeatable_migration_script.php",
     "db:suggestions": "bin/console doctrine:schema:update --dump-sql",
     "dev:dumpserver": "php bin/console server:dump",
-    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
-    "test:nofail": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --stop-on-error --stop-on-failure",
-    "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
+    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist",
+    "test:nofail": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure",
+    "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group ",
     "test:full": [
       "composer dev:psalm",
       "composer dev:finddump",

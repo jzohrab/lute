@@ -110,13 +110,23 @@ function showEditFrame(el, extra_args = {}) {
   const wid = int_attr('data_wid');
   const tid = int_attr('tid');
   const ord = int_attr('data_order');
-  const text = encodeURIComponent(extra_args.text ?? '-');
 
+  let data = {
+    text: extra_args.textparts ?? [ '-' ]
+  };
+
+  const wordcount = extra_args.wordcount ?? '-';
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
 
-  const url = `/read/termform/${wid}/${tid}/${ord}/${text}?${extras}`;
+  // Join the words together so they can be sent in the URL
+  // string, but in such a way that the string can be "safely"
+  // disassembled on the server back into the component words.
+  const zeroWidthSpace = '\u200b';
+
+  const sendtext = data.text.join(zeroWidthSpace);
+  const url = `/read/termform/${wid}/${tid}/${ord}/${sendtext}/${wordcount}?${extras}`;
   top.frames.wordframe.location.href = url;
 }
 
@@ -198,15 +208,22 @@ function select_ended(e) {
     const ord = $(this).attr("data_order");
     return ord >= startord && ord <= endord;
   });
-  const text = selected.toArray().map((el) => $(el).text()).join('').trim();
+  const textparts = selected.toArray().map((el) => $(el).text());
 
+  const text = textparts.join('').trim();
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
     clear_newmultiterm_elements();
     return;
   }
 
-  showEditFrame(selection_start_el, { text: text });
+  const selected_words = $("span.word").filter(function() {
+    const ord = $(this).attr("data_order");
+    return ord >= startord && ord <= endord;
+  });
+  const wordcount = selected_words.length;
+
+  showEditFrame(selection_start_el, { textparts: textparts, wordcount: wordcount });
   clear_newmultiterm_elements();
 }
 
