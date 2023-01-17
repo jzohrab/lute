@@ -241,18 +241,18 @@ final class ReadingFacade_Test extends DatabaseTestBase
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($textitemssql);
         $expected = [
-            "1; 5; un gato",
+            "1; 5; un/ /gato",
             "2; 16; lista",
-            "3; 21; tiene una"
+            "3; 21; tiene/ /una"
         ];
         DbHelpers::assertTableContains($textitemssql, $expected, "initial ti2s");
 
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         // DbHelpers::dumpTable($wordssql);
         $expected = [
-            "Un gato; 2; 1",
+            "Un/ /gato; 2; 1",
             "lista; 1; 1",
-            "tiene una; 2; 1",
+            "tiene/ /una; 2; 1",
             "listo; 1; 1"
         ];
         DbHelpers::assertTableContains($wordssql, $expected, "initial words");
@@ -263,18 +263,18 @@ final class ReadingFacade_Test extends DatabaseTestBase
           order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($joinedti2s);
         $expected = [
-            "5; un gato; Un gato; 1",
+            "5; un/ /gato; Un/ /gato; 1",
             "16; lista; lista; 1",
-            "21; tiene una; tiene una; 1"
+            "21; tiene/ /una; tiene/ /una; 1"
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "initial ti2s mapped to words");
 
         $this->facade->update_status($t, ["tengo", "lista", "perro"], 5);
 
         $expected = [
-            "Un gato; 2; 1",
+            "Un/ /gato; 2; 1",
             "lista; 1; 5", // updated
-            "tiene una; 2; 1",
+            "tiene/ /una; 2; 1",
             "listo; 1; 1",
             "tengo; 1; 5", // new
             "perro; 1; 5"  // new, even if not in text, who cares?
@@ -285,10 +285,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
         // DbHelpers::dumpTable($joinedti2s);
         $expected = [
             "3; tengo; tengo; 5",
-            "5; un gato; Un gato; 1",
+            "5; un/ /gato; Un/ /gato; 1",
             "12; tengo; tengo; 5",
             "16; lista; lista; 5",
-            "21; tiene una; tiene una; 1"
+            "21; tiene/ /una; tiene/ /una; 1"
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
 
@@ -296,9 +296,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     // Prod bug: setting all to known, and then selecting to create a
     // multi-word term, didn't return that new term.
-    /**
-     * @group prodbug
-     */
     public function test_create_multiword_term_when_all_known() {
         $t = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
         $this->facade->mark_unknowns_as_known($t);

@@ -114,7 +114,8 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_spanish_words(): void
     {
-        $terms = [ 'Un gato', 'lista', 'tiene una', 'listo' ];
+        $zws = mb_chr(0x200B);
+        $terms = [ "Un{$zws} {$zws}gato", 'lista', "tiene{$zws} {$zws}una", 'listo' ];
         $this->addTerms($this->spanish, $terms);
     }
 
