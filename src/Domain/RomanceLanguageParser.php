@@ -434,8 +434,7 @@ class RomanceLanguageParser {
         $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
             SELECT {$lid}, {$id}, TiSeID, 
             min(if(TiWordCount=0, TiOrder+1, TiOrder)),
-
-            GROUP_CONCAT(TiText order by TiOrder SEPARATOR \"\") 
+            CONCAT(0xE2808B, GROUP_CONCAT(TiText order by TiOrder SEPARATOR 0xE2808B), 0xE2808B)
             FROM temptextitems 
             group by TiSeID";
         $this->exec_sql($sql);

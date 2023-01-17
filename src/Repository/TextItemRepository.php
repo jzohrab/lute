@@ -318,7 +318,8 @@ where ti2woid = 0";
     {
         $lid = $lang->getLgID();
         $termchar = $lang->getLgRegexpWordCharacters();
-        $searchre = "/[^$termchar]({$textlc})[^$termchar]/ui";
+        $zws = mb_chr(0x200B);
+        $searchre = "/{$zws}({$textlc}){$zws}/ui";
 
         // Sentences for Languages that don't have spaces are stored
         // with zero-width-spaces between each token.
@@ -337,19 +338,20 @@ where ti2woid = 0";
             $termmatches = [];
             if (count($allmatches) > 0)
                 $termmatches = $allmatches[1];
-            // dump($termmatches);
+            dump($termmatches);
             // Sample $termmatches data:
             // array(3) { [0]=> array(2) { [0]=> string(7) "Un gato", [1]=> int(2) }, ... }
 
             foreach($termmatches as $tm) {
                 $cnt = $this->get_term_count_before($string, $tm[1], $lang);
-                // dump('count of terms before this = ' . $cnt);
-                // dump('sentence first pos = ' . $firstpos);
+                dump('this term = ' . $tm[0]);
+                dump('count of terms before this = ' . $cnt);
+                dump('sentence first pos = ' . $firstpos);
                 $pos = 2 * $cnt + (int) $firstpos;
                 if ($lang->isLgRemoveSpaces()) {
                     $pos = $cnt + (int) $firstpos;
                 }
-                // dump('position to set for this = ' . $pos);
+                dump('position to set for this = ' . $pos);
                 $txt = $tm[0];
 
                 $sql = "INSERT IGNORE INTO textitems2
@@ -358,6 +360,8 @@ where ti2woid = 0";
                 $params = array(
                     "iiiiiis",
                     $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $wordcount, $txt);
+                dump($sql);
+                dump($params);
                 $this->exec_sql($sql, $params);
 
             } // end foreach termmatches
