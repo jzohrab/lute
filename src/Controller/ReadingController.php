@@ -58,21 +58,26 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    #[Route('/termform/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
+    #[Route('/termform/{wid}/{textid}/{ord}/{text}/{wordcount}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
-        $wid,
-        $textid,
-        $ord,
-        $text,
+        int $wid,
+        int $textid,
+        int $ord,
+        string $text,
+        string $wordcount,
         Request $request,
         ReadingFacade $facade
     ): Response
     {
-        // The $text is set to '-' if there *is* no text,
+        // The $text and $wordcount are set to '-' if missing,
         // b/c otherwise the route didn't work.
         if ($text == '-')
             $text = '';
-        $termdto = $facade->loadDTO($wid, $textid, $ord, $text);
+        if ($wordcount == '-')
+            $wordcount = null;
+        else
+            $wordcount = intval($wordcount);
+        $termdto = $facade->loadDTO($wid, $textid, $ord, $text, $wordcount);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

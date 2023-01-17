@@ -149,6 +149,10 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected);
     }
 
+
+    /**
+     * @group manytimes
+     */
     public function test_text_contains_same_term_many_times()
     {
         $this->addTerms($this->spanish, ["Un gato"]);

@@ -352,6 +352,53 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    /**
+     * Helper method for quicker test writing.
+     *
+     * Given a saved Text $text, create a new Term with text
+     * $new_term_text, which replaces the text item with text
+     * $replaces_textitem.  The resulting new Term should replace the
+     * text item with text $replaces_textitem, and should hide some
+     * other text items with text $should_hide.
+     */
+    private function run_scenario(Text $text, string $new_term_text, string $replaces_textitem, array $should_hide) {
+        $tid = $text->getID();
+
+        $sentences = $this->facade->getSentences($text);
+        $spanid_to_text = [];
+        foreach ($sentences as $sentence) {
+            foreach ($sentence->getTextItems() as $ti) {
+                $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+            }
+        }
+
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $replaces_textitem);
+        $this->assertEquals(1, count($tis), 'single match to ensure no ambiguity');
+        $replaced_ti = array_values($tis)[0];
+        $this->assertEquals($replaced_ti->TextLC, $replaces_textitem, 'sanity check, got the term');
+        // $this->assertEquals($replaced_ti->WoID, 0, 'sanity check, new word');
+
+        $new_dto = $this->facade->loadDTO($replaced_ti->WoID, $tid, $replaced_ti->Order, $new_term_text);
+        $new_dto->Status = 1;
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($new_dto, $tid);
+
+        $this->assertEquals(count($updatedTIs), 1, 'just one update');
+        $theTI = $updatedTIs[0];
+        $this->assertTrue($theTI->WoID > 0, 'which has an ID');
+        $this->assertEquals($theTI->TextLC, $new_term_text, 'with the right text');
+        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
+        $this->assertEquals($theTI_replaces, $replaced_ti->getSpanID(), 'it replaces the original');
+
+        $h = array_map(fn($s) => "'{$s}'", $should_hide);
+        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
+        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
+        $this->assertEquals(
+            implode(', ', $theTI_hides_text),
+            implode(', ', $h),
+            "Hides stuff after term, which it replaces");
+    }
+
+
     // Prod bug: when updating the status of an existing multi-term
     // TextItem (that hides other text items), the UI wasn't getting
     // updated, because the ID of the element to replace wasn't
@@ -359,69 +406,72 @@ final class ReadingFacade_Test extends DatabaseTestBase
     /**
      * @group prodbug
      */
-    public function test_update_multiword_textitem_status_replaces_correct_item() {
+    public function test_update_multiword_textitem_replaces_correct_item() {
         $text = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
-        $tid = $text->getID();
+        $this->run_scenario($text, 'tiene una bebida', 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, 'tiene una bebida', 'tiene una bebida', [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
+    }
 
-        $sentences = $this->facade->getSentences($text);
-        $sentence = $sentences[0];
+    public function test_update_multiword_textitem_with_numbers_replaces_correct_item() {
+        $text = $this->create_text("Hola", "121 111 123 \"Ella tiene una bebida\".", $this->spanish);
+        $this->run_scenario($text, 'tiene una bebida', 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, 'tiene una bebida', 'tiene una bebida', [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
+    }
 
-        $spanid_to_text = [];
-        foreach ($sentence->getTextItems() as $ti) {
-            $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+    // Interesting parser behavious with numbers, it stores spaces with the numbers, treats it as a delimiter.
+    public function test_update_multiword_textitem_with_numbers_in_middle() {
+        $text = $this->create_text("Hola", "Ella tiene 1234 una bebida.", $this->spanish);
+        $this->run_scenario($text, 'tiene 1234 una bebida', 'tiene', [ ' 1234 ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, 'tiene 1234 una bebida', 'tiene 1234 una bebida', [ 'tiene', ' 1234 ', 'una', ' ', 'bebida' ]);
+    }
+
+
+    // Japanese multi-word items were getting placed in the wrong location.
+    /**
+     * @group japan_reading_multiword
+     */
+    public function test_japanese_multiword_stays_in_correct_place() {
+        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
         }
 
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
-        $tiene = array_values($tis)[0];
-        $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
-        $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
+        $japanese = App\Entity\Language::makeJapanese();
+        $this->language_repo->save($japanese, true);
+        $text = $this->create_text("Hola", "2後ヲウメニ能問アラ費理セイ北多国び持困寿ながち。", $japanese);
+        $zws = mb_chr(0x200B);
+        $this->run_scenario($text, "な{$zws}がち", "な", [ 'がち' ]);
+        $this->run_scenario($text, "な{$zws}がち", "な{$zws}がち", [ "な", "がち" ]);
+    }
 
-        $tiene_una_bebida = $this->facade->loadDTO($tiene->WoID, $tid, $tiene->Order, 'tiene una bebida');
-        $tiene_una_bebida->Status = 1;
-        [ $updatedTIs, $updates ] = $this->facade->saveDTO($tiene_una_bebida, $tid);
-        $this->assertEquals(count($updatedTIs), 1, 'just one update');
-        $theTI = $updatedTIs[0];
-        $this->assertTrue($theTI->WoID > 0, 'which has an ID');
-        $this->assertEquals($theTI->TextLC, 'tiene una bebida', 'with the right text');
-        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
-        $this->assertEquals($theTI_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
 
-        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
-        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
-        $this->assertEquals(
-            implode(', ', $theTI_hides_text),
-            "' ', 'una', ' ', 'bebida'",
-            "Hides stuff after tiene, which it replaces");
+    // Japanese multi-word items were getting placed in the wrong location.
+    /**
+     * @group japan_reading_multiword_2
+     */
+    public function test_japanese_multiword_demo_story() {
+        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
+        }
 
-        // Get the textitem for "tiene una bebida":
-        $sentences = $this->facade->getSentences($text);
-        $sentence = $sentences[0];
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene una bebida');
-        $mword_ti = array_values($tis)[0];
-        $this->assertEquals($mword_ti->TextLC, 'tiene una bebida', 'sanity check, got the term');
-        $this->assertTrue($mword_ti->WoID > 0, 'and it has a WoID');
+        $japanese = App\Entity\Language::makeJapanese();
+        $this->language_repo->save($japanese, true);
+        $text = $this->create_text("Hola", "「おれの方が強い。」「いいや、ぼくの方が強い。」", $japanese);
+        $zws = mb_chr(0x200B);
+        $this->run_scenario($text, "ぼく{$zws}の{$zws}方", "ぼく", [ "の", "方" ]);
+        $this->run_scenario($text, "おれ{$zws}の{$zws}方", "おれ", [ "の", "方" ]);
+    }
 
-        // Load and update the status for "tiene una bebida":        
-        $tiene_una_bebida = $this->facade->loadDTO($mword_ti->WoID, $tid, $mword_ti->Order, '');
-        $this->assertEquals($tiene_una_bebida->id, $mword_ti->WoID, 'sanity check, id');
-        $tiene_una_bebida->Status = 1;
 
-        // The updated term "tiene una bebida" should replace itself on the UI,
-        // and hides other things.
-        [ $updatedTIs, $updates ] = $this->facade->saveDTO($tiene_una_bebida, $tid);
-        $this->assertEquals(count($updatedTIs), 1, 'just one update');
-        $theTI = $updatedTIs[0];
-        $this->assertEquals($theTI->WoID, $tiene_una_bebida->id, 'which is the new term');
-        $this->assertEquals($theTI->TextLC, 'tiene una bebida', 'with the right text');
-        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
-        $this->assertEquals($theTI_replaces, $theTI->getSpanID(), 'it replaces itself!');
+     public function test_japanese_multiword_with_numbers() {
+        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
+        }
 
-        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
-        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
-        $this->assertEquals(
-            implode(', ', $theTI_hides_text),
-            "'tiene', ' ', 'una', ' ', 'bebida'",
-            "Hides the original terms (b/c the mword term has replaced itself already)");
+        $japanese = App\Entity\Language::makeJapanese();
+        $this->language_repo->save($japanese, true);
+        $text = $this->create_text("Hola", "1234おれの方が強い。", $japanese);
+        $zws = mb_chr(0x200B);
+        $this->run_scenario($text, "おれ{$zws}の{$zws}方", "おれ", [ "の", "方" ]);
     }
 
 

@@ -51,19 +51,6 @@ class RomanceLanguageParser {
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
 
-        $rechars = $text
-                 ->getLanguage()
-                 ->getLgRegexpWordCharacters();
-        $isJapanese = 'MECAB' == strtoupper(trim($rechars));
-        if ($isJapanese) {
-            // TODO:japanese MECAB parsing.
-            throw new \Exception("MECAB parsing not supported");
-            // Ref parse_japanese_text($text, $id)
-            // and insert_expression_from_mecab()
-            // in
-            // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
-        }
-
         // TODO:future:2023/02/01 get rid of duplicate processing.
         $cleantext = $this->legacy_clean_standard_text($text);
         $newcleantext = $this->new_clean_standard_text($text);
@@ -431,9 +418,23 @@ class RomanceLanguageParser {
         $id = $text->getID();
         $lid = $text->getLanguage()->getLgID();
 
+        // In the below query, the 'if TiWordCount=0' check is
+        // required, because a sentence might have a leading space.
+        // e.g., for the sentences "Hi. Hello.", there are two
+        // sentences:
+        //
+        // "Hi."
+        // " Hello."
+        //
+        // (The parsing keeps the space with the sentence _following_
+        // the period, and not with the prior sentence.)
+        //
+        // The TiOrder+1 ensures that the sentence starts with the
+        // first real word.
         $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
             SELECT {$lid}, {$id}, TiSeID, 
             min(if(TiWordCount=0, TiOrder+1, TiOrder)),
+
             GROUP_CONCAT(TiText order by TiOrder SEPARATOR \"\") 
             FROM temptextitems 
             group by TiSeID";

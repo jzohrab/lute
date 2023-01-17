@@ -10,6 +10,7 @@ use App\Entity\Text;
 use App\Repository\TextRepository;
 use App\Entity\Term;
 use App\Domain\Dictionary;
+use App\Domain\JapaneseParser;
 
 // Class for namespacing only.
 class MigrationHelper {
@@ -159,19 +160,6 @@ class MigrationHelper {
         $g = Language::makeGerman();
 
         $langs = [ $e, $f, $s, $g ];
-        $langmap = [];
-        foreach ($langs as $lang) {
-            $lang_repo->save($lang, true);
-            $langmap[ $lang->getLgName() ] = $lang;
-        }
-
-        $term = new Term();
-        $term->setLanguage($e);
-        $term->setText("your local environment file");
-        $term->setStatus(3);
-        $term->setTranslation("This is \".env.local\", your personal file in the project root folder :-)");
-        $dictionary->add($term, true);
-
         $files = [
             'tutorial.txt',
             'tutorial_follow_up.txt',
@@ -179,6 +167,18 @@ class MigrationHelper {
             'fr_goldilocks.txt',
             'de_Stadtmusikanten.txt'
         ];
+
+        if (JapaneseParser::MeCab_installed()) {
+            $langs[] = Language::makeJapanese();
+            $files[] = 'jp_kitakaze_to_taiyou.txt';
+        }
+
+        $langmap = [];
+        foreach ($langs as $lang) {
+            $lang_repo->save($lang, true);
+            $langmap[ $lang->getLgName() ] = $lang;
+        }
+
         foreach ($files as $f) {
             $fname = $f;
             $basepath = __DIR__ . '/../../db/demo/';
@@ -198,6 +198,13 @@ class MigrationHelper {
             
             $text_repo->save($t, true);
         }
+
+        $term = new Term();
+        $term->setLanguage($e);
+        $term->setText("your local environment file");
+        $term->setStatus(3);
+        $term->setTranslation("This is \".env.local\", your personal file in the project root folder :-)");
+        $dictionary->add($term, true);
     }
 
 }

@@ -4,6 +4,7 @@ namespace tests\App\Entity;
  
 use App\Entity\Sentence;
 use App\Entity\TextItem;
+use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
  
 class Sentence_getRenderableTextItems_Test extends TestCase
@@ -12,7 +13,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
     private Sentence $sentence;
 
     // $data = [ [ order, text, wordcount ], ... ]
-    private function make_sentence($data)
+    private function make_sentence($data, $lang)
     {
         $makeTextItem = function($row) {
             $t = new TextItem();
@@ -23,14 +24,14 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         };
         $textItems = array_map($makeTextItem, $data);
 
-        $s = new Sentence(1, $textItems);
+        $s = new Sentence(1, $textItems, $lang);
         $this->sentence = $s;
         return $s;
     }
 
 
-    private function assertRenderableEquals($data, $expected) {
-        $sentence = $this->make_sentence($data);
+    private function assertRenderableEquals($data, $lang, $expected) {
+        $sentence = $this->make_sentence($data, $lang);
         $actual = '';
         foreach ($sentence->renderable() as $ti)
             $actual .= "[{$ti->Text}-{$ti->WordCount}]";
@@ -49,7 +50,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 6, '.', 0 ]
         ];
         $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
-        $this->assertRenderableEquals($data, $expected);
+        $this->assertRenderableEquals($data, Language::makeEnglish(), $expected);
     }
 
     // Just in case, since ordering is so important.
@@ -64,7 +65,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 6, '.', 0 ]
         ];
         $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
-        $this->assertRenderableEquals($data, $expected);
+        $this->assertRenderableEquals($data, Language::makeEnglish(), $expected);
     }
 
     public function test_multiword_items_cover_other_items()
@@ -79,7 +80,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 6, '.', 0 ]
         ];
         $expected = '[some-1][ -0][data here-2][.-0]';
-        $this->assertRenderableEquals($data, $expected);
+        $this->assertRenderableEquals($data, Language::makeEnglish(), $expected);
     }
 
     public function test_multiword_textitem_indicates_which_items_it_covers()
@@ -94,7 +95,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 6, '.', 0 ]
         ];
         $expected = '[some-1][ -0][data here-2][.-0]';
-        $this->assertRenderableEquals($data, $expected);
+        $this->assertRenderableEquals($data, Language::makeEnglish(), $expected);
 
         $textitems = $this->sentence->getTextItems();
         $this->assertEquals(count($textitems), 7, "all text items returned");
@@ -142,7 +143,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 3, 'M', 3 ]
         ];
         $expected = '[A-1][J-2][M-3][K-5]';
-        $this->assertRenderableEquals($data, $expected);
+        $this->assertRenderableEquals($data, Language::makeEnglish(), $expected);
     }
 
 }
