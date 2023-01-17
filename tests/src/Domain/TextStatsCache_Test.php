@@ -12,10 +12,11 @@ final class TextStatsCache_Test extends DatabaseTestBase
     public function childSetUp(): void
     {
         $this->load_languages();
+        $zws = mb_chr(0x200B);
         $this->addTerms($this->spanish, [
-            'Un gato',
-            'lista',
-            'tiene una'
+            "Un{$zws} {$zws}gato",
+            "lista",
+            "tiene{$zws} {$zws}una"
         ]);
     }
 

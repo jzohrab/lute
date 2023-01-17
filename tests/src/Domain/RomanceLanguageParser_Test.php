@@ -142,9 +142,9 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
 
         $sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2 where ti2woid > 0 order by ti2order";
         $expected = [
-            "1; 1; 5; un gato",
+            "1; 1; 5; un/ /gato",
             "2; 2; 16; lista",
-            "3; 4; 21; tiene una"
+            "3; 4; 21; tiene/ /una"
         ];
         DbHelpers::assertTableContains($sql, $expected);
     }
@@ -155,7 +155,8 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
      */
     public function test_text_contains_same_term_many_times()
     {
-        $this->addTerms($this->spanish, ["Un gato"]);
+        $zws = mb_chr(0x200B);
+        $this->addTerms($this->spanish, ["Un{$zws} {$zws}gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -166,19 +167,19 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
         $expected = [
-            "1; 1; Un gato",
+            "1; 1; Un/ /gato",
             "1; 1; Un",
             "1; 3; gato",
             "1; 5; es",
             "1; 7; bueno",
             "2; 10; No",
             "2; 12; hay",
-            "2; 14; un gato",
+            "2; 14; un/ /gato",
             "2; 14; un",
             "2; 16; gato",
             "3; 19; Veo",
             "3; 21; a",
-            "3; 23; un gato",
+            "3; 23; un/ /gato",
             "3; 23; un",
             "3; 25; gato"
         ];
@@ -189,7 +190,8 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
 
     public function test_text_same_sentence_contains_same_term_many_times()
     {
-        $this->addTerms($this->spanish, ["Un gato"]);
+        $zws = mb_chr(0x200B);
+        $this->addTerms($this->spanish, ["Un{$zws} {$zws}gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -200,19 +202,19 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
         $expected = [
-            "1; 1; Un gato",
+            "1; 1; Un/ /gato",
             "1; 1; Un",
             "1; 3; gato",
             "1; 5; es",
             "1; 7; bueno",
             "1; 9; no",
             "1; 11; hay",
-            "1; 13; un gato",
+            "1; 13; un/ /gato",
             "1; 13; un",
             "1; 15; gato",
             "1; 17; veo",
             "1; 19; a",
-            "1; 21; un gato",
+            "1; 21; un/ /gato",
             "1; 21; un",
             "1; 23; gato"
         ];
@@ -240,23 +242,25 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
 
+
+        $zws = mb_chr(0x200B);
         $this->addTerms($this->spanish, [
-            'Un gato',
-            'de refilón',
-            'Con el tiempo',
-            'pabellón auditivo',
-            'nos marcamos',
-            'Tanto daba'
+            "Un{$zws} {$zws}gato",
+            "de{$zws} {$zws}refilón",
+            "Con{$zws} {$zws}el{$zws} {$zws}tiempo",
+            "pabellón{$zws} {$zws}auditivo",
+            "nos{$zws} {$zws}marcamos",
+            "Tanto{$zws} {$zws}daba"
         ]);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
         $expected = [
-            '1; 30; nos marcamos',
-            '2; 139; pabellón auditivo',
-            '3; 162; de refilón',
-            '4; 211; con el tiempo',
-            '5; 224; Tanto daba'
+            '1; 30; nos/ /marcamos',
+            '2; 139; pabellón/ /auditivo',
+            '3; 162; de/ /refilón',
+            '4; 211; con/ /el/ /tiempo',
+            '5; 224; Tanto/ /daba'
         ];
         DbHelpers::assertTableContains($sql, $expected);
 
@@ -276,12 +280,13 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $t->setLanguage($this->english);
         $this->text_repo->save($t, true);
 
-        $term = $this->addTerms($this->english, "the cat's pyjamas");
+        $zws = mb_chr(0x200B);
+        $term = $this->addTerms($this->english, "the{$zws} {$zws}cat{$zws}'{$zws}s{$zws} {$zws}pyjamas");
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
         $expected = [
-            "1; 5; the cat's pyjamas"
+            "1; 5; the/ /cat/'/s/ /pyjamas"
         ];
         DbHelpers::assertTableContains($sql, $expected);
     }
