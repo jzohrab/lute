@@ -54,12 +54,12 @@ final class TextRepository_Test extends DatabaseTestBase
         $sqlsent = "select SeID, SeTxID, SeText from sentences";
 
         DbHelpers::assertTableContains($sql, [ "1; 7; gato" ]);
-        DbHelpers::assertTableContains($sqlsent, [ "1; 1; Hola tengo un gato." ]);
+        DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /gato/./" ]);
 
         $t->setText("Hola tengo un perro.");
         $this->text_repo->save($t, true);
 
-        DbHelpers::assertTableContains($sqlsent, [ "2; 1; Hola tengo un perro." ], "sent ID incremented");
+        DbHelpers::assertTableContains($sqlsent, [ "2; 1; /Hola/ /tengo/ /un/ /perro/./" ], "sent ID incremented");
         DbHelpers::assertTableContains($sql, [ "2; 7; perro" ], "sentence ID is incremented");
     }
 
