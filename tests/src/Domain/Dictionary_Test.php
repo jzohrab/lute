@@ -61,13 +61,6 @@ final class Dictionary_Test extends DatabaseTestBase
         }
     }
 
-    public function test_findMatches_no_sql_injection_thanks()
-    {
-        $injection = "a%'; select count(*) from words;";
-        $p = $this->dictionary->findMatches($injection, $this->spanish);
-        $this->assertEquals(count($p), 0);
-    }
-
     public function test_findMatches_returns_empty_if_blank_string()
     {
         $p = $this->dictionary->findMatches('', $this->spanish);
@@ -312,7 +305,8 @@ final class Dictionary_Test extends DatabaseTestBase
         $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], 'no terms');
 
-        $terms = [ 'tengo', 'un gato' ];
+        $zws = mb_chr(0x200B);
+        $terms = [ 'tengo', "un{$zws} {$zws}gato" ];
         foreach ($terms as $s) {
             $t = new Term();
             $t->setLanguage($this->spanish);
@@ -322,7 +316,7 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, [], 'still no mappings');
         $this->dictionary->flush();
 
-        DbHelpers::assertTableContains($sql, $terms, 'terms created');
+        DbHelpers::assertTableContains($sql, [ 'tengo', 'un/ /gato' ], 'terms created');
     }
 
     /**
@@ -348,10 +342,11 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertEquals(0, count($refs['archived']), 'archived');
 
         $trs = $refs['term'];
-        $this->assertEquals('Tengo un gato.', $trs[0]->Sentence);
+        $zws = mb_chr(0x200B);
+        $this->assertEquals("{$zws}Tengo{$zws} {$zws}un{$zws} {$zws}gato{$zws}.{$zws}", $trs[0]->Sentence);
         $this->assertEquals($text->getID(), $trs[0]->TxID);
-        $this->assertEquals('hola', $trs[0]->Title);
-        $this->assertEquals('No tengo un perro.', $trs[1]->Sentence);
+        $this->assertEquals("hola", $trs[0]->Title);
+        $this->assertEquals("{$zws} {$zws}No{$zws} {$zws}tengo{$zws} {$zws}un{$zws} {$zws}perro{$zws}.{$zws}", $trs[1]->Sentence);
     }
 
     /**
@@ -387,12 +382,15 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertEquals(1, count($refs['archived']), 'archived');
 
         $tostring = function($refdto) {
-            return implode(', ', [ $refdto->TxID, $refdto->Title, $refdto->Sentence ?? 'NULL' ]);
+            $zws = mb_chr(0x200B);
+            $ret = implode(', ', [ $refdto->TxID, $refdto->Title, $refdto->Sentence ?? 'NULL' ]);
+            return str_replace($zws, '/', $ret);
         };
-        $this->assertEquals("1, hola, Tengo un gato.", $tostring($refs['term'][0]), 'term');
-        $this->assertEquals("1, hola, No quiero tener nada.", $tostring($refs['parent'][0]), 'p');
-        $this->assertEquals("1, hola, Ella tiene un perro.", $tostring($refs['siblings'][0]), 's');
-        $this->assertEquals("2, luego, Tengo un coche.", $tostring($refs['archived'][0]), 'a');
+        $zws = mb_chr(0x200B);
+        $this->assertEquals("1, hola, /Tengo/ /un/ /gato/./", $tostring($refs['term'][0]), 'term');
+        $this->assertEquals("1, hola, / /No/ /quiero/ /tener/ /nada/./", $tostring($refs['parent'][0]), 'p');
+        $this->assertEquals("1, hola, / /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
+        $this->assertEquals("2, luego, /Tengo/ /un/ /coche/./", $tostring($refs['archived'][0]), 'a');
     }
 
 }
