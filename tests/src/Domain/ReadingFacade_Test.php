@@ -309,8 +309,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
-        $tiene_una_bebida = $this->facade->loadDTO($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
-        $this->assertEquals($tiene_una_bebida->Text, 'tiene una bebida', 'text loaded');
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $tiene_una_bebida = $this->facade->loadDTO($tiene->WoID, $t->getID(), $tiene->Order, $txt);
+        $this->assertEquals($tiene_una_bebida->Text, $txt, 'text loaded');
         $this->assertTrue($tiene_una_bebida->id == null, 'should be a new term');
     }
 
@@ -400,26 +402,29 @@ final class ReadingFacade_Test extends DatabaseTestBase
     // TextItem (that hides other text items), the UI wasn't getting
     // updated, because the ID of the element to replace wasn't
     // correct.
-    /**
-     * @group prodbug
-     */
     public function test_update_multiword_textitem_replaces_correct_item() {
         $text = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
-        $this->run_scenario($text, 'tiene una bebida', 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
-        $this->run_scenario($text, 'tiene una bebida', 'tiene una bebida', [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
     }
 
     public function test_update_multiword_textitem_with_numbers_replaces_correct_item() {
         $text = $this->create_text("Hola", "121 111 123 \"Ella tiene una bebida\".", $this->spanish);
-        $this->run_scenario($text, 'tiene una bebida', 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
-        $this->run_scenario($text, 'tiene una bebida', 'tiene una bebida', [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
     }
 
     // Interesting parser behavious with numbers, it stores spaces with the numbers, treats it as a delimiter.
     public function test_update_multiword_textitem_with_numbers_in_middle() {
         $text = $this->create_text("Hola", "Ella tiene 1234 una bebida.", $this->spanish);
-        $this->run_scenario($text, 'tiene 1234 una bebida', 'tiene', [ ' 1234 ', 'una', ' ', 'bebida' ]);
-        $this->run_scenario($text, 'tiene 1234 una bebida', 'tiene 1234 una bebida', [ 'tiene', ' 1234 ', 'una', ' ', 'bebida' ]);
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} 1234 {$zws}una{$zws} {$zws}bebida";
+        $this->run_scenario($text, $txt, 'tiene', [ ' 1234 ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, $txt, $txt, [ 'tiene', ' 1234 ', 'una', ' ', 'bebida' ]);
     }
 
 
