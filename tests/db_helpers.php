@@ -147,8 +147,11 @@ you must use a dedicated test database when running tests.
         while($row = mysqli_fetch_assoc($res)) {
             $rowvals = array_values($row);
             $null_to_NULL = function($v) {
+                $zws = mb_chr(0x200B);
                 if ($v === null)
                     return 'NULL';
+                if (is_string($v) && str_contains($v, $zws))
+                    return str_replace($zws, '/', $v);
                 return $v;
             };
             $content[] = implode('; ', array_map($null_to_NULL, $rowvals));
