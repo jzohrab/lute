@@ -411,20 +411,9 @@ class RomanceLanguageParser {
         $id = $text->getID();
         $lid = $text->getLanguage()->getLgID();
 
-        // TODO:badcomment?
-        // In the below query, the 'if TiWordCount=0' check is
-        // required, because a sentence might have a leading space.
-        // e.g., for the sentences "Hi. Hello.", there are two
-        // sentences:
-        //
-        // "Hi."
-        // " Hello."
-        //
-        // (The parsing keeps the space with the sentence _following_
-        // the period, and not with the prior sentence.)
-        //
-        // The TiOrder+1 ensures that the sentence starts with the
-        // first real word.
+        // 0xE2808B (the zero-width space) is added between each
+        // token, and at the start and end of each sentence, to
+        // standardize the string search when looking for terms.
         $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
             SELECT {$lid}, {$id}, TiSeID, 
             min(TiOrder),

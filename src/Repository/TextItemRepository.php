@@ -205,11 +205,6 @@ where ti2woid = 0";
             throw new \Exception("Only call this for multi-word terms.");
         }
 
-        $splitEachChar = $lang->isLgSplitEachChar();
-        if ($splitEachChar) {
-            $textlc = preg_replace('/([^\s])/u', "$1 ", $textlc);
-        }
-
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
         $this->add_multiword_textitems_for_sentences(
             $sentences, $lang, $textlc, $wid, $wordcount
@@ -271,9 +266,6 @@ where ti2woid = 0";
     ) {
 
         $lid = $lang->getLgID();
-        $splitEachChar = $lang->isLgSplitEachChar();
-        $termchar = $lang->getLgRegexpWordCharacters();
-
         $whereSeIDRange = '';
         if (! is_null($sentenceIDRange)) {
             [ $lower, $upper ] = $sentenceIDRange;
@@ -317,15 +309,10 @@ where ti2woid = 0";
     )
     {
         $lid = $lang->getLgID();
-        $termchar = $lang->getLgRegexpWordCharacters();
         $zws = mb_chr(0x200B);
         $searchre = "/{$zws}({$textlc}){$zws}/ui";
 
         foreach ($sentences as $record) {
-            // TODO:badcomment?
-            // These spaces are required, otherwise the regex $serchre
-            // doesn't find a string match right at the start of sentences,
-            // since it has the [^$termchar] at the start of the pattern.
             $string = $record['SeText'];
             $firstpos = $record['SeFirstPos'];
 
