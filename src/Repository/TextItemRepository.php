@@ -15,6 +15,7 @@ class TextItemRepository {
 
     /** Map all matching TextItems in a Text to all saved Terms. */
     public static function mapForText(Text $text) {
+        dump('mapfortext');
         $eu = new TextItemRepository();
         $eu->map_by_textlc($text->getLanguage(), $text);
         $eu->add_multiword_terms_for_text($text);
@@ -22,6 +23,7 @@ class TextItemRepository {
 
     /** Map all matching TextItems to a Term. */
     public static function mapForTerm(Term $term) {
+        dump('mapforterm');
         if ($term->getTextLC() != null && $term->getID() == null)
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
         $eu = new TextItemRepository();
@@ -34,9 +36,14 @@ class TextItemRepository {
 
     /** Bulk map. */
     public static function bulkMap(array $terms) {
+        dump('bulkmap');
         // First pass: map exact string matches.
         $eu = new TextItemRepository();
         $eu->map_by_textlc();
+
+        foreach ($terms as $t) {
+            dump("Term {$t->getText()} with wc = {$t->getWordCount()}, tc = {$t->getTokenCount()}");
+        }
 
         $mword_terms = array_filter($terms, fn($t) => ($t->getWordCount() > 1));
         foreach ($mword_terms as $term) {
@@ -63,6 +70,7 @@ class TextItemRepository {
 
     /** Map all TextItems in *this text* that match the TextLC of saved Terms. */
     public static function mapStringMatchesForText(Text $text) {
+        dump('string matches');
         $eu = new TextItemRepository();
         $eu->map_by_textlc($text->getLanguage(), $text);
     }
@@ -70,6 +78,7 @@ class TextItemRepository {
     /** Map all TextItems in *this and other texts* that match the
      * TextLC of saved Terms in this Text. */
     public static function mapStringMatchesForLanguage(Language $lang) {
+        dump('string matches for lang');
         $eu = new TextItemRepository();
         $eu->map_by_textlc($lang);
     }
@@ -211,6 +220,8 @@ where ti2woid = 0";
         }
 
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
+        $c = count($sentences);
+        dump("got {$c} sentences containing {$textlc}");
         $this->add_multiword_textitems_for_sentences(
             $sentences, $lang, $textlc, $wid, $wordcount
         );
@@ -282,8 +293,12 @@ where ti2woid = 0";
 
         $sql = "SELECT * FROM sentences 
             WHERE {$whereSeIDRange}
-            SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
-        $params = [ 's', mysqli_real_escape_string($this->conn, $textlc) ];
+            SeLgID = $lid AND REPLACE(SeText, 0xE2808B, '//') LIKE concat('%', ?, '%')";
+        $zws = mb_chr(0x200B);
+        $params = [ 's', str_replace($zws, '//', $textlc) ];
+        dump('getting sentences');
+        dump($sql);
+        dump($params);
 
         // $countsql = "select count(*) as c from ($sql) src";
         // $count = $this->exec_sql($countsql, $params);
@@ -332,7 +347,7 @@ where ti2woid = 0";
             $termmatches = [];
             if (count($allmatches) > 0)
                 $termmatches = $allmatches[1];
-            // dump($termmatches);
+            dump($termmatches);
             // Sample $termmatches data:
             // array(3) { [0]=> array(2) { [0]=> string(7) "Un gato", [1]=> int(2) }, ... }
 
@@ -356,17 +371,17 @@ where ti2woid = 0";
 
 
     private function get_term_count_before($string, $pos, $lang): int {
-        // dump('initial string: ' . $string);
-        // dump('getting count before, initial pos = ' . $pos);
+        dump('initial string: ' . $string);
+        dump('getting count before, initial pos = ' . $pos);
         $beforesubstr = mb_substr($string, 0, $pos - 1, 'UTF-8');
-        // dump($beforesubstr);
+        dump($beforesubstr);
 
         $zws = mb_chr(0x200B);
         $parts = explode($zws, $beforesubstr);
         $nonblank = array_filter($parts, fn($s) => mb_strlen($s) > 0);
-        // dump('all parts:');
-        // dump($parts);
-        // dump($nonblank);
+        dump('all parts:');
+        dump($parts);
+        dump($nonblank);
         return count($nonblank);
     }
 

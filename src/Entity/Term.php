@@ -99,8 +99,8 @@ class Term
 
     public function setText(string $WoText): self
     {
-        $zws = mb_chr(0x200B); // zero-width string.
         $t = trim($WoText);
+        $zws = mb_chr(0x200B); // zero-width space.
         if (str_contains($t, ' ') && !str_contains($t, $zws))
             throw new \Exception("Invalid term string $WoText");
 

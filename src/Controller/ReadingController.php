@@ -77,6 +77,19 @@ class ReadingController extends AbstractController
             $wordcount = null;
         else
             $wordcount = intval($wordcount);
+
+        // When a term is created in the form, the spaces passed by
+        // the form are "nbsp;" = non-breaking spaces, which are
+        // actually different from regular spaces, as seen by the
+        // database.  Without the below fix to the space characters, a
+        // Term with text "hello there" will not match a database
+        // sentence "she said hello there".
+        $zws = mb_chr(0x200B); // zero-width space.
+        $parts = explode($zws, $text);
+        $cleanspaces = function($s) { return preg_replace('/\s/u', ' ', $s); };
+        $cleanedparts = array_map($cleanspaces, $parts);
+        $text = implode($zws, $cleanedparts);
+
         $termdto = $facade->loadDTO($wid, $textid, $ord, $text, $wordcount);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
