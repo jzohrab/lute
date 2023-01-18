@@ -271,7 +271,6 @@ where ti2woid = 0";
     ) {
 
         $lid = $lang->getLgID();
-        $removeSpaces = $lang->isLgRemoveSpaces();
         $splitEachChar = $lang->isLgSplitEachChar();
         $termchar = $lang->getLgRegexpWordCharacters();
 
@@ -321,12 +320,6 @@ where ti2woid = 0";
         $zws = mb_chr(0x200B);
         $searchre = "/{$zws}({$textlc}){$zws}/ui";
 
-        // Sentences for Languages that don't have spaces are stored
-        // with zero-width-spaces between each token.
-        if ($lang->isLgRemoveSpaces()) {
-            $searchre = "/({$textlc})/ui";
-        }
-
         foreach ($sentences as $record) {
             // TODO:badcomment?
             // These spaces are required, otherwise the regex $serchre
@@ -345,11 +338,7 @@ where ti2woid = 0";
 
             foreach($termmatches as $tm) {
                 $cnt = $this->get_term_count_before($string, $tm[1], $lang);
-                // $pos = 2 * $cnt + (int) $firstpos;
-                // if ($lang->isLgRemoveSpaces()) {
-                    $pos = $cnt + (int) $firstpos;
-                // }
-                // dump('position to set for this = ' . $pos);
+                $pos = $cnt + (int) $firstpos;
                 $txt = $tm[0];
 
                 $sql = "INSERT IGNORE INTO textitems2
