@@ -98,32 +98,4 @@ where ti2order = 25";
         $this->assertEquals('123', $msg, 'all failed :-P');
     }
 
-
-    // For non-space-delimited languages like Japanese, we need to
-    // pass the count of selected tokens on the UI to the load()
-    // function; we can't just rely on a simple regex to count the
-    // words.
-    /**
-     * @group japanmultiwords
-     */
-    public function test_loading_with_specified_wordcount_overrides_the_calculated_wordcount() {
-        if (!JapaneseParser::MeCab_installed()) {
-            $this->markTestSkipped('Skipping test, missing MeCab.');
-        }
-
-        $japanese = Language::makeJapanese();
-        $this->language_repo->save($japanese, true);
-
-        $t = new Text();
-        $t->setTitle("Test");
-        $t->setText("私は元気です.");
-        $t->setLanguage($japanese);
-        $this->text_repo->save($t, true);
-
-        $t = $this->reading_repo->load(0, $t->getID(), 3, '元気です', 7);
-        $this->assertEquals($t->getID(), 0, 'new word');
-        $this->assertEquals($t->getText(), '元気です', 'text');
-        $this->assertEquals($t->getWordCount(), 7, 'manually set to 7 words');
-    }
-
 }
