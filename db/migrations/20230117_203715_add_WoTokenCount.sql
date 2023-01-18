@@ -1,5 +1,8 @@
 alter table words add column WoTokenCount tinyint unsigned NOT NULL DEFAULT 0 AFTER WoWordCount;
 
+-- bugfix: wordcount was 0 in some cases!
+update words set WoWordCount = 1 where WoWordCount = 0;
+
 update words set WoTokenCount = WoWordCount;
 
 -- If language keeps spaces, token count = wc * 2 - 1.
