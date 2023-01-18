@@ -133,11 +133,10 @@ class ReadingRepository
      * @param tid  int    TxID, text ID
      * @param ord  int    Ti2Order, the order in the text
      * @param text string Multiword text (overrides tid/ord text)
-     * @param wordcount ?int Override value to set for the term wordcount.
      *
      * @return Term
      */
-    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = '', ?int $wordcount = null): Term
+    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term
     {
         $ret = null;
         if ($wid > 0 && ($text == '' || $text == '-')) {
@@ -149,8 +148,6 @@ class ReadingRepository
         elseif ($text != '') {
             $language = $this->getTextLanguage($tid);
             $ret = $this->loadFromText($text, $language);
-            if ($wordcount != null)
-                $ret->setWordCount($wordcount);
         }
         elseif ($tid != 0 && $ord != 0) {
             $language = $this->getTextLanguage($tid);

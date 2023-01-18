@@ -58,25 +58,20 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    #[Route('/termform/{wid}/{textid}/{ord}/{text}/{wordcount}', name: 'app_term_load', methods: ['GET', 'POST'])]
+    #[Route('/termform/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
         int $wid,
         int $textid,
         int $ord,
         string $text,
-        string $wordcount,
         Request $request,
         ReadingFacade $facade
     ): Response
     {
-        // The $text and $wordcount are set to '-' if missing,
+        // The $text is '-' if missing,
         // b/c otherwise the route didn't work.
         if ($text == '-')
             $text = '';
-        if ($wordcount == '-')
-            $wordcount = null;
-        else
-            $wordcount = intval($wordcount);
 
         // When a term is created in the form, the spaces passed by
         // the form are "nbsp;" = non-breaking spaces, which are
@@ -90,7 +85,7 @@ class ReadingController extends AbstractController
         $cleanedparts = array_map($cleanspaces, $parts);
         $text = implode($zws, $cleanedparts);
 
-        $termdto = $facade->loadDTO($wid, $textid, $ord, $text, $wordcount);
+        $termdto = $facade->loadDTO($wid, $textid, $ord, $text);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
