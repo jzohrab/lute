@@ -15,10 +15,10 @@ class Sentence
     /**
      * @param TextItem[] $textitems
      */
-    public function __construct(int $sentence_id, array $textitems, Language $lang)
+    public function __construct(int $sentence_id, array $textitems)
     {
         $this->SeID = $sentence_id;
-        $this->_textitems = $this->calculate_hides($textitems, $lang->isLgRemoveSpaces());
+        $this->_textitems = $this->calculate_hides($textitems);
     }
 
     /**
@@ -46,7 +46,7 @@ class Sentence
      *
      * M is _not_ contained by anything else, so it is not hidden.
      */
-    private function calculate_hides($items, bool $removeSpaces) {
+    private function calculate_hides($items) {
         foreach($items as $ti) {
             $ti->OrderEnd = $ti->Order + $ti->TokenCount - 1;
             $ti->hides = array();
