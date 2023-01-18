@@ -132,7 +132,7 @@ class Term
 
     private function calcTokenCount() {
         $tc = 0;
-        $zws = mb_chr(0x200B); // zero-width string.
+        $zws = mb_chr(0x200B); // zero-width space.
         if ($this->WoText != null) {
             $parts = explode($zws, $this->WoText);
             $tc = count($parts);
