@@ -158,10 +158,6 @@ class RomanceLanguageParser {
 
         $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
 
-        if ($lang->isLgRemoveSpaces()) {
-            $text = str_replace(' ', '', $text);
-        }
-
         // Remove any leading or trailing spaces.
         $text = trim($text);
 
@@ -275,9 +271,6 @@ class RomanceLanguageParser {
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
             [ "/(\n|^)(?!1\t)/u",                   "\n0\t" ],
-
-            $lang->isLgRemoveSpaces() ?
-            [ ' ', '' ] : 'skip',
 
             'trim'
         ]);
@@ -418,6 +411,7 @@ class RomanceLanguageParser {
         $id = $text->getID();
         $lid = $text->getLanguage()->getLgID();
 
+        // TODO:badcomment?
         // In the below query, the 'if TiWordCount=0' check is
         // required, because a sentence might have a leading space.
         // e.g., for the sentences "Hi. Hello.", there are two
@@ -433,7 +427,7 @@ class RomanceLanguageParser {
         // first real word.
         $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
             SELECT {$lid}, {$id}, TiSeID, 
-            min(if(TiWordCount=0, TiOrder+1, TiOrder)),
+            min(TiOrder),
             CONCAT(0xE2808B, GROUP_CONCAT(TiText order by TiOrder SEPARATOR 0xE2808B), 0xE2808B)
             FROM temptextitems 
             group by TiSeID";

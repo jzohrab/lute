@@ -410,6 +410,9 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
     }
 
+    /**
+     * @group rf_zws
+     */
     public function test_update_multiword_textitem_with_numbers_replaces_correct_item() {
         $text = $this->create_text("Hola", "121 111 123 \"Ella tiene una bebida\".", $this->spanish);
         $zws = mb_chr(0x200B);
