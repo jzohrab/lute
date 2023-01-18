@@ -46,6 +46,7 @@ class ReadingRepository
            $textid AS TextID,
            Ti2LgID as LangID,
            Ti2WordCount AS WordCount,
+           IFNULL(w.WoTokenCount, 1) AS TokenCount,
            Ti2Text AS Text,
            Ti2TextLC AS TextLC,
            Ti2Order AS `Order`,
@@ -105,7 +106,7 @@ class ReadingRepository
             foreach ($row as $key => $val) {
                 $t->$key = $val;
             }
-            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
+            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'TokenCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
             foreach ($intkeys as $key) {
                 $t->$key = intval($t->$key);
             }

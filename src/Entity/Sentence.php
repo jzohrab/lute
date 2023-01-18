@@ -25,15 +25,15 @@ class Sentence
      * Indicate which text items hide other items.
      *
      * Each text item has a "range", given as [ start_order, end_order ].
-     * For example, for an item of WordCount = 1, the start and end are the same.
-     * For item of WordCount 0, it's the same.
-     * For WordCount n, [start, end] = [start, start + (2*n - 1)]
+     * For example, for an item of TokenCount = 1, the start and end are the same.
+     * For item of TokenCount 0, it's the same.
+     * For TokenCount n, [start, end] = [start, start + (2*n - 1)]
      *
      * If any text item's range fully contains any other text item's range,
      * that text item "hides" the other item.
      *
      * Graphically, suppose we had the following text items, where A-I are
-     * WordCount 0 or WordCount 1, and J-M are multiwords:
+     * TokenCount 0 or TokenCount 1, and J-M are multiwords:
      *
      *  A   B   C   D   E   F   G   H   I
      *    |---J---|   |---------K---------|
@@ -48,17 +48,12 @@ class Sentence
      */
     private function calculate_hides($items, bool $removeSpaces) {
         foreach($items as $ti) {
-            // TODO:tokencount - use token count here, not wordcount, clearer logic.
-            $n = max($ti->WordCount, 1);
-            $spaceMult = $removeSpaces ? 1 : 2;
-            $tokencount = $spaceMult * ($n - 1);
-            $ti->OrderEnd = $ti->Order + $tokencount;
-
+            $ti->OrderEnd = $ti->Order + $ti->TokenCount - 1;
             $ti->hides = array();
             $ti->Render = true;  // Assume keep them all at first.
         }
 
-        $isMultiword = function($i) { return $i->WordCount > 1; };
+        $isMultiword = function($i) { return $i->TokenCount > 1; };
         $multiwords = array_filter($items, $isMultiword);
 
         foreach ($multiwords as $mw) {
@@ -84,14 +79,14 @@ class Sentence
     }
 
 
-    private function sort_by_order_and_wordcount($items): array
+    private function sort_by_order_and_tokencount($items): array
     {
         $cmp = function($a, $b) {
             if ($a->Order != $b->Order) {
                 return ($a->Order > $b->Order) ? 1 : -1;
             }
-            // Fallback: descending order, by word count.
-            return ($a->WordCount > $b->WordCount) ? -1 : 1;
+            // Fallback: descending order, by token count.
+            return ($a->TokenCount > $b->TokenCount) ? -1 : 1;
         };
 
         usort($items, $cmp);
@@ -101,7 +96,7 @@ class Sentence
 
     public function renderable() {
         $items = array_filter($this->_textitems, fn($i) => $i->Render);
-        $items = $this->sort_by_order_and_wordcount($items);
+        $items = $this->sort_by_order_and_tokencount($items);
         return $items;
     }
 
