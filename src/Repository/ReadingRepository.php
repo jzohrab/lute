@@ -46,6 +46,7 @@ class ReadingRepository
            $textid AS TextID,
            Ti2LgID as LangID,
            Ti2WordCount AS WordCount,
+           IFNULL(w.WoTokenCount, 1) AS TokenCount,
            Ti2Text AS Text,
            Ti2TextLC AS TextLC,
            Ti2Order AS `Order`,
@@ -105,7 +106,7 @@ class ReadingRepository
             foreach ($row as $key => $val) {
                 $t->$key = $val;
             }
-            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
+            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'TokenCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
             foreach ($intkeys as $key) {
                 $t->$key = intval($t->$key);
             }
@@ -132,11 +133,10 @@ class ReadingRepository
      * @param tid  int    TxID, text ID
      * @param ord  int    Ti2Order, the order in the text
      * @param text string Multiword text (overrides tid/ord text)
-     * @param wordcount ?int Override value to set for the term wordcount.
      *
      * @return Term
      */
-    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = '', ?int $wordcount = null): Term
+    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term
     {
         $ret = null;
         if ($wid > 0 && ($text == '' || $text == '-')) {
@@ -147,11 +147,7 @@ class ReadingRepository
         }
         elseif ($text != '') {
             $language = $this->getTextLanguage($tid);
-            $text = $this->cleanZeroWidthSpaces($text, $language);
             $ret = $this->loadFromText($text, $language);
-
-            if ($wordcount != null)
-                $ret->setWordCount($wordcount);
         }
         elseif ($tid != 0 && $ord != 0) {
             $language = $this->getTextLanguage($tid);
@@ -181,37 +177,6 @@ class ReadingRepository
         }
         $lang = $this->lang_repo->find((int) $record['TxLgID']);
         return $lang;
-    }
-
-    /**
-     * Removing the zero-width spaces from the supplied term text if
-     * the language does in fact use spaces.
-     *
-     * Lute was originally written to handle space-delimited text.
-     * Spaces are stored as textitem2 records for parsed texts.  These
-     * spaces are included as textitems on the rendered reading page
-     * and so are included when the user selects multiple words to
-     * make a multi-word term.  E.g., ['Hello', ' ', 'there'].
-     *
-     * Japanese does _not_ store spaces in the parsed text's textitem2
-     * records, nor does it render them on the reading screen, so when
-     * the user creates a multi-word term for japanese, just these
-     * chars ar sent.  e.g., [ 'genki', 'desu' ].
-     *
-     * Joining the terms (e.g. with .join('')) and then sending them
-     * to the controller would be problematic for Japanese text,
-     * because there's not an obvious way to split that into its
-     * component characters.  So, the parts are joined with a
-     * zero-width space before sending, and sent to the server.  Here
-     * on the server side, the zero-width space is removed for any
-     * languages that already have spaces, because the zero-width
-     * space used to join the components is redundant.
-     */
-    private function cleanZeroWidthSpaces(string $text, Language $lang) {
-        if ($lang->isLgRemoveSpaces())
-            return $text;
-        $zws = mb_chr(0x200B);
-        return str_replace($zws, '', $text );
     }
 
     /**

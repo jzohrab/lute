@@ -205,11 +205,6 @@ where ti2woid = 0";
             throw new \Exception("Only call this for multi-word terms.");
         }
 
-        $splitEachChar = $lang->isLgSplitEachChar();
-        if ($splitEachChar) {
-            $textlc = preg_replace('/([^\s])/u', "$1 ", $textlc);
-        }
-
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
         $this->add_multiword_textitems_for_sentences(
             $sentences, $lang, $textlc, $wid, $wordcount
@@ -271,10 +266,6 @@ where ti2woid = 0";
     ) {
 
         $lid = $lang->getLgID();
-        $removeSpaces = $lang->isLgRemoveSpaces();
-        $splitEachChar = $lang->isLgSplitEachChar();
-        $termchar = $lang->getLgRegexpWordCharacters();
-
         $whereSeIDRange = '';
         if (! is_null($sentenceIDRange)) {
             [ $lower, $upper ] = $sentenceIDRange;
@@ -283,8 +274,9 @@ where ti2woid = 0";
 
         $sql = "SELECT * FROM sentences 
             WHERE {$whereSeIDRange}
-            SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
-        $params = [ 's', mysqli_real_escape_string($this->conn, $textlc) ];
+            SeLgID = $lid AND REPLACE(SeText, 0xE2808B, '//') LIKE concat('%', ?, '%')";
+        $zws = mb_chr(0x200B);
+        $params = [ 's', str_replace($zws, '//', $textlc) ];
 
         // $countsql = "select count(*) as c from ($sql) src";
         // $count = $this->exec_sql($countsql, $params);
@@ -317,20 +309,11 @@ where ti2woid = 0";
     )
     {
         $lid = $lang->getLgID();
-        $termchar = $lang->getLgRegexpWordCharacters();
-        $searchre = "/[^$termchar]({$textlc})[^$termchar]/ui";
-
-        // Sentences for Languages that don't have spaces are stored
-        // with zero-width-spaces between each token.
-        if ($lang->isLgRemoveSpaces()) {
-            $searchre = "/({$textlc})/ui";
-        }
+        $zws = mb_chr(0x200B);
+        $searchre = "/{$zws}({$textlc}){$zws}/ui";
 
         foreach ($sentences as $record) {
-            // These spaces are required, otherwise the regex $serchre
-            // doesn't find a string match right at the start of sentences,
-            // since it has the [^$termchar] at the start of the pattern.
-            $string = ' ' . $record['SeText'] . ' ';
+            $string = $record['SeText'];
             $firstpos = $record['SeFirstPos'];
 
             $allmatches = $this->pregMatchCapture(true, $searchre, $string);
@@ -343,13 +326,7 @@ where ti2woid = 0";
 
             foreach($termmatches as $tm) {
                 $cnt = $this->get_term_count_before($string, $tm[1], $lang);
-                // dump('count of terms before this = ' . $cnt);
-                // dump('sentence first pos = ' . $firstpos);
-                $pos = 2 * $cnt + (int) $firstpos;
-                if ($lang->isLgRemoveSpaces()) {
-                    $pos = $cnt + (int) $firstpos;
-                }
-                // dump('position to set for this = ' . $pos);
+                $pos = $cnt + (int) $firstpos;
                 $txt = $tm[0];
 
                 $sql = "INSERT IGNORE INTO textitems2
@@ -367,28 +344,17 @@ where ti2woid = 0";
 
 
     private function get_term_count_before($string, $pos, $lang): int {
-        // dump('getting count before, initial pos = ' . $pos);
         $beforesubstr = mb_substr($string, 0, $pos - 1, 'UTF-8');
+        $zws = mb_chr(0x200B);
+        $parts = explode($zws, $beforesubstr);
+        $nonblank = array_filter($parts, fn($s) => mb_strlen($s) > 0);
+        // dump('initial string: ' . $string);
+        // dump('getting count before, initial pos = ' . $pos);
         // dump($beforesubstr);
-
-        // TODO:move_to_language - a lot of the parsing/counting code
-        // belongs in the Language, because the language has the
-        // information necessary.  There's no need to get data from
-        // the Language entity to do further calculations.
-        if ($lang->isLgRemoveSpaces()) {
-            $zws = mb_chr(0x200B);
-            $parts = explode($zws, $beforesubstr);
-            $nonblank = array_filter($parts, fn($s) => mb_strlen($s) > 0);
-            return count($nonblank);
-        }
-
-        $termchar = $lang->getLgRegexpWordCharacters();
-        $termsbefore = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
-        if (count($termsbefore) != 0) {
-            // dump($termsbefore[1]);
-            return count($termsbefore[1]);
-        }
-        return 0;
+        // dump('all parts:');
+        // dump($parts);
+        // dump($nonblank);
+        return count($nonblank);
     }
 
 }

@@ -201,7 +201,8 @@ class MigrationHelper {
 
         $term = new Term();
         $term->setLanguage($e);
-        $term->setText("your local environment file");
+        $zws = mb_chr(0x200B);
+        $term->setText("your{$zws} {$zws}local{$zws} {$zws}environment{$zws} {$zws}file");
         $term->setStatus(3);
         $term->setTranslation("This is \".env.local\", your personal file in the project root folder :-)");
         $dictionary->add($term, true);

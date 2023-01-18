@@ -8,6 +8,7 @@ class TextItem
     public int $Order;
     public string $Text;
     public int $WordCount;
+    public int $TokenCount;
 
     public string $TextLC;
     public int $SeID;

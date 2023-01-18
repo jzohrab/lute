@@ -43,6 +43,9 @@ class Term
     #[ORM\Column(name: 'WoWordCount', type: Types::SMALLINT)]
     private ?int $WoWordCount = null;
 
+    #[ORM\Column(name: 'WoTokenCount', type: Types::SMALLINT)]
+    private ?int $WoTokenCount = null;
+
     #[ORM\JoinTable(name: 'wordtags')]
     #[ORM\JoinColumn(name: 'WtWoID', referencedColumnName: 'WoID')]
     #[ORM\InverseJoinColumn(name: 'WtTgID', referencedColumnName: 'TgID')]
@@ -96,21 +99,22 @@ class Term
 
     public function setText(string $WoText): self
     {
-        $parts = mb_split("\s+", $WoText);
-        $testlen = function($p) { return mb_strlen($p) > 0; };
-        $realparts = array_filter($parts, $testlen);
-        $cleanword = implode(' ', $realparts);
+        $t = trim($WoText);
+        $zws = mb_chr(0x200B); // zero-width space.
+        if (str_contains($t, ' ') && !str_contains($t, $zws))
+            throw new \Exception("Invalid term string $WoText");
 
-        $text_changed = $this->WoText != null && $this->WoText != $cleanword;
+        $text_changed = $this->WoText != null && $this->WoText != $t;
         if ($this->id != null && $text_changed) {
             $msg = "Cannot change text of term '{$this->WoText}' (id = {$this->id}) once saved.";
             throw new \Exception($msg);
         }
 
-        $this->WoText = $cleanword;
-        $this->WoTextLC = mb_strtolower($cleanword);
+        $this->WoText = $t;
+        $this->WoTextLC = mb_strtolower($t);
 
         $this->calcWordCount();
+        $this->calcTokenCount();
         return $this;
     }
 
@@ -124,6 +128,16 @@ class Term
                 $wc = count($matches[0]);
         }
         $this->setWordCount($wc);
+    }
+
+    private function calcTokenCount() {
+        $tc = 0;
+        $zws = mb_chr(0x200B); // zero-width space.
+        if ($this->WoText != null) {
+            $parts = explode($zws, $this->WoText);
+            $tc = count($parts);
+        }
+        $this->setTokenCount($tc);
     }
 
     public function getText(): ?string
@@ -157,7 +171,18 @@ class Term
     {
         return $this->WoWordCount;
     }
-    
+
+    public function setTokenCount(?int $n): self
+    {
+        $this->WoTokenCount = $n;
+        return $this;
+    }
+
+    public function getTokenCount(): ?int
+    {
+        return $this->WoTokenCount;
+    }
+
     public function setTranslation(?string $WoTranslation): self
     {
         $this->WoTranslation = $WoTranslation;

@@ -43,7 +43,7 @@ class ReadingFacade {
         return $this->repo->getTextItems($text);
     }
 
-    private function buildSentences($textitems, Language $lang) {
+    private function buildSentences($textitems) {
         $textitems_by_sentenceid = array();
         foreach($textitems as $t) {
             $textitems_by_sentenceid[$t->SeID][] = $t;
@@ -51,7 +51,7 @@ class ReadingFacade {
 
         $sentences = [];
         foreach ($textitems_by_sentenceid as $seid => $textitems)
-            $sentences[] = new Sentence($seid, $textitems, $lang);
+            $sentences[] = new Sentence($seid, $textitems);
 
         return $sentences;
     }
@@ -76,7 +76,7 @@ class ReadingFacade {
             $tis = $this->repo->getTextItems($text);
         }
 
-        return $this->buildSentences($tis, $text->getLanguage());
+        return $this->buildSentences($tis);
     }
 
     public function mark_unknowns_as_known(Text $text) {
@@ -150,7 +150,7 @@ class ReadingFacade {
     private function get_textitems_for_term(Text $text, Term $term): array {
         // Use a temporary sentence to determine which items hide
         // which other items.
-        $sentence = new Sentence(999, $this->getTextItems($text), $text->getLanguage());
+        $sentence = new Sentence(999, $this->getTextItems($text));
         $all_textitems = $sentence->getTextItems();
 
         $termid = $term->getID();
@@ -182,12 +182,11 @@ class ReadingFacade {
      * @param tid  int    TxID, text ID
      * @param ord  int    Ti2Order, the order in the text
      * @param text string Multiword text (overrides tid/ord text)
-     * @param wordcount ?int Override value to set for the term wordcount.
      *
      * @return TermDTO
      */
-    public function loadDTO(int $wid = 0, int $tid = 0, int $ord = 0, string $text = '', ?int $wordcount = null): TermDTO {
-        $term = $this->repo->load($wid, $tid, $ord, $text, $wordcount);
+    public function loadDTO(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): TermDTO {
+        $term = $this->repo->load($wid, $tid, $ord, $text);
         return $term->createTermDTO();
     }
 

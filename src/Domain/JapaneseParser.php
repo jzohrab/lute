@@ -272,7 +272,7 @@ class JapaneseParser {
             {$id},
             TiSeID, 
             MIN(TiOrder),
-            GROUP_CONCAT(TiText order by TiOrder SEPARATOR 0xE2808B) 
+            CONCAT(0xE2808B, GROUP_CONCAT(TiText order by TiOrder SEPARATOR 0xE2808B), 0xE2808B)
             FROM temptextitems 
             group by TiSeID";
         $this->exec_sql($sql);
