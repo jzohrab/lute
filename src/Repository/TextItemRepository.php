@@ -367,34 +367,18 @@ where ti2woid = 0";
 
 
     private function get_term_count_before($string, $pos, $lang): int {
-        dump('initial string: ' . $string);
-        dump('getting count before, initial pos = ' . $pos);
+        // dump('initial string: ' . $string);
+        // dump('getting count before, initial pos = ' . $pos);
         $beforesubstr = mb_substr($string, 0, $pos - 1, 'UTF-8');
-        dump($beforesubstr);
+        // dump($beforesubstr);
 
-        // TODO:move_to_language - a lot of the parsing/counting code
-        // belongs in the Language, because the language has the
-        // information necessary.  There's no need to get data from
-        // the Language entity to do further calculations.
-        // if ($lang->isLgRemoveSpaces()) {
-            $zws = mb_chr(0x200B);
-            $parts = explode($zws, $beforesubstr);
-            dump('all parts:');
-            dump($parts);
-            $nonblank = array_filter($parts, fn($s) => mb_strlen($s) > 0);
-            dump($nonblank);
-            return count($nonblank);
-            // }
-
-            /*
-        $termchar = $lang->getLgRegexpWordCharacters();
-        $termsbefore = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
-        if (count($termsbefore) != 0) {
-            // dump($termsbefore[1]);
-            return count($termsbefore[1]);
-        }
-        return 0;
-            */
+        $zws = mb_chr(0x200B);
+        $parts = explode($zws, $beforesubstr);
+        $nonblank = array_filter($parts, fn($s) => mb_strlen($s) > 0);
+        // dump('all parts:');
+        // dump($parts);
+        // dump($nonblank);
+        return count($nonblank);
     }
 
 }
