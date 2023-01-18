@@ -31,4 +31,15 @@ update words set wotext = replace(wotext, ' ', concat(0xE2808B, ' ', 0xE2808B))
 where wowordcount > 1 and wotext like '% %' and wotext not like concat('%', 0xE2808B, '%');
 
 -- List potential trouble makers
-select woid, wotext from words where wowordcount > 1 and (wotext like '%,%' or wotext like '%"%' or wotext like '%\'%');
+select woid, wotext from words where wowordcount > 1 and (wotext like '%,%' or wotext like '%"%' or wotext like '%\'%' or wotext like '%-%');
+
+-- fix any troublemakers manually.
+-- e.g.
+-- update words set wotext = concat('Fri', 0xE2808B, '\'', 0xE2808B, 'it') where woid = 101772;
+
+-- update the textlc
+update words set wotextlc = lower(wotext) where wowordcount > 1;
+
+-- check
+select replace(wotext, 0xE2808B, '[ZWS]') from words where wowordcount > 1;
+
