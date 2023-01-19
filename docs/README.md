@@ -1,36 +1,13 @@
-# User Docs
+# Docs
 
-_Everything is, of course, a work in progress._
+Most of the documentation has been moved to the [project wiki](https://github.com/jzohrab/lute/wiki).  The repo still contains copies of the docs, but the wiki is the authoritative source.
 
-## Installation
+## Installation and config file samples
 
-* [installation](./installation.md) _(Note: this is currently rather involved, feedback appreciated!)_
-
-## Usage
-
-* [language setup](./langsetup.md): Setting up a new language
-* [reading](./reading.md): Notes about reading (copied from the tutorial)
-* [links](./links.md): Links to various posts about LWT and the method of "learning with texts"
-* [key bindings](./keybind.md): Key bindings while reading
-* [customizing styles](./customizing_styles.md): Primitive styling/theme support
-
-## For devs
-
-* [Development](./development.md)
-* [Exporting and restoring the db](./db_export_restore.md): notes about mysqldump, restoring.
-* [Making a release](./making_a_release.md)
-
-## About Lute
-
-* [Why the fork](./why_the_fork.md): Why this project was forked off of LWT, rather than contributing to that project.
-* [symfony](./symfony.md): Rewriting LWT using Symfony, a reasonable PHP framework
-* [Development todo's](./todo.md)
-* [wordpress](./wordpress.md): _This is discontinued_.
+* [Installation readme](./installation/README.md)
 
 ## Misc notes
 
-* [Lute and alternatives](./lute_and_alternatives.md)
-* [restrictions](./restrictions.md)
-* [third party licenses](./thirdpartylicenses.md)
+* [Making a release](./making_a_release.md)
 * [adding the gif to the readme](./adding_readme_gif.md)
 * [CHANGELOG](./CHANGELOG.md)
