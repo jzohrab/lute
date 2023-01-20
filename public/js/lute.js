@@ -17,7 +17,7 @@ function prepareTextInteractions(textid) {
 
   $('#thetext').tooltip({
     position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit flip' },
-    items: '.word:not(.status0)',
+    items: '.word.showtooltip',
     show: { easing: 'easeOutCirc' },
     content: function () { return tooltip_textitem_hover_content($(this)); }
   });
@@ -53,10 +53,15 @@ let tooltip_textitem_hover_content = function (el) {
   }
 
   let tooltip_images = function() {
-    const haveimages = (el.attr('data_img_src') || el.attr('parent_img_src'));
-    if (!haveimages)
+    const images = [ 'data_img_src', 'parent_img_src' ].
+          map(s => image_if_src(el, s));
+    const unique = (value, index, self) => {
+      return self.indexOf(value) === index
+    }
+    const unique_images = images.filter(unique).join(' ');
+    if (unique_images == ' ')
       return '';
-    return `<p>${image_if_src(el, 'parent_img_src')} ${image_if_src(el, 'data_img_src')}</p>`;
+    return `<p>${unique_images}</p>`;
   }
 
   let build_entry = function(term, transl, roman) {
@@ -110,13 +115,22 @@ function showEditFrame(el, extra_args = {}) {
   const wid = int_attr('data_wid');
   const tid = int_attr('tid');
   const ord = int_attr('data_order');
-  const text = encodeURIComponent(extra_args.text ?? '-');
+
+  let data = {
+    text: extra_args.textparts ?? [ '-' ]
+  };
 
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
 
-  const url = `/read/termform/${wid}/${tid}/${ord}/${text}?${extras}`;
+  // Join the words together so they can be sent in the URL
+  // string, but in such a way that the string can be "safely"
+  // disassembled on the server back into the component words.
+  const zeroWidthSpace = '\u200b';
+
+  const sendtext = data.text.join(zeroWidthSpace);
+  const url = `/read/termform/${wid}/${tid}/${ord}/${sendtext}?${extras}`;
   top.frames.wordframe.location.href = url;
 }
 
@@ -198,15 +212,16 @@ function select_ended(e) {
     const ord = $(this).attr("data_order");
     return ord >= startord && ord <= endord;
   });
-  const text = selected.toArray().map((el) => $(el).text()).join('').trim();
+  const textparts = selected.toArray().map((el) => $(el).text());
 
+  const text = textparts.join('').trim();
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
     clear_newmultiterm_elements();
     return;
   }
 
-  showEditFrame(selection_start_el, { text: text });
+  showEditFrame(selection_start_el, { textparts: textparts });
   clear_newmultiterm_elements();
 }
 

@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/language')]
 class LanguageController extends AbstractController
 {
-    #[Route('/', name: 'app_language_index', methods: ['GET'])]
+    #[Route('/index', name: 'app_language_index', methods: ['GET'])]
     public function index(LanguageRepository $languageRepository): Response
     {
         return $this->render('language/index.html.twig', [

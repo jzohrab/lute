@@ -41,6 +41,7 @@ abstract class DatabaseTestBase extends WebTestCase
     public Language $spanish;
     public Language $french;
     public Language $english;
+    public Language $japanese;
 
     public Text $spanish_hola_text;
     
@@ -113,60 +114,43 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_spanish_words(): void
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
-        DbHelpers::add_word($spid, "lista", "lista", 1, 1);
-        DbHelpers::add_word($spid, "tiene una", "tiene una", 1, 2);
-
-        // A parent term.
-        DbHelpers::add_word($spid, "listo", "listo", 1, 1);
-        DbHelpers::add_word_parent($spid, "lista", "listo");
-
-        DbHelpers::add_word_tag($spid, "Un gato", "furry");
-        DbHelpers::add_word_tag($spid, "lista", "adj");
-        DbHelpers::add_word_tag($spid, "lista", "another");
-        DbHelpers::add_word_tag($spid, "listo", "padj1");
-        DbHelpers::add_word_tag($spid, "listo", "padj2");
+        $zws = mb_chr(0x200B);
+        $terms = [ "Un{$zws} {$zws}gato", 'lista', "tiene{$zws} {$zws}una", 'listo' ];
+        $this->addTerms($this->spanish, $terms);
     }
 
-    public function create_text($title, $content, $language, $parseText = true): Text {
+    public function addTerms(Language $lang, $term_strings) {
+        $dict = new Dictionary($this->term_repo);
+        $arr = $term_strings;
+        if (is_string($term_strings))
+            $arr = [ $term_strings ];
+        $ret = [];
+        foreach ($arr as $t) {
+            $term = new Term($lang, $t);
+            $dict->add($term, true);
+            $ret[] = $term;
+        }
+        return $ret;
+    }
+
+    public function create_text($title, $content, $language): Text {
         $t = new Text();
         $t->setTitle($title);
         $t->setText($content);
         $t->setLanguage($language);
-        $this->text_repo->save($t, true, $parseText);
+        $this->text_repo->save($t, true);
         return $t;
-    }
-
-    public function load_spanish_texts(bool $parseTexts = true): void
-    {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, $parseTexts);
-        $this->spanish_hola_text = $t;
     }
 
     public function load_french_data(): void
     {
+        $this->addTerms($this->french, ['lista']);
         $frid = $this->french->getLgID();
-        DbHelpers::add_word($frid, "lista", "lista", 1, 1);
-        DbHelpers::add_word_tag($frid, "lista", "nonsense");
         $frt = new Text();
         $frt->setTitle("Bonjour.");
         $frt->setText("Bonjour je suis lista.");
         $frt->setLanguage($this->french);
         $this->text_repo->save($frt, true);
-    }
-
-    public function load_all_test_data(): void
-    {
-        $this->load_languages();
-        $this->load_spanish_words();
-        $this->load_spanish_texts();
-
-        $this->load_french_data();
     }
 
     public function make_text(string $title, string $text, Language $lang): Text {
@@ -176,15 +160,6 @@ abstract class DatabaseTestBase extends WebTestCase
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
         return $t;
-    }
-
-    public function make_term(Language $lang, string $s) {
-        $dict = new Dictionary($this->term_repo);
-        $term = new Term();
-        $term->setLanguage($lang);
-        $term->setText($s);
-        $dict->add($term, true);
-        return $term;
     }
 
 }

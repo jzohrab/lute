@@ -7,6 +7,8 @@ use App\Entity\Language;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -43,13 +45,6 @@ class TermDTOType extends AbstractType
                     'required' => false
                   ]
             )
-            ->add('Romanization',
-                  TextType::class,
-                  [ 'label' => 'Roman.',
-                    'attr' => [ 'class' => 'form-text' ],
-                    'required' => false
-                  ]
-            )
             ->add('Translation',
                   TextareaType::class,
                   [ 'label' => 'Translation',
@@ -75,7 +70,7 @@ class TermDTOType extends AbstractType
                   ]
             )
             ->add('Sentence',
-                  TextType::class,
+                  $options['hide_sentences'] ? HiddenType::class : TextType::class,
                   [ 'label' => 'Sentence',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
@@ -96,12 +91,30 @@ class TermDTOType extends AbstractType
                   ]
             )
         ;
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            $termdto = $event->getData();
+            $form = $event->getForm();
+
+            $romanization_field_type = HiddenType::class;
+            if ($termdto->language == null || $termdto->language->getLgShowRomanization()) {
+                $romanization_field_type = TextType::class;
+            }
+
+            $form->add(
+                'Romanization', $romanization_field_type,
+                [ 'label' => 'Roman.',
+                  'attr' => [ 'class' => 'form-text' ],
+                  'required' => false ]
+            );
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => TermDTO::class,
+            'hide_sentences' => false,
         ]);
     }
 }

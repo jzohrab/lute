@@ -9,6 +9,8 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Domain\RomanceLanguageParser;
+use App\Domain\JapaneseParser;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -55,6 +57,12 @@ class Language
 
     #[ORM\Column(name: 'LgRightToLeft')]
     private ?bool $LgRightToLeft = false;
+
+    #[ORM\Column(name: 'LgShowRomanization')]
+    private bool $LgShowRomanization = false;
+
+    #[ORM\Column(name: 'LgParserType', length: 20)]
+    private string $LgParserType = 'romance';
 
     #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $texts;
@@ -212,6 +220,17 @@ class Language
         return $this;
     }
 
+    public function getLgShowRomanization(): bool
+    {
+        return $this->LgShowRomanization;
+    }
+
+    public function setLgShowRomanization(bool $b): self
+    {
+        $this->LgShowRomanization = $b;
+        return $this;
+    }
+
     /**
      * @return Collection|Text[]
      */
@@ -239,6 +258,34 @@ class Language
     public function getTerms(): Collection
     {
         return $this->terms;
+    }
+
+    public function setLgParserType(string $s): self
+    {
+        $this->LgParserType = $s;
+        return $this;
+    }
+
+    public function getLgParserType(): string
+    {
+        return $this->LgParserType;
+    }
+
+    private function getParser()
+    {
+        switch ($this->LgParserType) {
+        case 'romance':
+            return new RomanceLanguageParser();
+        case 'japanese':
+            return new JapaneseParser();
+        default:
+            throw new \Exception("Unknown parser type {$this->LgParserType} for {$this->getLgName()}");
+        }
+    }
+    
+    public function parse(Text $text): void
+    {
+        $this->getParser()->parse($text);
     }
 
 
@@ -287,12 +334,34 @@ class Language
         return $english;
     }
 
+    public static function makeJapanese() {
+        if (!JapaneseParser::MeCab_installed())
+            throw new \Exception("MeCab not installed.");
+        $japanese = new Language();
+        $japanese
+            ->setLgName('Japanese')
+            ->setLgDict1URI('https://jisho.org/search/###')
+            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#jp/en/###')
+            // Ref https://stackoverflow.com/questions/5797505/php-regex-expression-involving-japanese
+            ->setLgRegexpWordCharacters('\p{Han}\p{Katakana}\p{Hiragana}')
+            ->setLgRemoveSpaces(true)
+            ->setLgShowRomanization(true)
+            ->setLgParserType('japanese');
+        return $japanese;
+    }
+
     public static function getPredefined(): array {
-        return [
+        $ret = [
             Language::makeEnglish(),
             Language::makeFrench(),
             Language::makeGerman(),
             Language::makeSpanish(),
         ];
+
+        if (JapaneseParser::MeCab_installed())
+            $ret[] = Language::makeJapanese();
+        return $ret;
     }
+
 }

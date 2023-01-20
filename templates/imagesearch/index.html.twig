@@ -23,7 +23,20 @@
 
     let update_term_form = function(filename) {
       // Well, this took **far** too long to figure out ...
-      const fr = window.parent.frames['wordframe'];
+      let fr = window.parent.frames['wordframe'];
+      if (fr == null) {
+        // This feels clumsy.  Summary of bad code: this imagesearch
+        // file is used on the reading pane, where it is presented as a
+        // child iframe inside _another_ iframe.  It is _also_ used on
+        // the term index page, where it is an iframe, but _not_ inside
+        // another iframe.  In this latter case, there is no
+        // window.parent.frames['wordframe'].
+        //
+        // There is probably a much better way of doing this,
+        // but I don't know what it is, and can't be bothered to spend
+        // the time to make this code more "pure."  Suggestions welcome!
+        fr = window.parent;
+      }
       var el = fr.document.getElementById('term_dto_CurrentImage');
       el.value = filename;
       const img = fr.document.getElementById('term_image');

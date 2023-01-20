@@ -24,6 +24,8 @@ class TermDTO
 
     public ?string $Sentence = null;
 
+    public ?int $WordCount = null;
+
     public array $termTags;
 
     public ?string $ParentText = null;
@@ -58,6 +60,8 @@ class TermDTO
         $t->setTranslation($dto->Translation);
         $t->setRomanization($dto->Romanization);
         $t->setSentence($dto->Sentence);
+        if ($dto->WordCount != null)
+            $t->setWordCount($dto->WordCount);
         $t->setCurrentImage($dto->CurrentImage);
 
         $termtags = array();
@@ -92,6 +96,7 @@ class TermDTO
         $p->setLanguage($dto->language);
         $p->setStatus($dto->Status);
         $p->setTranslation($dto->Translation);
+        $p->setCurrentImage($dto->CurrentImage);
         $p->setSentence($dto->Romanization);
         foreach ($termtags as $tt)
             $p->addTermTag($tt);

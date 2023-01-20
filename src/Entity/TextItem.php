@@ -8,6 +8,7 @@ class TextItem
     public int $Order;
     public string $Text;
     public int $WordCount;
+    public int $TokenCount;
 
     public string $TextLC;
     public int $SeID;
@@ -87,6 +88,12 @@ class TextItem
         if ($this->WoID == 0) {
             return "textitem click word status0 {$tc}";
         }
-        return "textitem click word word{$this->WoID} status{$this->WoStatus} {$tc}";
+
+        $showtooltip = '';
+        $st = $this->WoStatus;
+        if ($st != Status::WELLKNOWN && $st != Status::IGNORED)
+            $showtooltip = 'showtooltip';
+
+        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$tc}";
     }
 }

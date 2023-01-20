@@ -105,7 +105,7 @@
       "./utils/dump_changelog.sh"
     ],
     "dev:class": "./utils/entityInterface.sh",
-    "todo:list": "composer dev:find TODO",
+    "todo:list": "composer dev:find TODO | grep -v docs/",
     "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
     "db:setup:prod": "APP_ENV=prod php db/setup.php",
     "db:setup:test": "APP_ENV=test php db/setup.php",
@@ -115,17 +115,15 @@
     "db:newrepeat": "php db/create_repeatable_migration_script.php",
     "db:suggestions": "bin/console doctrine:schema:update --dump-sql",
     "dev:dumpserver": "php bin/console server:dump",
-    "testsetup": [
+    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist",
+    "test:nofail": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure",
+    "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group ",
+    "test:full": [
+      "composer dev:psalm",
+      "composer dev:finddump",
       "composer db:setup:test",
-      "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument"
-    ],
-    "test": [
-      "composer testsetup",
-      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist"
-    ],
-    "test:group": [
-      "composer testsetup",
-      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group "
+      "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument",
+      "composer test"
     ],
     "dev:find": "./utils/findstring.sh",
     "dev:finddump": "./utils/finddump.sh",
@@ -168,7 +166,9 @@
     "dev:nukecache": "blow things away, b/c symfony likes to cache",
     "dev:psalm": "Run psalm and start crying",
     "test": "Run tests",
+    "test:nofail": "Run tests and stop on first fail/error",
     "test:group": "Run tests with a given '@group xxxx' annotation",
+    "test:full": "Setup the test db, check orm mappings, and run all tests",
     "dev:data:load": "Abuse the testing system to load the dev db with some data.",
     "dev:data:clear": "Abuse the testing system to wipe the dev db."
   },

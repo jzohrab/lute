@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../../src/Domain/Parser.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\Parser;
+use App\Domain\RomanceLanguageParser;
 use App\Entity\Text;
 use App\Entity\Term;
 
-final class Parser_Test extends DatabaseTestBase
+final class RomanceLanguageParser_Test extends DatabaseTestBase
 {
 
     public function childSetUp(): void
@@ -25,14 +24,18 @@ final class Parser_Test extends DatabaseTestBase
      * @group rewire
      */
     public function test_existing_cruft_deleted() {
-        $this->load_spanish_texts(false);
-        $t = $this->spanish_hola_text;
-        DbHelpers::add_textitems2(1, "CRAP", "crap", $t->getID());
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
 
-        $sql = "select * FROM textitems2 where ti2Text = 'CRAP'";
+        $sql = "update textitems2 set ti2text = 'STUFF' where Ti2TxID = {$t->getID()}";
+        DbHelpers::exec_sql($sql);
+        $sql = "select distinct Ti2TxID FROM textitems2 where ti2Text = 'STUFF'";
         DbHelpers::assertRecordcountEquals($sql, 1, 'before');
 
-        Parser::parse($t);
+        $t->parse();
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
     }
 
@@ -44,7 +47,7 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hola");
         $t->setText("Hola");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, true);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2text, concat('*', ti2textlc, '*') from textitems2 where ti2txid = {$t->getID()}";
         $expected = [ "Hola; *hola*" ];
@@ -57,13 +60,13 @@ final class Parser_Test extends DatabaseTestBase
      */
     public function test_parse_no_words_defined()
     {
-        $this->load_spanish_texts(false);
-        $t = $this->spanish_hola_text;
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text, ti2textlc from textitems2 where ti2woid = 0 order by ti2order";
-        DbHelpers::assertTableContains($sql, [], 'nothing in table before parsing.');
-        
-        Parser::parse($t);
 
         $expected = [
             "1; 1; Hola; hola",
@@ -100,10 +103,12 @@ final class Parser_Test extends DatabaseTestBase
     public function test_parse_words_defined()
     {
         $this->load_spanish_words();
-        $this->load_spanish_texts(false);
-        $t = $this->spanish_hola_text;
 
-        Parser::parse($t);
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
@@ -137,42 +142,44 @@ final class Parser_Test extends DatabaseTestBase
 
         $sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2 where ti2woid > 0 order by ti2order";
         $expected = [
-            "1; 1; 5; un gato",
+            "1; 1; 5; un/ /gato",
             "2; 2; 16; lista",
-            "3; 4; 21; tiene una"
+            "3; 4; 21; tiene/ /una"
         ];
         DbHelpers::assertTableContains($sql, $expected);
     }
 
+
+    /**
+     * @group manytimes
+     */
     public function test_text_contains_same_term_many_times()
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+        $zws = mb_chr(0x200B);
+        $this->addTerms($this->spanish, ["Un{$zws} {$zws}gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
         $t->setText("Un gato es bueno. No hay un gato.  Veo a un gato.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
-
-        Parser::parse($t);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
         $expected = [
-            "1; 1; Un gato",
+            "1; 1; Un/ /gato",
             "1; 1; Un",
             "1; 3; gato",
             "1; 5; es",
             "1; 7; bueno",
             "2; 10; No",
             "2; 12; hay",
-            "2; 14; un gato",
+            "2; 14; un/ /gato",
             "2; 14; un",
             "2; 16; gato",
             "3; 19; Veo",
             "3; 21; a",
-            "3; 23; un gato",
+            "3; 23; un/ /gato",
             "3; 23; un",
             "3; 25; gato"
         ];
@@ -183,33 +190,31 @@ final class Parser_Test extends DatabaseTestBase
 
     public function test_text_same_sentence_contains_same_term_many_times()
     {
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+        $zws = mb_chr(0x200B);
+        $this->addTerms($this->spanish, ["Un{$zws} {$zws}gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
         $t->setText("Un gato es bueno, no hay un gato, veo a un gato.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
-
-        Parser::parse($t);
+        $this->text_repo->save($t, true);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
         $expected = [
-            "1; 1; Un gato",
+            "1; 1; Un/ /gato",
             "1; 1; Un",
             "1; 3; gato",
             "1; 5; es",
             "1; 7; bueno",
             "1; 9; no",
             "1; 11; hay",
-            "1; 13; un gato",
+            "1; 13; un/ /gato",
             "1; 13; un",
             "1; 15; gato",
             "1; 17; veo",
             "1; 19; a",
-            "1; 21; un gato",
+            "1; 21; un/ /gato",
             "1; 21; un",
             "1; 23; gato"
         ];
@@ -235,26 +240,27 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Problemas.");
         $t->setText(implode(' ', $sentences));
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
-        $spid = $this->spanish->getLgID();
-        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
-        DbHelpers::add_word($spid, 'de refilón', 'de refilón', 1, 2);
-        DbHelpers::add_word($spid, 'Con el tiempo', 'con el tiempo', 1, 3);
-        DbHelpers::add_word($spid, 'pabellón auditivo', 'pabellón auditivo', 1, 2);
-        DbHelpers::add_word($spid, 'nos marcamos', 'nos marcamos', 1, 2);
-        DbHelpers::add_word($spid, 'Tanto daba', 'tanto daba', 1, 2);
 
-        Parser::parse($t);
+        $zws = mb_chr(0x200B);
+        $this->addTerms($this->spanish, [
+            "Un{$zws} {$zws}gato",
+            "de{$zws} {$zws}refilón",
+            "Con{$zws} {$zws}el{$zws} {$zws}tiempo",
+            "pabellón{$zws} {$zws}auditivo",
+            "nos{$zws} {$zws}marcamos",
+            "Tanto{$zws} {$zws}daba"
+        ]);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
         $expected = [
-            '1; 30; nos marcamos',
-            '2; 139; pabellón auditivo',
-            '3; 162; de refilón',
-            '4; 211; con el tiempo',
-            '5; 224; Tanto daba'
+            '1; 30; nos/ /marcamos',
+            '2; 139; pabellón/ /auditivo',
+            '3; 162; de/ /refilón',
+            '4; 211; con/ /el/ /tiempo',
+            '5; 224; Tanto/ /daba'
         ];
         DbHelpers::assertTableContains($sql, $expected);
 
@@ -272,15 +278,15 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Jammies.");
         $t->setText("This is the cat's pyjamas.");
         $t->setLanguage($this->english);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
-        $term = $this->make_term($this->english, "the cat's pyjamas");
-        Parser::parse($t);
+        $zws = mb_chr(0x200B);
+        $term = $this->addTerms($this->english, "the{$zws} {$zws}cat{$zws}'{$zws}s{$zws} {$zws}pyjamas");
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
         $expected = [
-            "1; 5; the cat's pyjamas"
+            "1; 5; the/ /cat/'/s/ /pyjamas"
         ];
         DbHelpers::assertTableContains($sql, $expected);
     }
@@ -291,9 +297,9 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hacky");
         $t->setText("{Hola} `como...`\nYo.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
-        Parser::parse($t);
+        $t->parse();
 
         $this->assertEquals(1, 1, 'ok');
     }
@@ -303,10 +309,10 @@ final class Parser_Test extends DatabaseTestBase
         $t->setTitle("Hacky");
         $t->setText("{Hola}.");
         $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, false);
+        $this->text_repo->save($t, true);
 
         $this->spanish->setLgSplitEachChar(true);
-        Parser::parse($t);
+        $t->parse();
         $this->assertEquals(1, 1, 'ok');
     }
     */
@@ -317,12 +323,10 @@ final class Parser_Test extends DatabaseTestBase
         $h->setTitle("Hola");
         $h->setText("Hola tengo un gato.");
         $h->setLanguage($this->spanish);
-        $this->text_repo->save($h, true, false);
+        $this->text_repo->save($h, true);
 
-        Parser::parse($h);
         $sql = "select wordcount from textstatscache where TxID = {$h->getID()}";
-        $d = DbHelpers::get_first_value($sql);
-        $this->assertEquals($d, 4, "loaded, spot check only");
+        DbHelpers::assertTableContains($sql, [ '4' ], "loaded, spot check only");
     }
 
 }

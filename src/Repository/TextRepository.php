@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
-use App\Domain\Parser;
 use App\Domain\TextStatsCache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -26,31 +25,39 @@ class TextRepository extends ServiceEntityRepository
         parent::__construct($registry, Text::class);
     }
 
-    private function removeSentencesAndWords(int $textid): void
+    private function exec_sql(string $sql): void
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sqls = [
-            "delete from sentences where SeTxID = $textid",
-            "delete from textitems2 where Ti2TxID = $textid"
-        ];
-        foreach ($sqls as $sql) {
-            $stmt = $conn->prepare($sql);
-            $stmt->executeQuery();
-        }
+        $stmt = $conn->prepare($sql);
+        $stmt->executeQuery();
     }
 
-    public function save(Text $entity, bool $flush = false, bool $parseTexts = true): void
+    private function removeTi2s(int $textid): void
+    {
+        $this->exec_sql("delete from textitems2 where Ti2TxID = $textid");
+    }
+
+    private function removeSentences(int $textid): void
+    {
+        $this->exec_sql("delete from sentences where SeTxID = $textid");
+    }
+
+    public function save(Text $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            $this->removeSentencesAndWords($entity->getID());
+            $tid = $entity->getID();
+            TextStatsCache::markStale([$entity->getID()]);
+            $entity->parse();
 
-            if (! $entity->isArchived() && $parseTexts ) {
-                TextStatsCache::markStale([$entity->getID()]);
-                Parser::parse($entity);
-            }
+            // TODO:optimization_stop_wasteful_parsing - no need to
+            // map words, expressions etc if a text is about to be
+            // archived, just need to load sentences.  This is a very
+            // small savings, though.
+            if ($entity->isArchived())
+                $this->removeTi2s($tid);
         }
     }
 
@@ -61,7 +68,8 @@ class TextRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            $this->removeSentencesAndWords($textid);
+            $this->removeSentences($textid);
+            $this->removeTi2s($textid);
         }
     }
 

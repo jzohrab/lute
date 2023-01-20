@@ -5,9 +5,7 @@ namespace App\Controller;
 use App\Domain\ReadingFacade;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
-use App\Repository\TermTagRepository;
 use App\Repository\ReadingRepository;
-use App\Domain\Parser;
 use App\DTO\TermDTO;
 use App\Entity\Text;
 use App\Entity\Sentence;
@@ -60,46 +58,52 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    // TODO:refactor - too many dependencies injected here, perhaps can be managed by the ReadingFacade.
     #[Route('/termform/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
-        $wid,
-        $textid,
-        $ord,
-        $text,
+        int $wid,
+        int $textid,
+        int $ord,
+        string $text,
         Request $request,
-        ReadingRepository $readingRepository,
-        TextRepository $textRepository,
-        ReadingFacade $facade,
-        TermTagRepository $termTagRepository,
+        ReadingFacade $facade
     ): Response
     {
-        // The $text is set to '-' if there *is* no text,
+        // The $text is '-' if missing,
         // b/c otherwise the route didn't work.
         if ($text == '-')
             $text = '';
-        $term = $readingRepository->load($wid, $textid, $ord, $text);
-        $termdto = $term->createTermDTO();
-        $form = $this->createForm(TermDTOType::class, $termdto);
+
+        // When a term is created in the form, the spaces passed by
+        // the form are "nbsp;" = non-breaking spaces, which are
+        // actually different from regular spaces, as seen by the
+        // database.  Without the below fix to the space characters, a
+        // Term with text "hello there" will not match a database
+        // sentence "she said hello there".
+        $zws = mb_chr(0x200B); // zero-width space.
+        $parts = explode($zws, $text);
+        $cleanspaces = function($s) { return preg_replace('/\s/u', ' ', $s); };
+        $cleanedparts = array_map($cleanspaces, $parts);
+        $text = implode($zws, $cleanedparts);
+
+        $termdto = $facade->loadDTO($wid, $textid, $ord, $text);
+        $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $term = TermDTO::buildTerm($termdto, $facade->getDictionary(), $termTagRepository);
-            $textentity = $textRepository->find($textid);
-            [ $updateitems, $update_js ] = $facade->save($term, $textentity);
+            [ $updateitems, $update_js ] = $facade->saveDTO($termdto, $textid);
 
             // The updates are encoded here, and decoded in the
             // twig javascript.  Thanks to
             // https://stackoverflow.com/questions/38072085/
             //   how-to-render-json-into-a-twig-in-symfony2
             return $this->render('read/updated.html.twig', [
-                'term' => $term,
+                'termdto' => $termdto,
                 'textitems' => $updateitems,
                 'updates' => json_encode($update_js)
             ]);
         }
 
         return $this->renderForm('read/frameform.html.twig', [
-            'term' => $termdto,
+            'termdto' => $termdto,
             'form' => $form,
             'extra' => $request->query,
             'showlanguageselector' => false,

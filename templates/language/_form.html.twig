@@ -9,10 +9,12 @@
     {{ form_row(form.LgDict1URI) }}
     {{ form_row(form.LgDict2URI) }}
     {{ form_row(form.LgGoogleTranslateURI) }}
+    {{ form_row(form.LgShowRomanization) }}
 
     <tr style="line-height: 40px;">
       <td><h3>Parsing</h3></td><td />
     </tr>
+    {{ form_row(form.LgParserType) }}
     {{ form_row(form.LgCharacterSubstitutions) }}
     {{ form_row(form.LgRegexpSplitSentences) }}
     {{ form_row(form.LgExceptionsSplitSentences) }}

@@ -24,14 +24,6 @@ jobs:
       with:
         php-version: '8.1'
 
-    - uses: shogo82148/actions-setup-mysql@v1
-      with:
-        mysql-version: '8.0'
-        root-password: 'root'
-
-    - name: check DB
-      run: mysql -u root -proot -h127.0.0.1 -e 'SELECT version()'
-
     - uses: actions/checkout@v3
 
     # "dump()" appears to cause problems in prod,
@@ -41,6 +33,9 @@ jobs:
 
     - name: Copy .env.test.local
       run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+
+    - name: Copy .env.local
+      run: php -r "file_exists('.env.local') || copy('.env.test', '.env.local');"
 
     - name: Cache Composer packages
       id: composer-cache
@@ -58,7 +53,18 @@ jobs:
       run: ./vendor/bin/psalm --config=psalm.xml --no-progress
 
     - name: Install Dependencies
-      run: composer install --no-progress
+      run: |
+        composer install --no-progress
+        sudo apt-get update -y
+        sudo apt-get install -y mecab mecab-ipadic-utf8
+
+    - uses: shogo82148/actions-setup-mysql@v1
+      with:
+        mysql-version: '8.0'
+        root-password: 'root'
+
+    - name: check DB
+      run: mysql -u root -proot -h127.0.0.1 -e 'SELECT version()'
 
     - name: Setup testing db
       run: composer db:setup:test

@@ -54,12 +54,12 @@ final class TextRepository_Test extends DatabaseTestBase
         $sqlsent = "select SeID, SeTxID, SeText from sentences";
 
         DbHelpers::assertTableContains($sql, [ "1; 7; gato" ]);
-        DbHelpers::assertTableContains($sqlsent, [ "1; 1; Hola tengo un gato." ]);
+        DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /gato/./" ]);
 
         $t->setText("Hola tengo un perro.");
         $this->text_repo->save($t, true);
 
-        DbHelpers::assertTableContains($sqlsent, [ "2; 1; Hola tengo un perro." ], "sent ID incremented");
+        DbHelpers::assertTableContains($sqlsent, [ "2; 1; /Hola/ /tengo/ /un/ /perro/./" ], "sent ID incremented");
         DbHelpers::assertTableContains($sql, [ "2; 7; perro" ], "sentence ID is incremented");
     }
 
@@ -74,18 +74,18 @@ final class TextRepository_Test extends DatabaseTestBase
     }
 
 
-    public function test_archiving_Text_removes_sentences_and_textitems2()
+    public function test_archiving_Text_removes_textitems2_but_leaves_sentences()
     {
         $t = $this->text;
         $t->setArchived(true);
         $this->text_repo->save($t, true);
 
         DbHelpers::assertRecordcountEquals('textitems2', 0, 'after');
-        DbHelpers::assertRecordcountEquals('sentences', 0, 'after');
+        DbHelpers::assertRecordcountEquals('sentences', 1, 'after');
         DbHelpers::assertRecordcountEquals("texts", 1, 'after');
     }
 
-    public function test_unarchiving_Text_restores_sentences_and_textitems2()
+    public function test_unarchiving_Text_restores_textitems2()
     {
         $t = $this->text;
         $t->setArchived(true);

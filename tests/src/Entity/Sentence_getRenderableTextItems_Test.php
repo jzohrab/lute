@@ -11,14 +11,14 @@ class Sentence_getRenderableTextItems_Test extends TestCase
 
     private Sentence $sentence;
 
-    // $data = [ [ order, text, wordcount ], ... ]
+    // $data = [ [ order, text, tokencount ], ... ]
     private function make_sentence($data)
     {
         $makeTextItem = function($row) {
             $t = new TextItem();
             $t->Order = $row[0];
             $t->Text = $row[1];
-            $t->WordCount = $row[2];
+            $t->TokenCount = $row[2];
             return $t;
         };
         $textItems = array_map($makeTextItem, $data);
@@ -33,7 +33,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         $sentence = $this->make_sentence($data);
         $actual = '';
         foreach ($sentence->renderable() as $ti)
-            $actual .= "[{$ti->Text}-{$ti->WordCount}]";
+            $actual .= "[{$ti->Text}-{$ti->TokenCount}]";
         $this->assertEquals($actual, $expected);
     }
 
@@ -42,13 +42,13 @@ class Sentence_getRenderableTextItems_Test extends TestCase
     {
         $data = [
             [ 1, 'some', 1 ],
-            [ 2, ' ', 0 ],
+            [ 2, ' ', 1 ],
             [ 3, 'data', 1 ],
-            [ 4, ' ', 0 ],
+            [ 4, ' ', 1 ],
             [ 5, 'here', 1 ],
-            [ 6, '.', 0 ]
+            [ 6, '.', 1 ]
         ];
-        $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
+        $expected = '[some-1][ -1][data-1][ -1][here-1][.-1]';
         $this->assertRenderableEquals($data, $expected);
     }
 
@@ -58,12 +58,12 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         $data = [
             [ 1, 'some', 1 ],
             [ 5, 'here', 1 ],
-            [ 4, ' ', 0 ],
+            [ 4, ' ', 1 ],
             [ 3, 'data', 1 ],
-            [ 2, ' ', 0 ],
-            [ 6, '.', 0 ]
+            [ 2, ' ', 1 ],
+            [ 6, '.', 1 ]
         ];
-        $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
+        $expected = '[some-1][ -1][data-1][ -1][here-1][.-1]';
         $this->assertRenderableEquals($data, $expected);
     }
 
@@ -72,13 +72,13 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         $data = [
             [ 1, 'some', 1 ],
             [ 5, 'here', 1 ],
-            [ 4, ' ', 0 ],
+            [ 4, ' ', 1 ],
             [ 3, 'data', 1 ],
-            [ 2, ' ', 0 ],
-            [ 3, 'data here', 2 ],  // <<<
-            [ 6, '.', 0 ]
+            [ 2, ' ', 1 ],
+            [ 3, 'data here', 3 ],  // <<<
+            [ 6, '.', 1 ]
         ];
-        $expected = '[some-1][ -0][data here-2][.-0]';
+        $expected = '[some-1][ -1][data here-3][.-1]';
         $this->assertRenderableEquals($data, $expected);
     }
 
@@ -87,13 +87,13 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         $data = [
             [ 1, 'some', 1 ],
             [ 5, 'here', 1 ],
-            [ 4, ' ', 0 ],
+            [ 4, ' ', 1 ],
             [ 3, 'data', 1 ],
-            [ 2, ' ', 0 ],
-            [ 3, 'data here', 2 ],  // <<<
-            [ 6, '.', 0 ]
+            [ 2, ' ', 1 ],
+            [ 3, 'data here', 3 ],  // <<<
+            [ 6, '.', 1 ]
         ];
-        $expected = '[some-1][ -0][data here-2][.-0]';
+        $expected = '[some-1][ -1][data here-3][.-1]';
         $this->assertRenderableEquals($data, $expected);
 
         $textitems = $this->sentence->getTextItems();

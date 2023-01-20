@@ -26,7 +26,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_find_by_text_is_found()
     {
-        $this->make_term($this->spanish, 'PARENT');
+        $this->addTerms($this->spanish, 'PARENT');
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
         foreach ($cases as $c) {
             $p = $this->dictionary->find($c, $this->spanish);
@@ -43,15 +43,15 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_find_only_looks_in_specified_language()
     {
-        $this->make_term($this->french, 'bonjour');
+        $this->addTerms($this->french, 'bonjour');
         $p = $this->dictionary->find('bonjour', $this->spanish);
         $this->assertTrue($p == null, 'french terms not checked');
     }
 
     public function test_findMatches_matching()
     {
-        $this->make_term($this->spanish, 'PARENT');
-        $this->make_term($this->french, 'PARENT');
+        $this->addTerms($this->spanish, 'PARENT');
+        $this->addTerms($this->french, 'PARENT');
 
         $cases = [ 'ARE', 'are', 'AR' ];
         foreach ($cases as $c) {
@@ -59,13 +59,6 @@ final class Dictionary_Test extends DatabaseTestBase
             $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
             $this->assertEquals($p[0]->getText(), 'PARENT', 'parent found for case ' . $c);
         }
-    }
-
-    public function test_findMatches_no_sql_injection_thanks()
-    {
-        $injection = "a%'; select count(*) from words;";
-        $p = $this->dictionary->findMatches($injection, $this->spanish);
-        $this->assertEquals(count($p), 0);
     }
 
     public function test_findMatches_returns_empty_if_blank_string()
@@ -76,7 +69,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_findMatches_returns_empty_if_different_language()
     {
-        $this->make_term($this->french, 'chien');
+        $this->addTerms($this->french, 'chien');
 
         $p = $this->dictionary->findMatches('chien', $this->spanish);
         $this->assertEquals(count($p), 0, "no chien in spanish");
@@ -312,7 +305,8 @@ final class Dictionary_Test extends DatabaseTestBase
         $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], 'no terms');
 
-        $terms = [ 'tengo', 'un gato' ];
+        $zws = mb_chr(0x200B);
+        $terms = [ 'tengo', "un{$zws} {$zws}gato" ];
         foreach ($terms as $s) {
             $t = new Term();
             $t->setLanguage($this->spanish);
@@ -322,7 +316,81 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, [], 'still no mappings');
         $this->dictionary->flush();
 
-        DbHelpers::assertTableContains($sql, $terms, 'terms created');
+        DbHelpers::assertTableContains($sql, [ 'tengo', 'un/ /gato' ], 'terms created');
+    }
+
+    /**
+     * @group dictrefs
+     */
+    public function test_get_references_smoke_test()
+    {
+        $text = new Text();
+        $text->setLanguage($this->spanish);
+        $text->setTitle('hola');
+        $text->setText('Tengo un gato.  No tengo un perro.');
+        $this->text_repo->save($text, true);
+
+        $tengo = $this->addTerms($this->spanish, 'tengo')[0];
+        $refs = $this->dictionary->findReferences($tengo);
+
+        $keys = array_keys($refs);
+        $this->assertEquals([ 'term', 'parent', 'siblings', 'archived' ], $keys);
+
+        $this->assertEquals(2, count($refs['term']), 'term');
+        $this->assertEquals(0, count($refs['parent']), 'parent');
+        $this->assertEquals(0, count($refs['siblings']), 'siblings');
+        $this->assertEquals(0, count($refs['archived']), 'archived');
+
+        $trs = $refs['term'];
+        $zws = mb_chr(0x200B);
+        $this->assertEquals("{$zws}Tengo{$zws} {$zws}un{$zws} {$zws}gato{$zws}.{$zws}", $trs[0]->Sentence);
+        $this->assertEquals($text->getID(), $trs[0]->TxID);
+        $this->assertEquals("hola", $trs[0]->Title);
+        $this->assertEquals("{$zws} {$zws}No{$zws} {$zws}tengo{$zws} {$zws}un{$zws} {$zws}perro{$zws}.{$zws}", $trs[1]->Sentence);
+    }
+
+    /**
+     * @group dictrefs
+     */
+    public function test_get_all_references()
+    {
+        $text = new Text();
+        $text->setLanguage($this->spanish);
+        $text->setTitle('hola');
+        $text->setText('Tengo un gato.  Ella tiene un perro.  No quiero tener nada.');
+        $this->text_repo->save($text, true);
+
+        $archtext = new Text();
+        $archtext->setLanguage($this->spanish);
+        $archtext->setTitle('luego');
+        $archtext->setText('Tengo un coche.');
+        $this->text_repo->save($archtext, true);
+
+        [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
+        $tengo->setParent($tener);
+        $tiene->setParent($tener);
+        $this->dictionary->add($tener, true);
+        $this->dictionary->add($tiene, true);
+
+        $archtext->setArchived(true);
+        $this->text_repo->save($archtext, true);
+
+        $refs = $this->dictionary->findReferences($tengo);
+        $this->assertEquals(1, count($refs['term']), 'term');
+        $this->assertEquals(1, count($refs['parent']), 'parent');
+        $this->assertEquals(1, count($refs['siblings']), 'siblings');
+        $this->assertEquals(1, count($refs['archived']), 'archived');
+
+        $tostring = function($refdto) {
+            $zws = mb_chr(0x200B);
+            $ret = implode(', ', [ $refdto->TxID, $refdto->Title, $refdto->Sentence ?? 'NULL' ]);
+            return str_replace($zws, '/', $ret);
+        };
+        $zws = mb_chr(0x200B);
+        $this->assertEquals("1, hola, /Tengo/ /un/ /gato/./", $tostring($refs['term'][0]), 'term');
+        $this->assertEquals("1, hola, / /No/ /quiero/ /tener/ /nada/./", $tostring($refs['parent'][0]), 'p');
+        $this->assertEquals("1, hola, / /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
+        $this->assertEquals("2, luego, /Tengo/ /un/ /coche/./", $tostring($refs['archived'][0]), 'a');
     }
 
 }

@@ -7,7 +7,6 @@ use App\Entity\Term;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
 use App\Entity\Language;
-use App\Domain\Parser;
 use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
 use App\Domain\Dictionary;
@@ -47,6 +46,7 @@ class ReadingRepository
            $textid AS TextID,
            Ti2LgID as LangID,
            Ti2WordCount AS WordCount,
+           IFNULL(w.WoTokenCount, 1) AS TokenCount,
            Ti2Text AS Text,
            Ti2TextLC AS TextLC,
            Ti2Order AS `Order`,
@@ -106,7 +106,7 @@ class ReadingRepository
             foreach ($row as $key => $val) {
                 $t->$key = $val;
             }
-            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
+            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'TokenCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
             foreach ($intkeys as $key) {
                 $t->$key = intval($t->$key);
             }
@@ -178,7 +178,7 @@ class ReadingRepository
         $lang = $this->lang_repo->find((int) $record['TxLgID']);
         return $lang;
     }
-    
+
     /**
      * Get baseline data from tid and ord.
      *

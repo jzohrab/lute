@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Term;
 use App\Entity\Text;
+use App\Domain\JapaneseParser;
+use App\Entity\Language;
 use App\Repository\TextItemRepository;
 
 final class ReadingRepository_Load_Test extends DatabaseTestBase {
@@ -31,16 +33,15 @@ where ti2order in (1, 12, 25) order by ti2order";
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
 
-        $term = $this->make_term($this->spanish, 'BEBIDA');
-        $this->bebida = $term;
-        TextItemRepository::mapForTerm($term);
-
+        $term = $this->addTerms($this->spanish, 'BEBIDA')[0];
         $spot_check_sql = "select ti2woid, Ti2TxID, Ti2Order, ti2seid, ti2text from textitems2
 where ti2order = 25";
         $expected = [
             "{$term->getID()}; 1; 25; 3; bebida"
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
+
+        $this->bebida = $term;
     }
 
     public function test_load_existing_wid() {
@@ -64,17 +65,20 @@ where ti2order = 25";
     }
 
     public function test_multi_word_overrides_tid_and_ord() {
-        $t = $this->reading_repo->load(0, 1, 12, 'TENGO una');
+        $zws = mb_chr(0x200B);
+        $t = $this->reading_repo->load(0, 1, 12, "TENGO{$zws} {$zws}una");
         $this->assertEquals($t->getID(), 0, 'new word');
-        $this->assertEquals($t->getText(), "TENGO una", 'text');
+        $this->assertEquals($t->getText(), "TENGO{$zws} {$zws}una", 'text');
         $this->assertEquals($t->getLanguage()->getLgID(), $this->spanish->getLgID(), 'language set');
         $this->assertEquals($t->getStatus(), 1, 'status');
     }
 
     public function test_multi_word_returns_existing_word_if_it_matches_the_text() {
-        $wid = DbHelpers::add_word(1, 'TENGO UNA', 'tengo una', 4, 2);
-        $t = $this->reading_repo->load(0, 1, 12, 'TENGO una');
-        $this->assertEquals($t->getID(), $wid, 'maps to existing word');
+        $zws = mb_chr(0x200B);
+        $this->addTerms($this->spanish, ["TENGO{$zws} {$zws}UNA"]);
+        $t = $this->reading_repo->load(0, 1, 12, "TENGO{$zws} {$zws}una");
+        $this->assertTrue($t->getID() > 0, 'maps to existing word');
+        $this->assertEquals($t->getText(), "TENGO{$zws} {$zws}UNA", 'with the right text!');
     }
 
 

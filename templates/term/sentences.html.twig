@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Sentences</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <style>
+      p {
+          font-style: italic;
+      }
+    </style>
+
+    <script>
+      function open_sentence_text(textid) {
+        window.top.location = `/read/${textid}`;
+      }
+    </script>
+
+  </head>
+
+  <body>
+
+    <p>Sentences with this term:</p>
+    <ul class="sentencelist">
+      {% for dto in term %}
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
+      {% endfor %}
+    </ul>
+
+    {% if parent|length > 0 %}
+    <p>Sentences containing the parent term:</p>
+    <ul class="sentencelist">
+      {% for dto in parent %}
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if siblings|length > 0 %}
+    <p>Sentences contain sibling terms (with the same parent):</p>
+    <ul class="sentencelist">
+      {% for dto in siblings %}
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if archived|length > 0 %}
+    <p>Archived texts containing the term (clicking will unarchive the texts):</p>
+    <ul class="sentencelist">
+      {% for dto in archived %}
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+  </body>
+
+</html>
+

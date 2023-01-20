@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Repository\TextRepository;
-use App\Domain\Parser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,9 +38,13 @@ class IndexController extends AbstractController
         // DemoController sets tutorialloaded.
         $tutorialloaded = $request->query->get('tutorialloaded');
 
+        $m = AppManifest::read();
+        $gittag = $m['tag'];
+
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
             'demoisempty' => MigrationHelper::isEmptyDemo(),
+            'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
             'currtxtitle' => $txtitle

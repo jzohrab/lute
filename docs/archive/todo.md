@@ -51,7 +51,7 @@ On the other hand, there are a few `Domain` half-baked ideas that are definitely
 
 * `Domain/ReadingFacade.php` - is basically a service layer for reading
 * `Repository/ReadingRepository.php` - used by the `ReadingFacade`
-* `Domain/Parser.php` - for parsing text
+* `Domain/RomanceLanguageParser.php` - for parsing text
 * `Repository/TextItemRepository.php` - links `textitems2` and `words` records
 
 It could make sense to restructure the files and directories so that 

@@ -24,7 +24,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
             $this->reading_repo,
             $this->text_repo,
             $this->settings_repo,
-            $dict
+            $dict,
+            $this->termtag_repo
         );
     }
 
@@ -64,11 +65,11 @@ final class ReadingFacade_Test extends DatabaseTestBase
           left join words on wotextlc = ti2textlc
           where ti2textlc = 'tengo'";
         // DbHelpers::dumpTable($textitemssql);
-        $expected = [ '0; tengo; ' ];
+        $expected = [ '0; tengo; NULL' ];
         DbHelpers::assertTableContains($sql, $expected, "No matches");
 
-        $term = $this->facade->load(0, $text->getID(), 0, 'tengo');
-        $this->facade->save($term, $text);
+        $tengo = $this->facade->loadDTO(0, $text->getID(), 0, 'tengo');
+        $this->facade->saveDTO($tengo, $text->getID());
 
         $expected = [ '1; tengo; tengo' ];
         // DbHelpers::dumpTable($wordssql);
@@ -82,31 +83,31 @@ final class ReadingFacade_Test extends DatabaseTestBase
     {
         $content = "Hola tengo un gato.";
         $text = $this->create_text("Hola", $content, $this->spanish);
-
+        $tid = $text->getID();
         $sql = "select ti2woid, ti2textlc, wotextlc
           from textitems2
           left join words on wotextlc = ti2textlc
           where ti2textlc = 'tengo'";
         // DbHelpers::dumpTable($textitemssql);
-        $expected = [ '0; tengo; ' ];
+        $expected = [ '0; tengo; NULL' ];
         DbHelpers::assertTableContains($sql, $expected, "No matches");
 
-        $term = $this->facade->load(0, $text->getID(), 0, 'tengo');
-        $this->facade->save($term, $text);
+        $tengo = $this->facade->loadDTO(0, $tid, 0, 'tengo');
+        $this->facade->saveDTO($tengo, $tid);
 
         $expected = [ '1; tengo; tengo' ];
         // DbHelpers::dumpTable($wordssql);
         DbHelpers::assertTableContains($sql, $expected, "words created");
 
-        $this->facade->remove($term);
-        $expected = [ '0; tengo; ' ];
+        $this->facade->removeDTO($tengo);
+        $expected = [ '0; tengo; NULL' ];
         DbHelpers::assertTableContains($sql, $expected, "mapped back to nothing");
     }
 
 
     public function test_mark_unknown_as_known_creates_words_and_updates_ti2s()
     {
-        DbHelpers::add_word($this->spanish->getLgID(), "lista", "lista", 3, 1);
+        $this->addTerms($this->spanish, [ 'lista' ]);
 
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
         $t = $this->create_text("Hola", $content, $this->spanish);
@@ -133,7 +134,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         // DbHelpers::dumpTable($wordssql);
         $expected = [
-            "lista; 1; 3",
+            "lista; 1; 1",
         ];
         DbHelpers::assertTableContains($wordssql, $expected, "initial words");
 
@@ -143,7 +144,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
           order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($joinedti2s);
         $expected = [
-            "16; lista; lista; 3",
+            "16; lista; lista; 1",
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "initial ti2s mapped to words");
 
@@ -158,7 +159,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
             "10; No; no; 99",
             "12; tengo; tengo; 99",
             "14; una; una; 99",
-            "16; lista; lista; 3",
+            "16; lista; lista; 1",
             "19; Ella; ella; 99",
             "21; tiene; tiene; 99",
             "23; una; una; 99",
@@ -190,8 +191,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         ];
         DbHelpers::assertTableContains($textitemssql, $expected, "initial ti2s");
 
-        // Hack db directly to add a word, no associations.
-        DbHelpers::add_word($this->spanish->getLgID(), 'perro', 'perro', 1, 1);
+        $this->addTerms($this->spanish, ['perro']);
 
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         $expected = [
@@ -204,8 +204,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
           inner join words on woid = ti2woid
           order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($joinedti2s);
-        $expected = [];
-        DbHelpers::assertTableContains($joinedti2s, $expected, "no mappings");
+        $expected = [
+            "7; perro; perro; 1"
+        ];
+        DbHelpers::assertTableContains($joinedti2s, $expected, "just perro mapped");
         
         $this->facade->mark_unknowns_as_known($t);
 
@@ -239,18 +241,18 @@ final class ReadingFacade_Test extends DatabaseTestBase
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($textitemssql);
         $expected = [
-            "1; 5; un gato",
+            "1; 5; un/ /gato",
             "2; 16; lista",
-            "3; 21; tiene una"
+            "3; 21; tiene/ /una"
         ];
         DbHelpers::assertTableContains($textitemssql, $expected, "initial ti2s");
 
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         // DbHelpers::dumpTable($wordssql);
         $expected = [
-            "Un gato; 2; 1",
+            "Un/ /gato; 2; 1",
             "lista; 1; 1",
-            "tiene una; 2; 1",
+            "tiene/ /una; 2; 1",
             "listo; 1; 1"
         ];
         DbHelpers::assertTableContains($wordssql, $expected, "initial words");
@@ -261,18 +263,18 @@ final class ReadingFacade_Test extends DatabaseTestBase
           order by ti2order, ti2wordcount desc";
         // DbHelpers::dumpTable($joinedti2s);
         $expected = [
-            "5; un gato; Un gato; 1",
+            "5; un/ /gato; Un/ /gato; 1",
             "16; lista; lista; 1",
-            "21; tiene una; tiene una; 1"
+            "21; tiene/ /una; tiene/ /una; 1"
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "initial ti2s mapped to words");
 
         $this->facade->update_status($t, ["tengo", "lista", "perro"], 5);
 
         $expected = [
-            "Un gato; 2; 1",
+            "Un/ /gato; 2; 1",
             "lista; 1; 5", // updated
-            "tiene una; 2; 1",
+            "tiene/ /una; 2; 1",
             "listo; 1; 1",
             "tengo; 1; 5", // new
             "perro; 1; 5"  // new, even if not in text, who cares?
@@ -283,10 +285,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
         // DbHelpers::dumpTable($joinedti2s);
         $expected = [
             "3; tengo; tengo; 5",
-            "5; un gato; Un gato; 1",
+            "5; un/ /gato; Un/ /gato; 1",
             "12; tengo; tengo; 5",
             "16; lista; lista; 5",
-            "21; tiene una; tiene una; 1"
+            "21; tiene/ /una; tiene/ /una; 1"
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
 
@@ -294,9 +296,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     // Prod bug: setting all to known, and then selecting to create a
     // multi-word term, didn't return that new term.
-    /**
-     * @group prodbug
-     */
     public function test_create_multiword_term_when_all_known() {
         $t = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
         $this->facade->mark_unknowns_as_known($t);
@@ -310,9 +309,11 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
-        $formterm = $this->reading_repo->load($tiene->WoID, $t->getID(), $tiene->Order, 'tiene una bebida');
-        $this->assertEquals($formterm->getText(), 'tiene una bebida', 'text loaded');
-        $this->assertTrue($formterm->getID() == null, 'should be a new term');
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $tiene_una_bebida = $this->facade->loadDTO($tiene->WoID, $t->getID(), $tiene->Order, $txt);
+        $this->assertEquals($tiene_una_bebida->Text, $txt, 'text loaded');
+        $this->assertTrue($tiene_una_bebida->id == null, 'should be a new term');
     }
 
 
@@ -350,80 +351,132 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    /**
+     * Helper method for quicker test writing.
+     *
+     * Given a saved Text $text, create a new Term with text
+     * $new_term_text, which replaces the text item with text
+     * $replaces_textitem.  The resulting new Term should replace the
+     * text item with text $replaces_textitem, and should hide some
+     * other text items with text $should_hide.
+     */
+    private function run_scenario(Text $text, string $new_term_text, string $replaces_textitem, array $should_hide) {
+        $tid = $text->getID();
+
+        $sentences = $this->facade->getSentences($text);
+        $spanid_to_text = [];
+        foreach ($sentences as $sentence) {
+            foreach ($sentence->getTextItems() as $ti) {
+                $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+            }
+        }
+
+        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $replaces_textitem);
+        $this->assertEquals(1, count($tis), 'single match to ensure no ambiguity');
+        $replaced_ti = array_values($tis)[0];
+        $this->assertEquals($replaced_ti->TextLC, $replaces_textitem, 'sanity check, got the term');
+        // $this->assertEquals($replaced_ti->WoID, 0, 'sanity check, new word');
+
+        $new_dto = $this->facade->loadDTO($replaced_ti->WoID, $tid, $replaced_ti->Order, $new_term_text);
+        $new_dto->Status = 1;
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($new_dto, $tid);
+
+        $this->assertEquals(count($updatedTIs), 1, 'just one update');
+        $theTI = $updatedTIs[0];
+        $this->assertTrue($theTI->WoID > 0, 'which has an ID');
+        $this->assertEquals($theTI->TextLC, $new_term_text, 'with the right text');
+        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
+        $this->assertEquals($theTI_replaces, $replaced_ti->getSpanID(), 'it replaces the original');
+
+        $h = array_map(fn($s) => "'{$s}'", $should_hide);
+        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
+        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
+        $this->assertEquals(
+            implode(', ', $theTI_hides_text),
+            implode(', ', $h),
+            "Hides stuff after term, which it replaces");
+    }
+
+
     // Prod bug: when updating the status of an existing multi-term
     // TextItem (that hides other text items), the UI wasn't getting
     // updated, because the ID of the element to replace wasn't
     // correct.
-    /**
-     * @group prodbug
-     */
-    public function test_update_multiword_textitem_status_replaces_correct_item() {
+    public function test_update_multiword_textitem_replaces_correct_item() {
         $text = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
-        $tid = $text->getID();
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
+    }
 
-        $sentences = $this->facade->getSentences($text);
-        $sentence = $sentences[0];
+    /**
+     * @group rf_zws
+     */
+    public function test_update_multiword_textitem_with_numbers_replaces_correct_item() {
+        $text = $this->create_text("Hola", "121 111 123 \"Ella tiene una bebida\".", $this->spanish);
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
+    }
 
-        $spanid_to_text = [];
-        foreach ($sentence->getTextItems() as $ti) {
-            $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
+    // Interesting parser behavious with numbers, it stores spaces with the numbers, treats it as a delimiter.
+    public function test_update_multiword_textitem_with_numbers_in_middle() {
+        $text = $this->create_text("Hola", "Ella tiene 1234 una bebida.", $this->spanish);
+        $zws = mb_chr(0x200B);
+        $txt = "tiene{$zws} 1234 {$zws}una{$zws} {$zws}bebida";
+        $this->run_scenario($text, $txt, 'tiene', [ ' 1234 ', 'una', ' ', 'bebida' ]);
+        $this->run_scenario($text, $txt, $txt, [ 'tiene', ' 1234 ', 'una', ' ', 'bebida' ]);
+    }
+
+
+    // Japanese multi-word items were getting placed in the wrong location.
+    /**
+     * @group japan_reading_multiword
+     */
+    public function test_japanese_multiword_stays_in_correct_place() {
+        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
         }
 
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
-        $tiene = array_values($tis)[0];
-        $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
-        $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
+        $japanese = App\Entity\Language::makeJapanese();
+        $this->language_repo->save($japanese, true);
+        $text = $this->create_text("Hola", "2後ヲウメニ能問アラ費理セイ北多国び持困寿ながち。", $japanese);
+        $zws = mb_chr(0x200B);
+        $this->run_scenario($text, "な{$zws}がち", "な", [ 'がち' ]);
+        $this->run_scenario($text, "な{$zws}がち", "な{$zws}がち", [ "な", "がち" ]);
+    }
 
-        $mword_text = 'tiene una bebida';
-        $mword_term = $this->reading_repo->load($tiene->WoID, $tid, $tiene->Order, $mword_text);
-        $mword_term->setStatus(1);
 
-        // The new term "tiene una bebida" should replace "tiene" on the UI.
-        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
-        $wid = $mword_term->getID();
-        $this->assertEquals(count($updatedTIs), 1, 'just one update');
-        $theTI = $updatedTIs[0];
-        $this->assertEquals($theTI->WoID, $wid, 'which is the new term');
-        $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
-        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
-        $this->assertEquals($theTI_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
+    // Japanese multi-word items were getting placed in the wrong location.
+    /**
+     * @group japan_reading_multiword_2
+     */
+    public function test_japanese_multiword_demo_story() {
+        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
+        }
 
-        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
-        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
-        $this->assertEquals(
-            implode(', ', $theTI_hides_text),
-            "' ', 'una', ' ', 'bebida'",
-            "Hides stuff after tiene, which it replaces");
+        $japanese = App\Entity\Language::makeJapanese();
+        $this->language_repo->save($japanese, true);
+        $text = $this->create_text("Hola", "「おれの方が強い。」「いいや、ぼくの方が強い。」", $japanese);
+        $zws = mb_chr(0x200B);
+        $this->run_scenario($text, "ぼく{$zws}の{$zws}方", "ぼく", [ "の", "方" ]);
+        $this->run_scenario($text, "おれ{$zws}の{$zws}方", "おれ", [ "の", "方" ]);
+    }
 
-        // Get the textitem for "tiene una bebida":
-        $sentences = $this->facade->getSentences($text);
-        $sentence = $sentences[0];
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $mword_text);
-        $mword_ti = array_values($tis)[0];
-        $this->assertEquals($mword_ti->TextLC, $mword_text, 'sanity check, got the term');
-        $this->assertTrue($mword_ti->WoID > 0, 'and it has a WoID');
 
-        // Load and update the status for "tiene una bebida":        
-        $mword_term = $this->reading_repo->load($mword_ti->WoID, $tid, $mword_ti->Order, '');
-        $this->assertEquals($mword_term->getID(), $mword_ti->WoID, 'sanity check, id');
-        $mword_term->setStatus(1);
+     public function test_japanese_multiword_with_numbers() {
+        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
+        }
 
-        // The updated term "tiene una bebida" should replace itself on the UI,
-        // and hides other things.
-        [ $updatedTIs, $updates ] = $this->facade->save($mword_term, $text);
-        $this->assertEquals(count($updatedTIs), 1, 'just one update');
-        $theTI = $updatedTIs[0];
-        $this->assertEquals($theTI->WoID, $mword_term->getID(), 'which is the new term');
-        $this->assertEquals($theTI->TextLC, $mword_text, 'with the right text');
-        $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
-        $this->assertEquals($theTI_replaces, $theTI->getSpanID(), 'it replaces itself!');
-
-        $theTI_hides = $updates[$theTI->getSpanID()]['hide'];
-        $theTI_hides_text = array_map(fn($ti) => $spanid_to_text[$ti], $theTI_hides);
-        $this->assertEquals(
-            implode(', ', $theTI_hides_text),
-            "'tiene', ' ', 'una', ' ', 'bebida'",
-            "Hides the original terms (b/c the mword term has replaced itself already)");
+        $japanese = App\Entity\Language::makeJapanese();
+        $this->language_repo->save($japanese, true);
+        $text = $this->create_text("Hola", "1234おれの方が強い。", $japanese);
+        $zws = mb_chr(0x200B);
+        $this->run_scenario($text, "おれ{$zws}の{$zws}方", "おれ", [ "の", "方" ]);
     }
 
 
@@ -440,41 +493,38 @@ final class ReadingFacade_Test extends DatabaseTestBase
         }
 
         $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
-        $tiene = array_values($tis)[0];
-        $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term');
-        $this->assertEquals($tiene->WoID, 0, 'sanity check, new word');
+        $tiene_ti = array_values($tis)[0];
+        $this->assertEquals($tiene_ti->TextLC, 'tiene', 'sanity check, got the term');
+        $this->assertEquals($tiene_ti->WoID, 0, 'sanity check, new word');
 
         $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tener');
-        $tener = array_values($tis)[0];
-        $this->assertEquals($tener->TextLC, 'tener', 'sanity check, got tener');
-        $this->assertEquals($tener->WoID, 0, 'sanity check, new word');
+        $tener_ti = array_values($tis)[0];
+        $this->assertEquals($tener_ti->TextLC, 'tener', 'sanity check, got tener');
+        $this->assertEquals($tener_ti->WoID, 0, 'sanity check, new word');
 
-        $term = $this->reading_repo->load(0, $tid, $tiene->Order, 'tiene');
+        $tiene = $this->facade->loadDTO(0, $tid, $tiene_ti->Order, 'tiene');
 
-        $dto = $term->createTermDTO();
-        $dto->ParentText = 'tener';
-        $dto->Status = 1;
-        $term = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $tiene->ParentText = 'tener';
+        $tiene->Status = 1;
 
         // The new term "tiene" also updates "tener".
-        [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
-        $wid = $term->getID();
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($tiene, $tid);
         $this->assertEquals(count($updatedTIs), 2, 'both updated');
 
-        $updated_tiene = $updatedTIs[0];
-        $this->assertEquals($updated_tiene->WoID, $wid, 'first is tiene');
-        $this->assertEquals($updated_tiene->TextLC, 'tiene', 'it says tiene');
-        $updated_tiene_replaces = $updates[$updated_tiene->getSpanID()]['replace'];
-        $this->assertEquals($updated_tiene_replaces, $tiene->getSpanID(), 'it replaces "tiene"');
+        $updated_tiene_ti = $updatedTIs[0];
+        $this->assertEquals($updated_tiene_ti->TextLC, 'tiene', 'first update is for tiene');
+        $this->assertTrue($updated_tiene_ti->WoID > 0, 'it has an id');
+        $updated_tiene_ti_replaces = $updates[$updated_tiene_ti->getSpanID()]['replace'];
+        $this->assertEquals($updated_tiene_ti_replaces, $tiene_ti->getSpanID(), 'it replaces "tiene"');
 
-        $tener_term = $this->reading_repo->load(0, $tid, $tiene->Order, 'tener');
-        $this->assertTrue($tener_term->getID() != 0, 'sanity check, tener also saved.');
+        $tener = $this->facade->loadDTO(0, $tid, $tiene_ti->Order, 'tener');
+        $this->assertTrue($tener->id != 0, 'sanity check, tener also saved.');
 
-        $updated_tener = $updatedTIs[1];
-        $this->assertEquals($updated_tener->WoID, $tener_term->getID(), 'id = tener');
-        $this->assertEquals($updated_tener->TextLC, 'tener', 'it says tener');
-        $updated_tener_replaces = $updates[$updated_tener->getSpanID()]['replace'];
-        $this->assertEquals($updated_tener_replaces, $tener->getSpanID(), 'it replaces "tener"');
+        $updated_tener_ti = $updatedTIs[1];
+        $this->assertEquals($updated_tener_ti->WoID, $tener->id, 'id = tener');
+        $this->assertEquals($updated_tener_ti->TextLC, 'tener', 'it says tener');
+        $updated_tener_replaces = $updates[$updated_tener_ti->getSpanID()]['replace'];
+        $this->assertEquals($updated_tener_replaces, $tener_ti->getSpanID(), 'it replaces "tener"');
     }
 
 
@@ -507,17 +557,13 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->assertEquals($tengo->WoID, 0, 'sanity check, new word');
 
-        $term = $this->reading_repo->load(0, $tid, $tengo->Order, '');
-        $this->assertEquals($term->getText(), 'Tengo', 'sanity check, have Tengo');
-
-        $dto = $term->createTermDTO();
-        $dto->ParentText = 'que';
-        $term = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $tengo_check = $this->facade->loadDTO(0, $tid, $tengo->Order, '');
+        $this->assertEquals($tengo_check->Text, 'Tengo', 'sanity check');
+        $tengo_check->ParentText = 'que';
 
         // The new term "tengo" also updates "que", but not "qué".
-        [ $updatedTIs, $updates ] = $this->facade->save($term, $text);
+        [ $updatedTIs, $updates ] = $this->facade->saveDTO($tengo_check, $tid);
         $this->assertEquals(count($updatedTIs), 2, 'only 2 updated');
-        $wid = $term->getID();
     }
 
 

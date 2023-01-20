@@ -117,6 +117,15 @@ class TermController extends AbstractController
         ]);
     }
 
+
+    #[Route('/sentences/{id}', name: 'app_term_sentences', methods: ['GET'])]
+    public function show_sentences(Term $term, Dictionary $dict): Response
+    {
+        $refs = $dict->findReferences($term);
+        return $this->render('term/sentences.html.twig', $refs);
+    }
+
+
     #[Route('/{id}', name: 'app_term_show', methods: ['GET'])]
     public function show(Term $term): Response
     {

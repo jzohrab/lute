@@ -8,20 +8,19 @@ use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
 use App\Utils\Connection;
 
-class Parser {
+class RomanceLanguageParser {
 
     /** PUBLIC **/
     
-    public static function parse(Text $text) {
-        $p = new Parser();
-        $p->parseText($text);
-    }
-
     private $conn;
 
     public function __construct()
     {
         $this->conn = Connection::getFromEnvironment();
+    }
+
+    public function parse(Text $text) {
+        $this->parseText($text);
     }
 
     /** PRIVATE **/
@@ -51,19 +50,6 @@ class Parser {
         ];
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
-
-        $rechars = $text
-                 ->getLanguage()
-                 ->getLgRegexpWordCharacters();
-        $isJapanese = 'MECAB' == strtoupper(trim($rechars));
-        if ($isJapanese) {
-            // TODO:japanese MECAB parsing.
-            throw new \Exception("MECAB parsing not supported");
-            // Ref parse_japanese_text($text, $id)
-            // and insert_expression_from_mecab()
-            // in
-            // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
-        }
 
         // TODO:future:2023/02/01 get rid of duplicate processing.
         $cleantext = $this->legacy_clean_standard_text($text);
@@ -171,10 +157,6 @@ class Parser {
         $text = trim($text);
 
         $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
-
-        if ($lang->isLgRemoveSpaces()) {
-            $text = str_replace(' ', '', $text);
-        }
 
         // Remove any leading or trailing spaces.
         $text = trim($text);
@@ -289,9 +271,6 @@ class Parser {
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
             [ "/(\n|^)(?!1\t)/u",                   "\n0\t" ],
-
-            $lang->isLgRemoveSpaces() ?
-            [ ' ', '' ] : 'skip',
 
             'trim'
         ]);
@@ -432,10 +411,13 @@ class Parser {
         $id = $text->getID();
         $lid = $text->getLanguage()->getLgID();
 
+        // 0xE2808B (the zero-width space) is added between each
+        // token, and at the start and end of each sentence, to
+        // standardize the string search when looking for terms.
         $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
             SELECT {$lid}, {$id}, TiSeID, 
-            min(if(TiWordCount=0, TiOrder+1, TiOrder)),
-            GROUP_CONCAT(TiText order by TiOrder SEPARATOR \"\") 
+            min(TiOrder),
+            CONCAT(0xE2808B, GROUP_CONCAT(TiText order by TiOrder SEPARATOR 0xE2808B), 0xE2808B)
             FROM temptextitems 
             group by TiSeID";
         $this->exec_sql($sql);

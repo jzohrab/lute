@@ -22,9 +22,14 @@ class MysqlMigrator {
   }
 
   public function get_pending() {
+    $allfiles = [];
     chdir($this->location);
-    $files = glob("*.sql");
-    $outstanding = array_filter($files, fn($f) => $this->should_apply($f));
+    foreach (glob("*.sql") as $s)
+        $allfiles[] = $s;
+    foreach (glob("*.php") as $s)
+        $allfiles[] = $s;
+    sort($allfiles);
+    $outstanding = array_filter($allfiles, fn($f) => $this->should_apply($f));
     return array_values($outstanding);
   }
 
@@ -87,8 +92,7 @@ class MysqlMigrator {
       catch (Exception $e) {
         $msg = $e->getMessage();
         echo "\nFile {$file} exception:\n{$msg}\n";
-        echo "Quitting.\n\n";
-        die;
+        throw $e;
       }
     }
   }
@@ -127,22 +131,15 @@ class MysqlMigrator {
     if ($showmsg) {
       $this->log("  running $file");
     }
-    $commands = file_get_contents($file);
-
-    preg_match_all('/^.*?EXEC_SCRIPT:(.*)/um', $commands, $matches);
-    # dump($matches);
-    $scripts = $matches[1];
-    $n = count($scripts);
-    if ($n > 1) {
-        throw new \Exception("{$file} has {$n} EXEC_SCRIPT lines, can only have 1.");
+    if (str_ends_with($file, "php")) {
+        require $this->location . '/' . $file;
     }
-    if ($n == 1) {
-        $rootdir = __DIR__ . '/../../';
-        include($rootdir . trim($scripts[0]));
-        return;
+    elseif (str_ends_with($file, "sql")) {
+        $commands = file_get_contents($file);
+        $this->exec_commands($commands);
     }
     else {
-        $this->exec_commands($commands);
+        throw new Exception("unknown file type for file $file");
     }
   }
 

@@ -13,7 +13,8 @@
       <img src="/img/lute.png" class="lutelogo" style="width: 75px; height: auto;" />
     </td>
     <td>
-      <h1>Learning Using Texts (LUTE)</h1>
+      <h1 style="margin-block-end: 0px">Learning Using Texts (LUTE)</h1>
+      <p style="margin: 0px; font-size: 0.6em; font-style: italic;">{{ version }}</p>
     </td>
   </tr>
 </table>
@@ -45,7 +46,7 @@
 <div id="userlinks" style="margin-top: 30px;">
   <ul>
 
-    <li><a href="/language">Languages</a></li>
+    <li><a href="/language/index">Languages</a></li>
     <li><a href="{{ path('app_text_new') }}">Create New Text</a></li>
     <li><a href="/text/index">Texts</a>
     {% if currtxid is not null %}
@@ -60,6 +61,7 @@
 <div id="techlinks" style="margin-top: 30px;">
   <ul>
     <li><a href="/server_info">Version and software info.</a></li>
+    <li><a href="/cache/clear">Clear application cache</a></li>
     <li><a href="https://github.com/jzohrab/lute/tree/master/docs">Docs (on GitHub)</a></li>
   </ul>
 </div>
