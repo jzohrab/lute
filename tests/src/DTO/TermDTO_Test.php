@@ -116,7 +116,10 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals($parent->getText(), 'perro', 'parent of perros is perro');
     }
 
-    public function test_buildTerm_with_new_parent_and_tag()
+    /**
+     * @group dtoparent
+     */
+    public function test_buildTerm_with_new_parent_parent_gets_translation_and_image_and_tag()
     {
         foreach(['perros', 'perro'] as $text) {
             $f = $this->dictionary->find($text, $this->spanish);
@@ -126,17 +129,26 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto = new TermDTO();
         $dto->language = $this->spanish;
         $dto->Text = 'perros';
+        $dto->CurrentImage = 'someimage.jpeg';
+        $dto->Translation = 'transl';
         $dto->ParentText = 'perro';
         $dto->termTags[] = 'newtag';
 
         $perros = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $this->assertEquals($perros->getCurrentImage(), 'someimage.jpeg', 'have img');
+        $this->assertEquals($perros->getTranslation(), 'transl', 'c trans');
 
         $parent = $perros->getParent();
         $this->assertTrue($parent != null, 'have parent');
         $this->assertEquals(count($parent->getTermTags()), 1, 'tag count');
         $this->assertEquals($parent->getTermTags()[0]->getText(), 'newtag');
+        $this->assertEquals($parent->getCurrentImage(), 'someimage.jpeg', 'parent have img');
+        $this->assertEquals($parent->getTranslation(), 'transl', 'parent trans');
     }
 
+    /**
+     * @group dtoparent
+     */
     public function test_add_term_existing_parent_creates_link() {
         $p = new Term();
         $p->setLanguage($this->spanish);
