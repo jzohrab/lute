@@ -96,6 +96,7 @@ class TermDTO
         $p->setLanguage($dto->language);
         $p->setStatus($dto->Status);
         $p->setTranslation($dto->Translation);
+        $p->setCurrentImage($dto->CurrentImage);
         $p->setSentence($dto->Romanization);
         foreach ($termtags as $tt)
             $p->addTermTag($tt);

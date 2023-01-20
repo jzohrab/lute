@@ -53,10 +53,15 @@ let tooltip_textitem_hover_content = function (el) {
   }
 
   let tooltip_images = function() {
-    const haveimages = (el.attr('data_img_src') || el.attr('parent_img_src'));
-    if (!haveimages)
+    const images = [ 'data_img_src', 'parent_img_src' ].
+          map(s => image_if_src(el, s));
+    const unique = (value, index, self) => {
+      return self.indexOf(value) === index
+    }
+    const unique_images = images.filter(unique).join(' ');
+    if (unique_images == ' ')
       return '';
-    return `<p>${image_if_src(el, 'parent_img_src')} ${image_if_src(el, 'data_img_src')}</p>`;
+    return `<p>${unique_images}</p>`;
   }
 
   let build_entry = function(term, transl, roman) {
