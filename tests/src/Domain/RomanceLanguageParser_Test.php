@@ -60,13 +60,6 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
      */
     public function test_parse_with_paragraph()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Tengo un gato.\nTengo dos.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
-        $this->assertEquals(1,1);
-
         $p = new RomanceLanguageParser();
         $s = "Tengo un gato.\nTengo dos.";
         $actual = $p->getParsedTokens($s, $this->spanish);
