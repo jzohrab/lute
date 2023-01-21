@@ -55,6 +55,7 @@ class RomanceLanguageParser {
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
 
+        /*
         // TODO:future:2023/02/01 get rid of duplicate processing.
         $cleantext = $this->legacy_clean_standard_text($text);
         $newcleantext = $this->new_clean_standard_text($text);
@@ -66,8 +67,10 @@ class RomanceLanguageParser {
             throw new \Exception("not equal cleaning?  Legacy = " . $cleantext . "; new = " . $newcleantext);
         }
         // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
+        */
 
-        $arr = $this->build_insert_array($newcleantext);
+        $tokens = $this->parse_to_tokens($text->getText(), $text->getLanguage());
+        $arr = $this->build_insert_array($tokens);
         $this->load_temptextitems_from_array($arr);
         $this->import_temptextitems($text);
 
@@ -367,14 +370,12 @@ class RomanceLanguageParser {
      * Convert each non-empty line of text into an array
      * [ sentence_number, order, wordcount, word ].
      */
-    private function build_insert_array($text): array {
-        $lines = explode("\n", $text);
-        $lines = array_filter($lines, fn($s) => $s != '');
-
+    private function build_insert_array($tokens): array {
         // Make the array row, incrementing $sentence_number as
         // needed.
-        $makeentry = function($line) {
-            [ $wordcount, $s ] = explode("\t", $line);
+        $makeentry = function($token) {
+            $wordcount = $token->isWord ? 1 : 0;
+            $s = $token->token;
             $this->ord += 1;
             $ret = [ $this->sentence_number, $this->ord, intval($wordcount), rtrim($s, "\r") ];
 
@@ -386,7 +387,7 @@ class RomanceLanguageParser {
             return $ret;
         };
 
-        $arr = array_map($makeentry, $lines);
+        $arr = array_map($makeentry, $tokens);
 
         // var_dump($arr);
         return $arr;
