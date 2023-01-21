@@ -288,6 +288,10 @@ class Language
         $this->getParser()->parse($text);
     }
 
+    public function getParsedTokens(string $s): array
+    {
+        return $this->getParser()->getParsedTokens($s, $this);
+    }
 
     /**
      * Language "factories" to create sensible defaults.

@@ -20,10 +20,10 @@ class Term_Test extends TestCase
             // tabs are stripped out of text, and returns mark different sentences.
             // [ "   hola\tGATO\nok", 'hola GATO ok', 'hola gato ok' ],
         ];
-        
+
+        $spanish = Language::makeSpanish();
         foreach ($cases as $c) {
-            $t = new Term();
-            $t->setText($c[0]);
+            $t = new Term($spanish, $c[0]);
             $this->assertEquals($t->getText(), $c[1]);
             $this->assertEquals($t->getTextLC(), $c[2]);
         }
@@ -36,16 +36,14 @@ class Term_Test extends TestCase
             [ "hola", 1, 1 ],
             [ "    hola    ", 1, 1 ],
             [ "  hola{$zws} 	{$zws}gato", 2, 3 ],
-            [ "HOLA{$zws}\n{$zws}hay{$zws}\t{$zws}gato  ", 3, 5 ]
+            [ "HOLA{$zws} {$zws}hay{$zws}\t{$zws}gato  ", 3, 5 ]
         ];
 
         $english = new Language();
         $english->setLgName('English');  // Use defaults for all settings.
 
         foreach ($cases as $c) {
-            $t = new Term();
-            $t->setText($c[0]);
-            $t->setLanguage($english);
+            $t = new Term($english, $c[0]);
             $this->assertEquals($t->getWordCount(), $c[1], '*' . $c[0] . '*');
             $this->assertEquals($t->getTokenCount(), $c[2], '*' . $c[0] . '*');
 
@@ -63,7 +61,10 @@ class Term_Test extends TestCase
         $zws = mb_chr(0x200B);
         $cases = [
             [ "  the{$zws} {$zws}CAT{$zws}'{$zws}s{$zws} {$zws}pyjamas  ", 4, 7 ],
-            [ "A{$zws} {$zws}big{$zws} {$zws}CHUNK{$zws} {$zws}O{$zws}'{$zws} {$zws}stuff", 5, 10 ],
+
+            // This only has 9 tokens, because the "'" is included with
+            // the following space ("' ").
+            [ "A{$zws} {$zws}big{$zws} {$zws}CHUNK{$zws} {$zws}O{$zws}'{$zws} {$zws}stuff", 5, 9 ],
             [ "YOU{$zws}'{$zws}RE", 2, 3 ],
             [ "...", 0, 1 ]  // should never happen :-)
         ];
@@ -72,9 +73,7 @@ class Term_Test extends TestCase
         $english->setLgName('English');  // Use defaults for all settings.
 
         foreach ($cases as $c) {
-            $t = new Term();
-            $t->setText($c[0]);
-            $t->setLanguage($english);
+            $t = new Term($english, $c[0]);
             $m = $c[0];
             $this->assertEquals($t->getWordCount(), $c[1], $m . ' wc');
             $this->assertEquals($t->getTokenCount(), $c[2], $m . ' tc');

@@ -99,10 +99,22 @@ class Term
 
     public function setText(string $WoText): self
     {
+        if ($this->language == null)
+            throw new \Exception("Must do Term->setLanguage() before setText()");
+
         $t = trim($WoText);
         $zws = mb_chr(0x200B); // zero-width space.
-        if (str_contains($t, ' ') && !str_contains($t, $zws))
-            throw new \Exception("Invalid term string $WoText");
+        $t = str_replace($zws, '', $t);
+        $tokens = $this->getLanguage()->getParsedTokens($t);
+
+        // Terms can't contain paragraph markers.
+        $isNotPara = function($tok) {
+            return $tok->token !== "¶\r";
+        };
+        $tokens = array_filter($tokens, $isNotPara);
+        $tokstrings = array_map(fn($tok) => $tok->token, $tokens);
+        // dump($tokens);
+        $t = implode($zws, $tokstrings);
 
         $text_changed = $this->WoText != null && $this->WoText != $t;
         if ($this->id != null && $text_changed) {
