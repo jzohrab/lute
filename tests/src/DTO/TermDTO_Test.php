@@ -88,8 +88,8 @@ final class TermDTO_Test extends DatabaseTestBase
     public function test_buildTerm_returns_existing_term_in_language()
     {
         $t = new Term();
-        $t->setText('Hola');
         $t->setLanguage($this->spanish);
+        $t->setText('Hola');
         $this->dictionary->add($t, true);
 
         $dto = $t->createTermDTO();
