@@ -131,7 +131,6 @@ class JapaneseParser {
         $mecabed = fread($handle, filesize($file_name));
         fclose($handle);
         unlink($file_name);
-        dump($mecabed);
 
         $tokens = [];
         foreach (explode(PHP_EOL, $mecabed) as $line) {
@@ -155,60 +154,6 @@ class JapaneseParser {
         }
 
         return $tokens;
-    }
-
-    /**
-     * Sanitize a Japanese text for insertion in the database.
-     * 
-     * Separate lines \n, end sentences with \r and gives pairs (charcount\tstring)
-     * 
-     * @param string $text Text to clean, using regexs.
-     */
-    private function mecab_clean_text(Text $entity): string
-    {
-        $text = $entity->getText();
-
-        $text = trim(preg_replace('/[ \t]+/u', ' ', $text));
-
-        $file_name = tempnam(sys_get_temp_dir(), "lute");
-        // We use the format "word  num num" for all nodes
-        $mecab_args = '-F %m\t%t\t%h\n -U %m\t%t\t%h\n -E EOP\t3\t7\n -o ' . $file_name;
-        $mecab = JapaneseParser::MeCab_command($mecab_args);
-
-        // WARNING: \n is converted to PHP_EOL here!
-        $handle = popen($mecab, 'w');
-        fwrite($handle, $text);
-        pclose($handle);
-
-        $handle = fopen($file_name, 'r');
-        $mecabed = fread($handle, filesize($file_name));
-        fclose($handle);
-        // dump($mecabed);
-
-        $outtext = "";
-        foreach (explode(PHP_EOL, $mecabed) as $line) {
-            // Skip blank lines, or the following line's array
-            // assignment fails.
-            if (trim($line) == "")
-                continue;
-
-            $tab = mb_chr(9);
-            list($term, $node_type, $third) = explode($tab, $line);
-
-            $isParagraph = ($term == 'EOP' && $third == '7');
-            if ($isParagraph)
-                $term = "¶\r";
-
-            $count = 0;
-            if (str_contains('2678', $node_type))
-                $count = 1;
-
-            $outtext .= ((string) $count) . "\t$term\n";
-        }
-        unlink($file_name);
-
-        dump($outtext);
-        return $outtext;
     }
 
 
