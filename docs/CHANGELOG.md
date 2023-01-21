@@ -1,5 +1,40 @@
 # Changelog
 
+## 2023-01-20 v1.1.0
+
+## Major changes
+
+* Terms and sentences are now concatenated with a zero-width space.  **Users of earlier versions will need to update the `words` and `sentences` table.**  See https://github.com/jzohrab/lute/wiki/Upgrading-from-v1.0.3-or-earlier for notes.
+* Japanese parser added
+* Parsing type is now specified as part of the Language setup
+* Sentences containing a term, its parents and siblings can be listed
+* Allow option to hide "Romanization" field for languages that really don't need it
+
+## Minor changes
+
+* Store image in parent if new parent.
+* Documentation moved to wiki.
+* Local authentication disabled for speed
+* Fix image click updates on main term page
+* Images pre-loaded in reading page for popup speed
+* "Clear cache" link added to main page and error page, useful during upgrades
+
+## Back end changes
+
+* Cleanup test code
+* Strengthen ReadingFacade
+
+
+## 2023-01-08 - v1.0.3
+
+* saving user images in `public/userimages`, linking directly to terms.  (If you have been using v1.0.2 actively since its release a few days ago, you'll need to [clean up your data](https://github.com/jzohrab/lute/wiki/Migrating-to-userimages) ... sorry!)
+* cleaning up the term hover-over tooltip popup
+
+### back end work:
+
+* add TermDTO object to simplify term form processing
+* github CI
+
 ## 2023-01-04 - v1.0.2
 
 * Save selected bing image to public/media/images.
