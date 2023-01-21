@@ -70,6 +70,7 @@ class Dictionary {
         $ret = [
             'term' => $this->getReferences($term, $conn),
             'parent' => $this->getReferences($p, $conn),
+            'children' => $this->getChildReferences($term, $conn),
             'siblings' => $this->getSiblingReferences($p, $term, $conn),
             'archived' => $this->getArchivedReferences($term, $conn)
         ];
@@ -114,6 +115,23 @@ class Dictionary {
             where WpParentWoID = {$parent->getID()}
             and WpWoID != {$term->getID()}
           ) siblingSeIDs on siblingSeIDs.ti2seid = SeID
+          order by TxID limit 10";
+        $res = $conn->query($sql);
+        return $this->buildTermReferenceDTOs($res);
+    }
+
+    private function getChildReferences($term, $conn): array {
+        if ($term == null)
+            return [];
+        $sql = "select distinct TxID, TxTitle, SeText
+          from sentences
+          inner join texts on TxID = SeTxID
+          inner join (
+            select ti2seid
+            from textitems2
+            inner join wordparents on WpWoID = ti2WoID
+            where WpParentWoID = {$term->getID()}
+          ) childSeIDs on childSeIDs.ti2seid = SeID
           order by TxID limit 10";
         $res = $conn->query($sql);
         return $this->buildTermReferenceDTOs($res);

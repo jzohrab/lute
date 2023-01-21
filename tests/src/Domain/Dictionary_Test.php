@@ -333,7 +333,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $refs = $this->dictionary->findReferences($tengo);
 
         $keys = array_keys($refs);
-        $this->assertEquals([ 'term', 'parent', 'siblings', 'archived' ], $keys);
+        $this->assertEquals([ 'term', 'parent', 'children', 'siblings', 'archived' ], $keys);
 
         $this->assertEquals(2, count($refs['term']), 'term');
         $this->assertEquals(0, count($refs['parent']), 'parent');
@@ -385,11 +385,21 @@ final class Dictionary_Test extends DatabaseTestBase
             $ret = implode(', ', [ $refdto->TxID, $refdto->Title, $refdto->Sentence ?? 'NULL' ]);
             return str_replace($zws, '/', $ret);
         };
-        $zws = mb_chr(0x200B);
         $this->assertEquals("1, hola, /Tengo/ /un/ /gato/./", $tostring($refs['term'][0]), 'term');
         $this->assertEquals("1, hola, / /No/ /quiero/ /tener/ /nada/./", $tostring($refs['parent'][0]), 'p');
         $this->assertEquals("1, hola, / /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
         $this->assertEquals("2, luego, /Tengo/ /un/ /coche/./", $tostring($refs['archived'][0]), 'a');
+
+        $refs = $this->dictionary->findReferences($tener);
+        $this->assertEquals(1, count($refs['term']), 'term');
+        $this->assertEquals(0, count($refs['parent']), 'parent');
+        $this->assertEquals(2, count($refs['children']), 'children');
+        $this->assertEquals(0, count($refs['siblings']), 'siblings');
+        $this->assertEquals(0, count($refs['archived']), 'archived');
+
+        $this->assertEquals("1, hola, / /No/ /quiero/ /tener/ /nada/./", $tostring($refs['term'][0]), 'term');
+        $this->assertEquals("1, hola, / /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['children'][1]), 'c');
+        $this->assertEquals("1, hola, /Tengo/ /un/ /gato/./", $tostring($refs['children'][0]), 'c');
     }
 
 }
