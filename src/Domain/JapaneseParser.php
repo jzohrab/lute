@@ -6,6 +6,7 @@ use App\Entity\Text;
 use App\Entity\Language;
 use App\Repository\TextItemRepository;
 use App\Domain\TextStatsCache;
+use App\Domain\ParsedToken;
 use App\Utils\Connection;
 
 class JapaneseParser {
@@ -67,6 +68,9 @@ class JapaneseParser {
         $this->parseText($text);
     }
 
+    public function getParsedTokens(string $text, Language $lang) {
+        return $this->get_parsed_tokens($text);
+    }
 
     /** PRIVATE **/
 
@@ -109,6 +113,49 @@ class JapaneseParser {
         // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
     }
 
+
+    private function get_parsed_tokens($text) {
+        $text = trim(preg_replace('/[ \t]+/u', ' ', $text));
+
+        $file_name = tempnam(sys_get_temp_dir(), "lute");
+        // We use the format "word  num num" for all nodes
+        $mecab_args = '-F %m\t%t\t%h\n -U %m\t%t\t%h\n -E EOP\t3\t7\n -o ' . $file_name;
+        $mecab = JapaneseParser::MeCab_command($mecab_args);
+
+        // WARNING: \n is converted to PHP_EOL here!
+        $handle = popen($mecab, 'w');
+        fwrite($handle, $text);
+        pclose($handle);
+
+        $handle = fopen($file_name, 'r');
+        $mecabed = fread($handle, filesize($file_name));
+        fclose($handle);
+        unlink($file_name);
+        dump($mecabed);
+
+        $tokens = [];
+        foreach (explode(PHP_EOL, $mecabed) as $line) {
+            // Skip blank lines, or the following line's array
+            // assignment fails.
+            if (trim($line) == "")
+                continue;
+
+            $tab = mb_chr(9);
+            list($term, $node_type, $third) = explode($tab, $line);
+
+            $isParagraph = ($term == 'EOP' && $third == '7');
+            if ($isParagraph)
+                $term = "¶\r";
+
+            $count = 0;
+            if (str_contains('2678', $node_type))
+                $count = 1;
+
+            $tokens[] = new ParsedToken($term, $count > 0);
+        }
+
+        return $tokens;
+    }
 
     /**
      * Sanitize a Japanese text for insertion in the database.

@@ -58,7 +58,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
     /**
      * @group parser_tokens
      */
-    public function test_parse_with_paragraph()
+    public function test_getParsedTokens()
     {
         $p = new RomanceLanguageParser();
         $s = "Tengo un gato.\nTengo dos.";

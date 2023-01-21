@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\JapaneseParser;
+use App\Domain\ParsedToken;
 use App\Entity\Text;
 use App\Entity\Language;
 use App\Entity\Term;
@@ -50,15 +51,39 @@ final class JapaneseParser_Test extends DatabaseTestBase
     /**
      * @group parser_tokens
      */
-    public function test_parse_with_paragraphs()
+    public function test_getParsedTokens()
     {
-        $t = new Text();
-        $t->setTitle("Test");
-        $t->setText("私は元気です。
-私は元気です。");
-        $t->setLanguage($this->japanese);
-        $this->text_repo->save($t, true);
-        $this->assertEquals(1,1);
+        $p = new JapaneseParser();
+        $s = "私は元気です。
+私は元気です。";
+        $actual = $p->getParsedTokens($s, $this->japanese);
+
+        $expected = [
+            [ "私", true ],
+            [ "は", true ],
+            [ "元気", true ],
+            [ "です", true ],
+            [ "。", false ],
+            [ "¶\r", false ],
+            [ "私", true ],
+            [ "は", true ],
+            [ "元気", true ],
+            [ "です", true ],
+            [ "。", false ],
+            [ "¶\r", false ]
+        ];
+        $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
+
+        $tostring = function($tokens) {
+            $ret = '';
+            foreach ($tokens as $tok) {
+                $isw = $tok->isWord ? '1' : '0';
+                $ret .= "{$tok->token}-{$isw};";
+            }
+            return $ret;
+        };
+
+        $this->assertEquals($tostring($actual), $tostring($expected));
     }
 
     public function test_parse_words_defined()
