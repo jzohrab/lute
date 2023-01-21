@@ -192,8 +192,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
      */
     public function test_text_contains_same_term_many_times()
     {
-        $zws = mb_chr(0x200B);
-        $this->addTerms($this->spanish, ["Un{$zws} {$zws}gato"]);
+        $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -227,8 +226,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
 
     public function test_text_same_sentence_contains_same_term_many_times()
     {
-        $zws = mb_chr(0x200B);
-        $this->addTerms($this->spanish, ["Un{$zws} {$zws}gato"]);
+        $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = new Text();
         $t->setTitle("Gato.");
@@ -280,14 +278,13 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $this->text_repo->save($t, true);
 
 
-        $zws = mb_chr(0x200B);
         $this->addTerms($this->spanish, [
-            "Un{$zws} {$zws}gato",
-            "de{$zws} {$zws}refilón",
-            "Con{$zws} {$zws}el{$zws} {$zws}tiempo",
-            "pabellón{$zws} {$zws}auditivo",
-            "nos{$zws} {$zws}marcamos",
-            "Tanto{$zws} {$zws}daba"
+            "Un gato",
+            "de refilón",
+            "Con el tiempo",
+            "pabellón auditivo",
+            "nos marcamos",
+            "Tanto daba"
         ]);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
@@ -317,8 +314,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $t->setLanguage($this->english);
         $this->text_repo->save($t, true);
 
-        $zws = mb_chr(0x200B);
-        $term = $this->addTerms($this->english, "the{$zws} {$zws}cat{$zws}'{$zws}s{$zws} {$zws}pyjamas");
+        $term = $this->addTerms($this->english, "the cat's pyjamas");
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";

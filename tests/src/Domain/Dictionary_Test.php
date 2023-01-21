@@ -305,8 +305,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], 'no terms');
 
-        $zws = mb_chr(0x200B);
-        $terms = [ 'tengo', "un{$zws} {$zws}gato" ];
+        $terms = [ 'tengo', "un gato" ];
         foreach ($terms as $s) {
             $t = new Term();
             $t->setLanguage($this->spanish);
@@ -343,10 +342,10 @@ final class Dictionary_Test extends DatabaseTestBase
 
         $trs = $refs['term'];
         $zws = mb_chr(0x200B);
-        $this->assertEquals("{$zws}Tengo{$zws} {$zws}un{$zws} {$zws}gato{$zws}.{$zws}", $trs[0]->Sentence);
+        $this->assertEquals("Tengo un gato.", str_replace($zws, '', $trs[0]->Sentence));
         $this->assertEquals($text->getID(), $trs[0]->TxID);
         $this->assertEquals("hola", $trs[0]->Title);
-        $this->assertEquals("{$zws} {$zws}No{$zws} {$zws}tengo{$zws} {$zws}un{$zws} {$zws}perro{$zws}.{$zws}", $trs[1]->Sentence);
+        $this->assertEquals(" No tengo un perro.", str_replace($zws, '', $trs[1]->Sentence));
     }
 
     /**

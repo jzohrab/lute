@@ -38,8 +38,7 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         $expected = [ "{$t->getID()}; 1; 1; tengo" ];
         DbHelpers::assertTableContains($sql, $expected, "associated textitems in spanish text only");
 
-        $zws = mb_chr(0x200B);
-        $t = new Term($this->spanish, "un{$zws} {$zws}gato");
+        $t = new Term($this->spanish, "un gato");
         $this->dictionary->add($t, true);
         $expected[] = "{$t->getID()}; 1; 2; un/ /gato";
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
@@ -54,8 +53,7 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, [], "No associations");
 
         $t1 = new Term($this->spanish, "tengo");
-        $zws = mb_chr(0x200B);
-        $t2 = new Term($this->spanish, "un{$zws} {$zws}gato");
+        $t2 = new Term($this->spanish, "un gato");
 
         $this->dictionary->add($t1, false);
         $this->dictionary->add($t2, false);
@@ -88,8 +86,7 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "No associations");
 
         $t1 = new Term($this->spanish, "tengo");
-        $zws = mb_chr(0x200B);
-        $t2 = new Term($this->spanish, "un{$zws} {$zws}gato");
+        $t2 = new Term($this->spanish, "un gato");
 
         $this->dictionary->add($t1, false);
         $this->dictionary->add($t2, false);
@@ -119,8 +116,7 @@ final class Dictionary_Save_Test extends DatabaseTestBase
 
         $t = new Term();
         $t->setLanguage($this->spanish);
-        $zws = mb_chr(0x200B);
-        $t->setText("un{$zws} {$zws}gato");
+        $t->setText("un gato");
         $this->dictionary->add($t, true);
 
         $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
@@ -147,8 +143,7 @@ final class Dictionary_Save_Test extends DatabaseTestBase
 
         $this->make_text("Hi", "私は元気です.", $japanese);
 
-        $zws = mb_chr(0x200B);
-        $t = new Term($japanese, "元気{$zws}です");
+        $t = new Term($japanese, "元気です");
         $this->dictionary->add($t, true);
 
         $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";

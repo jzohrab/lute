@@ -309,10 +309,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
-        $zws = mb_chr(0x200B);
-        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $txt = "tiene una bebida";
         $tiene_una_bebida = $this->facade->loadDTO($tiene->WoID, $t->getID(), $tiene->Order, $txt);
-        $this->assertEquals($tiene_una_bebida->Text, $txt, 'text loaded');
+        $zws = mb_chr(0x200B);
+        $this->assertEquals(str_replace($zws, '', $tiene_una_bebida->Text), $txt, 'text loaded');
         $this->assertTrue($tiene_una_bebida->id == null, 'should be a new term');
     }
 
@@ -371,10 +371,19 @@ final class ReadingFacade_Test extends DatabaseTestBase
             }
         }
 
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $replaces_textitem);
+
+        $removeNulls = function($ti) {
+            $zws = mb_chr(0x200B);
+            return str_replace($zws, '', $ti->TextLC);
+        };
+
+        $tis = array_filter(
+            $sentence->getTextItems(),
+            fn($ti) => ($removeNulls($ti) == $replaces_textitem)
+        );
         $this->assertEquals(1, count($tis), 'single match to ensure no ambiguity');
         $replaced_ti = array_values($tis)[0];
-        $this->assertEquals($replaced_ti->TextLC, $replaces_textitem, 'sanity check, got the term');
+        $this->assertEquals($removeNulls($replaced_ti), $replaces_textitem, 'sanity check, got the term');
         // $this->assertEquals($replaced_ti->WoID, 0, 'sanity check, new word');
 
         $new_dto = $this->facade->loadDTO($replaced_ti->WoID, $tid, $replaced_ti->Order, $new_term_text);
@@ -384,7 +393,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals(count($updatedTIs), 1, 'just one update');
         $theTI = $updatedTIs[0];
         $this->assertTrue($theTI->WoID > 0, 'which has an ID');
-        $this->assertEquals($theTI->TextLC, $new_term_text, 'with the right text');
+
+        $zws = mb_chr(0x200B);
+        $textlc_no_nulls = str_replace($zws, '', $theTI->TextLC);
+        $this->assertEquals($textlc_no_nulls, $new_term_text, 'with the right text');
         $theTI_replaces = $updates[$theTI->getSpanID()]['replace'];
         $this->assertEquals($theTI_replaces, $replaced_ti->getSpanID(), 'it replaces the original');
 
@@ -404,8 +416,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     // correct.
     public function test_update_multiword_textitem_replaces_correct_item() {
         $text = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
-        $zws = mb_chr(0x200B);
-        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $txt = "tiene una bebida";
         $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
         $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
     }
@@ -415,8 +426,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      */
     public function test_update_multiword_textitem_with_numbers_replaces_correct_item() {
         $text = $this->create_text("Hola", "121 111 123 \"Ella tiene una bebida\".", $this->spanish);
-        $zws = mb_chr(0x200B);
-        $txt = "tiene{$zws} {$zws}una{$zws} {$zws}bebida";
+        $txt = "tiene una bebida";
         $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
         $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
     }
@@ -424,8 +434,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     // Interesting parser behavious with numbers, it stores spaces with the numbers, treats it as a delimiter.
     public function test_update_multiword_textitem_with_numbers_in_middle() {
         $text = $this->create_text("Hola", "Ella tiene 1234 una bebida.", $this->spanish);
-        $zws = mb_chr(0x200B);
-        $txt = "tiene{$zws} 1234 {$zws}una{$zws} {$zws}bebida";
+        $txt = "tiene 1234 una bebida";
         $this->run_scenario($text, $txt, 'tiene', [ ' 1234 ', 'una', ' ', 'bebida' ]);
         $this->run_scenario($text, $txt, $txt, [ 'tiene', ' 1234 ', 'una', ' ', 'bebida' ]);
     }
@@ -443,9 +452,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
         $text = $this->create_text("Hola", "2後ヲウメニ能問アラ費理セイ北多国び持困寿ながち。", $japanese);
-        $zws = mb_chr(0x200B);
-        $this->run_scenario($text, "な{$zws}がち", "な", [ 'がち' ]);
-        $this->run_scenario($text, "な{$zws}がち", "な{$zws}がち", [ "な", "がち" ]);
+        $this->run_scenario($text, "ながち", "な", [ 'がち' ]);
+        $this->run_scenario($text, "ながち", "ながち", [ "な", "がち" ]);
     }
 
 
@@ -461,9 +469,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
         $text = $this->create_text("Hola", "「おれの方が強い。」「いいや、ぼくの方が強い。」", $japanese);
-        $zws = mb_chr(0x200B);
-        $this->run_scenario($text, "ぼく{$zws}の{$zws}方", "ぼく", [ "の", "方" ]);
-        $this->run_scenario($text, "おれ{$zws}の{$zws}方", "おれ", [ "の", "方" ]);
+        $this->run_scenario($text, "ぼくの方", "ぼく", [ "の", "方" ]);
+        $this->run_scenario($text, "おれの方", "おれ", [ "の", "方" ]);
     }
 
 
@@ -475,8 +482,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
         $text = $this->create_text("Hola", "1234おれの方が強い。", $japanese);
-        $zws = mb_chr(0x200B);
-        $this->run_scenario($text, "おれ{$zws}の{$zws}方", "おれ", [ "の", "方" ]);
+        $this->run_scenario($text, "おれの方", "おれ", [ "の", "方" ]);
     }
 
 
