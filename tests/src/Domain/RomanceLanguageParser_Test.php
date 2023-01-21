@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\RomanceLanguageParser;
+use App\Domain\ParsedToken;
 use App\Entity\Text;
 use App\Entity\Term;
 
@@ -61,10 +62,40 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
     {
         $t = new Text();
         $t->setTitle("Hola.");
-        $t->setText("Tengo un gato.\nTengo una bebida.");
+        $t->setText("Tengo un gato.\nTengo dos.");
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
         $this->assertEquals(1,1);
+
+        $p = new RomanceLanguageParser();
+        $s = "Tengo un gato.\nTengo dos.";
+        $actual = $p->getParsedTokens($s, $this->spanish);
+
+        $expected = [
+            [ 'Tengo', true ],
+            [ ' ', false ],
+            [ 'un', true ],
+            [ ' ', false ],
+            [ 'gato', true ],
+            [ ".\r", false ],
+            [ "¶\r", false ],
+            [ 'Tengo', true ],
+            [ ' ', false ],
+            [ 'dos', true ],
+            [ '.', false ]
+        ];
+        $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
+
+        $tostring = function($tokens) {
+            $ret = '';
+            foreach ($tokens as $tok) {
+                $isw = $tok->isWord ? '1' : '0';
+                $ret .= "{$tok->token}-{$isw};";
+            }
+            return $ret;
+        };
+
+        $this->assertEquals($tostring($actual), $tostring($expected));
     }
 
 

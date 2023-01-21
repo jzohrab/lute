@@ -23,6 +23,10 @@ class RomanceLanguageParser {
         $this->parseText($text);
     }
 
+    public function getParsedTokens(string $text, Language $lang) {
+        return $this->parse_to_tokens($text, $lang);
+    }
+
     /** PRIVATE **/
 
     private function exec_sql($sql, $params = null) {
@@ -201,6 +205,81 @@ class RomanceLanguageParser {
             // echo "\n-----------------------------\n";
         }
         return $text;
+    }
+
+    private function parse_to_tokens(string $text, Language $lang) {
+
+        $replace = explode("|", $lang->getLgCharacterSubstitutions());
+        foreach ($replace as $value) {
+            $fromto = explode("=", trim($value));
+            if (count($fromto) >= 2) {
+                $rfrom = trim($fromto[0]);
+                $rto = trim($fromto[1]);
+                $text = str_replace($rfrom, $rto, $text);
+            }
+        }
+
+        $punct = ParserPunctuation::PUNCTUATION . '\]';
+
+        $splitSentence = $lang->getLgRegexpSplitSentences();
+        $termchar = $lang->getLgRegexpWordCharacters();
+
+        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
+        $splitSentencecallback = function($matches) use ($lang) {
+            $splitex = $lang->getLgExceptionsSplitSentences();
+            return $this->find_latin_sentence_end($matches, $splitex);
+        };
+
+        $splitThenPunct = "[{$splitSentence}][{$punct}]*";
+
+        /**
+         * Following is a hairy set of regular expressions and their
+         * replacements that are applied in order.  These were copied
+         * practically verbatim from LWT's parsing, and so they have
+         * been production-tested by users with their texts.  Some of
+         * these regex's may be redundant, or the order in some cases
+         * might not matter -- hard to say offhand without getting a
+         * bunch of test cases to verify behaviour before refactoring
+         * the regexes.
+         */
+        $text = $this->do_replacements($text, [
+            [ "\r\n",  "\n" ],
+            [ '{',     '['],
+            [ '}',     ']'],
+            [ "\n",    ' ¶' ],
+
+            $lang->isLgSplitEachChar() ?
+            [ '/([^\s])/u', "$1\t" ] : 'skip',
+
+            'trim',
+            [ '/\s+/u',                             ' ' ],
+            [ $resplitsent,                         $splitSentencecallback ],
+            [ "¶",                                  "¶\r" ],
+            [ " ¶",                                 "\r¶" ],
+            [ '/([^' . $termchar . '])/u',          "\n$1\n" ],
+            [ '/\n(' . $splitThenPunct . ')\n\t/u', "\n$1\n" ],
+            [ '/([0-9])[\n]([:.,])[\n]([0-9])/u',   "$1$2$3" ],
+            [ "\t",                                 "\n" ],
+            [ "\n\n",                               "" ],
+            [ "/\r(?=[{$punct} ]*\r)/u",            "" ],
+            [ '/[\n]+\r/u',                         "\r" ],
+            [ '/\r([^\n])/u',                       "\r\n$1" ],
+            [ "/\n[.](?![{$punct}]*\r)/u",          ".\n" ],
+            [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
+            'trim',
+            [ "/(\n|^)(?!1\t)/u",                   "\n0\t" ],
+
+            'trim'
+        ]);
+
+        $tokens = [];
+        foreach(explode("\n", $text) as $line) {
+            if (trim($line) != '') {
+                [ $wordcount, $s ] = explode("\t", $line);
+                $tokens[] = new ParsedToken($s, $wordcount > 0);
+            }
+        } 
+        return $tokens;
     }
 
      /**
