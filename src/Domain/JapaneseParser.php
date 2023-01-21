@@ -100,9 +100,9 @@ class JapaneseParser {
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
 
-        $cleantext = $this->mecab_clean_text($text);
+        $tokens = $this->get_parsed_tokens($text->getText());
 
-        $arr = $this->build_insert_array($cleantext);
+        $arr = $this->build_insert_array($tokens);
         $this->load_temptextitems_from_array($arr);
         $this->import_temptextitems($text);
 
@@ -216,19 +216,12 @@ class JapaneseParser {
     private int $sentence_number = 0;
     private int $ord = 0;
 
-    /**
-     * Convert each non-empty line of text into an array
-     * [ sentence_number, order, wordcount, word ].
-     */
-    private function build_insert_array($text): array {
-        $lines = explode("\n", $text);
-        $lines = array_filter($lines, fn($s) => $s != '');
-
+    private function build_insert_array($tokens): array {
         // Make the array row, incrementing $sentence_number as
         // needed.
-        $makeentry = function($line) {
-            [ $wordcount, $s ] = explode("\t", $line);
-            // dump([ $wordcount, $s ]);
+        $makeentry = function($token) {
+            $wordcount = $token->isWord ? 1 : 0;
+            $s = $token->token;
             $this->ord += 1;
             $ret = [ $this->sentence_number, $this->ord, intval($wordcount), rtrim($s, "\r") ];
 
@@ -240,7 +233,7 @@ class JapaneseParser {
             return $ret;
         };
 
-        $arr = array_map($makeentry, $lines);
+        $arr = array_map($makeentry, $tokens);
 
         // var_dump($arr);
         return $arr;

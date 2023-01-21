@@ -186,10 +186,6 @@ class RomanceLanguageParser {
     private int $sentence_number = 0;
     private int $ord = 0;
 
-    /**
-     * Convert each non-empty line of text into an array
-     * [ sentence_number, order, wordcount, word ].
-     */
     private function build_insert_array($tokens): array {
         // Make the array row, incrementing $sentence_number as
         // needed.
