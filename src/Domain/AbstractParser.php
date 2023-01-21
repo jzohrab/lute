@@ -53,6 +53,9 @@ abstract class AbstractParser {
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
 
+        $s = $text->getText();
+        $zws = mb_chr(0x200B); // zero-width space.
+        $s = str_replace($zws, '', $s);
         $tokens = $this->getParsedTokens($text->getText(), $text->getLanguage());
 
         $arr = $this->build_insert_array($tokens);
