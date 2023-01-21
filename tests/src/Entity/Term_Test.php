@@ -31,12 +31,11 @@ class Term_Test extends TestCase
 
     public function test_getWordCount_and_TokenCount()
     {
-        $zws = mb_chr(0x200B);
         $cases = [
             [ "hola", 1, 1 ],
             [ "    hola    ", 1, 1 ],
-            [ "  hola{$zws} 	{$zws}gato", 2, 3 ],
-            [ "HOLA{$zws} {$zws}hay{$zws}\t{$zws}gato  ", 3, 5 ]
+            [ "  hola 	gato", 2, 3 ],
+            [ "HOLA hay\tgato  ", 3, 5 ]
         ];
 
         $english = new Language();
@@ -58,14 +57,13 @@ class Term_Test extends TestCase
      */
     public function test_getWordCount_and_TokenCount_punct()
     {
-        $zws = mb_chr(0x200B);
         $cases = [
-            [ "  the{$zws} {$zws}CAT{$zws}'{$zws}s{$zws} {$zws}pyjamas  ", 4, 7 ],
+            [ "  the CAT's pyjamas  ", 4, 7 ],
 
             // This only has 9 tokens, because the "'" is included with
             // the following space ("' ").
-            [ "A{$zws} {$zws}big{$zws} {$zws}CHUNK{$zws} {$zws}O{$zws}'{$zws} {$zws}stuff", 5, 9 ],
-            [ "YOU{$zws}'{$zws}RE", 2, 3 ],
+            [ "A big CHUNK O' stuff", 5, 9 ],
+            [ "YOU'RE", 2, 3 ],
             [ "...", 0, 1 ]  // should never happen :-)
         ];
 
@@ -100,10 +98,9 @@ class Term_Test extends TestCase
             $this->assertEquals($t->getTextLC(), $c, 'lc');
         }
 
-        $zws = mb_chr(0x200B);
         $cases = [
-            [ "元気{$zws}です", 2 ],
-            [ "元気{$zws}です{$zws}です", 3 ]
+            [ "元気です", 2 ],
+            [ "元気です私", 3 ]
         ];
 
         foreach ($cases as $c) {
