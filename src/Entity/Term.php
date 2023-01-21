@@ -113,7 +113,7 @@ class Term
         };
         $tokens = array_filter($tokens, $isNotPara);
         $tokstrings = array_map(fn($tok) => $tok->token, $tokens);
-        // dump($tokens);
+
         $t = implode($zws, $tokstrings);
 
         $text_changed = $this->WoText != null && $this->WoText != $t;
