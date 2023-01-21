@@ -47,6 +47,20 @@ final class JapaneseParser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, 'after parse');
     }
 
+    /**
+     * @group parser_tokens
+     */
+    public function test_parse_with_paragraphs()
+    {
+        $t = new Text();
+        $t->setTitle("Test");
+        $t->setText("私は元気です。
+私は元気です。");
+        $t->setLanguage($this->japanese);
+        $this->text_repo->save($t, true);
+        $this->assertEquals(1,1);
+    }
+
     public function test_parse_words_defined()
     {
         $this->addTerms($this->japanese, [ '私', '元気', 'です' ]);

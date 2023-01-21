@@ -274,7 +274,8 @@ class RomanceLanguageParser {
 
             'trim'
         ]);
-        
+
+        dump($text);
         return $text;
     }
 

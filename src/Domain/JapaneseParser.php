@@ -160,7 +160,7 @@ class JapaneseParser {
         }
         unlink($file_name);
 
-        // dump($outtext);
+        dump($outtext);
         return $outtext;
     }
 

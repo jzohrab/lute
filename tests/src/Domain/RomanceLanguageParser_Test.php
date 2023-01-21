@@ -54,6 +54,19 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, 'lowercase set');
     }
 
+    /**
+     * @group parser_tokens
+     */
+    public function test_parse_with_paragraph()
+    {
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Tengo un gato.\nTengo una bebida.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
+        $this->assertEquals(1,1);
+    }
+
 
     /**
      * @group current
