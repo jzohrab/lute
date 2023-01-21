@@ -55,20 +55,6 @@ class RomanceLanguageParser {
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
 
-        /*
-        // TODO:future:2023/02/01 get rid of duplicate processing.
-        $cleantext = $this->legacy_clean_standard_text($text);
-        $newcleantext = $this->new_clean_standard_text($text);
-        if ($cleantext != $newcleantext) {
-            // echo "Legacy\n:";
-            // echo $cleantext . "\n\n";
-            // echo "New\n:";
-            // echo $newcleantext . "\n\n";
-            throw new \Exception("not equal cleaning?  Legacy = " . $cleantext . "; new = " . $newcleantext);
-        }
-        // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
-        */
-
         $tokens = $this->parse_to_tokens($text->getText(), $text->getLanguage());
         $arr = $this->build_insert_array($tokens);
         $this->load_temptextitems_from_array($arr);
@@ -79,96 +65,6 @@ class RomanceLanguageParser {
         TextStatsCache::force_refresh($text);
 
         // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
-    }
-
-
-    // TODO:obsolete - currently running this in parallel with the
-    // newer method below it.  Can delete in the future after have
-    // done some more imports.
-    /**
-     * @param string $text Text to clean, using regexs.
-     */
-    private function legacy_clean_standard_text(Text $entity): string
-    {
-        $lang = $entity->getLanguage();
-
-        $text = $entity->getText();
-
-        $punct = ParserPunctuation::PUNCTUATION;
-
-        // Initial cleanup.
-        $text = str_replace("\r\n", "\n", $text);
-        // because of sentence special characters
-        $text = str_replace(array('}','{'), array(']','['), $text);
-
-        $replace = explode("|", $lang->getLgCharacterSubstitutions());
-        foreach ($replace as $value) {
-            $fromto = explode("=", trim($value));
-            if (count($fromto) >= 2) {
-                $rfrom = trim($fromto[0]);
-                $rto = trim($fromto[1]);
-                $text = str_replace($rfrom, $rto, $text);
-            }
-        }
-
-        $text = str_replace("\n", " ¶", $text);
-        $text = trim($text);
-        if ($lang->isLgSplitEachChar()) {
-            $text = preg_replace('/([^\s])/u', "$1\t", $text);
-        }
-        $text = preg_replace('/\s+/u', ' ', $text);
-
-        $splitSentence = $lang->getLgRegexpSplitSentences();
-        
-        $callback = function($matches) use ($lang) {
-            $notEnd = $lang->getLgExceptionsSplitSentences();
-            return $this->find_latin_sentence_end($matches, $notEnd);
-        };
-        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
-        $text = preg_replace_callback($re, $callback, $text);
-
-        // Para delims include \r
-        $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
-
-        $termchar = $lang->getLgRegexpWordCharacters();
-        $text = preg_replace(
-            array(
-                '/([^' . $termchar . '])/u',
-                '/\n([' . $splitSentence . '][' . $punct . '\]]*)\n\t/u',
-                '/([0-9])[\n]([:.,])[\n]([0-9])/u'
-            ),
-            array("\n$1\n", "$1", "$1$2$3"),
-            $text
-        );
-
-        $text = str_replace(array("\t","\n\n"), array("\n",""), $text);
-
-        $text = preg_replace(
-                array(
-                    "/\r(?=[]$punct ]*\r)/u",
-                    '/[\n]+\r/u',
-                    '/\r([^\n])/u',
-                    "/\n[.](?![]$punct]*\r)/u",
-                    "/(\n|^)(?=.?[$termchar][^\n]*\n)/u"
-                ),
-                array(
-                    "",
-                    "\r",
-                    "\r\n$1",
-                    ".\n",
-                    "\n1\t"
-                ),
-                $text
-        );
-
-        $text = trim($text);
-
-        $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
-
-        // Remove any leading or trailing spaces.
-        $text = trim($text);
-
-        return $text;
     }
 
 
@@ -283,82 +179,6 @@ class RomanceLanguageParser {
             }
         } 
         return $tokens;
-    }
-
-     /**
-     * @param string $text Text to clean, using regexs.
-     */
-    private function new_clean_standard_text(Text $entity): string
-    {
-        $lang = $entity->getLanguage();
-
-        $text = $entity->getText();
-
-        $replace = explode("|", $lang->getLgCharacterSubstitutions());
-        foreach ($replace as $value) {
-            $fromto = explode("=", trim($value));
-            if (count($fromto) >= 2) {
-                $rfrom = trim($fromto[0]);
-                $rto = trim($fromto[1]);
-                $text = str_replace($rfrom, $rto, $text);
-            }
-        }
-
-        $punct = ParserPunctuation::PUNCTUATION . '\]';
-
-        $splitSentence = $lang->getLgRegexpSplitSentences();
-        $termchar = $lang->getLgRegexpWordCharacters();
-
-        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]$punct]*)(?=(\s*)(\S+|$))/u";
-        $splitSentencecallback = function($matches) use ($lang) {
-            $splitex = $lang->getLgExceptionsSplitSentences();
-            return $this->find_latin_sentence_end($matches, $splitex);
-        };
-
-        $splitThenPunct = "[{$splitSentence}][{$punct}]*";
-
-        /**
-         * Following is a hairy set of regular expressions and their
-         * replacements that are applied in order.  These were copied
-         * practically verbatim from LWT's parsing, and so they have
-         * been production-tested by users with their texts.  Some of
-         * these regex's may be redundant, or the order in some cases
-         * might not matter -- hard to say offhand without getting a
-         * bunch of test cases to verify behaviour before refactoring
-         * the regexes.
-         */
-        $text = $this->do_replacements($text, [
-            [ "\r\n",  "\n" ],
-            [ '{',     '['],
-            [ '}',     ']'],
-            [ "\n",    ' ¶' ],
-
-            $lang->isLgSplitEachChar() ?
-            [ '/([^\s])/u', "$1\t" ] : 'skip',
-
-            'trim',
-            [ '/\s+/u',                             ' ' ],
-            [ $resplitsent,                         $splitSentencecallback ],
-            [ "¶",                                  "¶\r" ],
-            [ " ¶",                                 "\r¶" ],
-            [ '/([^' . $termchar . '])/u',          "\n$1\n" ],
-            [ '/\n(' . $splitThenPunct . ')\n\t/u', "\n$1\n" ],
-            [ '/([0-9])[\n]([:.,])[\n]([0-9])/u',   "$1$2$3" ],
-            [ "\t",                                 "\n" ],
-            [ "\n\n",                               "" ],
-            [ "/\r(?=[{$punct} ]*\r)/u",            "" ],
-            [ '/[\n]+\r/u',                         "\r" ],
-            [ '/\r([^\n])/u',                       "\r\n$1" ],
-            [ "/\n[.](?![{$punct}]*\r)/u",          ".\n" ],
-            [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
-            'trim',
-            [ "/(\n|^)(?!1\t)/u",                   "\n0\t" ],
-
-            'trim'
-        ]);
-
-        dump($text);
-        return $text;
     }
 
 
