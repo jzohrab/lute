@@ -20,6 +20,7 @@
 
   <body>
 
+    {% if term|length > 0 %}
     <p>Sentences with this term:</p>
     <ul class="sentencelist">
       {% for dto in term %}
@@ -29,11 +30,24 @@
       </li>
       {% endfor %}
     </ul>
+    {% endif %}
 
     {% if parent|length > 0 %}
-    <p>Sentences containing the parent term:</p>
+    <p>Sentences containing the parent of this term:</p>
     <ul class="sentencelist">
       {% for dto in parent %}
+      <li>
+        {{ dto.Sentence }}
+        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if children|length > 0 %}
+    <p>Sentences containing children of this term:</p>
+    <ul class="sentencelist">
+      {% for dto in children %}
       <li>
         {{ dto.Sentence }}
         <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
