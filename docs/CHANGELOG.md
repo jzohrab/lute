@@ -1,5 +1,14 @@
 # Changelog
 
+## 2023-01-21 v1.1.1
+
+* Fix for terms with spaces (use parser for terms)
+* Increase scope of archive search when looking for sentences
+
+## Back end changes
+
+* Change parser to use parsed tokens
+
 ## 2023-01-20 v1.1.0
 
 ## Major changes
