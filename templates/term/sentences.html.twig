@@ -21,7 +21,7 @@
   <body>
 
     {% if term|length > 0 %}
-    <p>Sentences with this term:</p>
+    <p>The term:</p>
     <ul class="sentencelist">
       {% for dto in term %}
       <li>
@@ -33,7 +33,7 @@
     {% endif %}
 
     {% if parent|length > 0 %}
-    <p>Sentences containing the parent of this term:</p>
+    <p>Term parent:</p>
     <ul class="sentencelist">
       {% for dto in parent %}
       <li>
@@ -45,7 +45,7 @@
     {% endif %}
 
     {% if children|length > 0 %}
-    <p>Sentences containing children of this term:</p>
+    <p>Term children:</p>
     <ul class="sentencelist">
       {% for dto in children %}
       <li>
@@ -57,7 +57,7 @@
     {% endif %}
 
     {% if siblings|length > 0 %}
-    <p>Sentences contain sibling terms (with the same parent):</p>
+    <p>Sibling terms (with the same parent):</p>
     <ul class="sentencelist">
       {% for dto in siblings %}
       <li>
@@ -69,7 +69,7 @@
     {% endif %}
 
     {% if archived|length > 0 %}
-    <p>Archived texts containing the term (clicking will unarchive the texts):</p>
+    <p>Archived (clicking will unarchive the texts):</p>
     <ul class="sentencelist">
       {% for dto in archived %}
       <li>
