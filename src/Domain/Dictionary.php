@@ -140,17 +140,49 @@ class Dictionary {
     private function getArchivedReferences($term, $conn): array {
         if ($term == null)
             return [];
-        $sql = "select distinct TxID, TxTitle, SeText
-          from texts
-          inner join sentences on SeTxID = TxID
-          where SeText like concat('%', ?, '%') and TxArchived = 1
-          order by TxID limit 10";
+
+        $wid = $term->getID();
+        $wpid = -1;
+        if ($term->getParent() != null) {
+            $wpid = $term->getParent()->getID();
+        }
+
+        $sql = "select WoText from words where WoID in
+            (
+              select WpWoID from wordparents
+                where WpParentWoID in ({$wid}, {$wpid})
+              union
+              select {$wpid} as WoID
+              union
+              select {$wid} as WoID
+            )";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new \Exception($conn->error);
         }
-        $v = trim($term->getText());
-        $stmt->bind_param('s', $v);
+        if (!$stmt->execute()) {
+            throw new \Exception($stmt->error);
+        }
+        $res = $stmt->get_result();
+        $termstrings = [];
+        while (($row = $res->fetch_assoc())) {
+            $termstrings[] = $row['WoText'];
+        }
+        
+        $sql = "select distinct TxID, TxTitle, SeText
+          from texts
+          inner join sentences on SeTxID = TxID
+          where SeText like concat('%', ?, '%') and TxArchived = 1
+           ";
+        $fullsql = array_fill(0, count($termstrings), $sql);
+        $fullsql = implode(' UNION ', $fullsql);
+        // dump($fullsql);
+
+        $stmt = $conn->prepare($fullsql);
+        if (!$stmt) {
+            throw new \Exception($conn->error);
+        }
+        $stmt->bind_param(str_repeat('s', count($termstrings)), ...$termstrings);
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
