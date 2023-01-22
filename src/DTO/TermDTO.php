@@ -92,8 +92,8 @@ class TermDTO
             return $p;
 
         $p = new Term();
-        $p->setText($pt);
         $p->setLanguage($dto->language);
+        $p->setText($pt);
         $p->setStatus($dto->Status);
         $p->setTranslation($dto->Translation);
         $p->setCurrentImage($dto->CurrentImage);

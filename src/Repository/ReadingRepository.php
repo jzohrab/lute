@@ -205,8 +205,8 @@ class ReadingRepository
         }
 
         $t = new Term();
-        $t->setText($record['t']);
         $t->setLanguage($lang);
+        $t->setText($record['t']);
         return $t;
     }
 
@@ -218,8 +218,8 @@ class ReadingRepository
             return $t;
 
         $t = new Term();
-        $t->setText($text);
         $t->setLanguage($lang);
+        $t->setText($text);
         return $t;
     }
 
