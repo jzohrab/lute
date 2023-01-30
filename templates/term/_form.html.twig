@@ -197,10 +197,10 @@
     const zeroWidthSpace = '\u200b';
     const sqlZWS = '%E2%80%8B';
     const cleantext = term.
-          replace(zeroWidthSpace, '').
+          replaceAll(zeroWidthSpace, '').
           replace(/\s+/g, ' ');
     const searchterm = encodeURIComponent(cleantext).
-          replace(sqlZWS, '');
+          replaceAll(sqlZWS, '');
     ret = ret.replace('###', searchterm);
     // console.log(ret);
     return ret;
