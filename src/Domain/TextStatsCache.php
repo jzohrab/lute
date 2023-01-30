@@ -217,16 +217,6 @@ where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
     }
 
 
-    public static function markStale(array $text_ids) {
-        if (count($text_ids) == 0)
-            return;
-        $ids = implode(', ', $text_ids);
-        $sql = "DELETE from textstatscache where TxID in ({$ids})";
-        $conn = TextStatsCache::getConnection();
-        TextStatsCache::exec_sql($sql, $conn);
-    }
-
-
     // Private.
 
     private static function getConnection()
