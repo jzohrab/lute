@@ -46,17 +46,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
-    - name: Make var dir so psalm config is valid.
-      run: mkdir -p var
-
-    - name: Psalm check
-      run: ./vendor/bin/psalm --config=psalm.xml --no-progress
-
     - name: Install Dependencies
       run: |
         composer install --no-progress
         sudo apt-get update -y
         sudo apt-get install -y mecab mecab-ipadic-utf8
+
+    - name: Make var dir so psalm config is valid.
+      run: mkdir -p var
+
+    - name: Psalm check
+      run: ./vendor/bin/psalm --config=psalm.xml --no-progress
 
     - uses: shogo82148/actions-setup-mysql@v1
       with:
