@@ -25,6 +25,8 @@ Features not shown:
 
 The feature set of Lute is currently small, but it contains the core features for it to be a minimally viable product (MVP).  As I, or others, feel the need, new features can be implemented.
 
+Also see the [YouTube introduction video](https://youtu.be/cjSqQTwUFCY).
+
 # Docs to start
 
 * If you're wondering whether you should use Lute or something else, [here's my take](./docs/lute_and_alternatives.md).
