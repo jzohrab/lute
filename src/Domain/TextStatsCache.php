@@ -148,11 +148,42 @@ LEFT OUTER JOIN (
         foreach ($sqls as $sql)
             TextStatsCache::exec_sql($sql, $conn);
     }
-    
+
+
     /**
-     * Refresh stats for records that have all records in textstatscache.
+     * Check the current lastmaxstatuschanged key in settings table vs
+     * actual word status changed values, return true if something has
+     * changed.
+     */
+    public static function needs_refresh(): bool {
+        $conn = TextStatsCache::getConnection();
+
+        $sql = "select count(*) as c from settings
+          where StKey = 'lastmaxstatuschanged'";
+        $res = TextStatsCache::exec_sql($sql, $conn);
+        $ret = $res->fetch_assoc();
+        $missing_key = $ret['c'] == '0';
+        if ($missing_key)
+            return true;
+
+        // Check the stored value vs. the current max changed value.
+        $sql = "select count(*) as c from settings
+          where StKey = 'lastmaxstatuschanged'
+          and convert(StValue, unsigned) < (select convert(unix_timestamp(max(wostatuschanged)), unsigned) from words);";
+        $res = TextStatsCache::exec_sql($sql, $conn);
+        $ret = $res->fetch_assoc();
+        $needs_refresh = $ret['c'] == '1';
+        $conn->close();
+        return $needs_refresh;
+    }
+
+    /**
+     * Refresh stats for any texts needing refresh.
      */
     public static function refresh() {
+        if (!TextStatsCache::needs_refresh())
+            return;
+
         $conn = TextStatsCache::getConnection();
 
         $sql_text_ids_with_updated_words = "
@@ -170,6 +201,10 @@ inner join textstatscache tsc on tsc.TxID = src.TxID
 where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
 
         TextStatsCache::do_refresh($sql_text_ids_with_updated_words, $conn);
+
+        $sql = "insert ignore into settings (StKey, StValue)
+          values('lastmaxstatuschanged', (select convert(unix_timestamp(max(wostatuschanged)), char(40)) from words))";
+        TextStatsCache::exec_sql($sql, $conn);
     }
 
 
