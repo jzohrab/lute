@@ -18,7 +18,7 @@ use App\Utils\Connection;
 class TextStatsCache {
 
     /** refresh */
-    private static function do_refresh($sql_ids_to_update) {
+    private static function do_refresh($sql_ids_to_update, $conn) {
 
         // TODO:storedproc Replace temp table with stored proc.
         //
@@ -146,13 +146,15 @@ LEFT OUTER JOIN (
         ];
 
         foreach ($sqls as $sql)
-            TextStatsCache::exec_sql($sql);
+            TextStatsCache::exec_sql($sql, $conn);
     }
     
     /**
      * Refresh stats for records that have all records in textstatscache.
      */
     public static function refresh() {
+        $conn = TextStatsCache::getConnection();
+
         $sql_text_ids_with_updated_words = "
 select src.TxID
 from (
@@ -167,7 +169,7 @@ from (
 inner join textstatscache tsc on tsc.TxID = src.TxID
 where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
 
-        TextStatsCache::do_refresh($sql_text_ids_with_updated_words);
+        TextStatsCache::do_refresh($sql_text_ids_with_updated_words, $conn);
     }
 
 
@@ -175,7 +177,8 @@ where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
      * Force refresh stats for $text
      */
     public static function force_refresh($text) {
-        TextStatsCache::do_refresh("select {$text->getID()}");
+        $conn = TextStatsCache::getConnection();
+        TextStatsCache::do_refresh("select {$text->getID()}", $conn);
     }
 
 
@@ -184,7 +187,8 @@ where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
             return;
         $ids = implode(', ', $text_ids);
         $sql = "DELETE from textstatscache where TxID in ({$ids})";
-        TextStatsCache::exec_sql($sql);
+        $conn = TextStatsCache::getConnection();
+        TextStatsCache::exec_sql($sql, $conn);
     }
 
 
@@ -195,15 +199,11 @@ where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
         return Connection::getFromEnvironment();
     }
 
-    private static function exec_sql($sql, $params = null) {
+    private static function exec_sql($sql, $conn) {
         // echo $sql . "\n";
-        $conn = TextStatsCache::getConnection();
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new \Exception($conn->error);
-        }
-        if ($params) {
-            $stmt->bind_param(...$params);
         }
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
