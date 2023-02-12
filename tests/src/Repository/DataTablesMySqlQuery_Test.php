@@ -122,4 +122,17 @@ final class DataTablesMySqlQuery_Test extends TestCase
     }
 
 
+    private function assertWhereEquals($searchString, $expected) {
+        $this->parameters["search"]["value"] = $searchString;
+        $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
+        $filtered = $actual["recordsFiltered"];
+        $where = preg_replace('/.* WHERE /', '', $filtered);
+        $this->assertEquals($expected, $where, $searchString);
+    }
+
+    public function test_search_regex_markers()
+    {
+        $this->assertWhereEquals("XXX", "(Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))");
+    }
+
 }
