@@ -52,7 +52,9 @@
             return `<a href="/term/${row[5]}/edit">${row[0]}</a>`;
           }
         },
-        { "name": "WoTranslation", "targets": 1, width: "40%" },
+        { "name": "WoTranslation", "targets": 1, width: "40%",
+          "searchable": false, "orderable": false,
+        },
         { "name": "LgName", "targets": 2 },
         { "name": "TagList", "targets": 3 },
         { "name": "StText", "targets": 4 },
