@@ -132,7 +132,12 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
     public function test_search_regex_markers()
     {
-        $this->assertWhereEquals("XXX", "(Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))");
+        $this->assertWhereEquals('XXX', "(Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))");
+        $this->assertWhereEquals('^XXX', "(Color LIKE CONCAT('', :s0, '%') OR Food LIKE CONCAT('', :s0, '%'))");
+        $this->assertWhereEquals('XXX$', "(Color LIKE CONCAT('%', :s0, '') OR Food LIKE CONCAT('%', :s0, ''))");
+        $this->assertWhereEquals('^XXX$', "(Color LIKE CONCAT('', :s0, '') OR Food LIKE CONCAT('', :s0, ''))");
+
+        $this->assertWhereEquals('^XXX YYY$', "(Color LIKE CONCAT('', :s0, '%') OR Food LIKE CONCAT('', :s0, '%')) AND (Color LIKE CONCAT('%', :s1, '') OR Food LIKE CONCAT('%', :s1, ''))");
     }
 
 }
