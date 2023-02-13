@@ -1,6 +1,7 @@
 # LUTE - Learning Using Texts
 
 [![CI master](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml/badge.svg?branch=master)](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml?query=branch%3Amaster)
+[![Discord Server](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/CzFUQP5m8u)
 
 This is a fork and ground-up rewrite of [Hugo Fara's fork](https://github.com/hugofara) of the original Learning with Texts project on [Sourceforge](https://sourceforge.net/projects/learning-with-texts).
 
@@ -27,19 +28,23 @@ The feature set of Lute is currently small, but it contains the core features fo
 
 Also see the [YouTube introduction video](https://youtu.be/cjSqQTwUFCY).
 
-# Docs to start
+# Docs
 
-* If you're wondering whether you should use Lute or something else, [here's my take](./docs/lute_and_alternatives.md).
-* If you're into tech, and wonder why I created a new project rather than improve the existing LWT code, see [why I forked](./docs/why_the_fork.md).
-* [Installation](./docs/installation.md)
+Docs are in the [Wiki](https://github.com/jzohrab/lute/wiki).  Some initial links to check out:
 
-There's more notes in [the docs](./docs/README.md).
+* Read about Lute's origin, and why I forked this project from LWT [here](https://github.com/jzohrab/lute/wiki/Project-origin).
+* If you're wondering whether you should use Lute or something else, [here's my take](https://github.com/jzohrab/lute/wiki/Lute-alternatives).
+* [Installation](https://github.com/jzohrab/lute/wiki/Installation)
+
+There are a few more notes in [the docs](./docs/README.md), but the Wiki is the best place to start.
+
+You can also join [the Lute Discord Server](https://discord.gg/CzFUQP5m8u).
 
 # Contribution
 
 If you're a gearhead, like me:
 
-* Read the [development notes](./docs/development.md)
+* Read the [development notes](https://github.com/jzohrab/lute/wiki/Development)
 * Fork this repo
 * Run `composer install --dev` to install dependencies
 * Make and test your changes!
