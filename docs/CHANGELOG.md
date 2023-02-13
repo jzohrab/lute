@@ -1,17 +1,29 @@
 # Changelog
 
+## 2023-02-13 v1.1.2
+
+* Don't search translation field in term list.
+* Allow "^" and "$" special characters in term and text listing searches.
+
+### Back end changes
+
+* Fix php 8.2 deprecation warnings
+* JS bugfix, replaceAll for strings.
+* Speed up text listings, only recalc stats if required.
+
+
 ## 2023-01-21 v1.1.1
 
 * Fix for terms with spaces (use parser for terms)
 * Increase scope of archive search when looking for sentences
 
-## Back end changes
+### Back end changes
 
 * Change parser to use parsed tokens
 
 ## 2023-01-20 v1.1.0
 
-## Major changes
+### Major changes
 
 * Terms and sentences are now concatenated with a zero-width space.  **Users of earlier versions will need to update the `words` and `sentences` table.**  See https://github.com/jzohrab/lute/wiki/Upgrading-from-v1.0.3-or-earlier for notes.
 * Japanese parser added
@@ -19,7 +31,7 @@
 * Sentences containing a term, its parents and siblings can be listed
 * Allow option to hide "Romanization" field for languages that really don't need it
 
-## Minor changes
+### Minor changes
 
 * Store image in parent if new parent.
 * Documentation moved to wiki.
@@ -28,7 +40,7 @@
 * Images pre-loaded in reading page for popup speed
 * "Clear cache" link added to main page and error page, useful during upgrades
 
-## Back end changes
+### Back end changes
 
 * Cleanup test code
 * Strengthen ReadingFacade
