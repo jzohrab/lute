@@ -11,7 +11,6 @@
         <ignoreFiles>
           <directory name="bin" />
           <directory name="config" />
-          <directory name="db" />
           <directory name="var" />
           <directory name="vendor" />
         </ignoreFiles>
