@@ -18,7 +18,7 @@ use App\Utils\Connection;
 class TextStatsCache {
 
     /** refresh */
-    private static function do_refresh($sql_ids_to_update) {
+    private static function do_refresh($sql_ids_to_update, $conn) {
 
         // TODO:storedproc Replace temp table with stored proc.
         //
@@ -146,13 +146,46 @@ LEFT OUTER JOIN (
         ];
 
         foreach ($sqls as $sql)
-            TextStatsCache::exec_sql($sql);
+            TextStatsCache::exec_sql($sql, $conn);
     }
-    
+
+
     /**
-     * Refresh stats for records that have all records in textstatscache.
+     * Check the current lastmaxstatuschanged key in settings table vs
+     * actual word status changed values, return true if something has
+     * changed.
+     */
+    public static function needs_refresh(): bool {
+        $conn = TextStatsCache::getConnection();
+
+        $sql = "select count(*) as c from settings
+          where StKey = 'lastmaxstatuschanged'";
+        $res = TextStatsCache::exec_sql($sql, $conn);
+        $ret = $res->fetch_assoc();
+        $missing_key = $ret['c'] == '0';
+        if ($missing_key)
+            return true;
+
+        // Check the stored value vs. the current max changed value.
+        $sql = "select count(*) as c from settings
+          where StKey = 'lastmaxstatuschanged'
+          and convert(StValue, unsigned) < (select convert(unix_timestamp(max(wostatuschanged)), unsigned) from words);";
+        $res = TextStatsCache::exec_sql($sql, $conn);
+        $ret = $res->fetch_assoc();
+        $needs_refresh = $ret['c'] == '1';
+        $conn->close();
+        return $needs_refresh;
+    }
+
+    /**
+     * Refresh stats for any texts needing refresh.
      */
     public static function refresh() {
+        if (!TextStatsCache::needs_refresh())
+            return;
+
+        $conn = TextStatsCache::getConnection();
+
         $sql_text_ids_with_updated_words = "
 select src.TxID
 from (
@@ -167,7 +200,11 @@ from (
 inner join textstatscache tsc on tsc.TxID = src.TxID
 where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
 
-        TextStatsCache::do_refresh($sql_text_ids_with_updated_words);
+        TextStatsCache::do_refresh($sql_text_ids_with_updated_words, $conn);
+
+        $sql = "insert ignore into settings (StKey, StValue)
+          values('lastmaxstatuschanged', (select convert(unix_timestamp(max(wostatuschanged)), char(40)) from words))";
+        TextStatsCache::exec_sql($sql, $conn);
     }
 
 
@@ -175,16 +212,8 @@ where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
      * Force refresh stats for $text
      */
     public static function force_refresh($text) {
-        TextStatsCache::do_refresh("select {$text->getID()}");
-    }
-
-
-    public static function markStale(array $text_ids) {
-        if (count($text_ids) == 0)
-            return;
-        $ids = implode(', ', $text_ids);
-        $sql = "DELETE from textstatscache where TxID in ({$ids})";
-        TextStatsCache::exec_sql($sql);
+        $conn = TextStatsCache::getConnection();
+        TextStatsCache::do_refresh("select {$text->getID()}", $conn);
     }
 
 
@@ -195,15 +224,11 @@ where tsc.UpdatedDate IS NULL OR maxwsc > tsc.updatedDate";
         return Connection::getFromEnvironment();
     }
 
-    private static function exec_sql($sql, $params = null) {
+    private static function exec_sql($sql, $conn) {
         // echo $sql . "\n";
-        $conn = TextStatsCache::getConnection();
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new \Exception($conn->error);
-        }
-        if ($params) {
-            $stmt->bind_param(...$params);
         }
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);

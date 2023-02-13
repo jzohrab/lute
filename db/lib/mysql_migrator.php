@@ -2,8 +2,10 @@
 
 class MysqlMigrator {
   var $dbname;
-  var $db;
+  var $conn;
+  var $location;
   var $showlogging;
+  var $repeatable;
 
   public function __construct($location, $repeatable, $host, $db, $user, $pass, $showlogging = false) {
     $this->location = $location;

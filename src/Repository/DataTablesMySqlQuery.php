@@ -73,12 +73,27 @@ class DataTablesMySqlQuery
             // at least one field.
             $partwheress = [];
             for ($i = 0; $i < count($searchparts); $i++) {
-                $params["s{$i}"] = $searchparts[$i];
+                $p = $searchparts[$i];
+
+                // Left and right wildcards to use around search part.
+                $lwild = '%';
+                $rwild = '%';
+
+                if (str_starts_with($p, '^')) {
+                    $lwild = '';
+                    $p = ltrim($p, '^');
+                }
+                if (str_ends_with($p, '$')) {
+                    $rwild = '';
+                    $p = rtrim($p, '$');
+                }
+
+                $params["s{$i}"] = $p;
 
                 $colwheres = [];
                 for ($j = 0; $j < count($searchablecols); $j++) {
                     $cname = $searchablecols[$j];
-                    $colwheres[] = "{$cname} LIKE CONCAT('%', :s{$i}, '%')";
+                    $colwheres[] = "{$cname} LIKE CONCAT('{$lwild}', :s{$i}, '{$rwild}')";
                 }
                 // Part in at least one field.
                 $partwheress[] = '(' . implode(' OR ', $colwheres) . ')';

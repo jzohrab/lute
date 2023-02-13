@@ -9,6 +9,7 @@
   <thead>
     <tr>
       <th>Text</th>
+      <th>Translation</th>
       <th>Language</th>
       <th>Tags</th>
       <th>Status</th>
@@ -18,6 +19,7 @@
   <tfoot>
     <tr>
       <th>Text</th>
+      <th>Translation</th>
       <th>Language</th>
       <th>Tags</th>
       <th>Status</th>
@@ -45,22 +47,18 @@
         // "name" is the column name in your main SQL query.
         // The fields in each row in the data ajax response are ordered as they are declared here.
         // All fields default to "orderable" = true, "searchable" = true.
-        { "name": "WoText", "targets": 0 },
-        { "name": "LgName", "targets": 1 },
-        { "name": "TagList", "targets": 2 },
-        { "name": "StText", "targets": 3 },
-        {
-          "name": "WoID",
-          "targets": 4,
-          "searchable": false,
-          "orderable": false,
+        { "name": "WoText", "targets": 0,
           "render": function ( data, type, row, meta ) {
-            const href = `/term/${row[4]}/edit`;
-            const img = '<img src="/icn/document--pencil.png" title="Edit" alt="Edit" />';
-            return `<a href=${href}>${img}</a>`;
+            return `<a href="/term/${row[5]}/edit">${row[0]}</a>`;
           }
         },
-
+        { "name": "WoTranslation", "targets": 1, width: "40%",
+          "searchable": false, "orderable": false,
+        },
+        { "name": "LgName", "targets": 2 },
+        { "name": "TagList", "targets": 3 },
+        { "name": "StText", "targets": 4 },
+        { "name": "WoID", "targets": 5, "data": null, "visible": false },
       ],
 
       // Ajax call
