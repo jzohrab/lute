@@ -191,6 +191,25 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "image removed");
     }
 
+    /**
+     * @group findLikeSpec
+     */
+    public function test_findLikeSpecification_initial_check() {
+        $t1 = new Term($this->spanish, "abad");
+        $t2 = new Term($this->spanish, "bad");
+        $t3 = new Term($this->spanish, "badx");
+        $this->term_repo->save($t1, true);
+        $this->term_repo->save($t2, true);
+        $this->term_repo->save($t3, true);
+
+        $spec = new Term($this->spanish, "ad");
+        $ret = $this->term_repo->findLikeSpecification($spec);
+        $this->assertEquals(3, count($ret), "bothreturned");
+        $this->assertEquals("abad", $ret[0]->getText(), '0');
+        $this->assertEquals("bad", $ret[1]->getText(), '1');
+        $this->assertEquals("badx", $ret[2]->getText(), '2');
+    }
+
     // TODO:image_integration_tests Future integration-style tests.
     //
     // Integration tests should remove all images from the userimages
