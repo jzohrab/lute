@@ -86,6 +86,7 @@
           url: `/term/search/${s}/${langid}`,
           type: 'GET',
           dataType: 'json',
+          minLength: 2,
           success: function(data) {
             const arr = [];
             for (const [wordid, word] of Object.entries(data)) {
