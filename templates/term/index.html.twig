@@ -8,7 +8,7 @@
 <table id="termtable" class="table dataTable stripe" style="table-layout:fixed;" >
   <thead>
     <tr>
-      <th style="width: 20px;"></th>
+      <th style="width: 20px;">&nbsp;</th>
       <th>Text</th>
       <th>Translation</th>
       <th>Language</th>
@@ -46,20 +46,21 @@
       serverSide: true,
       search: { search: initial_search },
       columnDefs: [
-        // "name" is the column name in your main SQL query.
-        // The fields in each row in the data ajax response are ordered as they are declared here.
-        // All fields default to "orderable" = true, "searchable" = true.
         {
+          // "chk" is included in the underlying SQL query.
+          // Without it, datatables would place the values
+          // in the wrong table columns.  Ugly hack, but works.
+          "name": "chk",
           "targets": 0,
-          "searchable": false, "orderable": false,
-          "data": null,
+          "searchable": false, "orderable": false, "data": null,
           "render": function (data, type, row, meta) {
-            return `<input type="checkbox" name="id[]" value="${row[5]}">`;
+            return `<input type="checkbox" name="id[]" value="${row[6]}">`;
           }
         },
+
         { "name": "WoText", "targets": 1,
           "render": function ( data, type, row, meta ) {
-            return `<a href="/term/${row[5]}/edit">${row[0]}</a>`;
+            return `<a href="/term/${row[6]}/edit">${row[1]}</a>`;
           }
         },
         { "name": "WoTranslation", "targets": 2, width: "40%",
@@ -69,6 +70,7 @@
         { "name": "TagList", "targets": 4 },
         { "name": "StText", "targets": 5 },
         { "name": "WoID", "targets": 6, "data": null, "visible": false },
+
       ],
 
       // Ajax call

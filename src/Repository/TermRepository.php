@@ -107,7 +107,7 @@ class TermRepository extends ServiceEntityRepository
     public function getDataTablesList($parameters) {
 
         $base_sql = "SELECT
-w.WoID as WoID, LgName, WoText as WoText, WoTranslation, ifnull(tags.taglist, '') as TagList, StText
+0 as chk, w.WoID as WoID, LgName, WoText as WoText, WoTranslation, ifnull(tags.taglist, '') as TagList, StText
 FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
