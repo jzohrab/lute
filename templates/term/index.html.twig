@@ -28,6 +28,12 @@
 
 <script>
 
+  let handleChkClick = function() {
+    const n = $('.chkWord:checked').length;
+    $("#txtSetParent").prop('disabled', n == 0);
+    $("#btnSetParent").prop('disabled', n == 0);
+  }
+
   let setup_term_datatable = function(initial_search) {
     var table = $('#termtable').DataTable({
       responsive: true,
@@ -48,7 +54,7 @@
           "targets": 0,
           "searchable": false, "orderable": false, "data": null,
           "render": function (data, type, row, meta) {
-            return `<input type="checkbox" name="id[]" value="${row[6]}">`;
+            return `<input type="checkbox" class="chkWord" name="wordids" value="${row[6]}" onclick="handleChkClick()">`;
           }
         },
 
