@@ -8,6 +8,7 @@
 <table id="termtable" class="table dataTable stripe" style="table-layout:fixed;" >
   <thead>
     <tr>
+      <th style="width: 20px;"></th>
       <th>Text</th>
       <th>Translation</th>
       <th>Language</th>
@@ -18,6 +19,7 @@
   </thead>
   <tfoot>
     <tr>
+      <th></th>
       <th>Text</th>
       <th>Translation</th>
       <th>Language</th>
@@ -36,7 +38,7 @@
     var table = $('#termtable').DataTable({
       responsive: true,
       select: true,
-      lengthMenu: [ 10, 25, 50, 100 ],
+      lengthMenu: [ 25, 50, 100 ],
       paging: true,
       info: true,
       searching: true,
@@ -47,18 +49,26 @@
         // "name" is the column name in your main SQL query.
         // The fields in each row in the data ajax response are ordered as they are declared here.
         // All fields default to "orderable" = true, "searchable" = true.
-        { "name": "WoText", "targets": 0,
+        {
+          "targets": 0,
+          "searchable": false, "orderable": false,
+          "data": null,
+          "render": function (data, type, row, meta) {
+            return `<input type="checkbox" name="id[]" value="${row[5]}">`;
+          }
+        },
+        { "name": "WoText", "targets": 1,
           "render": function ( data, type, row, meta ) {
             return `<a href="/term/${row[5]}/edit">${row[0]}</a>`;
           }
         },
-        { "name": "WoTranslation", "targets": 1, width: "40%",
+        { "name": "WoTranslation", "targets": 2, width: "40%",
           "searchable": false, "orderable": false,
         },
-        { "name": "LgName", "targets": 2 },
-        { "name": "TagList", "targets": 3 },
-        { "name": "StText", "targets": 4 },
-        { "name": "WoID", "targets": 5, "data": null, "visible": false },
+        { "name": "LgName", "targets": 3 },
+        { "name": "TagList", "targets": 4 },
+        { "name": "StText", "targets": 5 },
+        { "name": "WoID", "targets": 6, "data": null, "visible": false },
       ],
 
       // Ajax call

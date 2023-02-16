@@ -33,7 +33,9 @@ class DataTablesMySqlQuery
             array_map(fn($c) => $c['name'], $named_cols)
         );
         $orderablecols = $findColsWith($columns, "orderable");
+        // dump($orderablecols);
         $orderby = implode(', ', $orderablecols);
+        // dump($orderby);
         $searchablecols = $findColsWith($columns, "searchable");
 
         foreach ($orders as $key => $order) {
@@ -42,7 +44,7 @@ class DataTablesMySqlQuery
 
             // Apply the sort in for the indicated field, the rest
             // will be sorted ascending.
-            $sortfield = $columns[$colindex]['name'];
+            $sortfield = $orderablecols[$colindex];
             $orderby = "ORDER BY {$sortfield} {$direction}, {$orderby}";
         }
         
