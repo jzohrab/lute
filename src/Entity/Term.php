@@ -55,7 +55,7 @@ class Term
     #[ORM\JoinTable(name: 'wordparents')]
     #[ORM\JoinColumn(name: 'WpWoID', referencedColumnName: 'WoID')]
     #[ORM\InverseJoinColumn(name: 'WpParentWoID', referencedColumnName: 'WoID')]
-    #[ORM\ManyToMany(targetEntity: Term::class, mappedBy:'children', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Term::class, inversedBy:'children', cascade: ['persist'])]
     private Collection $parents;
     /* Really, a word can have only one parent, but since we have a
        join table, I'll treat it like a many-to-many join in the
@@ -65,7 +65,7 @@ class Term
     #[ORM\JoinTable(name: 'wordparents')]
     #[ORM\JoinColumn(name: 'WpParentWoID', referencedColumnName: 'WoID')]
     #[ORM\InverseJoinColumn(name: 'WpWoID', referencedColumnName: 'WoID')]
-    #[ORM\ManyToMany(targetEntity: Term::class, inversedBy:'parents', cascade: ['persist'], fetch: 'EXTRA_LAZY')]
+    #[ORM\ManyToMany(targetEntity: Term::class, mappedBy:'parents', cascade: ['persist'], fetch: 'EXTRA_LAZY')]
     private Collection $children;
 
     #[ORM\OneToMany(targetEntity: 'TermImage', mappedBy: 'term', fetch: 'EAGER', orphanRemoval: true, cascade: ['persist', 'remove'])]
