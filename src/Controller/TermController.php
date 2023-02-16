@@ -52,8 +52,9 @@ class TermController extends AbstractController
         $result = [];
         foreach ($terms as $t) {
             $trans = $t->getTranslation();
-            $result[$t->getID()] = [
-                'text' => $t->getText(),
+            $result[] = [
+                'id' => $t->getID(),
+                'text' => $t->getTextLC(),
                 'translation' => $t->getTranslation()
             ];
         }

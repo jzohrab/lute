@@ -79,7 +79,6 @@ class TermRepository extends ServiceEntityRepository
         $search = mb_strtolower(trim($specification->getText() ?? ''));
         if ($search == '')
             return [];
-        $search = '%' . $search . '%';
 
         $dql = "SELECT t FROM App\Entity\Term t
         JOIN App\Entity\Language L WITH L = t.language
@@ -88,9 +87,19 @@ class TermRepository extends ServiceEntityRepository
         $query = $this->getEntityManager()
                ->createQuery($dql)
                ->setParameter('langid', $specification->getLanguage()->getLgID())
-               ->setParameter('search', $search)
+               ->setParameter('search', $search . '%')
                ->setMaxResults($maxResults);
-        return $query->getResult();
+        $raw = $query->getResult();
+
+        // Exact match goes to top.
+        $ret = array_filter($raw, fn($r) => $r->getTextLC() == $search);
+
+        // Parents in next.
+        $parents = array_filter($raw, fn($r) => $r->getChildren()->count() > 0);
+        $ret = array_merge($ret, $parents);
+
+        $remaining = array_filter($raw, fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0);
+        return array_merge($ret, $remaining);
     }
 
 

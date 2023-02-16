@@ -53,7 +53,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, 'PARENT');
         $this->addTerms($this->french, 'PARENT');
 
-        $cases = [ 'ARE', 'are', 'AR' ];
+        $cases = [ 'PARE', 'pare', 'PAR' ];
         foreach ($cases as $c) {
             $p = $this->dictionary->findMatches($c, $this->spanish);
             $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
@@ -193,35 +193,37 @@ final class Dictionary_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
     }
 
+    /**
+     * @group changeRemove
+     */
     public function test_change_parent_removes_old_wordparent_record() {
-        $parent = new Term();
-        $parent->setLanguage($this->spanish);
-        $parent->setText('perro');
+        $parent = new Term($this->spanish, 'perro');
         $this->dictionary->add($parent, true);
 
-        $newpar = new Term();
-        $newpar->setLanguage($this->spanish);
-        $newpar->setText('gato');
-        $this->dictionary->add($newpar, true);
+        $gato = new Term($this->spanish, 'gato');
+        $this->dictionary->add($gato, true);
 
-        $t = new Term();
-        $t->setLanguage($this->spanish);
-        $t->setText('perros');
+        $t = new Term($this->spanish, 'perros');
         $t->setParent($parent);
         $this->dictionary->add($t, true);
 
         $expected = [ "{$t->getID()}; {$parent->getID()}" ];
         DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "parent set");
 
-        $t->setParent($newpar);
+        $t->setParent($gato);
         $this->dictionary->add($t, true);
 
-        $expected = [ "{$t->getID()}; {$newpar->getID()}" ];
+        $expected = [ "{$t->getID()}; {$gato->getID()}" ];
         DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "NEW parent set");
 
         $t->setParent(null);
         $this->dictionary->add($t, true);
         DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
+
+        foreach(['perros', 'perro', 'gato'] as $s) {
+            $f = $this->dictionary->find($s, $this->spanish);
+            $this->assertTrue($f != null, $s . ' sanity check, still exists');
+        }
     }
 
     public function test_add_term_links_existing_TextItems()

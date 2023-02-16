@@ -55,12 +55,18 @@ class Term
     #[ORM\JoinTable(name: 'wordparents')]
     #[ORM\JoinColumn(name: 'WpWoID', referencedColumnName: 'WoID')]
     #[ORM\InverseJoinColumn(name: 'WpParentWoID', referencedColumnName: 'WoID')]
-    #[ORM\ManyToMany(targetEntity: Term::class, cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Term::class, inversedBy:'children', cascade: ['persist'])]
     private Collection $parents;
     /* Really, a word can have only one parent, but since we have a
        join table, I'll treat it like a many-to-many join in the
        private members, but the interface will only have setParent()
        and getParent(). */
+
+    #[ORM\JoinTable(name: 'wordparents')]
+    #[ORM\JoinColumn(name: 'WpParentWoID', referencedColumnName: 'WoID')]
+    #[ORM\InverseJoinColumn(name: 'WpWoID', referencedColumnName: 'WoID')]
+    #[ORM\ManyToMany(targetEntity: Term::class, mappedBy:'parents', cascade: ['persist'], fetch: 'EXTRA_LAZY')]
+    private Collection $children;
 
     #[ORM\OneToMany(targetEntity: 'TermImage', mappedBy: 'term', fetch: 'EAGER', orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'WiWoID', referencedColumnName: 'WoID', nullable: false)]
@@ -72,6 +78,7 @@ class Term
     {
         $this->termTags = new ArrayCollection();
         $this->parents = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->images = new ArrayCollection();
 
         if ($lang != null)
@@ -262,21 +269,40 @@ class Term
      */
     public function getParent(): ?Term
     {
-        if ($this->parents->isEmpty())
+        if ($this->parents->isEmpty()) {
             return null;
-        return $this->parents[0];
+        }
+
+        // The last element in the array is the current active parent.
+        $p = $this->parents->last();
+        if ($p == false) {
+            return null;
+        }
+        else {
+            return $p;
+        }
     }
 
     public function setParent(?Term $parent): self
     {
-        $this->parents = new ArrayCollection();
+        $p = $this->getParent();
+        if ($p != null) {
+            $this->parents->removeElement($p);
+            $p->getChildren()->removeElement($this);
+        }
         if ($parent != null) {
             /**
              * @psalm-suppress InvalidArgument
              */
             $this->parents->add($parent);
+            $parent->children[] = $this;
         }
         return $this;
+    }
+
+    public function getChildren(): Collection
+    {
+        return $this->children;
     }
 
     public function getCurrentImage(): ?string
