@@ -215,6 +215,20 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertFindLikeSpecReturns('yy', [ ]);
     }
 
+    /**
+     * @group findLikeSpec
+     */
+    public function test_findLikeSpecification_exact_match_sorts_to_top() {
+        $t1 = new Term($this->spanish, "abad");
+        $t2 = new Term($this->spanish, "bad");
+        $t3 = new Term($this->spanish, "badx");
+        $this->term_repo->save($t1, true);
+        $this->term_repo->save($t2, true);
+        $this->term_repo->save($t3, true);
+
+        $this->assertFindLikeSpecReturns('bad', [ 'bad', 'abad', 'badx' ]);
+    }
+
     // TODO:image_integration_tests Future integration-style tests.
     //
     // Integration tests should remove all images from the userimages
