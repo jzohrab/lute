@@ -83,6 +83,20 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
     }
 
+    /**
+     * @group getParentAndChildren
+     */
+    public function test_word_parent_get_child()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $p = new Term($this->spanish, "PARENT");
+        $t->setParent($p);
+        $this->term_repo->save($t, true);
+
+        $tget = $this->term_repo->find($t->getId());
+        $this->assertEquals($tget->getParent()->getText(), "PARENT", "have text");
+    }
+
     public function test_change_parent()
     {
         $t = new Term($this->spanish, "HOLA");
