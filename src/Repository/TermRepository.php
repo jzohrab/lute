@@ -91,26 +91,15 @@ class TermRepository extends ServiceEntityRepository
                ->setMaxResults($maxResults);
         $raw = $query->getResult();
 
-        $ret = [];
-
         // Exact match goes to top.
-        for ($i = 0; $i < count($raw); $i++) {
-            if ($raw[$i]->getTextLC() == $search) {
-                $ret[] = $raw[$i];
-                array_splice($raw, $i, 1);
-            }
-        }
+        $ret = array_filter($raw, fn($r) => $r->getTextLC() == $search);
 
-        // Parent terms go in next.
-        for ($i = 0; $i < count($raw); $i++) {
-            if ($raw[$i]->getChildren()->count() > 0) {
-                $ret[] = $raw[$i];
-                array_splice($raw, $i, 1);
-            }
-        }
+        // Parents in next.
+        $parents = array_filter($raw, fn($r) => $r->getChildren()->count() > 0);
+        $ret = array_merge($ret, $parents);
 
-        // Re-add the rest.
-        return array_merge($ret, $raw);
+        $remaining = array_filter($raw, fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0);
+        return array_merge($ret, $remaining);
     }
 
 
