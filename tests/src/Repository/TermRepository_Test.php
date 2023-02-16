@@ -107,6 +107,9 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals($gget->getParent()->getText(), "PARENT", "have text");
     }
 
+    /**
+     * @group changeParent
+     */
     public function test_change_parent()
     {
         $t = new Term($this->spanish, "HOLA");

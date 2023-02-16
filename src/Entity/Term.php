@@ -269,14 +269,27 @@ class Term
      */
     public function getParent(): ?Term
     {
-        if ($this->parents->isEmpty())
+        if ($this->parents->isEmpty()) {
             return null;
-        return $this->parents[0];
+        }
+
+        // The last element in the array is the current active parent.
+        $p = $this->parents->last();
+        if ($p == false) {
+            return null;
+        }
+        else {
+            return $p;
+        }
     }
 
     public function setParent(?Term $parent): self
     {
-        $this->parents = new ArrayCollection();
+        $p = $this->getParent();
+        if ($p != null) {
+            $this->parents->removeElement($p);
+            $p->getChildren()->removeElement($this);
+        }
         if ($parent != null) {
             /**
              * @psalm-suppress InvalidArgument
