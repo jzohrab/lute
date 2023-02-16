@@ -89,12 +89,22 @@ final class TermRepository_Test extends DatabaseTestBase
     public function test_word_parent_get_child()
     {
         $t = new Term($this->spanish, "HOLA");
+        $g = new Term($this->spanish, "gato");
         $p = new Term($this->spanish, "PARENT");
+        $g->setParent($p);
         $t->setParent($p);
         $this->term_repo->save($t, true);
+        $this->term_repo->save($g, true);
+
+        $pget = $this->term_repo->find($p->getId());
+        $this->assertEquals($pget->getText(), "PARENT", "sanity check");
+        $this->assertEquals($pget->getChildren()->count(), 2, "2 kids");
 
         $tget = $this->term_repo->find($t->getId());
         $this->assertEquals($tget->getParent()->getText(), "PARENT", "have text");
+
+        $gget = $this->term_repo->find($g->getId());
+        $this->assertEquals($gget->getParent()->getText(), "PARENT", "have text");
     }
 
     public function test_change_parent()
