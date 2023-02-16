@@ -88,20 +88,19 @@
           dataType: 'json',
           minLength: 2,
           success: function(data) {
-            const arr = [];
-            for (const [wordid, word] of Object.entries(data)) {
+            arr = data.map(function(word) {
               let label = word.text;
               if (word.translation != null && word.translation != '') {
                 label = `${label} (${word.translation})`;
               }
               const obj = {
                 label: label,
-                value: wordid,
+                value: word.id,
                 word: word.text,
                 translation: word.translation
               };
-              arr.push(obj);
-            };
+              return obj;
+            });
             response(arr, data);
           }
         })
