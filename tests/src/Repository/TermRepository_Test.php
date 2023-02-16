@@ -191,6 +191,14 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "image removed");
     }
 
+    private function assertFindLikeSpecReturns($s, $expected) {
+        $spec = new Term($this->spanish, $s);
+        $ret = $this->term_repo->findLikeSpecification($spec);
+        $this->assertEquals(count($expected), count($ret), $s . " count");
+        $actual = join(', ', array_map(fn($t) => $t->getText(), $ret));
+        $this->assertEquals(join(', ', $expected), $actual, $s . ' ' . $actual);
+    }
+
     /**
      * @group findLikeSpec
      */
@@ -202,12 +210,9 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->term_repo->save($t2, true);
         $this->term_repo->save($t3, true);
 
-        $spec = new Term($this->spanish, "ad");
-        $ret = $this->term_repo->findLikeSpecification($spec);
-        $this->assertEquals(3, count($ret), "bothreturned");
-        $this->assertEquals("abad", $ret[0]->getText(), '0');
-        $this->assertEquals("bad", $ret[1]->getText(), '1');
-        $this->assertEquals("badx", $ret[2]->getText(), '2');
+        $this->assertFindLikeSpecReturns('ad', [ 'abad', 'bad', 'badx' ]);
+        $this->assertFindLikeSpecReturns('dx', [ 'badx' ]);
+        $this->assertFindLikeSpecReturns('yy', [ ]);
     }
 
     // TODO:image_integration_tests Future integration-style tests.
