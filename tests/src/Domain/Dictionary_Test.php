@@ -53,7 +53,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, 'PARENT');
         $this->addTerms($this->french, 'PARENT');
 
-        $cases = [ 'ARE', 'are', 'AR' ];
+        $cases = [ 'PARE', 'pare', 'PAR' ];
         foreach ($cases as $c) {
             $p = $this->dictionary->findMatches($c, $this->spanish);
             $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
