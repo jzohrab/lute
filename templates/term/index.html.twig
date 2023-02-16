@@ -3,7 +3,8 @@
 {% block title %}Term index{% endblock %}
 
 {% block body %}
-<h1>Term index</h1>
+
+<br />
 
 <table id="termtable" class="table dataTable stripe" style="table-layout:fixed;" >
   <thead>
@@ -17,17 +18,6 @@
       <th>Actions</th>
     </tr>
   </thead>
-  <tfoot>
-    <tr>
-      <th></th>
-      <th>Text</th>
-      <th>Translation</th>
-      <th>Language</th>
-      <th>Tags</th>
-      <th>Status</th>
-      <th>Actions</th>
-    </tr>
-  </tfoot>
 </table>
 
 <a href="{{ path('app_term_new') }}">Create new</a>
