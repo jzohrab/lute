@@ -87,7 +87,7 @@ class TermRepository extends ServiceEntityRepository
         $query = $this->getEntityManager()
                ->createQuery($dql)
                ->setParameter('langid', $specification->getLanguage()->getLgID())
-               ->setParameter('search', '%' . $search . '%')
+               ->setParameter('search', $search . '%')
                ->setMaxResults($maxResults);
         $raw = $query->getResult();
 
@@ -96,12 +96,18 @@ class TermRepository extends ServiceEntityRepository
         // Exact match goes to top.
         for ($i = 0; $i < count($raw); $i++) {
             if ($raw[$i]->getTextLC() == $search) {
-                $ret = [ $raw[$i] ];
-                unset($raw[$i]);
+                $ret[] = $raw[$i];
+                array_splice($raw, $i, 1);
             }
         }
 
-        // Parent terms go next.
+        // Parent terms go in next.
+        for ($i = 0; $i < count($raw); $i++) {
+            if ($raw[$i]->getChildren()->count() > 0) {
+                $ret[] = $raw[$i];
+                array_splice($raw, $i, 1);
+            }
+        }
 
         // Re-add the rest.
         return array_merge($ret, $raw);

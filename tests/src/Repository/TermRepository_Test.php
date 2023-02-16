@@ -227,30 +227,53 @@ final class TermRepository_Test extends DatabaseTestBase
      * @group findLikeSpec
      */
     public function test_findLikeSpecification_initial_check() {
-        $t1 = new Term($this->spanish, "abad");
-        $t2 = new Term($this->spanish, "bad");
-        $t3 = new Term($this->spanish, "badx");
+        $t1 = new Term($this->spanish, "abc");
+        $t2 = new Term($this->spanish, "abcd");
+        $t3 = new Term($this->spanish, "bcd");
         $this->term_repo->save($t1, true);
         $this->term_repo->save($t2, true);
         $this->term_repo->save($t3, true);
 
-        $this->assertFindLikeSpecReturns('ad', [ 'abad', 'bad', 'badx' ]);
-        $this->assertFindLikeSpecReturns('dx', [ 'badx' ]);
+        $this->assertFindLikeSpecReturns('ab', [ 'abc', 'abcd' ]);
+        $this->assertFindLikeSpecReturns('abcd', [ 'abcd' ]);
+        $this->assertFindLikeSpecReturns('bc', [ 'bcd' ]);
         $this->assertFindLikeSpecReturns('yy', [ ]);
     }
 
     /**
      * @group findLikeSpec
      */
-    public function test_findLikeSpecification_exact_match_sorts_to_top() {
-        $t1 = new Term($this->spanish, "abad");
-        $t2 = new Term($this->spanish, "bad");
-        $t3 = new Term($this->spanish, "badx");
-        $this->term_repo->save($t1, true);
-        $this->term_repo->save($t2, true);
-        $this->term_repo->save($t3, true);
+    public function test_findLikeSpecification_terms_with_children_go_to_top() {
+        $ap = new Term($this->spanish, "abcPAR");
+        $a = new Term($this->spanish, "abc");
+        $xp = new Term($this->spanish, "axyPAR");
+        $x = new Term($this->spanish, "axy");
+        $a->setParent($ap);
+        $x->setParent($xp);
+        $this->term_repo->save($ap, true);
+        $this->term_repo->save($a, true);
+        $this->term_repo->save($xp, true);
+        $this->term_repo->save($x, true);
 
-        $this->assertFindLikeSpecReturns('bad', [ 'bad', 'abad', 'badx' ]);
+        $this->assertFindLikeSpecReturns('a', [ 'abcPAR', 'axyPAR', 'abc', 'axy' ]);
+    }
+
+    /**
+     * @group findLikeSpec
+     */
+    public function test_findLikeSpecification_exact_match_trumps_parent() {
+        $ap = new Term($this->spanish, "abcPAR");
+        $a = new Term($this->spanish, "abc");
+        $xp = new Term($this->spanish, "axyPAR");
+        $x = new Term($this->spanish, "axy");
+        $a->setParent($ap);
+        $x->setParent($xp);
+        $this->term_repo->save($ap, true);
+        $this->term_repo->save($a, true);
+        $this->term_repo->save($xp, true);
+        $this->term_repo->save($x, true);
+
+        $this->assertFindLikeSpecReturns('abc', [ 'abc', 'abcPAR' ]);
     }
 
     // TODO:image_integration_tests Future integration-style tests.
