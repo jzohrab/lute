@@ -44,7 +44,7 @@ class DataTablesMySqlQuery
 
             // Apply the sort in for the indicated field, the rest
             // will be sorted ascending.
-            $sortfield = $orderablecols[$colindex];
+            $sortfield = $columns[$colindex]['name'];
             $orderby = "ORDER BY {$sortfield} {$direction}, {$orderby}";
         }
         
