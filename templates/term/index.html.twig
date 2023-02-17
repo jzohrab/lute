@@ -4,7 +4,11 @@
 
 {% block body %}
 
-<br />
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <a href="{{ path('app_term_new') }}">Create new</a>
+  &nbsp;|&nbsp;
+  Set parent: <input id="txtSetParent" disabled /><button id="btnSetParent" disabled >go</button>
+</div>
 
 <table id="termtable" class="table dataTable stripe" style="table-layout:fixed;" >
   <thead>
@@ -19,12 +23,6 @@
     </tr>
   </thead>
 </table>
-
-<div style="margin-top: 10px;">
-  <a href="{{ path('app_term_new') }}">Create new</a>
-  &nbsp;|&nbsp;
-  Set parent: <input id="txtSetParent" disabled /><button id="btnSetParent" disabled >go</button>
-</div>
 
 <script>
 
