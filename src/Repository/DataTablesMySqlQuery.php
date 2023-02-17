@@ -33,9 +33,7 @@ class DataTablesMySqlQuery
             array_map(fn($c) => $c['name'], $named_cols)
         );
         $orderablecols = $findColsWith($columns, "orderable");
-        // dump($orderablecols);
         $orderby = implode(', ', $orderablecols);
-        // dump($orderby);
         $searchablecols = $findColsWith($columns, "searchable");
 
         foreach ($orders as $key => $order) {
