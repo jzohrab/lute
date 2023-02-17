@@ -95,10 +95,16 @@ class TermRepository extends ServiceEntityRepository
         $ret = array_filter($raw, fn($r) => $r->getTextLC() == $search);
 
         // Parents in next.
-        $parents = array_filter($raw, fn($r) => $r->getChildren()->count() > 0);
+        $parents = array_filter(
+            $raw,
+            fn($r) => $r->getChildren()->count() > 0 && $r->getTextLC() != $search
+        );
         $ret = array_merge($ret, $parents);
 
-        $remaining = array_filter($raw, fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0);
+        $remaining = array_filter(
+            $raw,
+            fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0
+        );
         return array_merge($ret, $remaining);
     }
 
