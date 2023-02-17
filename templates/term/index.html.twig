@@ -26,12 +26,6 @@
 
 <script>
 
-  let handleChkClick = function() {
-    const n = $('.chkWord:checked').length;
-    $("#txtSetParent").prop('disabled', n == 0);
-    $("#btnSetParent").prop('disabled', n == 0);
-  }
-
   let setup_term_datatable = function(initial_search) {
     var table = $('#termtable').DataTable({
       responsive: true,
@@ -82,24 +76,87 @@
     });
   } // end setup_term_datatable
 
-  let handle_set_parent_click = function() {
+
+  let handleChkClick = function() {
+    const n = $('.chkWord:checked').length;
+    const lang_id = get_lang_id();
+    const disabled = ((n == 0) || lang_id == null);
+    $("#txtSetParent").prop('disabled', disabled);
+    $("#btnSetParent").prop('disabled', disabled);
+  }
+
+
+  // Return the clicked checkboxes' language ID,
+  // or null if the lang id isn't the same for all.
+  let get_lang_id = function() {
     let langids = [];
-    let wordids = [];
     $('.chkWord:checked').each(function(i) {
       langids.push($(this).attr('langid'));
-      wordids.push($(this).attr('wordid'));
     });
     const unique_langids = [...new Set(langids)];
-    if (unique_langids.length > 1) {
+    if (unique_langids.length == 1) {
+      return unique_langids[0];
+    }
+    return null;
+  }
+
+  let handle_set_parent_click = function() {
+    const lang_id = get_lang_id();
+    if (lang_id == null) {
       alert("All terms must be of the same language.");
       return;
     }
-    alert('processing ' + wordids.join(', ') + ' for lang ' + unique_langids[0]);
+    let wordids = [];
+    $('.chkWord:checked').each(function(i) {
+      wordids.push($(this).attr('wordid'));
+    });
+    const ptxt = $('#txtSetParent').val();
+    alert('processing ' + wordids.join(', ') + ' for lang ' + lang_id + ' to ' + ptxt);
   }
+
+
+  let set_up_parent_autocomplete = function() {
+    $("#txtSetParent").autocomplete({
+      source: function(request, response) {
+        const lang_id = get_lang_id();
+        if (lang_id == null) {
+          // This should never occur; the text
+          // box should be disabled if lang_id is null.
+          response([], null);
+        }
+
+        const s = encodeURIComponent(request.term);
+        $.ajax({
+          url: `/term/search/${s}/${lang_id}`,
+          type: 'GET',
+          dataType: 'json',
+          minLength: 2,
+          success: function(data) {
+            arr = data.map(function(word) {
+              let label = word.text;
+              if (word.translation != null && word.translation != '') {
+                label = `${label} (${word.translation})`;
+              }
+              const obj = {
+                label: label,
+                value: word.text,
+                word: word.text,
+                translation: word.translation
+              };
+              return obj;
+            });
+            response(arr, data);
+          }
+        })
+      }
+    });
+  };
+
 
   $(document).ready(function () {
     setup_term_datatable("{{ initial_search ?? '' }}");
 
+    set_up_parent_autocomplete();
     $('#btnSetParent').click(handle_set_parent_click);
   });
 
