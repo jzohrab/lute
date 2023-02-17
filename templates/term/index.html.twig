@@ -111,7 +111,10 @@
       wordids.push($(this).attr('wordid'));
     });
     const ptxt = $('#txtSetParent').val();
-    alert('processing ' + wordids.join(', ') + ' for lang ' + lang_id + ' to ' + ptxt);
+
+    const resp = confirm(`Change parent for ${wordids.length} term(s) to "${ptxt}"?`);
+    if (! resp)
+      return;
 
     $.ajax({
       url: '/term/bulk_set_parent',
@@ -123,10 +126,13 @@
       type: 'POST',
       dataType: 'json',
       success: function(data) {
-        alert("Updated");
+        alert("Updated.");
+        $('.chkWord:checked').each(function(i) {
+          $(this).prop('checked', false);
+        });
+        handleChkClick();
       }
     });
-
   }
 
 
