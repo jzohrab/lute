@@ -95,10 +95,16 @@ class TermRepository extends ServiceEntityRepository
         $ret = array_filter($raw, fn($r) => $r->getTextLC() == $search);
 
         // Parents in next.
-        $parents = array_filter($raw, fn($r) => $r->getChildren()->count() > 0);
+        $parents = array_filter(
+            $raw,
+            fn($r) => $r->getChildren()->count() > 0 && $r->getTextLC() != $search
+        );
         $ret = array_merge($ret, $parents);
 
-        $remaining = array_filter($raw, fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0);
+        $remaining = array_filter(
+            $raw,
+            fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0
+        );
         return array_merge($ret, $remaining);
     }
 
@@ -107,7 +113,7 @@ class TermRepository extends ServiceEntityRepository
     public function getDataTablesList($parameters) {
 
         $base_sql = "SELECT
-w.WoID as WoID, LgName, WoText as WoText, WoTranslation, ifnull(tags.taglist, '') as TagList, StText
+0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, WoText as WoText, WoTranslation, ifnull(tags.taglist, '') as TagList, StText
 FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
