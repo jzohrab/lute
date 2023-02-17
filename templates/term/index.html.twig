@@ -54,7 +54,7 @@
           "targets": 0,
           "searchable": false, "orderable": false, "data": null,
           "render": function (data, type, row, meta) {
-            return `<input type="checkbox" class="chkWord" name="wordids" value="${row[6]}" onclick="handleChkClick()">`;
+            return `<input type="checkbox" class="chkWord" name="wordids" wordid="${row[6]}" langid="${row[7]}" onclick="handleChkClick()">`;
           }
         },
 
@@ -70,6 +70,7 @@
         { "name": "TagList", "targets": 4 },
         { "name": "StText", "targets": 5 },
         { "name": "WoID", "targets": 6, "data": null, "visible": false },
+        { "name": "LgID", "targets": 7, "data": null, "visible": false },
 
       ],
 
@@ -82,9 +83,26 @@
 
     });
   } // end setup_term_datatable
-  
+
+  let handle_set_parent_click = function() {
+    let langids = [];
+    let wordids = [];
+    $('.chkWord:checked').each(function(i) {
+      langids.push($(this).attr('langid'));
+      wordids.push($(this).attr('wordid'));
+    });
+    const unique_langids = [...new Set(langids)];
+    if (unique_langids.length > 1) {
+      alert("All terms must be of the same language.");
+      return;
+    }
+    alert('processing ' + wordids.join(', ') + ' for lang ' + unique_langids[0]);
+  }
+
   $(document).ready(function () {
     setup_term_datatable("{{ initial_search ?? '' }}");
+
+    $('#btnSetParent').click(handle_set_parent_click);
   });
 
 
