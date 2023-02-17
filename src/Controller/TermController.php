@@ -63,19 +63,22 @@ class TermController extends AbstractController
                 $parent = new Term($lang, $parenttext);
             }
         }
+        $pid = null;
+        if ($parent != null)
+            $pid = $parent->getID();
 
         $terms = array_map(fn($n) => $term_repo->find(intval($n)), $wordids);
-        $update = array_filter($terms, fn($t) => $t->getLanguage()->getLgID() == $langid);
-        if ($parent != null) {
-            $pid = $parent->getID();
-            $update = array_filter($update, fn($t) => $t->getID() != $pid);
-        }
+        $update = array_filter(
+            $terms,
+            fn($t) => ($t->getLanguage()->getLgID() == $langid) && ($t->getID() != $pid)
+        );
         foreach ($update as $t) {
             $t->setParent($parent);
             $term_repo->save($t, true);
         }
         return $this->json('ok');
     }
+
 
     #[Route('/search/{text}/{langid}', name: 'app_term_search', methods: ['GET'])]
     public function search_by_text_in_language(
