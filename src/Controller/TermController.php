@@ -38,6 +38,24 @@ class TermController extends AbstractController
         return $this->json($data);
     }
 
+    #[Route('/bulk_set_parent', name: 'app_term_bulk_set_parent', methods: ['POST'])]
+    public function bulk_set_parent(
+        Request $request,
+        TermRepository $repo,
+        Dictionary $dict
+    ): JsonResponse
+    {
+        $parameters = $request->request->all();
+        $wordids = $parameters['wordids'];
+        $parenttext = $parameters['parenttext'];
+        $langid = $parameters['langid'];
+
+        dump($wordids);
+        dump($parenttext);
+        dump($langid);
+
+        return $this->json('ok');
+    }
 
     #[Route('/search/{text}/{langid}', name: 'app_term_search', methods: ['GET'])]
     public function search_by_text_in_language(

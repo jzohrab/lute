@@ -112,6 +112,21 @@
     });
     const ptxt = $('#txtSetParent').val();
     alert('processing ' + wordids.join(', ') + ' for lang ' + lang_id + ' to ' + ptxt);
+
+    $.ajax({
+      url: '/term/bulk_set_parent',
+      data: {
+        wordids: wordids,
+        langid: lang_id,
+        parenttext: ptxt
+      },
+      type: 'POST',
+      dataType: 'json',
+      success: function(data) {
+        alert("Updated");
+      }
+    });
+
   }
 
 
