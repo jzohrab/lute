@@ -41,19 +41,39 @@ class TermController extends AbstractController
     #[Route('/bulk_set_parent', name: 'app_term_bulk_set_parent', methods: ['POST'])]
     public function bulk_set_parent(
         Request $request,
-        TermRepository $repo,
+        TermRepository $term_repo,
+        LanguageRepository $lang_repo,
         Dictionary $dict
     ): JsonResponse
     {
         $parameters = $request->request->all();
         $wordids = $parameters['wordids'];
-        $parenttext = $parameters['parenttext'];
-        $langid = $parameters['langid'];
+        $parenttext = trim($parameters['parenttext']);
+        $langid = intval($parameters['langid']);
 
-        dump($wordids);
-        dump($parenttext);
-        dump($langid);
+        // dump($wordids);
+        // dump($parenttext);
+        // dump($langid);
 
+        $lang = $lang_repo->find($langid);
+        $parent = null;
+        if ($parenttext != '') {
+            $parent = $dict->find($parenttext, $lang);
+            if ($parent == null) {
+                $parent = new Term($lang, $parenttext);
+            }
+        }
+
+        $terms = array_map(fn($n) => $term_repo->find(intval($n)), $wordids);
+        $update = array_filter($terms, fn($t) => $t->getLanguage()->getLgID() == $langid);
+        if ($parent != null) {
+            $pid = $parent->getID();
+            $update = array_filter($update, fn($t) => $t->getID() != $pid);
+        }
+        foreach ($update as $t) {
+            $t->setParent($parent);
+            $term_repo->save($t, true);
+        }
         return $this->json('ok');
     }
 
