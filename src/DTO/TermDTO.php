@@ -69,6 +69,8 @@ class TermDTO
             $termtags[] = $ttr->findOrCreateByText($s);
         }
 
+        if ($dto->ParentText == $dto->Text)
+            $dto->ParentText = null;
         $parent = TermDTO::findOrCreateParent($dto, $dictionary, $termtags);
         $t->setParent($parent);
 

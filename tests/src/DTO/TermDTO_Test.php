@@ -149,6 +149,19 @@ final class TermDTO_Test extends DatabaseTestBase
     /**
      * @group dtoparent
      */
+    public function test_cannot_set_dto_term_as_its_own_parent()
+    {
+        $dto = new TermDTO();
+        $dto->language = $this->spanish;
+        $dto->Text = 'perro';
+        $dto->ParentText = 'perro';
+        $perro = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $this->assertTrue($perro->getParent() == null, 'no parent');
+    }
+
+    /**
+     * @group dtoparent
+     */
     public function test_add_term_existing_parent_creates_link() {
         $p = new Term();
         $p->setLanguage($this->spanish);
