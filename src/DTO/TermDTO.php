@@ -88,8 +88,13 @@ class TermDTO
 
         $p = $dictionary->find($pt, $dto->language);
 
-        if ($p !== null)
+        if ($p !== null) {
+            if (($p->getTranslation() ?? '') == '')
+                $p->setTranslation($dto->Translation);
+            if (($p->getCurrentImage() ?? '') == '')
+                $p->setCurrentImage($dto->CurrentImage);
             return $p;
+        }
 
         $p = new Term();
         $p->setLanguage($dto->language);
