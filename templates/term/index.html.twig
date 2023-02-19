@@ -14,7 +14,8 @@
   <thead>
     <tr>
       <th style="width: 20px;"><input type="checkbox" id="chkAll" onclick="handleChkAll()"></th>
-      <th>Text</th>
+      <th>Term</th>
+      <th>Parent</th>
       <th>Translation</th>
       <th>Language</th>
       <th>Tags</th>
@@ -52,17 +53,18 @@
 
         { "name": "WoText", "targets": 1,
           "render": function ( data, type, row, meta ) {
-            return `<a href="/term/${row[6]}/edit">${row[1]}</a>`;
+            return `<a href="/term/${row[7]}/edit">${row[1]}</a>`;
           }
         },
-        { "name": "WoTranslation", "targets": 2, width: "40%",
+        { "name": "ParentText", "targets": 2 },
+        { "name": "WoTranslation", "targets": 3, width: "40%",
           "searchable": false, "orderable": false,
         },
-        { "name": "LgName", "targets": 3 },
-        { "name": "TagList", "targets": 4 },
-        { "name": "StText", "targets": 5 },
-        { "name": "WoID", "targets": 6, "data": null, "visible": false },
-        { "name": "LgID", "targets": 7, "data": null, "visible": false },
+        { "name": "LgName", "targets": 4 },
+        { "name": "TagList", "targets": 5 },
+        { "name": "StText", "targets": 6 },
+        { "name": "WoID", "targets": 7, "data": null, "visible": false },
+        { "name": "LgID", "targets": 8, "data": null, "visible": false },
 
       ],
 

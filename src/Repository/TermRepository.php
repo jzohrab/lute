@@ -113,11 +113,13 @@ class TermRepository extends ServiceEntityRepository
     public function getDataTablesList($parameters) {
 
         $base_sql = "SELECT
-0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, WoText as WoText, WoTranslation, ifnull(tags.taglist, '') as TagList, StText
+0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, w.WoText as WoText, p.WoText as ParentText, w.WoTranslation, ifnull(tags.taglist, '') as TagList, StText
 FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
 INNER JOIN statuses S on S.StID = w.WoStatus
+LEFT OUTER JOIN wordparents on WpWoID = w.WoID
+LEFT OUTER JOIN words p on p.WoID = WpParentWoID
 LEFT OUTER JOIN (
   SELECT WtWoID as WoID, GROUP_CONCAT(TgText ORDER BY TgText SEPARATOR ', ') AS taglist
   FROM
