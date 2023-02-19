@@ -38,6 +38,12 @@ class TermDTOType extends AbstractType
                     'required' => true
                   ]
             )
+            ->add('ParentID',
+                  HiddenType::class,
+                  [ 'label' => 'ParentID',
+                    'required' => false
+                  ]
+            )
             ->add('ParentText',
                   TextType::class,
                   [ 'label' => 'Parent',

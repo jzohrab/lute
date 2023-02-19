@@ -345,8 +345,10 @@ class Term
         $f->CurrentImage = $this->getCurrentImage();
 
         $p = $this->getParent();
-        if ($p != null)
+        if ($p != null) {
+            $f->ParentID = $p->getID();
             $f->ParentText = $p->getText();
+        }
 
         foreach ($this->getTermTags() as $tt) {
             $f->termTags[] = $tt->getText();

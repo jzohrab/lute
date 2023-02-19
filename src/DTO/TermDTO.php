@@ -30,6 +30,8 @@ class TermDTO
 
     public ?string $ParentText = null;
 
+    public ?int $ParentID = null;
+
     public ?string $CurrentImage = null;
 
     public function __construct()
