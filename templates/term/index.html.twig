@@ -58,6 +58,13 @@
         },
         { "name": "ParentText", "targets": 2 },
         { "name": "WoTranslation", "targets": 3, width: "40%",
+          "render": function ( data, type, row, meta ) {
+            let ret = row[3];
+            let imgsrc = row[9];
+            if (imgsrc != '' && imgsrc != null)
+              ret = `${ret}<br /><img style="margin-top: 5px;" src="${imgsrc}" />`;
+            return ret;
+          },
           "searchable": false, "orderable": false,
         },
         { "name": "LgName", "targets": 4 },
@@ -65,7 +72,7 @@
         { "name": "StText", "targets": 6 },
         { "name": "WoID", "targets": 7, "data": null, "visible": false },
         { "name": "LgID", "targets": 8, "data": null, "visible": false },
-
+        { "name": "WiSource", "targets": 9, "data": null, "visible": false },
       ],
 
       // Ajax call

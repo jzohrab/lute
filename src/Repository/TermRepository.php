@@ -113,7 +113,7 @@ class TermRepository extends ServiceEntityRepository
     public function getDataTablesList($parameters) {
 
         $base_sql = "SELECT
-0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, w.WoText as WoText, p.WoText as ParentText, w.WoTranslation, ifnull(tags.taglist, '') as TagList, StText
+0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, w.WoText as WoText, p.WoText as ParentText, w.WoTranslation, wi.WiSource, ifnull(tags.taglist, '') as TagList, StText
 FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
@@ -127,6 +127,7 @@ LEFT OUTER JOIN (
   INNER JOIN tags t on t.TgID = wt.WtTgID
   GROUP BY WtWoID
 ) AS tags on tags.WoID = w.WoID
+LEFT OUTER JOIN wordimages wi on wi.WiWoID = w.WoID
 ";
 
         $conn = $this->getEntityManager()->getConnection();
