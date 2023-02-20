@@ -30,6 +30,8 @@ class TermDTO
 
     public ?string $ParentText = null;
 
+    public ?int $ParentID = null;
+
     public ?string $CurrentImage = null;
 
     public function __construct()
@@ -69,6 +71,8 @@ class TermDTO
             $termtags[] = $ttr->findOrCreateByText($s);
         }
 
+        if ($dto->ParentText == $dto->Text)
+            $dto->ParentText = null;
         $parent = TermDTO::findOrCreateParent($dto, $dictionary, $termtags);
         $t->setParent($parent);
 
@@ -88,8 +92,13 @@ class TermDTO
 
         $p = $dictionary->find($pt, $dto->language);
 
-        if ($p !== null)
+        if ($p !== null) {
+            if (($p->getTranslation() ?? '') == '')
+                $p->setTranslation($dto->Translation);
+            if (($p->getCurrentImage() ?? '') == '')
+                $p->setCurrentImage($dto->CurrentImage);
             return $p;
+        }
 
         $p = new Term();
         $p->setLanguage($dto->language);

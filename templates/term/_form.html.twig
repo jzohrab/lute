@@ -24,7 +24,21 @@
     </td>
   </tr>
 
-  {{ form_row(form.ParentText) }}
+  <tr>
+    <td>Parent</td>
+    <td>{{ form_widget(form.ParentText) }}</td>
+    {% if not form.ParentID.vars.value is empty %}
+    <td>
+      {% if parent_link_to_frame ?? false %}
+      <a href="/read/termform/{{form.ParentID.vars.value}}/0/0/-">&gt;</a>
+      {% else %}
+      <a href="/term/{{form.ParentID.vars.value}}/edit">&gt;</a>
+      {% endif %}
+    </td>
+    {% endif %}
+  </tr>
+
+  {{ form_row(form.ParentID) }}
   {{ form_row(form.Romanization) }}
 
   <tr>
