@@ -3,12 +3,19 @@
 {% block title %}Term index{% endblock %}
 
 {% block body %}
-<h1>Term index</h1>
+
+<div style="margin-top: 10px; margin-bottom: 10px;">
+  <a href="{{ path('app_term_new') }}">Create new</a>
+  &nbsp;|&nbsp;
+  Set parent: <input id="txtSetParent" disabled /><button id="btnSetParent" disabled >go</button>
+</div>
 
 <table id="termtable" class="table dataTable stripe" style="table-layout:fixed;" >
   <thead>
     <tr>
-      <th>Text</th>
+      <th style="width: 20px;"><input type="checkbox" id="chkAll" onclick="handleChkAll()"></th>
+      <th>Term</th>
+      <th>Parent</th>
       <th>Translation</th>
       <th>Language</th>
       <th>Tags</th>
@@ -16,19 +23,7 @@
       <th>Actions</th>
     </tr>
   </thead>
-  <tfoot>
-    <tr>
-      <th>Text</th>
-      <th>Translation</th>
-      <th>Language</th>
-      <th>Tags</th>
-      <th>Status</th>
-      <th>Actions</th>
-    </tr>
-  </tfoot>
 </table>
-
-<a href="{{ path('app_term_new') }}">Create new</a>
 
 <script>
 
@@ -36,7 +31,7 @@
     var table = $('#termtable').DataTable({
       responsive: true,
       select: true,
-      lengthMenu: [ 10, 25, 50, 100 ],
+      lengthMenu: [ 25, 50, 100 ],
       paging: true,
       info: true,
       searching: true,
@@ -44,21 +39,41 @@
       serverSide: true,
       search: { search: initial_search },
       columnDefs: [
-        // "name" is the column name in your main SQL query.
-        // The fields in each row in the data ajax response are ordered as they are declared here.
-        // All fields default to "orderable" = true, "searchable" = true.
-        { "name": "WoText", "targets": 0,
-          "render": function ( data, type, row, meta ) {
-            return `<a href="/term/${row[5]}/edit">${row[0]}</a>`;
+        {
+          // "chk" is included in the underlying SQL query.
+          // Without it, datatables would place the values
+          // in the wrong table columns.  Ugly hack, but works.
+          "name": "chk",
+          "targets": 0,
+          "searchable": false, "orderable": false, "data": null,
+          "render": function (data, type, row, meta) {
+            return `<input type="checkbox" class="chkWord" name="wordids" wordid="${row[7]}" langid="${row[8]}" onclick="handleChkClick()">`;
           }
         },
-        { "name": "WoTranslation", "targets": 1, width: "40%",
+
+        { "name": "WoText", "targets": 1,
+          "render": function ( data, type, row, meta ) {
+            return `<a href="/term/${row[7]}/edit">${row[1]}</a>`;
+          }
+        },
+        { "name": "ParentText", "targets": 2 },
+        { "name": "WoTranslation", "targets": 3, width: "40%",
+          "render": function ( data, type, row, meta ) {
+            let tx = row[3] ?? '';
+            let imgsrc = row[9] ?? '';
+            if (imgsrc != '')
+              imgsrc = `<img style="margin-top: 5px;" src="${imgsrc}" />`;
+            let ret = [ tx, imgsrc ].filter((s) => s != '');
+            return ret.join('<br />');
+          },
           "searchable": false, "orderable": false,
         },
-        { "name": "LgName", "targets": 2 },
-        { "name": "TagList", "targets": 3 },
-        { "name": "StText", "targets": 4 },
-        { "name": "WoID", "targets": 5, "data": null, "visible": false },
+        { "name": "LgName", "targets": 4 },
+        { "name": "TagList", "targets": 5 },
+        { "name": "StText", "targets": 6 },
+        { "name": "WoID", "targets": 7, "data": null, "visible": false },
+        { "name": "LgID", "targets": 8, "data": null, "visible": false },
+        { "name": "WiSource", "targets": 9, "data": null, "visible": false },
       ],
 
       // Ajax call
@@ -70,9 +85,121 @@
 
     });
   } // end setup_term_datatable
-  
+
+
+  let handleChkAll = function() {
+    const v = $('#chkAll').prop('checked');
+    $('.chkWord').each(function(i) {
+      $(this).prop('checked', v);
+    });
+    handleChkClick(true);
+  }
+
+  let handleChkClick = function(leave_checkAll = false) {
+    if (! leave_checkAll)
+      $('#chkAll').prop('checked', false);
+    const n = $('.chkWord:checked').length;
+    const lang_id = get_lang_id();
+    const disabled = ((n == 0) || lang_id == null);
+    $("#txtSetParent").prop('disabled', disabled);
+    $("#btnSetParent").prop('disabled', disabled);
+  }
+
+
+  // Return the clicked checkboxes' language ID,
+  // or null if the lang id isn't the same for all.
+  let get_lang_id = function() {
+    let langids = [];
+    $('.chkWord:checked').each(function(i) {
+      langids.push($(this).attr('langid'));
+    });
+    const unique_langids = [...new Set(langids)];
+    if (unique_langids.length == 1) {
+      return unique_langids[0];
+    }
+    return null;
+  }
+
+  let handle_set_parent_click = function() {
+    const lang_id = get_lang_id();
+    if (lang_id == null) {
+      alert("All terms must be of the same language.");
+      return;
+    }
+    let wordids = [];
+    $('.chkWord:checked').each(function(i) {
+      wordids.push($(this).attr('wordid'));
+    });
+    const ptxt = $('#txtSetParent').val();
+
+    const resp = confirm(`Change parent for ${wordids.length} term(s) to "${ptxt}"?`);
+    if (! resp)
+      return;
+
+    $.ajax({
+      url: '/term/bulk_set_parent',
+      data: {
+        wordids: wordids,
+        langid: lang_id,
+        parenttext: ptxt
+      },
+      type: 'POST',
+      dataType: 'json',
+      success: function(data) {
+        alert("Updated.");
+        $('#chkAll').prop('checked', false);
+        $('.chkWord:checked').each(function(i) {
+          $(this).prop('checked', false);
+        });
+        handleChkClick();
+      }
+    });
+  }
+
+
+  let set_up_parent_autocomplete = function() {
+    $("#txtSetParent").autocomplete({
+      source: function(request, response) {
+        const lang_id = get_lang_id();
+        if (lang_id == null) {
+          // This should never occur; the text
+          // box should be disabled if lang_id is null.
+          response([], null);
+        }
+
+        const s = encodeURIComponent(request.term);
+        $.ajax({
+          url: `/term/search/${s}/${lang_id}`,
+          type: 'GET',
+          dataType: 'json',
+          minLength: 2,
+          success: function(data) {
+            arr = data.map(function(word) {
+              let label = word.text;
+              if (word.translation != null && word.translation != '') {
+                label = `${label} (${word.translation})`;
+              }
+              const obj = {
+                label: label,
+                value: word.text,
+                word: word.text,
+                translation: word.translation
+              };
+              return obj;
+            });
+            response(arr, data);
+          }
+        })
+      }
+    });
+  };
+
+
   $(document).ready(function () {
     setup_term_datatable("{{ initial_search ?? '' }}");
+
+    set_up_parent_autocomplete();
+    $('#btnSetParent').click(handle_set_parent_click);
   });
 
 

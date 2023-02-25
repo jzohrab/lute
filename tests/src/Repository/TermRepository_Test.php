@@ -83,6 +83,33 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
     }
 
+    /**
+     * @group getParentAndChildren
+     */
+    public function test_word_parent_get_child()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $g = new Term($this->spanish, "gato");
+        $p = new Term($this->spanish, "PARENT");
+        $g->setParent($p);
+        $t->setParent($p);
+        $this->term_repo->save($t, true);
+        $this->term_repo->save($g, true);
+
+        $pget = $this->term_repo->find($p->getId());
+        $this->assertEquals($pget->getText(), "PARENT", "sanity check");
+        $this->assertEquals($pget->getChildren()->count(), 2, "2 kids");
+
+        $tget = $this->term_repo->find($t->getId());
+        $this->assertEquals($tget->getParent()->getText(), "PARENT", "have text");
+
+        $gget = $this->term_repo->find($g->getId());
+        $this->assertEquals($gget->getParent()->getText(), "PARENT", "have text");
+    }
+
+    /**
+     * @group changeParent
+     */
     public function test_change_parent()
     {
         $t = new Term($this->spanish, "HOLA");
@@ -189,6 +216,67 @@ final class TermRepository_Test extends DatabaseTestBase
 
         $exp = [ ];
         DbHelpers::assertTableContains($sql, $exp, "image removed");
+    }
+
+    private function assertFindLikeSpecReturns($s, $expected) {
+        $spec = new Term($this->spanish, $s);
+        $ret = $this->term_repo->findLikeSpecification($spec);
+        $this->assertEquals(count($expected), count($ret), $s . " count");
+        $actual = join(', ', array_map(fn($t) => $t->getText(), $ret));
+        $this->assertEquals(join(', ', $expected), $actual, $s . ' ' . $actual);
+    }
+
+    /**
+     * @group findLikeSpec
+     */
+    public function test_findLikeSpecification_initial_check() {
+        $t1 = new Term($this->spanish, "abc");
+        $t2 = new Term($this->spanish, "abcd");
+        $t3 = new Term($this->spanish, "bcd");
+        $this->term_repo->save($t1, true);
+        $this->term_repo->save($t2, true);
+        $this->term_repo->save($t3, true);
+
+        $this->assertFindLikeSpecReturns('ab', [ 'abc', 'abcd' ]);
+        $this->assertFindLikeSpecReturns('abcd', [ 'abcd' ]);
+        $this->assertFindLikeSpecReturns('bc', [ 'bcd' ]);
+        $this->assertFindLikeSpecReturns('yy', [ ]);
+    }
+
+    /**
+     * @group findLikeSpec
+     */
+    public function test_findLikeSpecification_terms_with_children_go_to_top() {
+        $ap = new Term($this->spanish, "abcPAR");
+        $a = new Term($this->spanish, "abc");
+        $xp = new Term($this->spanish, "axyPAR");
+        $x = new Term($this->spanish, "axy");
+        $a->setParent($ap);
+        $x->setParent($xp);
+        $this->term_repo->save($ap, true);
+        $this->term_repo->save($a, true);
+        $this->term_repo->save($xp, true);
+        $this->term_repo->save($x, true);
+
+        $this->assertFindLikeSpecReturns('a', [ 'abcPAR', 'axyPAR', 'abc', 'axy' ]);
+    }
+
+    /**
+     * @group findLikeSpec
+     */
+    public function test_findLikeSpecification_exact_match_trumps_parent() {
+        $ap = new Term($this->spanish, "abcPAR");
+        $a = new Term($this->spanish, "abc");
+        $xp = new Term($this->spanish, "axyPAR");
+        $x = new Term($this->spanish, "axy");
+        $a->setParent($ap);
+        $x->setParent($xp);
+        $this->term_repo->save($ap, true);
+        $this->term_repo->save($a, true);
+        $this->term_repo->save($xp, true);
+        $this->term_repo->save($x, true);
+
+        $this->assertFindLikeSpecReturns('abc', [ 'abc', 'abcPAR' ]);
     }
 
     // TODO:image_integration_tests Future integration-style tests.

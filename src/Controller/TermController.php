@@ -38,6 +38,47 @@ class TermController extends AbstractController
         return $this->json($data);
     }
 
+    #[Route('/bulk_set_parent', name: 'app_term_bulk_set_parent', methods: ['POST'])]
+    public function bulk_set_parent(
+        Request $request,
+        TermRepository $term_repo,
+        LanguageRepository $lang_repo,
+        Dictionary $dict
+    ): JsonResponse
+    {
+        $parameters = $request->request->all();
+        $wordids = $parameters['wordids'];
+        $parenttext = trim($parameters['parenttext']);
+        $langid = intval($parameters['langid']);
+
+        // dump($wordids);
+        // dump($parenttext);
+        // dump($langid);
+
+        $lang = $lang_repo->find($langid);
+        $parent = null;
+        if ($parenttext != '') {
+            $parent = $dict->find($parenttext, $lang);
+            if ($parent == null) {
+                $parent = new Term($lang, $parenttext);
+            }
+        }
+        $pid = null;
+        if ($parent != null)
+            $pid = $parent->getID();
+
+        $terms = array_map(fn($n) => $term_repo->find(intval($n)), $wordids);
+        $update = array_filter(
+            $terms,
+            fn($t) => ($t->getLanguage()->getLgID() == $langid) && ($t->getID() != $pid)
+        );
+        foreach ($update as $t) {
+            $t->setParent($parent);
+            $term_repo->save($t, true);
+        }
+        return $this->json('ok');
+    }
+
 
     #[Route('/search/{text}/{langid}', name: 'app_term_search', methods: ['GET'])]
     public function search_by_text_in_language(
@@ -52,8 +93,9 @@ class TermController extends AbstractController
         $result = [];
         foreach ($terms as $t) {
             $trans = $t->getTranslation();
-            $result[$t->getID()] = [
-                'text' => $t->getText(),
+            $result[] = [
+                'id' => $t->getID(),
+                'text' => $t->getTextLC(),
                 'translation' => $t->getTranslation()
             ];
         }

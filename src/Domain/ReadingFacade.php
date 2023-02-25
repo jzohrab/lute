@@ -193,11 +193,9 @@ class ReadingFacade {
 
     /** Save a term, and return an array of UI updates. */
     public function saveDTO(TermDTO $termdto, int $textid): array {
-
         $term = TermDTO::buildTerm(
             $termdto, $this->dictionary, $this->termtagrepo
         );
-        $text = $this->textrepo->find($textid);
 
         // Need to know if the term is new or not, because if it's a
         // multi-word term, it will be a *new element* in the rendered
@@ -206,6 +204,13 @@ class ReadingFacade {
         $is_new = ($term->getID() == 0);
 
         $this->repo->save($term, true);
+
+        // In some cases (e.g., navigating to a parent term
+        // from a child term), we might not have the $textid.
+        // (e.g., see templates/term/_form.html.twig,
+        // "if_parent_link_to_frame" code -- this code feels
+        // clumsy, but it works for now).
+        $text = $this->textrepo->find($textid);
         return $this->getUIUpdates($text, $term, $is_new);
     }
 
@@ -221,8 +226,10 @@ class ReadingFacade {
      * Get the UI items to replace and hide (delete).
      * Returns [ array of textitems to update, dict of span IDs -> replacements and hides ].
      */
-    private function getUIUpdates(Text $text, Term $term, bool $is_new): array {
-        $items = $this->get_textitems_for_term($text, $term);
+    private function getUIUpdates(?Text $text, Term $term, bool $is_new): array {
+        $items = [];
+        if ($text != null)
+            $items = $this->get_textitems_for_term($text, $term);
 
         // what updates to do.
         $update_js = [];

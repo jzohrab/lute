@@ -79,7 +79,6 @@ class TermRepository extends ServiceEntityRepository
         $search = mb_strtolower(trim($specification->getText() ?? ''));
         if ($search == '')
             return [];
-        $search = '%' . $search . '%';
 
         $dql = "SELECT t FROM App\Entity\Term t
         JOIN App\Entity\Language L WITH L = t.language
@@ -88,9 +87,25 @@ class TermRepository extends ServiceEntityRepository
         $query = $this->getEntityManager()
                ->createQuery($dql)
                ->setParameter('langid', $specification->getLanguage()->getLgID())
-               ->setParameter('search', $search)
+               ->setParameter('search', $search . '%')
                ->setMaxResults($maxResults);
-        return $query->getResult();
+        $raw = $query->getResult();
+
+        // Exact match goes to top.
+        $ret = array_filter($raw, fn($r) => $r->getTextLC() == $search);
+
+        // Parents in next.
+        $parents = array_filter(
+            $raw,
+            fn($r) => $r->getChildren()->count() > 0 && $r->getTextLC() != $search
+        );
+        $ret = array_merge($ret, $parents);
+
+        $remaining = array_filter(
+            $raw,
+            fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0
+        );
+        return array_merge($ret, $remaining);
     }
 
 
@@ -98,11 +113,13 @@ class TermRepository extends ServiceEntityRepository
     public function getDataTablesList($parameters) {
 
         $base_sql = "SELECT
-w.WoID as WoID, LgName, WoText as WoText, WoTranslation, ifnull(tags.taglist, '') as TagList, StText
+0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, w.WoText as WoText, p.WoText as ParentText, w.WoTranslation, wi.WiSource, ifnull(tags.taglist, '') as TagList, StText
 FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
 INNER JOIN statuses S on S.StID = w.WoStatus
+LEFT OUTER JOIN wordparents on WpWoID = w.WoID
+LEFT OUTER JOIN words p on p.WoID = WpParentWoID
 LEFT OUTER JOIN (
   SELECT WtWoID as WoID, GROUP_CONCAT(TgText ORDER BY TgText SEPARATOR ', ') AS taglist
   FROM
@@ -110,6 +127,7 @@ LEFT OUTER JOIN (
   INNER JOIN tags t on t.TgID = wt.WtTgID
   GROUP BY WtWoID
 ) AS tags on tags.WoID = w.WoID
+LEFT OUTER JOIN wordimages wi on wi.WiWoID = w.WoID
 ";
 
         $conn = $this->getEntityManager()->getConnection();
