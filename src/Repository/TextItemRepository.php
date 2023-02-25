@@ -132,16 +132,12 @@ where ti2woid = 0";
              ->query($minmax)->fetch_array();
         $firstSeID = intval($rec['minseid']);
         $lastSeID = intval($rec['maxseid']);
-    
-        // For each expession in the language, add expressions for the
-        // sentence range.  Inefficient, but for now I don't care --
-        // will see how slow it is.  Note it's not useful to limit it
-        // to multi-word terms that aren't in the text, since _most_
-        // of them won't be in the text.  The only useful check would
-        // be for new things added since the last parse date, which
-        // currently isn't tracked.
         $sentenceRange = [ $firstSeID, $lastSeID ];
-        $mwordsql = "SELECT WoTextLC, WoID, WoWordCount FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
+
+        // Get all terms that exist in the raw text.
+        $mwordsql = "SELECT WoTextLC, WoID, WoWordCount FROM words
+          WHERE WoLgID = $lid AND WoWordCount > 1
+          AND (SELECT TxText from texts where TxID = $id) LIKE CONCAT('%', REPLACE(WoTextLC, 0xE2808B, ''), '%')";
         $res = $this->conn->query($mwordsql);
         while ($record = mysqli_fetch_assoc($res)) {
             $this->add_multiword_textitems(
