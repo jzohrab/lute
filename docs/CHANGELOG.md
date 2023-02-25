@@ -1,5 +1,14 @@
 # Changelog
 
+## 2023-02-24 v1.1.3
+
+* set existing parent description and image on save if not already set
+* add bulk setting of parent from term listing page
+* add parent to term listing
+* include images in term listing
+* improve text lookup for setting parents: existing parents sort to top of list
+* more tests
+
 ## 2023-02-13 v1.1.2
 
 * Don't search translation field in term list.
