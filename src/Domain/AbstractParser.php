@@ -43,6 +43,19 @@ abstract class AbstractParser {
     }
  
     private function parseText(Text $text) {
+        // dump("parsing text ===============");
+        $start = microtime(true);
+        $curr = microtime(true);
+        $traces = [];
+
+        $trace = function($msg) use (&$curr, $start, &$traces) {
+            $elapsed = (microtime(true) - $curr);
+            $sincestart = (microtime(true) - $start);
+            $t = "{$msg}: {$elapsed}; since start: {$sincestart}";
+            // dump($t);
+            $traces[] = [ $msg, $elapsed, $sincestart ];
+            $curr = microtime(true);
+        };
 
         $id = $text->getID();
         $cleanup = [
@@ -50,22 +63,33 @@ abstract class AbstractParser {
             "DELETE FROM sentences WHERE SeTxID = $id",
             "DELETE FROM textitems2 WHERE Ti2TxID = $id"
         ];
-        foreach ($cleanup as $sql)
+        foreach ($cleanup as $sql) {
             $this->exec_sql($sql);
+            $trace($sql);
+        }
+        // $trace("drops");
 
         $s = $text->getText();
         $zws = mb_chr(0x200B); // zero-width space.
         $s = str_replace($zws, '', $s);
+        $trace("replaces");
         $tokens = $this->getParsedTokens($text->getText(), $text->getLanguage());
+        $trace("got tokens");
 
         $arr = $this->build_insert_array($tokens);
+        $trace("built array");
         $this->load_temptextitems_from_array($arr);
+        $trace("loaded temp table");
         $this->import_temptextitems($text);
+        $trace("imported temp table");
 
         TextItemRepository::mapForText($text);
+        $trace("mapped text items");
 
         TextStatsCache::force_refresh($text);
+        $trace("loaded cache");
 
+        // dump($traces);
         // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
     }
 
