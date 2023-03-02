@@ -71,6 +71,33 @@ final class Dictionary_Save_Test extends DatabaseTestBase
 
 
     /**
+     * @group mwordparent
+     */
+    public function test_multiword_parent_item_associated() {
+        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+
+        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
+        DbHelpers::assertTableContains($sql, [], "No associations");
+
+        $t1 = new Term($this->spanish, "tengo");
+        $t2 = new Term($this->spanish, "un gato");
+        $t1->setParent($t2);
+
+        $this->dictionary->add($t1, false);
+
+        DbHelpers::assertTableContains($sql, [], "No associations, not flushed");
+
+        $this->dictionary->flush();
+
+        $expected = [
+            "{$t1->getID()}; 1; 1; tengo",
+            "{$t2->getID()}; 1; 2; un/ /gato"
+        ];
+        DbHelpers::assertTableContains($sql, $expected, "Now associated textitems (in spanish text only)");
+    }
+
+
+    /**
      * @group zws
      */
     public function test_textitems_un_associated_after_remove() {
