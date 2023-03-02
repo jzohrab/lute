@@ -237,6 +237,7 @@ class ReadingFacade {
         foreach ($items as $item) {
             $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
             $hide_ids = array_values($hide_ids);
+            $hide_texts = array_map(fn($i) => $i->getSpanID() . ':' . $i->Text, $item->hides);
 
             $replace_id = $item->getSpanID();
             if ($is_new && count($hide_ids) > 0) {
@@ -249,7 +250,8 @@ class ReadingFacade {
 
             $u = [
                 'replace' => $replace_id,
-                'hide' => $hide_ids
+                'hide' => $hide_ids,
+                'hidetext' => array_values($hide_texts)  // for debugging only.
             ];
             $update_js[ $item->getSpanID() ] = $u;
         }

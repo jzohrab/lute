@@ -545,12 +545,12 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $tiene->ParentText = 'tener uno';
         $tiene->Status = 1;
         [ $updatedTIs, $updates ] = $this->facade->saveDTO($tiene, $tid);
-        dump($updatedTIs);
-        $this->assertEquals(count($updatedTIs), 2, 'two updated');  // Currently fails.
+        // dump($updatedTIs);
+        $this->assertEquals(count($updatedTIs), 2, 'two updated');
 
         // The rest needs to be updated once the failure is cleared.
-        $tener = $this->facade->loadDTO(0, $tid, $tiene_ti->Order, 'tener');
-        $this->assertTrue($tener->id != 0, 'sanity check, tener also saved.');
+        $tener = $this->facade->loadDTO(0, $tid, $tiene_ti->Order, 'tener uno');
+        $this->assertTrue($tener->id != 0, 'sanity check, tener_uno also saved.');
 
         $updated_tiene_ti = $updatedTIs[0];
         $this->assertEquals($updated_tiene_ti->TextLC, 'tiene', 'first update is for tiene');
@@ -560,9 +560,16 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $updated_tener_ti = $updatedTIs[1];
         $this->assertEquals($updated_tener_ti->WoID, $tener->id, 'id = tener');
-        $this->assertEquals($updated_tener_ti->TextLC, 'tener', 'it says tener');
+        $zws = mb_chr(0x200B);
+        $this->assertEquals($updated_tener_ti->TextLC, "tener{$zws} {$zws}uno", 'it says tener uno');
         $updated_tener_replaces = $updates[$updated_tener_ti->getSpanID()]['replace'];
         $this->assertEquals($updated_tener_replaces, $tener_ti->getSpanID(), 'it replaces "tener"');
+
+        $hides = $updates[$updated_tener_ti->getSpanID()]['hide'];
+        $this->assertEquals(2, count($hides), "hides 2 other things (' ' and 'uno')");
+        $hidetexts = $updates[$updated_tener_ti->getSpanID()]['hidetext'];
+        $hidetexts = implode('; ', $hidetexts);
+        $this->assertEquals('ID-5-1:tener; ID-6-1: ; ID-7-1:uno', $hidetexts, 'hidden items');
     }
 
 
