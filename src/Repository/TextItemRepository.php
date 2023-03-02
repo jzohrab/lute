@@ -38,27 +38,22 @@ class TextItemRepository {
         $eu = new TextItemRepository();
         $eu->map_by_textlc();
 
-        $mword_terms = array_filter($terms, fn($t) => ($t->getWordCount() > 1));
-        foreach ($mword_terms as $term) {
-            $eu->add_multiword_textitems(
-                $term->getTextLC(),
-                $term->getLanguage(),
-                $term->getID(),
-                $term->getWordCount()
-            );
-        }
+        $updateMwordsTextItems = function($candidates, $eu) {
+            $mword_terms = array_filter($candidates, fn($t) => ($t->getWordCount() > 1));
+            foreach ($mword_terms as $term) {
+                $eu->add_multiword_textitems(
+                    $term->getTextLC(),
+                    $term->getLanguage(),
+                    $term->getID(),
+                    $term->getWordCount()
+                );
+            }
+        };
 
+        $updateMwordsTextItems($terms, $eu);
         $tparents = array_map(fn($t) => $t->getParent(), $terms);
         $tparents = array_filter($tparents, fn($t) => ($t != null));
-        $mparents = array_filter($tparents, fn($t) => ($t->getWordCount() > 1));
-        foreach ($mparents as $term) {
-            $eu->add_multiword_textitems(
-                $term->getTextLC(),
-                $term->getLanguage(),
-                $term->getID(),
-                $term->getWordCount()
-            );
-        }
+        $updateMwordsTextItems($tparents, $eu);
     }
 
     /** Break any TextItem-Term mappings for the Term. */
