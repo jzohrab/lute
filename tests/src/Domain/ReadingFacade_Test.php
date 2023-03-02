@@ -486,45 +486,36 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    /**
+     * @group textitemparentupdate
+     */
     public function test_update_textitem_with_parent() {
         $text = $this->create_text("Tener", "tiene y tener.", $this->spanish);
-        $tid = $text->getID();
 
-        $sentences = $this->facade->getSentences($text);
-        $sentence = $sentences[0];
-
-        $spanid_to_text = [];
-        foreach ($sentence->getTextItems() as $ti) {
-            $spanid_to_text[$ti->getSpanID()] = "'{$ti->TextLC}'";
-        }
-
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
-        $tiene_ti = array_values($tis)[0];
+        $tiene_ti = $this->get_text_textitem_matching($text, 'tiene');
         $this->assertEquals($tiene_ti->TextLC, 'tiene', 'sanity check, got the term');
         $this->assertEquals($tiene_ti->WoID, 0, 'sanity check, new word');
 
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tener');
-        $tener_ti = array_values($tis)[0];
+        $tener_ti = $this->get_text_textitem_matching($text, 'tener');
         $this->assertEquals($tener_ti->TextLC, 'tener', 'sanity check, got tener');
         $this->assertEquals($tener_ti->WoID, 0, 'sanity check, new word');
 
+        // Update "tiene" to have "tener" as parent.
+        $tid = $text->getID();
         $tiene = $this->facade->loadDTO(0, $tid, $tiene_ti->Order, 'tiene');
-
         $tiene->ParentText = 'tener';
         $tiene->Status = 1;
-
-        // The new term "tiene" also updates "tener".
         [ $updatedTIs, $updates ] = $this->facade->saveDTO($tiene, $tid);
         $this->assertEquals(count($updatedTIs), 2, 'both updated');
+
+        $tener = $this->facade->loadDTO(0, $tid, $tiene_ti->Order, 'tener');
+        $this->assertTrue($tener->id != 0, 'sanity check, tener also saved.');
 
         $updated_tiene_ti = $updatedTIs[0];
         $this->assertEquals($updated_tiene_ti->TextLC, 'tiene', 'first update is for tiene');
         $this->assertTrue($updated_tiene_ti->WoID > 0, 'it has an id');
         $updated_tiene_ti_replaces = $updates[$updated_tiene_ti->getSpanID()]['replace'];
         $this->assertEquals($updated_tiene_ti_replaces, $tiene_ti->getSpanID(), 'it replaces "tiene"');
-
-        $tener = $this->facade->loadDTO(0, $tid, $tiene_ti->Order, 'tener');
-        $this->assertTrue($tener->id != 0, 'sanity check, tener also saved.');
 
         $updated_tener_ti = $updatedTIs[1];
         $this->assertEquals($updated_tener_ti->WoID, $tener->id, 'id = tener');
