@@ -62,14 +62,6 @@ class TextItemRepository {
         $eu->map_by_textlc($text->getLanguage(), $text);
     }
 
-    /** Map all TextItems in *this and other texts* that match the
-     * TextLC of saved Terms in this Text. */
-    public static function mapStringMatchesForLanguage(Language $lang) {
-        $eu = new TextItemRepository();
-        $eu->map_by_textlc($lang);
-    }
-
-
     private $conn;
 
     public function __construct()
