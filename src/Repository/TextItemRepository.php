@@ -47,6 +47,18 @@ class TextItemRepository {
                 $term->getWordCount()
             );
         }
+
+        $tparents = array_map(fn($t) => $t->getParent(), $terms);
+        $tparents = array_filter($tparents, fn($t) => ($t != null));
+        $mparents = array_filter($tparents, fn($t) => ($t->getWordCount() > 1));
+        foreach ($mparents as $term) {
+            $eu->add_multiword_textitems(
+                $term->getTextLC(),
+                $term->getLanguage(),
+                $term->getID(),
+                $term->getWordCount()
+            );
+        }
     }
 
     /** Break any TextItem-Term mappings for the Term. */
