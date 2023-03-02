@@ -20,18 +20,6 @@ class TextItemRepository {
         $eu->add_multiword_terms_for_text($text);
     }
 
-    /** Map all matching TextItems to a Term. */
-    public static function mapForTerm(Term $term) {
-        if ($term->getTextLC() != null && $term->getID() == null)
-            throw new \Exception("Term {$term->getTextLC()} is not saved.");
-        $eu = new TextItemRepository();
-        $eu->map_textitems_for_term($term);
-        $p = $term->getParent();
-        if ($p != null) {
-            $eu->map_textitems_for_term($p);
-        }
-    }
-
     /** Bulk map. */
     public static function bulkMap(array $terms) {
         // First pass: map exact string matches.
@@ -157,21 +145,6 @@ where ti2woid = 0";
         mysqli_free_result($res);
     }
 
-
-    private function map_textitems_for_term(Term $term)
-    {
-        if ($term->getWordCount() == 1) {
-            $this->map_by_textlc($term->getLanguage(), null, $term);
-        }
-        else {
-            $this->add_multiword_textitems(
-                $term->getTextLC(),
-                $term->getLanguage(),
-                $term->getID(),
-                $term->getWordCount()
-            );
-        }
-    }
 
     private function unmap_all(Term $term)
     {
