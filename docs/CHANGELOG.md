@@ -1,5 +1,15 @@
 # Changelog
 
+## 2023-03-02 v1.1.4
+
+* Fix issue 6: multiword parent updates text items.
+
+### Back end fixes
+
+* Improve term mapping: only map terms that exist in text.
+* Remove unused code, refactor some tests.
+
+
 ## 2023-02-24 v1.1.3
 
 * set existing parent description and image on save if not already set
