@@ -20,33 +20,28 @@ class TextItemRepository {
         $eu->add_multiword_terms_for_text($text);
     }
 
-    /** Map all matching TextItems to a Term. */
-    public static function mapForTerm(Term $term) {
-        if ($term->getTextLC() != null && $term->getID() == null)
-            throw new \Exception("Term {$term->getTextLC()} is not saved.");
-        $eu = new TextItemRepository();
-        $eu->map_textitems_for_term($term);
-        $p = $term->getParent();
-        if ($p != null) {
-            $eu->map_textitems_for_term($p);
-        }
-    }
-
     /** Bulk map. */
     public static function bulkMap(array $terms) {
         // First pass: map exact string matches.
         $eu = new TextItemRepository();
         $eu->map_by_textlc();
 
-        $mword_terms = array_filter($terms, fn($t) => ($t->getWordCount() > 1));
-        foreach ($mword_terms as $term) {
-            $eu->add_multiword_textitems(
-                $term->getTextLC(),
-                $term->getLanguage(),
-                $term->getID(),
-                $term->getWordCount()
-            );
-        }
+        $updateMwordsTextItems = function($candidates, $eu) {
+            $mword_terms = array_filter($candidates, fn($t) => ($t->getWordCount() > 1));
+            foreach ($mword_terms as $term) {
+                $eu->add_multiword_textitems(
+                    $term->getTextLC(),
+                    $term->getLanguage(),
+                    $term->getID(),
+                    $term->getWordCount()
+                );
+            }
+        };
+
+        $updateMwordsTextItems($terms, $eu);
+        $tparents = array_map(fn($t) => $t->getParent(), $terms);
+        $tparents = array_filter($tparents, fn($t) => ($t != null));
+        $updateMwordsTextItems($tparents, $eu);
     }
 
     /** Break any TextItem-Term mappings for the Term. */
@@ -66,14 +61,6 @@ class TextItemRepository {
         $eu = new TextItemRepository();
         $eu->map_by_textlc($text->getLanguage(), $text);
     }
-
-    /** Map all TextItems in *this and other texts* that match the
-     * TextLC of saved Terms in this Text. */
-    public static function mapStringMatchesForLanguage(Language $lang) {
-        $eu = new TextItemRepository();
-        $eu->map_by_textlc($lang);
-    }
-
 
     private $conn;
 
@@ -132,16 +119,12 @@ where ti2woid = 0";
              ->query($minmax)->fetch_array();
         $firstSeID = intval($rec['minseid']);
         $lastSeID = intval($rec['maxseid']);
-    
-        // For each expession in the language, add expressions for the
-        // sentence range.  Inefficient, but for now I don't care --
-        // will see how slow it is.  Note it's not useful to limit it
-        // to multi-word terms that aren't in the text, since _most_
-        // of them won't be in the text.  The only useful check would
-        // be for new things added since the last parse date, which
-        // currently isn't tracked.
         $sentenceRange = [ $firstSeID, $lastSeID ];
-        $mwordsql = "SELECT WoTextLC, WoID, WoWordCount FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
+
+        // Get all terms that exist in the raw text.
+        $mwordsql = "SELECT WoTextLC, WoID, WoWordCount FROM words
+          WHERE WoLgID = $lid AND WoWordCount > 1
+          AND (SELECT TxText from texts where TxID = $id) LIKE CONCAT('%', REPLACE(WoTextLC, 0xE2808B, ''), '%')";
         $res = $this->conn->query($mwordsql);
         while ($record = mysqli_fetch_assoc($res)) {
             $this->add_multiword_textitems(
@@ -154,21 +137,6 @@ where ti2woid = 0";
         mysqli_free_result($res);
     }
 
-
-    private function map_textitems_for_term(Term $term)
-    {
-        if ($term->getWordCount() == 1) {
-            $this->map_by_textlc($term->getLanguage(), null, $term);
-        }
-        else {
-            $this->add_multiword_textitems(
-                $term->getTextLC(),
-                $term->getLanguage(),
-                $term->getID(),
-                $term->getWordCount()
-            );
-        }
-    }
 
     private function unmap_all(Term $term)
     {
