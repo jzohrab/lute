@@ -573,6 +573,67 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    private function get_renderable_textitems($text) {
+        $ret = [];
+        $ss = $this->facade->getSentences($text);
+        foreach ($ss as $s) {
+            foreach ($s->renderable() as $ti) {
+                $ret[] = $ti;
+            }
+        }
+        return $ret;
+    }
+
+    private function get_rendered_string($text) {
+        $tis = $this->get_renderable_textitems($text);
+        $zws = mb_chr(0x200B);
+        $ss = array_map(fn($ti) => str_replace($zws, '', $ti->Text), $tis);
+        return implode('/', $ss);
+    }
+
+    /**
+     * @group issue10
+     */
+    public function test_multiwords_should_highlight_in_new_text() {
+        $text = $this->create_text("AP1", "Tienes un gato.", $this->spanish);
+        $tid = $text->getID();
+        $dto = $this->facade->loadDTO(0, $tid, 0, 'un gato');
+        $this->facade->saveDTO($dto, $tid);
+
+        $s = $this->get_rendered_string($text);
+        $this->assertEquals($s, "Tienes/ /un gato/.");
+
+        $this->facade->mark_unknowns_as_known($text);
+
+        $text = $this->create_text("AP2", "Tengo un gato.", $this->spanish);
+        $s = $this->get_rendered_string($text);
+        $this->assertEquals($s, "Tengo/ /un gato/.");
+    }
+
+    /**
+     * @group issue10
+     */
+    public function test_associated_press_multiwords_should_highlight_in_new_text() {
+        $ap1 = $this->create_text("AP1", "Abc wrote to the Associated Press about it.", $this->english);
+        $ap2 = $this->create_text("AP2", "Def wrote to the Associated Press about it.", $this->english);
+
+        $ap1id = $ap1->getID();
+        $dto = $this->facade->loadDTO(0, $ap1id, 0, 'Associated Press');
+        $this->facade->saveDTO($dto, $ap1id);
+        $this->facade->mark_unknowns_as_known($ap1);
+
+        $s = $this->get_rendered_string($ap1);
+        $this->assertEquals($s, "Abc/ /wrote/ /to/ /the/ /Associated Press/ /about/ /it/.");
+
+        $s = $this->get_rendered_string($ap2);
+        $this->assertEquals($s, "Def/ /wrote/ /to/ /the/ /Associated Press/ /about/ /it/.");
+
+        $ap3 = $this->create_text("AP3", "Ghi wrote to the Associated Press about it.", $this->english);
+        $s = $this->get_rendered_string($ap3);
+        $this->assertEquals($s, "Ghi/ /wrote/ /to/ /the/ /Associated Press/ /about/ /it/.");
+    }
+
+
     private function get_sentence_textitem($sentence, $textlc) {
         $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $textlc);
         $ti = array_values($tis)[0];

@@ -47,6 +47,7 @@ class Sentence
      * M is _not_ contained by anything else, so it is not hidden.
      */
     private function calculate_hides($items) {
+        // TODO:dont_update_items - should use a different struct and filter things internally.
         foreach($items as $ti) {
             $ti->OrderEnd = $ti->Order + $ti->TokenCount - 1;
             $ti->hides = array();
