@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  symfony:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: symfony
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      lutedb:
+        condition: service_healthy
+    command: /bin/bash -c "/var/www/html/docker/app-init.sh && apachectl -D FOREGROUND"
+
+  lutedb:
+    image: mysql:8.0.31
+    container_name: lutedb
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysql", "--version"]
+      interval: 3s
+      timeout: 2s
+      retries: 15
+      start_period: 15s
+    ports:
+      - 3306:3306
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      # MYSQL_USER: ${DB_USER}
+      # MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db/baseline/baseline_schema.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./db/baseline/reference_data.sql:/docker-entrypoint-initdb.d/02-data.sql
+      - lutedb:/var/lib/mysql # For persistence
+
+volumes:
+  lutedb:
