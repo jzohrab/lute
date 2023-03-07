@@ -4,7 +4,9 @@ namespace App\Entity;
 
 class TextItem
 {
-
+    public int $TextID;
+    public int $LangID;
+    
     public int $Order;
     public string $Text;
     public int $WordCount;
@@ -29,6 +31,12 @@ class TextItem
     public ?string $ParentImageSource;
     public ?string $ParentTags;
 
+    // Values set by Sentence class to determine if this TextItem
+    // should actually be rendered.
+    // TODO:dont_update_items - this is an implementation detail that shouldn't be visible here!
+    public ?int $OrderEnd;
+    public ?array $hides;
+    public bool $Render = true;
 
     private function strToHex($string): string
     {
