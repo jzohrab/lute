@@ -15,6 +15,7 @@ If you're more technical, and are setting up your own Apache/Php/MySQL stack ins
 ## Mac users
 
 If you have a Mac, you can use MAMP, a pre-loaded package that has PHP, Apache, and MySQL.  See [installing on MAMP](./install_mamp.md)
+
 ## Windows
 
 If you have Windows, you can use XAMPP, a pre-loaded package that has PHP, Apache, and MySQL.  See [installing on XAMPP](./install_xampp.md)
