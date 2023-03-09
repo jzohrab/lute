@@ -9,6 +9,8 @@ services:
     restart: always
     ports:
       - 8080:80
+    environment:
+      - APP_ENV=prod
     volumes:
       - symfony:/var/www/html   # Change anonymous volume to named volume
     depends_on:
