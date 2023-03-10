@@ -63,9 +63,7 @@ class ParsedTokenSaver {
             "DROP TABLE IF EXISTS temptextitems",
             "DELETE FROM sentences WHERE SeTxID = $id",
             "DELETE FROM textitems2 WHERE Ti2TxID = $id",
-
-            // To be enabled later.
-            // "DELETE FROM texttokens WHERE TokTxID = $id"
+            "DELETE FROM texttokens WHERE TokTxID = $id"
         ];
         foreach ($cleanup as $sql) {
             $this->exec_sql($sql);
@@ -83,13 +81,11 @@ class ParsedTokenSaver {
         $arr = $this->build_insert_array($tokens);
         $trace("built array");
 
-        /*
         // To be enabled later.
         $chunks = array_chunk($arr, 1000);
         foreach ($chunks as $chunk) {
             $this->load_texttokens($id, $chunk);
         }
-        */
 
         $this->load_temptextitems_from_array($arr);
         $trace("loaded temp table");
