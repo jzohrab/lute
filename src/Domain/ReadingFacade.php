@@ -56,7 +56,84 @@ class ReadingFacade {
         return $sentences;
     }
 
+
+    private function getRenderable($terms, $tokens) {
+        $rc = new RenderableCalculator();
+        $textitems = $rc->main($terms, $tokens);
+        return $textitems;
+    }
+
     public function getSentences(Text $text)
+    {
+        if ($text->getID() == null)
+            return [];
+
+        if ($text->isArchived()) {
+            $text->setArchived(false);
+            $this->textrepo->save($text, true);
+        }
+
+        // dump('getting');
+        // Get all the sentences in the text
+        $sentences = $this->repo->getSentences($text);
+        // dump('got ' . count($sentences) . ' sentences');
+        $terms = $this->repo->getTermsInText($text);
+        $tokens = $this->repo->getTextTokens($text);
+
+        // dump('partitioning tokens by sentence');
+        $tokens_by_senum = array();
+        foreach ($tokens as $tok) {
+            $tokens_by_senum[$tok->TokSentenceNumber][] = $tok;
+        }
+
+        $usenums = array_keys($tokens_by_senum);
+
+        $lid = $text->getLanguage()->getLgID();
+        $tid = $text->getID();
+        $renderableSentences = [];
+        $n = 0;
+        foreach ($usenums as $senum) {
+
+            $time_start = microtime(true);
+            $msgs = [];
+
+            $isdumping = function($s) {};
+            $time_start = microtime(true);
+            $shoulddump = ($n / 200) == intval($n / 200);
+            $shoulddump = false;
+            if ($shoulddump) {
+                $isdumping = function($s) use ($time_start, &$msgs) {
+                    $time_end = microtime(true);
+                    $time = round($time_end - $time_start, 4);
+                    $msgs[] = $time . ' ' . $s;
+                };
+            }
+            $n += 1;
+
+            $isdumping("start senum = $senum");
+            $isdumping("get tokens");
+            $setokens = $tokens_by_senum[$senum];
+            $isdumping("get renderable");
+            $renderable = $this->getRenderable($terms, $setokens);
+            $isdumping("start mapping of " . count($renderable) . " renderable to TextItems");
+            $textitems = array_map(
+                fn($i) => $i->makeTextItem($senum, $tid, $lid),
+                $renderable
+            );
+            $isdumping("make renderable sentence");
+            $rs = new RenderableSentence($senum, $textitems);
+            $isdumping("done senum $senum");
+            $renderableSentences[] = $rs;
+
+            if ($shoulddump) {
+                // dump($msgs);
+            }
+        }
+        return $renderableSentences;
+    }
+
+    // TODO:DELETE_THIS not called
+    public function getSentences_OLD(Text $text)
     {
         if ($text->getID() == null)
             return [];

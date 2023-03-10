@@ -89,9 +89,14 @@
       top.frames.dictframe.location.href = '/read/empty';
 
       $(document).ready(function() {
+        window.parent.location.reload();
+
+        /**
+        // TODO:remove - a lot of the JS, and the calls to get the various updates
         const updates_by_spanid = {{ updates | raw }};
         update_reading_pane_elements(updates_by_spanid);
         $('#flash').delay(1000).fadeOut();
+        **/
       });
     </script>
 
