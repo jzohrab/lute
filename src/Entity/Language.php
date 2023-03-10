@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Domain\RomanceLanguageParser;
 use App\Domain\JapaneseParser;
+use App\Domain\ParsedTokenSaver;
+
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -285,7 +287,9 @@ class Language
     
     public function parse(Text $text): void
     {
-        $this->getParser()->parse($text);
+        $p = $this->getParser();
+        $persister = new ParsedTokenSaver($p);
+        $persister->parse($text);
     }
 
     public function getParsedTokens(string $s): array
