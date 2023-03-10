@@ -28,6 +28,34 @@ final class TextRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("texts", 1, 'setup texts');
     }
 
+    /**
+     * @group reworkparsing
+     */
+    public function test_saving_Text_entity_loads_texttokens()
+    {
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Tengo un gato. Un perro.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
+
+        $sql = "select TokSentenceNumber, TokOrder, TokIsWord, TokText from texttokens where TokTxID = {$t->getID()} order by TokOrder";
+        $expected = [
+            "1; 1; 1; Tengo",
+            "1; 2; 0;  ",
+            "1; 3; 1; un",
+            "1; 4; 0;  ",
+            "1; 5; 1; gato",
+            "1; 6; 0; .",
+            "2; 7; 0;  ",
+            "2; 8; 1; Un",
+            "2; 9; 0;  ",
+            "2; 10; 1; perro",
+            "2; 11; 0; ."
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
+    }
+
     public function test_saving_Text_entity_loads_textitems2()
     {
         $t = $this->text;
