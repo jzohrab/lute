@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../db_helpers.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Term;
+use App\Entity\Text;
 use App\Repository\TermTagRepository;
 
 final class TermRepository_Test extends DatabaseTestBase
@@ -277,6 +278,26 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->term_repo->save($x, true);
 
         $this->assertFindLikeSpecReturns('abc', [ 'abc', 'abcPAR' ]);
+    }
+
+    /**
+     * @group findTermsInText
+     */
+    public function test_findTermsInText() {
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true);
+
+        $p = new Term($this->spanish, 'perro');
+        $g = new Term($this->spanish, 'gato');
+        $this->term_repo->save($p, true);
+        $this->term_repo->save($g, true);
+
+        $terms = $this->term_repo->findTermsInText($t);
+        $this->assertEquals(1, count($terms), "1 term");
+        $this->assertEquals('gato', $terms[0]->getTextLC(), 'gato found');
     }
 
     // TODO:image_integration_tests Future integration-style tests.

@@ -18,7 +18,7 @@ class Term
     #[ORM\Column(name: 'WoID', type: Types::SMALLINT)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: 'Language', inversedBy: 'terms', fetch: 'EAGER')]
+    #[ORM\ManyToOne(targetEntity: 'Language', inversedBy: 'terms', fetch: 'LAZY')]
     #[ORM\JoinColumn(name: 'WoLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $language = null;
 
@@ -49,13 +49,13 @@ class Term
     #[ORM\JoinTable(name: 'wordtags')]
     #[ORM\JoinColumn(name: 'WtWoID', referencedColumnName: 'WoID')]
     #[ORM\InverseJoinColumn(name: 'WtTgID', referencedColumnName: 'TgID')]
-    #[ORM\ManyToMany(targetEntity: TermTag::class, cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: TermTag::class, cascade: ['persist'], fetch: 'EAGER')]
     private Collection $termTags;
 
     #[ORM\JoinTable(name: 'wordparents')]
     #[ORM\JoinColumn(name: 'WpWoID', referencedColumnName: 'WoID')]
     #[ORM\InverseJoinColumn(name: 'WpParentWoID', referencedColumnName: 'WoID')]
-    #[ORM\ManyToMany(targetEntity: Term::class, inversedBy:'children', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Term::class, inversedBy:'children', cascade: ['persist'], fetch: 'EAGER')]
     private Collection $parents;
     /* Really, a word can have only one parent, but since we have a
        join table, I'll treat it like a many-to-many join in the
