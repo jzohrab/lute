@@ -26,7 +26,7 @@ class RenderableCalculator {
             $method .= '_all';
         }
 
-        # var_dump([$method, $pattern, $subject, $matchInfo, $flag, $offset]);
+        // var_dump([$method, $pattern, $subject, $matchInfo, $flag, $offset]);
         $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
 
         $result = array();
@@ -80,7 +80,8 @@ class RenderableCalculator {
                         $prevtok->TokText, $prevtok->TokOrder,
                         $tok->TokText, $tok->TokOrder
                     ];
-                    throw new \Exception("bad token ordering: {implode('; ', $mparts)}");
+                    $msg = implode('; ', $mparts);
+                    throw new \Exception("bad token ordering: {$msg}");
                 }
             }
             $prevtok = $tok;
@@ -96,14 +97,14 @@ class RenderableCalculator {
             $allmatches = $this->pregMatchCapture(true, $pattern, $subject, 0);
             
             if (count($allmatches) > 0) {
-                # echo "in loop\n";
-                # echo "===============\n";
-                # var_dump($allmatches);
-                # var_dump($allmatches[0]);
-                # echo "===============\n";
+                // echo "in loop\n";
+                // echo "===============\n";
+                // var_dump($allmatches);
+                // var_dump($allmatches[0]);
+                // echo "===============\n";
                 foreach ($allmatches[1] as $m) {
-                    # echo "------------\n";
-                    # var_dump($m);
+                    // echo "------------\n";
+                    // var_dump($m);
                     $result = new RenderableCandidate();
                     $result->term = $w;
                     $result->text = $m[0];
@@ -113,15 +114,13 @@ class RenderableCalculator {
                     $result->pos = $firstTokOrder + $this->get_count_before($subject, $m[1]) - 1;
                     $result->length = count(explode($zws, $w->getTextLC()));
                     $result->isword = 1;
-                    # echo "------------\n";
+                    // echo "------------\n";
                     $termmatches[] = $result;
                 }
             }
-            /*
-            else {
-                echo "no match for pattern $pattern \n";
-            }
-            */
+            // else {
+            // echo "no match for pattern $pattern \n";
+            // }
         }
         
         // Add originals
@@ -180,16 +179,6 @@ class RenderableCalculator {
     public function main($words, $texttokens) {
         $candidates = $this->get_all_textitems($words, $texttokens);
         $candidates = $this->calculate_hides($candidates);
-        // echo "Term matches: ------------\n";
-        // foreach ($termmatches as $t) {
-        //     echo $t->term . ' => ' . $t->toString() . "\n";
-        // }
-        // echo "END Term matches: ------------\n";
-        // 
-        // echo "AFTER CALC ----------\n";
-        // foreach ($items as $i)
-        //     echo $i->toString() . "\n";
-        // echo "END AFTER CALC ----------\n";
         $renderable = array_filter($candidates, fn($i) => $i->render);
         $items = $this->sort_by_order_and_tokencount($renderable);
         return $items;
