@@ -25,6 +25,7 @@ class Book
     private ?Language $Language = null;
 
     #[ORM\OneToMany(mappedBy: 'book', targetEntity: Text::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OrderBy(['TxOrder' => 'ASC'])]
     #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
     private Collection $Texts;
 
