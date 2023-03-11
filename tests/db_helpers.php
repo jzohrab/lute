@@ -103,6 +103,11 @@ you must use a dedicated test database when running tests.
             "texttokens",
             "textstatscache",
             "texttags",
+
+            "booktags",
+            "tagsforbooks",
+            "books",
+
             "tts",
             "words",
             "wordparents",
