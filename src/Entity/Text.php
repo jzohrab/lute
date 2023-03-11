@@ -43,6 +43,10 @@ class Text
     #[ORM\ManyToMany(targetEntity: TextTag::class, cascade: ['persist'])]
     private Collection $textTags;
 
+    #[ORM\ManyToOne(inversedBy: 'Texts')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Book $book = null;
+
     public function __construct()
     {
         $this->textTags = new ArrayCollection();
@@ -151,6 +155,18 @@ class Text
     public function parse(): void
     {
         $this->getLanguage()->parse($this);
+    }
+
+    public function getBook(): ?Book
+    {
+        return $this->book;
+    }
+
+    public function setBook(?Book $book): self
+    {
+        $this->book = $book;
+
+        return $this;
     }
 
 }
