@@ -28,6 +28,9 @@ class Text
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
     private string $TxText = '';
 
+    #[ORM\Column(name: 'TxOrder', type: Types::SMALLINT)]
+    private int $TxOrder = 1;
+
     #[ORM\Column(name: 'TxAudioURI', length: 200, nullable: true)]
     private ?string $TxAudioURI = null;
 
@@ -44,7 +47,7 @@ class Text
     private Collection $textTags;
 
     #[ORM\ManyToOne(inversedBy: 'Texts')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
     private ?Book $book = null;
 
     public function __construct()
@@ -116,6 +119,17 @@ class Text
         $this->TxArchived = $TxArchived;
 
         return $this;
+    }
+
+    public function setOrder(int $n): self
+    {
+        $this->TxOrder = $n;
+        return $this;
+    }
+
+    public function getOrder(): int
+    {
+        return $this->TxOrder;
     }
 
     public function getLanguage(): ?Language

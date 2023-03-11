@@ -5,31 +5,40 @@ namespace App\Entity;
 use App\Repository\BookRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[ORM\Table(name: 'books')]
 class Book
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(name: 'BkID', type: Types::SMALLINT)]
+    private ?int $BkID = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'BkTitle', length: 200)]
     private ?string $Title = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
+    #[ORM\JoinColumn(name: 'BkLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $Language = null;
 
-    #[ORM\OneToMany(mappedBy: 'book', targetEntity: Text::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'book', targetEntity: Text::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
     private Collection $Texts;
 
-    #[ORM\ManyToMany(targetEntity: TextTag::class)]
+    #[ORM\JoinTable(name: 'booktags')]
+    #[ORM\JoinColumn(name: 'BtBkID', referencedColumnName: 'BkID')]
+    #[ORM\InverseJoinColumn(name: 'BtT2ID', referencedColumnName: 'T2ID')]
+    #[ORM\ManyToMany(targetEntity: TextTag::class, cascade: ['persist'])]
     private Collection $Tags;
 
-    #[ORM\Column]
-    private ?bool $Archived = null;
+    #[ORM\Column(name: 'BkSourceURI', length: 1000, nullable: true)]
+    private ?string $BkSourceURI = null;
+
+    #[ORM\Column(name: 'BkArchived')]
+    private ?bool $Archived = false;
 
     public function __construct()
     {
@@ -39,7 +48,7 @@ class Book
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->BkID;
     }
 
     public function getTitle(): ?string
@@ -117,6 +126,17 @@ class Book
     {
         $this->Tags->removeElement($tag);
 
+        return $this;
+    }
+
+    public function getSourceURI(): ?string
+    {
+        return $this->BkSourceURI;
+    }
+
+    public function setSourceURI(?string $BkSourceURI): self
+    {
+        $this->BkSourceURI = $BkSourceURI;
         return $this;
     }
 
