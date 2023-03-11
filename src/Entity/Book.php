@@ -25,12 +25,16 @@ class Book
     #[ORM\OneToMany(mappedBy: 'book', targetEntity: Text::class, orphanRemoval: true)]
     private Collection $Texts;
 
+    #[ORM\ManyToMany(targetEntity: TextTag::class)]
+    private Collection $Tags;
+
     #[ORM\Column]
     private ?bool $Archived = null;
 
     public function __construct()
     {
         $this->Texts = new ArrayCollection();
+        $this->Tags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -92,6 +96,30 @@ class Book
         return $this;
     }
 
+    /**
+     * @return Collection<int, TextTag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->Tags;
+    }
+
+    public function addTag(TextTag $tag): self
+    {
+        if (!$this->Tags->contains($tag)) {
+            $this->Tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(TextTag $tag): self
+    {
+        $this->Tags->removeElement($tag);
+
+        return $this;
+    }
+
     public function isArchived(): ?bool
     {
         return $this->Archived;
@@ -103,4 +131,5 @@ class Book
 
         return $this;
     }
+
 }
