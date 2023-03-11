@@ -24,7 +24,10 @@ class BookBinder {
 
         $tokstring = function($tokens) {
             $a = array_map(fn($t) => $t->token, $tokens);
-            return trim(str_replace("\r", '', implode('', $a)));
+            $ret = implode('', $a);
+            $ret = str_replace("\r", '', $ret);
+            $ret = str_replace("¶", "\n", $ret);
+            return trim($ret);
         };
         $textstrings = array_map(fn($g) => $tokstring($g), $groups);
 
