@@ -27,3 +27,5 @@ SET TxBkID = BkID, TxOrder = 1;
 -- alter texts, BkID not null, TxOrder not null
 ALTER TABLE texts MODIFY COLUMN TxBkID int NOT NULL;
 ALTER TABLE texts MODIFY COLUMN TxOrder int NOT NULL;
+
+ALTER TABLE texts ADD CONSTRAINT TxBkIDTxOrder UNIQUE (TxBkID, TxOrder);
