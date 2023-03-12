@@ -29,11 +29,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
 
     public function test_parse_no_words_defined()
     {
-        $t = new Text();
-        $t->setTitle("Test");
-        $t->setText("私は元気です.");
-        $t->setLanguage($this->japanese);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Test", "私は元気です.", $this->japanese);
 
         $sql = "select ti2seid, ti2order, ti2text, ti2textlc from textitems2 where ti2woid = 0 order by ti2order";
 
@@ -89,12 +85,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     public function test_parse_words_defined()
     {
         $this->addTerms($this->japanese, [ '私', '元気', 'です' ]);
-
-        $t = new Text();
-        $t->setTitle("Test");
-        $t->setText("私は元気です.");
-        $t->setLanguage($this->japanese);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Test", "私は元気です.", $this->japanese);
 
         $sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2 where ti2woid > 0 order by ti2order";
         $expected = [
@@ -111,11 +102,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
      */
     public function test_futari()
     {
-        $t = new Text();
-        $t->setTitle("Test");
-        $t->setText("二人はどちらの力が強いか.");
-        $t->setLanguage($this->japanese);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Test", "二人はどちらの力が強いか.", $this->japanese);
 
         $sql = "select ti2seid, ti2order, ti2text, ti2wordcount from textitems2
           where ti2order <= 4";

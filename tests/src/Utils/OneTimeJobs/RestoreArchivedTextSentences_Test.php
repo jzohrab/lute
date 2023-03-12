@@ -11,10 +11,10 @@ final class RestoreArchivedTextSentences_Test extends DatabaseTestBase
 
     public function test_script_reloads_archived_text_sentences() {
         $dict = new Dictionary($this->term_repo);
-        MigrationHelper::loadDemoData($this->language_repo, $this->text_repo, $dict);
+        MigrationHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertTrue(true, 'dummy');
         $t = $this->text_repo->find(1);
-        $this->assertEquals($t->getTitle(), 'Tutorial', 'got tutorial, index link to /read/1 is good.');
+        $this->assertEquals($t->getTitle(), 'Tutorial (1/2)', 'got tutorial.');
         $t->setArchived(true);
         $this->text_repo->save($t, true);
 
