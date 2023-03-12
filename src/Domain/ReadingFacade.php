@@ -10,6 +10,7 @@ use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TextRepository;
+use App\Repository\BookRepository;
 use App\Repository\TextItemRepository;
 use App\Repository\SettingsRepository;
 use App\Repository\TermTagRepository;
@@ -19,6 +20,7 @@ class ReadingFacade {
 
     private ReadingRepository $repo;
     private TextRepository $textrepo;
+    private BookRepository $bookrepo;
     private SettingsRepository $settingsrepo;
     private Dictionary $dictionary;
     private TermTagRepository $termtagrepo;
@@ -26,6 +28,7 @@ class ReadingFacade {
     public function __construct(
         ReadingRepository $repo,
         TextRepository $textrepo,
+        BookRepository $bookrepo,
         SettingsRepository $settingsrepo,
         Dictionary $dictionary,
         TermTagRepository $termTagRepository
@@ -33,6 +36,7 @@ class ReadingFacade {
         $this->repo = $repo;
         $this->dictionary = $dictionary;
         $this->textrepo = $textrepo;
+        $this->bookrepo = $bookrepo;
         $this->settingsrepo = $settingsrepo;
         $this->termtagrepo = $termTagRepository;
     }
@@ -136,6 +140,12 @@ class ReadingFacade {
         }
         // Remaining items.
         $this->dictionary->flush();
+    }
+
+    public function set_current_book_text(Text $text) {
+        $b = $text->getBook();
+        $b->setCurrentTextID($text->getId());
+        $this->bookrepo->save($b, true);
     }
 
     public function get_prev_next(Text $text) {

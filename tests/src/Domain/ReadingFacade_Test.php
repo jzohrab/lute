@@ -24,6 +24,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,
+            $this->book_repo,
             $this->settings_repo,
             $dict,
             $this->termtag_repo

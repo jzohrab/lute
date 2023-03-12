@@ -38,6 +38,9 @@ class Book
     #[ORM\Column(name: 'BkSourceURI', length: 1000, nullable: true)]
     private ?string $BkSourceURI = null;
 
+    #[ORM\Column(name: 'BkCurrentTxID', type: Types::SMALLINT)]
+    private int $BkCurrentTxID = 0;
+    
     #[ORM\Column(name: 'BkArchived')]
     private ?bool $Archived = false;
 
@@ -138,6 +141,17 @@ class Book
     public function setSourceURI(?string $BkSourceURI): self
     {
         $this->BkSourceURI = $BkSourceURI;
+        return $this;
+    }
+
+    public function getCurrentTextID(): int
+    {
+        return $this->BkCurrentTxID;
+    }
+
+    public function setCurrentTextID(int $n): self
+    {
+        $this->BkCurrentTxID = $n;
         return $this;
     }
 

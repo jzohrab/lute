@@ -61,8 +61,12 @@ class BookController extends AbstractController
     #[Route('/read/{BkID}', name: 'app_book_read', methods: ['GET'])]
     public function read(Request $request, Book $book): Response
     {
-        $text = $book->getTexts()[0];  // first page, TODO:go_to_current_page
-        return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
+        $currtxid = $book->getCurrentTextID();
+        if ($currtxid == 0) {
+            $text = $book->getTexts()[0];
+            $currtxid = $text->getId();
+        }
+        return $this->redirectToRoute('app_read', [ 'TxID' => $currtxid ], Response::HTTP_SEE_OTHER);
     }
 
 
