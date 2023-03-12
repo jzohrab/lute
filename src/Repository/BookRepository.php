@@ -27,6 +27,9 @@ class BookRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
+
+            foreach ($entity->getTexts() as $t)
+                $t->parse();
         }
     }
 

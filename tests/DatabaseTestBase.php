@@ -23,6 +23,7 @@ use App\Repository\BookRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\Dictionary;
+use App\Domain\BookBinder;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -157,12 +158,9 @@ abstract class DatabaseTestBase extends WebTestCase
     }
 
     public function make_text(string $title, string $text, Language $lang): Text {
-        $t = new Text();
-        $t->setTitle($title);
-        $t->setText($text);
-        $t->setLanguage($lang);
-        $this->text_repo->save($t, true);
-        return $t;
+        $b = BookBinder::makeBook($title, $lang, $text);
+        $this->book_repo->save($b, true);
+        return $b->getTexts()[0];
     }
 
 }
