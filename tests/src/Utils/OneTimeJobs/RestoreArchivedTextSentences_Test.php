@@ -14,7 +14,7 @@ final class RestoreArchivedTextSentences_Test extends DatabaseTestBase
         MigrationHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertTrue(true, 'dummy');
         $t = $this->text_repo->find(1);
-        $this->assertEquals($t->getTitle(), 'Tutorial (1/2)', 'got tutorial.');
+        $this->assertEquals($t->getTitle(), 'Tutorial (1/3)', 'got tutorial.');
         $t->setArchived(true);
         $this->text_repo->save($t, true);
 
