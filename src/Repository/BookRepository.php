@@ -23,13 +23,19 @@ class BookRepository extends ServiceEntityRepository
 
     public function save(Book $entity, bool $flush = false): void
     {
+        // Books only need to be parsed when first saved
+        // (... actually, not true, they only need to be parsed when
+        // first read!).
+        $isnew = ($entity->getId() == null);
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
 
-            foreach ($entity->getTexts() as $t)
-                $t->parse();
+            if ($isnew) {
+                foreach ($entity->getTexts() as $t)
+                    $t->parse();
+            }
         }
     }
 
