@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../src/Domain/ReadingFacade.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\ReadingFacade;
+use App\Domain\BookBinder;
 use App\Entity\Text;
 use App\Domain\Dictionary;
 use App\DTO\TermDTO;
@@ -673,14 +674,19 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
-    public function test_get_prev_next_stays_in_current_language() {
+    /**
+     * @group paging
+     */
+    public function test_get_prev_next_stays_in_current_book() {
+        $text = "Here is some text.  And some more. And some more now.";
+        $b = BookBinder::makeBook('test', $this->english, $text, 3);
+        $this->book_repo->save($b, true);
+        $texts = $b->getTexts();
+        $this->assertEquals(count($texts), 3, '3 pages');
 
-        $s1 = $this->make_text("a 1", "Hola.", $this->spanish);
-        $s2 = $this->make_text("a 2", "Hola.", $this->spanish);
-        $fr = $this->make_text("f", "Bonjour.", $this->french);
-        $s3 = $this->make_text("a 3", "Hola.", $this->spanish);
-
-        DbHelpers::assertRecordcountEquals("texts", 4, "sanity check, only 4");
+        $s1 = $texts[0];
+        $s2 = $texts[1];
+        $s3 = $texts[2];
         
         [ $prev, $next ] = $this->facade->get_prev_next($s1);
         $this->assertTrue($prev == null, 's1 prev');
@@ -693,12 +699,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
         [ $prev, $next ] = $this->facade->get_prev_next($s3);
         $this->assertEquals($prev->getID(), $s2->getID(), 's3 prev');
         $this->assertTrue($next == null, 's3 next');
-
-        [ $prev, $next ] = $this->facade->get_prev_next($fr);
-        $this->assertTrue($prev == null, 'fr prev');
-        $this->assertTrue($next == null, 'fr next');
-
-        // then the rest
     }
     
 }
