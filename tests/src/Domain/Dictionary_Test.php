@@ -228,11 +228,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_add_term_links_existing_TextItems()
     {
-        $text = new Text();
-        $text->setLanguage($this->spanish);
-        $text->setTitle('hola');
-        $text->setText('tengo un gato');
-        $this->text_repo->save($text, true);
+        $text = $this->make_text('hola', 'tengo un gato', $this->spanish);
 
         $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], 'no terms');
@@ -247,11 +243,7 @@ final class Dictionary_Test extends DatabaseTestBase
 
     public function test_remove_term_unlinks_existing_TextItems()
     {
-        $text = new Text();
-        $text->setLanguage($this->spanish);
-        $text->setTitle('hola');
-        $text->setText('tengo un gato');
-        $this->text_repo->save($text, true);
+        $text = $this->make_text('hola', 'tengo un gato', $this->spanish);
 
         $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], 'no terms');
@@ -272,11 +264,7 @@ final class Dictionary_Test extends DatabaseTestBase
      */
     public function test_save_and_flush_bulk_updates_text_items() {
         $sentence = 'tengo un gato en mi cuarto';
-        $text = new Text();
-        $text->setLanguage($this->spanish);
-        $text->setTitle('hola');
-        $text->setText($sentence);
-        $this->text_repo->save($text, true);
+        $text = $this->make_text('hola', $sentence, $this->spanish);
 
         $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], 'no terms');
@@ -298,11 +286,7 @@ final class Dictionary_Test extends DatabaseTestBase
      */
     public function test_save_and_flush_with_multiword_terms_bulk_updates_text_items() {
         $sentence = 'tengo un gato en mi cuarto';
-        $text = new Text();
-        $text->setLanguage($this->spanish);
-        $text->setTitle('hola');
-        $text->setText($sentence);
-        $this->text_repo->save($text, true);
+        $text = $this->make_text('hola', $sentence, $this->spanish);
 
         $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
         DbHelpers::assertTableContains($sql, [], 'no terms');
@@ -325,11 +309,7 @@ final class Dictionary_Test extends DatabaseTestBase
      */
     public function test_get_references_smoke_test()
     {
-        $text = new Text();
-        $text->setLanguage($this->spanish);
-        $text->setTitle('hola');
-        $text->setText('Tengo un gato.  No tengo un perro.');
-        $this->text_repo->save($text, true);
+        $text = $this->make_text('hola', 'Tengo un gato.  No tengo un perro.', $this->spanish);
 
         $tengo = $this->addTerms($this->spanish, 'tengo')[0];
         $refs = $this->dictionary->findReferences($tengo);
@@ -355,17 +335,8 @@ final class Dictionary_Test extends DatabaseTestBase
      */
     public function test_get_all_references()
     {
-        $text = new Text();
-        $text->setLanguage($this->spanish);
-        $text->setTitle('hola');
-        $text->setText('Tengo un gato.  Ella tiene un perro.  No quiero tener nada.');
-        $this->text_repo->save($text, true);
-
-        $archtext = new Text();
-        $archtext->setLanguage($this->spanish);
-        $archtext->setTitle('luego');
-        $archtext->setText('Tengo un coche.');
-        $this->text_repo->save($archtext, true);
+        $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
+        $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
 
         [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
         $tengo->setParent($tener);
@@ -411,17 +382,8 @@ final class Dictionary_Test extends DatabaseTestBase
      */
     public function test_archived_references()
     {
-        $text = new Text();
-        $text->setLanguage($this->spanish);
-        $text->setTitle('hola');
-        $text->setText('Tengo un gato.  Ella tiene un perro.  No quiero tener nada.');
-        $this->text_repo->save($text, true);
-
-        $archtext = new Text();
-        $archtext->setLanguage($this->spanish);
-        $archtext->setTitle('luego');
-        $archtext->setText('Tengo un coche.');
-        $this->text_repo->save($archtext, true);
+        $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
+        $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
 
         [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
         $tengo->setParent($tener);
