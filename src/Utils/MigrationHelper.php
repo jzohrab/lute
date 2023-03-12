@@ -8,8 +8,10 @@ use App\Entity\Language;
 use App\Repository\LanguageRepository;
 use App\Entity\Text;
 use App\Repository\TextRepository;
+use App\Repository\BookRepository;
 use App\Entity\Term;
 use App\Domain\Dictionary;
+use App\Domain\BookBinder;
 use App\Domain\JapaneseParser;
 
 // Class for namespacing only.
@@ -151,7 +153,7 @@ class MigrationHelper {
 
     public static function loadDemoData(
         LanguageRepository $lang_repo,
-        TextRepository $text_repo,
+        BookRepository $book_repo,
         Dictionary $dictionary
     ) {
         $e = Language::makeEnglish();
@@ -191,12 +193,8 @@ class MigrationHelper {
             preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
             $title = $matches[1];
 
-            $t = new Text();
-            $t->setTitle($title);
-            $t->setLanguage($lang);
-            $t->setText($content);
-            
-            $text_repo->save($t, true);
+            $b = BookBinder::makeBook($title, $lang, $content);
+            $book_repo->save($b, true);
         }
 
         $term = new Term();

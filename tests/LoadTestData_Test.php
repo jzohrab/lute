@@ -25,7 +25,7 @@ final class LoadTestData_Test extends DatabaseTestBase
     public function test_load_dev_data(): void
     {
         $dict = new Dictionary($this->term_repo);
-        MigrationHelper::loadDemoData($this->language_repo, $this->text_repo, $dict);
+        MigrationHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }
 
