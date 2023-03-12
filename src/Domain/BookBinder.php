@@ -15,7 +15,7 @@ class BookBinder {
         string $title,
         Language $lang,
         string $fulltext,
-        int $maxWordTokensPerText = 500
+        int $maxWordTokensPerText = 250
     )
     {
         $p = $lang->getParser();
