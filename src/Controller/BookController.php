@@ -4,10 +4,12 @@ namespace App\Controller;
 
 // use App\Entity\Text;
 use App\Entity\Book;
-// use App\Form\TextType;
+use App\DTO\BookDTO;
+use App\Form\BookDTOType;
 // use App\Domain\TextStatsCache;
 use App\Repository\BookRepository;
 // use App\Repository\SettingsRepository;
+use App\Repository\TextTagRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -70,24 +72,58 @@ class BookController extends AbstractController
     }
 
 
-    /*
-    #[Route('/new', name: 'app_book_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, BookRepository $bookRepository): Response
+    private function processForm(
+        \Symfony\Component\Form\Form $form,
+        Request $request,
+        BookDTO $bookdto,
+        BookRepository $book_repo,
+        TextTagRepository $texttag_repo
+    ): ?Response
     {
-        $text = new Text();
-        $form = $this->createForm(TextType::class, $text);
         $form->handleRequest($request);
+        $submitted_valid = $form->isSubmitted() && $form->isValid();
+        if (! $submitted_valid)
+            return null;
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $textRepository->save($text, true);
-            return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
+        $book = BookDTO::buildBook($bookdto, $texttag_repo);
+        try {
+            $book_repo->save($book, true);
+            return $this->redirectToRoute('app_book_read', [ 'BkID' => $book->getId() ], Response::HTTP_SEE_OTHER);
         }
+        catch (\Exception $e) {
+            $errcode = intval($e->getCode());
+            $INTEGRITY_CONSTRAINT_VIOLATION = 1062;
+            if ($errcode != $INTEGRITY_CONSTRAINT_VIOLATION) {
+                // Some different error, throw b/c I'm not sure what's
+                // happening.
+                throw $e;
+            }
 
-        return $this->renderForm('text/new.html.twig', [
-            'text' => $text,
+            $msg = "Error on save: " . $e->getMessage();
+            $this->addFlash('notice', $msg);
+            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+        }
+    }
+
+
+    #[Route('/new', name: 'app_book_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, BookRepository $book_repo, TextTagRepository $texttag_repo): Response
+    {
+        $dto = new BookDTO();
+        $form = $this->createForm(BookDTOType::class, $dto);
+        $resp = $this->processForm($form, $request, $dto, $book_repo, $texttag_repo);
+        if ($resp != null)
+            return $resp;
+
+        return $this->renderForm('book/new.html.twig', [
+            'bookdto' => $dto,
             'form' => $form,
+            'showlanguageselector' => true,
         ]);
     }
+
+
+    /*
 
     #[Route('/{TxID}/edit', name: 'app_text_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Text $text, TextRepository $textRepository, SettingsRepository $settingsRepository): Response

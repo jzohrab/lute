@@ -117,6 +117,12 @@ class Book
         return $this->Tags;
     }
 
+    public function removeAllTags(): void {
+        foreach ($this->Tags as $tt) {
+            $this->removeTag($tt);
+        }
+    }
+
     public function addTag(TextTag $tag): self
     {
         if (!$this->Tags->contains($tag)) {
