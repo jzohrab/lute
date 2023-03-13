@@ -7,7 +7,6 @@
 
     {{ include('text/_form.html.twig', {'button_label': 'Update'}) }}
 
-    <a href="{{ path('app_text_index') }}">back to list</a>
+    <button onclick="history.back()">Cancel</button>
 
-    {{ include('text/_delete_form.html.twig') }}
 {% endblock %}
