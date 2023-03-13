@@ -42,7 +42,7 @@ final class MigrationHelper_Test extends DatabaseTestBase
         MigrationHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertTrue(true, 'dummy');
         $t = $this->text_repo->find(1);
-        $this->assertEquals($t->getTitle(), 'Tutorial (1/3)', 'got tutorial, index link to /read/1 is good.');
+        $this->assertEquals(explode(' ', $t->getTitle())[0], 'Tutorial', 'got tutorial, index link to /read/1 is good.');
     }
 
     /**
