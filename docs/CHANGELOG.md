@@ -1,5 +1,10 @@
 # Changelog
 
+## 2023-03-13 v1.1.5
+
+* Fix issue 10: Case-insensitive search for mword terms.
+* Avoid 'dynamic property deprecated' php8.2 noise.
+
 ## 2023-03-02 v1.1.4
 
 * Fix issue 6: multiword parent updates text items.
