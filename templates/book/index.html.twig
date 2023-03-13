@@ -64,12 +64,17 @@
         },
         { "name": "LgName", "targets": 1 },
         { "name": "TagList", "targets": 2 },
-        { "name": "WordCount", "targets": 3 },
+
+        // WordCount and TermStats are temporarily disabled
+        // until the old parsing methods (using TextItems2)
+        // are removed, and stat calculation is sanitized.
+        { "name": "WordCount", "targets": 3, "visible": false },
         {
           "name": "TermStats",
           "targets": 4,
           "searchable": false,
           "orderable": false,
+          "visible": false,
           "render": function ( data, type, row, meta ) {
             // columns are defined below.
             let mkspan = (col, style) => row[col] == null ? '' : `<span class="${style}">${row[col]}</span>`;
