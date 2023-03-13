@@ -102,14 +102,31 @@ class ReadingRepository
 
         $textitems = [];
         foreach ($rows as $row) {
+            // Yuck. Oh well.
             $t = new TextItem();
-            foreach ($row as $key => $val) {
-                $t->$key = $val;
-            }
-            $intkeys = [ 'TextID', 'LangID', 'WordCount', 'TokenCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
-            foreach ($intkeys as $key) {
-                $t->$key = intval($t->$key);
-            }
+            $t->TextID = intval($row['TextID']);
+            $t->LangID = intval($row['LangID']);
+            $t->WordCount = intval($row['WordCount']);
+            $t->TokenCount = intval($row['TokenCount']);
+            $t->Text = $row['Text'];
+            $t->TextLC = $row['TextLC'];
+            $t->Order = intval($row['Order']);
+            $t->SeID = intval($row['SeID']);
+            $t->IsWord = intval($row['IsWord']);
+            $t->TextLength = intval($row['TextLength']);
+            $t->WoID = intval($row['WoID']);
+            $t->WoText = $row['WoText'];
+            $t->WoStatus = intval($row['WoStatus']);
+            $t->WoTranslation = $row['WoTranslation'];
+            $t->WoRomanization = $row['WoRomanization'];
+            $t->Tags = $row['Tags'];
+            $t->ImageSource = $row['ImageSource'];
+            $t->ParentWoID = intval($row['ParentWoID']);
+            $t->ParentWoTextLC = $row['ParentWoTextLC'];
+            $t->ParentWoTranslation = $row['ParentWoTranslation'];
+            $t->ParentTags = $row['ParentTags'];
+            $t->ParentImageSource = $row['ParentImageSource'];
+
             $textitems[] = $t;
         }
 

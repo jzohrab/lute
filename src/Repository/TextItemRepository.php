@@ -124,7 +124,7 @@ where ti2woid = 0";
         // Get all terms that exist in the raw text.
         $mwordsql = "SELECT WoTextLC, WoID, WoWordCount FROM words
           WHERE WoLgID = $lid AND WoWordCount > 1
-          AND (SELECT TxText from texts where TxID = $id) LIKE CONCAT('%', REPLACE(WoTextLC, 0xE2808B, ''), '%')";
+          AND (SELECT LOWER(TxText) from texts where TxID = $id) LIKE CONCAT('%', LOWER(REPLACE(WoTextLC, 0xE2808B, '')), '%')";
         $res = $this->conn->query($mwordsql);
         while ($record = mysqli_fetch_assoc($res)) {
             $this->add_multiword_textitems(
