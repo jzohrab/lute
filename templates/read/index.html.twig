@@ -61,8 +61,18 @@
 
   </div>
 
-    {{ render(url('app_read_text', { 'TxID': text.ID })) }}
+  {{ render(url('app_read_text', { 'TxID': text.ID })) }}
+
+  <div id="reading-footer">
+    <h2 style="text-align: center;">
+      {% if nexttext %}
+      <a href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
+      {% else %}
+      &#127881;
+      {% endif %}
+    </h2>
   </div>
+  
 </div>
 
 
