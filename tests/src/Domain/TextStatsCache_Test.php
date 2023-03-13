@@ -24,11 +24,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
         DbHelpers::exec_sql("delete from textstatscache");
         DbHelpers::assertRecordcountEquals("textstatscache", 0, "nothing loaded");
 
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.", $this->spanish);
 
         DbHelpers::assertRecordcountEquals("textstatscache", 1, "one record after save");
     }
@@ -36,11 +32,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
 
     public function test_force_refresh_updates_stats()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.", $this->spanish);
 
         TextStatsCache::refresh();
         $sql = "select sUnk from textstatscache where TxID = {$t->getID()}";
@@ -63,11 +55,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
      */
     public function test_refresh_sets_lastmaxstatuschanged()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         TextStatsCache::refresh();
         DbHelpers::assertRecordcountEquals("select * from settings where StKey = 'lastmaxstatuschanged'", 1, 'setting saved');
@@ -81,11 +69,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
      */
     public function test_refresh_not_needed_if_lastmaxstatuschanged_setting_equals_max_wostatuschanged()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         TextStatsCache::refresh();
 
@@ -118,11 +102,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
      */
     public function test_refresh_needed_if_no_lastmaxstatuschanged()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         $sql = "delete from settings where StKey = 'lastmaxstatuschanged'";
         DbHelpers::exec_sql($sql);

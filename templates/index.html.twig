@@ -45,15 +45,10 @@
 
 <div id="userlinks" style="margin-top: 30px;">
   <ul>
-
     <li><a href="/language/index">Languages</a></li>
-    <li><a href="{{ path('app_text_new') }}">Create New Text</a></li>
-    <li><a href="/text/index">Texts</a>
-    {% if currtxid is not null %}
-      (continue reading <a href="/read/{{ currtxid }}">&quot;{{ currtxtitle }}&quot;</a>)
-    {% endif %}
-    </li>
-    <li><a href="/text/archived">Text Archive</a></li>
+    <li><a href="{{ path('app_book_new') }}">Create New Text</a></li>
+    <li><a href="/book/index">Texts</a></li>
+    <li><a href="/book/archived">Text Archive</a></li>
     <li><a href="/term/index">Terms</a></li>
   </ul>
 </div>

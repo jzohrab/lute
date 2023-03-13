@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../src/Domain/ReadingFacade.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\ReadingFacade;
+use App\Domain\BookBinder;
 use App\Entity\Text;
 use App\Domain\Dictionary;
 use App\DTO\TermDTO;
@@ -23,6 +24,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,
+            $this->book_repo,
             $this->settings_repo,
             $dict,
             $this->termtag_repo
@@ -38,14 +40,14 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     public function test_get_sentences_with_text()
     {
-        $t = $this->create_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $sentences = $this->facade->getSentences($t);
         $this->assertEquals(2, count($sentences));
     }
 
     public function test_get_sentences_reparses_text_if_no_sentences()
     {
-        $t = $this->create_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         DbHelpers::exec_sql("delete from textitems2");
         $sentences = $this->facade->getSentences($t);
         $this->assertEquals(2, count($sentences), "reparsed");
@@ -58,7 +60,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_saving_term_associates_textitems()
     {
         $content = "Hola tengo un gato.";
-        $text = $this->create_text("Hola", $content, $this->spanish);
+        $text = $this->make_text("Hola", $content, $this->spanish);
 
         $sql = "select ti2woid, ti2textlc, wotextlc
           from textitems2
@@ -82,7 +84,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_removing_term_disassociates_textitems()
     {
         $content = "Hola tengo un gato.";
-        $text = $this->create_text("Hola", $content, $this->spanish);
+        $text = $this->make_text("Hola", $content, $this->spanish);
         $tid = $text->getID();
         $sql = "select ti2woid, ti2textlc, wotextlc
           from textitems2
@@ -110,7 +112,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, [ 'lista' ]);
 
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
-        $t = $this->create_text("Hola", $content, $this->spanish);
+        $t = $this->make_text("Hola", $content, $this->spanish);
 
         $textitemssql = "select ti2woid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -178,7 +180,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_mark_unknown_as_known_works_if_ti2_already_exists()
     {
         $content = "Hola tengo un perro.";
-        $t = $this->create_text("Hola", $content, $this->spanish);
+        $t = $this->make_text("Hola", $content, $this->spanish);
 
         $textitemssql = "select ti2woid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -234,7 +236,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->load_spanish_words();
 
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
-        $t = $this->create_text("Hola", $content, $this->spanish);
+        $t = $this->make_text("Hola", $content, $this->spanish);
 
         $textitemssql = "select ti2woid, ti2order, ti2text from textitems2
           inner join words on woid = ti2woid
@@ -297,7 +299,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     // Prod bug: setting all to known, and then selecting to create a
     // multi-word term, didn't return that new term.
     public function test_create_multiword_term_when_all_known() {
-        $t = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
+        $t = $this->make_text("Hola", "Ella tiene una bebida.", $this->spanish);
         $this->facade->mark_unknowns_as_known($t);
 
         $sentences = $this->facade->getSentences($t);
@@ -332,8 +334,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group prodbugknown
      */
     public function test_marking_as_known_updates_other_texts() {
-        $bebida_text = $this->create_text("Bebida", "Ella tiene una bebida.", $this->spanish);
-        $gato_text = $this->create_text("Gato", "Ella tiene un gato.", $this->spanish);
+        $bebida_text = $this->make_text("Bebida", "Ella tiene una bebida.", $this->spanish);
+        $gato_text = $this->make_text("Gato", "Ella tiene un gato.", $this->spanish);
         $this->facade->mark_unknowns_as_known($bebida_text);
 
         $gti = function($textlc) use ($gato_text) {
@@ -415,7 +417,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     // updated, because the ID of the element to replace wasn't
     // correct.
     public function test_update_multiword_textitem_replaces_correct_item() {
-        $text = $this->create_text("Hola", "Ella tiene una bebida.", $this->spanish);
+        $text = $this->make_text("Hola", "Ella tiene una bebida.", $this->spanish);
         $txt = "tiene una bebida";
         $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
         $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
@@ -425,7 +427,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group rf_zws
      */
     public function test_update_multiword_textitem_with_numbers_replaces_correct_item() {
-        $text = $this->create_text("Hola", "121 111 123 \"Ella tiene una bebida\".", $this->spanish);
+        $text = $this->make_text("Hola", "121 111 123 \"Ella tiene una bebida\".", $this->spanish);
         $txt = "tiene una bebida";
         $this->run_scenario($text, $txt, 'tiene', [ ' ', 'una', ' ', 'bebida' ]);
         $this->run_scenario($text, $txt, $txt, [ 'tiene', ' ', 'una', ' ', 'bebida' ]);
@@ -433,7 +435,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     // Interesting parser behavious with numbers, it stores spaces with the numbers, treats it as a delimiter.
     public function test_update_multiword_textitem_with_numbers_in_middle() {
-        $text = $this->create_text("Hola", "Ella tiene 1234 una bebida.", $this->spanish);
+        $text = $this->make_text("Hola", "Ella tiene 1234 una bebida.", $this->spanish);
         $txt = "tiene 1234 una bebida";
         $this->run_scenario($text, $txt, 'tiene', [ ' 1234 ', 'una', ' ', 'bebida' ]);
         $this->run_scenario($text, $txt, $txt, [ 'tiene', ' 1234 ', 'una', ' ', 'bebida' ]);
@@ -451,7 +453,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
-        $text = $this->create_text("Hola", "2後ヲウメニ能問アラ費理セイ北多国び持困寿ながち。", $japanese);
+        $text = $this->make_text("Hola", "2後ヲウメニ能問アラ費理セイ北多国び持困寿ながち。", $japanese);
         $this->run_scenario($text, "ながち", "な", [ 'がち' ]);
         $this->run_scenario($text, "ながち", "ながち", [ "な", "がち" ]);
     }
@@ -468,7 +470,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
-        $text = $this->create_text("Hola", "「おれの方が強い。」「いいや、ぼくの方が強い。」", $japanese);
+        $text = $this->make_text("Hola", "「おれの方が強い。」「いいや、ぼくの方が強い。」", $japanese);
         $this->run_scenario($text, "ぼくの方", "ぼく", [ "の", "方" ]);
         $this->run_scenario($text, "おれの方", "おれ", [ "の", "方" ]);
     }
@@ -481,7 +483,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
-        $text = $this->create_text("Hola", "1234おれの方が強い。", $japanese);
+        $text = $this->make_text("Hola", "1234おれの方が強い。", $japanese);
         $this->run_scenario($text, "おれの方", "おれ", [ "の", "方" ]);
     }
 
@@ -490,7 +492,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group textitemparentupdate
      */
     public function test_update_textitem_with_parent() {
-        $text = $this->create_text("Tener", "tiene y tener.", $this->spanish);
+        $text = $this->make_text("Tener", "tiene y tener.", $this->spanish);
 
         $tiene_ti = $this->get_text_textitem_matching($text, 'tiene');
         $this->assertEquals($tiene_ti->TextLC, 'tiene', 'sanity check, got the term');
@@ -529,7 +531,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      */
     public function test_prod_bug_update_doe_with_parent() {
         $content = "tiene y tener uno.";
-        $text = $this->create_text("issue6", $content, $this->english);
+        $text = $this->make_text("issue6", $content, $this->english);
 
         $tiene_ti = $this->get_text_textitem_matching($text, 'tiene');
         $this->assertEquals($tiene_ti->TextLC, 'tiene', 'sanity check, got the term');
@@ -595,7 +597,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group issue10
      */
     public function test_multiwords_should_highlight_in_new_text() {
-        $text = $this->create_text("AP1", "Tienes un gato.", $this->spanish);
+        $text = $this->make_text("AP1", "Tienes un gato.", $this->spanish);
         $tid = $text->getID();
         $dto = $this->facade->loadDTO(0, $tid, 0, 'un gato');
         $this->facade->saveDTO($dto, $tid);
@@ -605,7 +607,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->facade->mark_unknowns_as_known($text);
 
-        $text = $this->create_text("AP2", "Tengo un gato.", $this->spanish);
+        $text = $this->make_text("AP2", "Tengo un gato.", $this->spanish);
         $s = $this->get_rendered_string($text);
         $this->assertEquals($s, "Tengo/ /un gato/.");
     }
@@ -614,8 +616,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group issue10
      */
     public function test_associated_press_multiwords_should_highlight_in_new_text() {
-        $ap1 = $this->create_text("AP1", "Abc wrote to the Associated Press about it.", $this->english);
-        $ap2 = $this->create_text("AP2", "Def wrote to the Associated Press about it.", $this->english);
+        $ap1 = $this->make_text("AP1", "Abc wrote to the Associated Press about it.", $this->english);
+        $ap2 = $this->make_text("AP2", "Def wrote to the Associated Press about it.", $this->english);
 
         $ap1id = $ap1->getID();
         $dto = $this->facade->loadDTO(0, $ap1id, 0, 'Associated Press');
@@ -628,7 +630,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $s = $this->get_rendered_string($ap2);
         $this->assertEquals($s, "Def/ /wrote/ /to/ /the/ /Associated Press/ /about/ /it/.");
 
-        $ap3 = $this->create_text("AP3", "Ghi wrote to the Associated Press about it.", $this->english);
+        $ap3 = $this->make_text("AP3", "Ghi wrote to the Associated Press about it.", $this->english);
         $s = $this->get_rendered_string($ap3);
         $this->assertEquals($s, "Ghi/ /wrote/ /to/ /the/ /Associated Press/ /about/ /it/.");
     }
@@ -646,7 +648,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group prodbugparent
      */
     public function test_update_textitem_with_parent_and_accent() {
-        $text = $this->create_text("Que", "Tengo que y qué.", $this->spanish);
+        $text = $this->make_text("Que", "Tengo que y qué.", $this->spanish);
         $tid = $text->getID();
 
         $sentences = $this->facade->getSentences($text);
@@ -673,14 +675,19 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
-    public function test_get_prev_next_stays_in_current_language() {
+    /**
+     * @group paging
+     */
+    public function test_get_prev_next_stays_in_current_book() {
+        $text = "Here is some text.  And some more. And some more now.";
+        $b = BookBinder::makeBook('test', $this->english, $text, 3);
+        $this->book_repo->save($b, true);
+        $texts = $b->getTexts();
+        $this->assertEquals(count($texts), 3, '3 pages');
 
-        $s1 = $this->create_text("a 1", "Hola.", $this->spanish);
-        $s2 = $this->create_text("a 2", "Hola.", $this->spanish);
-        $fr = $this->create_text("f", "Bonjour.", $this->french);
-        $s3 = $this->create_text("a 3", "Hola.", $this->spanish);
-
-        DbHelpers::assertRecordcountEquals("texts", 4, "sanity check, only 4");
+        $s1 = $texts[0];
+        $s2 = $texts[1];
+        $s3 = $texts[2];
         
         [ $prev, $next ] = $this->facade->get_prev_next($s1);
         $this->assertTrue($prev == null, 's1 prev');
@@ -693,12 +700,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
         [ $prev, $next ] = $this->facade->get_prev_next($s3);
         $this->assertEquals($prev->getID(), $s2->getID(), 's3 prev');
         $this->assertTrue($next == null, 's3 next');
-
-        [ $prev, $next ] = $this->facade->get_prev_next($fr);
-        $this->assertTrue($prev == null, 'fr prev');
-        $this->assertTrue($next == null, 'fr next');
-
-        // then the rest
     }
     
 }

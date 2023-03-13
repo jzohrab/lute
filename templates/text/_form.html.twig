@@ -3,54 +3,8 @@
 {{ form_start(form) }}
 
 <table id="text">
-  {{ form_row(form.language) }}
-  {{ form_row(form.Title) }}
-  {{ form_row(form.Text) }}
-  {{ form_row(form.AudioURI) }}
-  {{ form_row(form.SourceURI) }}
-
-  {% do form.textTags.setRendered %}
-  {# manually write list so it can be managed by tagit. #}
-  <tr>
-    <td>Text tags</td>
-    <td>
-      <ul id="texttagslist" class="tags nomarginblock">
-        {% for textTag in form.textTags %}
-        <li>
-          {{ textTag.vars.value.text }}
-        </li>
-        {% endfor %}
-      </ul>
-    </td>
-  </tr>
-
+  {{ form_widget(form.Text) }}
 </table>
 
 <button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}
-
-<script>
-
-  let setupTagitForTextTags = function() {
-    var prototypeFieldName = 'text[textTags][__name__][text]';
-    var fieldIndex = 0;
-    
-    let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
-
-    $('#texttagslist').tagit(
-      {
-        beforeTagAdded: function (_event, ui) {
-          if (invalidChar(ui.tag.text())) {
-            return;
-          }
-          fieldIndex++;
-          $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
-        },
-        availableTags: TEXTTAGS,
-        fieldName: 'text[textTags][0][text]'
-      });
-  };
-
-  $(document).ready(function () { setupTagitForTextTags(); });
-
-</script>

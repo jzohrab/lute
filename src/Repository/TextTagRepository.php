@@ -49,6 +49,16 @@ class TextTagRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findOrCreateByText($value): TextTag
+    {
+        $t = $this->findByText($value);
+        if ($t != null)
+            return $t;
+        $t = new TextTag();
+        $t->setText($value);
+        return $t;
+    }
+
 //    /**
 //     * @return TextTag[] Returns an array of TextTag objects
 //     */

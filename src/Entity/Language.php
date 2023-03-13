@@ -273,7 +273,7 @@ class Language
         return $this->LgParserType;
     }
 
-    private function getParser()
+    public function getParser()
     {
         switch ($this->LgParserType) {
         case 'romance':

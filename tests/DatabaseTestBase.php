@@ -19,9 +19,11 @@ use App\Repository\LanguageRepository;
 use App\Repository\TextTagRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\TermRepository;
+use App\Repository\BookRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\Dictionary;
+use App\Domain\BookBinder;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -35,6 +37,7 @@ abstract class DatabaseTestBase extends WebTestCase
     public TextTagRepository $texttag_repo;
     public TermTagRepository $termtag_repo;
     public TermRepository $term_repo;
+    public BookRepository $book_repo;
     public ReadingRepository $reading_repo;
     public SettingsRepository $settings_repo;
 
@@ -60,6 +63,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
         $this->termtag_repo = $this->entity_manager->getRepository(App\Entity\TermTag::class);
         $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
+        $this->book_repo = $this->entity_manager->getRepository(App\Entity\Book::class);
 
         $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo, $this->language_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
@@ -133,15 +137,6 @@ abstract class DatabaseTestBase extends WebTestCase
         return $ret;
     }
 
-    public function create_text($title, $content, $language): Text {
-        $t = new Text();
-        $t->setTitle($title);
-        $t->setText($content);
-        $t->setLanguage($language);
-        $this->text_repo->save($t, true);
-        return $t;
-    }
-
     public function load_french_data(): void
     {
         $this->addTerms($this->french, ['lista']);
@@ -154,12 +149,10 @@ abstract class DatabaseTestBase extends WebTestCase
     }
 
     public function make_text(string $title, string $text, Language $lang): Text {
-        $t = new Text();
-        $t->setTitle($title);
-        $t->setText($text);
-        $t->setLanguage($lang);
-        $this->text_repo->save($t, true);
-        return $t;
+        $b = BookBinder::makeBook($title, $lang, $text);
+        $this->book_repo->save($b, true);
+        $b->fullParse();  // Most tests require full parsing.
+        return $b->getTexts()[0];
     }
 
 }

@@ -7,8 +7,16 @@
 <div id="reading-frames-left" style="width: 50%;">
   <div id="reading-header">
     <h2>
+      {% if prevtext10 %}
+      <a href="/read/{{ prevtext10.ID }}" title="{{ prevtext10.Title }}" tabindex="-1">&#171;</a>
+      {% else %}
+      <span style="color: lightgrey;">&#171;</span>
+      {% endif %}
+
       {% if prevtext %}
-      <a href="/read/{{ prevtext.ID }}" title="{{ prevtext.Title }}" tabindex="-1">&lt;</a>
+      <a href="/read/{{ prevtext.ID }}" title="{{ prevtext.Title }}" tabindex="-1">&#8249;</a>
+      {% else %}
+      <span style="color: lightgrey;">&#8249;</span>
       {% endif %}
 
       {{ text.Title }}
@@ -18,8 +26,17 @@
       </a>
 
       {% if nexttext %}
-      <a href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&gt;</a>
+      <a href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
+      {% else %}
+      <span style="color: lightgrey;">&#8250;</span>
       {% endif %}
+
+      {% if nexttext10 %}
+      <a href="/read/{{ nexttext10.ID }}" title="{{ nexttext10.Title }}" tabindex="-1">&#187;</a>
+      {% else %}
+      <span style="color: lightgrey;">&#187;</span>
+      {% endif %}
+
     </h2>
 
     <!-- Lacking css skills, so table layout to the rescue. -->
@@ -44,8 +61,18 @@
 
   </div>
 
-    {{ render(url('app_read_text', { 'TxID': text.ID })) }}
+  {{ render(url('app_read_text', { 'TxID': text.ID })) }}
+
+  <div id="reading-footer">
+    <h2 style="text-align: center;">
+      {% if nexttext %}
+      <a href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
+      {% else %}
+      &#127881;
+      {% endif %}
+    </h2>
   </div>
+  
 </div>
 
 

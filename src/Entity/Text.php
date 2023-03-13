@@ -28,6 +28,9 @@ class Text
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
     private string $TxText = '';
 
+    #[ORM\Column(name: 'TxOrder', type: Types::SMALLINT)]
+    private int $TxOrder = 1;
+
     #[ORM\Column(name: 'TxAudioURI', length: 200, nullable: true)]
     private ?string $TxAudioURI = null;
 
@@ -42,6 +45,10 @@ class Text
     #[ORM\InverseJoinColumn(name: 'TtT2ID', referencedColumnName: 'T2ID')]
     #[ORM\ManyToMany(targetEntity: TextTag::class, cascade: ['persist'])]
     private Collection $textTags;
+
+    #[ORM\ManyToOne(inversedBy: 'Texts')]
+    #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
+    private ?Book $book = null;
 
     public function __construct()
     {
@@ -114,6 +121,17 @@ class Text
         return $this;
     }
 
+    public function setOrder(int $n): self
+    {
+        $this->TxOrder = $n;
+        return $this;
+    }
+
+    public function getOrder(): int
+    {
+        return $this->TxOrder;
+    }
+
     public function getLanguage(): ?Language
     {
         return $this->language;
@@ -151,6 +169,18 @@ class Text
     public function parse(): void
     {
         $this->getLanguage()->parse($this);
+    }
+
+    public function getBook(): ?Book
+    {
+        return $this->book;
+    }
+
+    public function setBook(?Book $book): self
+    {
+        $this->book = $book;
+
+        return $this;
     }
 
 }

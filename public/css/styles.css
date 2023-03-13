@@ -70,6 +70,19 @@
      word-break: break-all;
  }
 
+ table#book
+ {
+     width: 70%;
+ }
+
+ table#book thead, table#book tr, table#book th:first-child, table#book tbody, table#book tr, table#book td:first-child {
+     width: 20%;
+     min-width: 20%;
+     max-width: 20%;
+     vertical-align: top;
+     word-break: break-all;
+ }
+
  table#language
  {
      width: 80%;

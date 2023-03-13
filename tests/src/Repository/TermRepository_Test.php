@@ -284,11 +284,7 @@ final class TermRepository_Test extends DatabaseTestBase
      * @group findTermsInText
      */
     public function test_findTermsInText() {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Gato.", "Hola tengo un gato.", $this->spanish);
 
         $p = new Term($this->spanish, 'perro');
         $g = new Term($this->spanish, 'gato');

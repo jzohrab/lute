@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Texts{% endblock %}
+{% block title %}Books{% endblock %}
 
 {% block body %}
 
-<h1>{{ status }} Text index</h1>
+<h1>{{ status }} Book index</h1>
 
-<table id="texttable" class="table dataTable stripe" style="table-layout:fixed;" >
+<table id="booktable" class="table dataTable stripe" style="table-layout:fixed;" >
   <thead>
     <tr>
       <th>Title</th>
@@ -30,6 +30,10 @@
 
 </table>
 
+{% if status == 'Active' %}
+<a href="{{ path('app_book_new') }}">Create new</a>
+{% endif %}
+
 {# Hidden form for archive, unarchive, delete. #}
 <form id="actionposter" method="post" action="">
 </form>
@@ -37,7 +41,7 @@
 <script>
   
   let setup_text_datatable = function(initial_search) {
-    var table = $('#texttable').DataTable({
+    var table = $('#booktable').DataTable({
       responsive: true,
       select: true,
       lengthMenu: [ 25, 50 ],
@@ -53,19 +57,24 @@
         // The fields in each row in the data ajax response are ordered as they are declared here.
         // All fields default to "orderable" = true, "searchable" = true.
         {
-          "name": "TxTitle", "targets": 0,
+          "name": "BkTitle", "targets": 0,
           "render": function ( data, type, row, meta ) {
-            return `<a href="/read/${row[5]}">${row[0]}</a>`;
+            return `<a href="/book/read/${row[5]}">${row[0]}</a>`;
           }
         },
         { "name": "LgName", "targets": 1 },
         { "name": "TagList", "targets": 2 },
-        { "name": "WordCount", "targets": 3 },
+
+        // WordCount and TermStats are temporarily disabled
+        // until the old parsing methods (using TextItems2)
+        // are removed, and stat calculation is sanitized.
+        { "name": "WordCount", "targets": 3, "visible": false },
         {
           "name": "TermStats",
           "targets": 4,
           "searchable": false,
           "orderable": false,
+          "visible": false,
           "render": function ( data, type, row, meta ) {
             // columns are defined below.
             let mkspan = (col, style) => row[col] == null ? '' : `<span class="${style}">${row[col]}</span>`;
@@ -85,32 +94,37 @@
           "orderable": false,
           "render": function ( data, type, row, meta ) {
             // TODO:security - add CSRF token
-            let ret = '';
-            const txid = row[5];
+            const ret = [];
+            const bkid = row[5];
             if (row[6] == 0) {
               // not archived
-              ret += `<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${txid})" />`;
+              ret.push(`<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`);
             }
             else {
-              ret += `<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${txid})" />`;
+              ret.push(`<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${bkid})" />`);
             }
-            ret += `<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${txid})" />`;
-            return ret;
+            ret.push(`<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${bkid})" />`);
+
+            if (parseInt(row[11]) == 1 && parseInt(row[3]) > 600) {
+              ret.push(`<img src="/icn/lightning.png" title="Rebind long text" onclick="confirm_rebind(${bkid})" />`)
+            }
+            return ret.join('&nbsp;');
           }
         },
 
         /* Extra data that is returned in the row for rendering, but not shown. */
-        { "name": "TxID", "targets": 6, "data": null, "visible": false },
-        { "name": "TxArchived", "targets": 7, "data": null, "visible": false },
+        { "name": "BkID", "targets": 6, "data": null, "visible": false },
+        { "name": "BkArchived", "targets": 7, "data": null, "visible": false },
         { "name": "Unknown", "targets": 8, "data": null, "visible": false },
         { "name": "Learn1_2", "targets": 9, "data": null, "visible": false },
         { "name": "Learn3_4", "targets": 10, "data": null, "visible": false },
-        { "name": "Learn5", "targets": 11, "data": null, "visible": false }
+        { "name": "Learn5", "targets": 11, "data": null, "visible": false },
+        { "name": "PageCount", "targets": 12, "data": null, "visible": false }
       ],
 
       // Ajax call
       ajax: {
-        url: '/text/datatables/{{ status | lower }}',
+        url: '/book/datatables/{{ status | lower }}',
         type: "POST",
         dataType: "json"
       },
@@ -128,26 +142,29 @@
     setup_text_datatable("{{ initial_search ?? '' }}");
   });
 
-  
-  function do_action_post(action, textid) {
+  function do_action_post(action, bookid) {
     let f = $('#actionposter');
-    f.attr('action', `/text/${textid}/${action}`);
+    f.attr('action', `/book/${bookid}/${action}`);
     f.submit();
   }
 
-  function confirm_archive(textid) {
-    do_action_post('archive', textid);
+  function confirm_archive(bookid) {
+    do_action_post('archive', bookid);
   }
 
-  function confirm_unarchive(textid) {
-    do_action_post('unarchive', textid);
+  function confirm_unarchive(bookid) {
+    do_action_post('unarchive', bookid);
   }
 
-  function confirm_delete(textid) {
-    if (!confirm(`Deleting a text.  Click OK to proceed, or Cancel.`)) {
+  function confirm_rebind(bookid) {
+    do_action_post('rebind', bookid);
+  }
+
+  function confirm_delete(bookid) {
+    if (!confirm(`Deleting a book.  Click OK to proceed, or Cancel.`)) {
       return;
     }
-    do_action_post('delete', textid);
+    do_action_post('delete', bookid);
   }
 
 </script>

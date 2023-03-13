@@ -112,21 +112,26 @@ class TextRepository extends ServiceEntityRepository
     }
 
 
-    private function get_prev_or_next(Text $text, bool $getprev = true) {
-        $op = $getprev ? " < " : " > ";
+    private function get_prev_or_next(Text $text, int $offset = 1, bool $getprev = true) {
+        $op = $getprev ? " <= " : " >= ";
         $sortorder = $getprev ? " desc " : "";
+        $bkid = $text->getBook()->getId();
+        $useoffset = $offset;
+        if ($getprev)
+            $useoffset = -1 * $useoffset;
+        $targetorder = $text->getOrder() + $useoffset;
+        if ($text->getOrder() > 1 && $targetorder < 1)
+            $targetorder = 1;
 
         // DQL can be -- non-intuitive.
         // Leaving this for now b/c it works, but I'd prefer regular SQL.
         $dql = "SELECT t FROM App\Entity\Text t
-        JOIN App\Entity\Language L WITH L = t.language
-        WHERE L.LgID = :langid AND t.TxID $op :currid
-        ORDER BY t.TxID $sortorder";
+        JOIN App\Entity\Book b WITH b = t.book
+        WHERE b.BkID = $bkid AND t.TxOrder $op $targetorder
+        ORDER BY t.TxOrder $sortorder";
 
         $query = $this->getEntityManager()
                ->createQuery($dql)
-               ->setParameter('langid', $text->getLanguage()->getLgID())
-               ->setParameter('currid', $text->getID())
                ->setMaxResults(1);
         $texts = $query->getResult();
 
@@ -137,10 +142,15 @@ class TextRepository extends ServiceEntityRepository
 
     
     public function get_prev_next(Text $text) {
-        $p = $this->get_prev_or_next($text, true);
-        $n = $this->get_prev_or_next($text, false);
+        $p = $this->get_prev_or_next($text, 1, true);
+        $n = $this->get_prev_or_next($text, 1, false);
         return [ $p, $n ];
     }
 
+    public function get_prev_next_by_10(Text $text) {
+        $p = $this->get_prev_or_next($text, 10, true);
+        $n = $this->get_prev_or_next($text, 10, false);
+        return [ $p, $n ];
+    }
 
 }

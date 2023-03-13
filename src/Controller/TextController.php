@@ -56,24 +56,6 @@ class TextController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_text_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, TextRepository $textRepository): Response
-    {
-        $text = new Text();
-        $form = $this->createForm(TextType::class, $text);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $textRepository->save($text, true);
-            return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('text/new.html.twig', [
-            'text' => $text,
-            'form' => $form,
-        ]);
-    }
-
     #[Route('/{TxID}/edit', name: 'app_text_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Text $text, TextRepository $textRepository, SettingsRepository $settingsRepository): Response
     {

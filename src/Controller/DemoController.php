@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\LanguageRepository;
-use App\Repository\TextRepository;
+use App\Repository\BookRepository;
 use App\Domain\Dictionary;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,12 +17,12 @@ class DemoController extends AbstractController
 {
 
     #[Route('/demo/load', name: 'app_demo_load', methods: ['GET'])]
-    public function load_demo(LanguageRepository $langrepo, TextRepository $textrepo, Dictionary $dictionary): Response
+    public function load_demo(LanguageRepository $langrepo, BookRepository $bookrepo, Dictionary $dictionary): Response
     {
         if (! MigrationHelper::isEmptyDemo()) {
             return $this->redirectToRoute('app_index');
         }
-        MigrationHelper::loadDemoData($langrepo, $textrepo, $dictionary);
+        MigrationHelper::loadDemoData($langrepo, $bookrepo, $dictionary);
         return $this->redirectToRoute('app_index', [ 'tutorialloaded' => true ]);
     }
 

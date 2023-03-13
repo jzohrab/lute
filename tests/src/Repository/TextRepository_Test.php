@@ -14,13 +14,7 @@ final class TextRepository_Test extends DatabaseTestBase
     {
         // Set up db.
         $this->load_languages();
-
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
-
+        $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->text = $t;
 
         DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup ti2');
@@ -33,11 +27,7 @@ final class TextRepository_Test extends DatabaseTestBase
      */
     public function test_saving_Text_entity_loads_texttokens()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Tengo un gato. Un perro.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Tengo un gato. Un perro.", $this->spanish);
 
         $sql = "select TokSentenceNumber, TokOrder, TokIsWord, TokText from texttokens where TokTxID = {$t->getID()} order by TokOrder";
         $expected = [

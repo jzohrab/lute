@@ -17,12 +17,8 @@ final class ReadingRepository_Load_Test extends DatabaseTestBase {
         // set up the text
         $this->load_languages();
 
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No TENGO una lista.  Ella tiene una bebida.");
-        $lang = $this->spanish;
-        $t->setLanguage($lang);
-        $this->text_repo->save($t, true);
+        $content = "Hola tengo un gato.  No TENGO una lista.  Ella tiene una bebida.";
+        $t = $this->make_text("Hola.", $content, $this->spanish);
 
         $spot_check_sql = "select ti2txid, ti2woid, ti2seid, ti2order, ti2text from textitems2
 where ti2order in (1, 12, 25) order by ti2order";
