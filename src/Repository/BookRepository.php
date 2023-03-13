@@ -21,20 +21,45 @@ class BookRepository extends ServiceEntityRepository
         parent::__construct($registry, Book::class);
     }
 
+    private function exec_sql(string $sql): void
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $stmt->executeQuery();
+    }
+
+    private function removeTi2s(int $bookid): void
+    {
+        $this->exec_sql("delete from textitems2 where Ti2TxID in (select TxID from texts where TxBkID = $bookid)");
+    }
+
+    private function removeSentences(int $bookid): void
+    {
+        $this->exec_sql("delete from sentences where SeTxID in (select TxID from texts where TxBkID = $bookid)");
+    }
+
     public function save(Book $entity, bool $flush = false): void
     {
         // Books only need to be parsed when first saved
         // (... actually, not true, they only need to be parsed when
         // first read!).
         $isnew = ($entity->getId() == null);
+
+        if ($entity->isArchived()) {
+            foreach ($entity->getTexts() as $t)
+                $t->setArchived(true);
+        }
+
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
-
             if ($isnew) {
                 foreach ($entity->getTexts() as $t)
                     $t->parse();
+            }
+            if ($entity->isArchived()) {
+                $this->removeTi2s($entity->getId());
             }
         }
     }

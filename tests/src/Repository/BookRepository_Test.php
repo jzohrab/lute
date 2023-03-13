@@ -63,9 +63,8 @@ final class BookRepository_Test extends DatabaseTestBase
         $this->book_repo->save($b, true);
     }
 
-    public function test_texts_can_be_retrieved_by_index()
-    {
-        $b = new Book();
+    private function make_multipage_book() {
+                $b = new Book();
         $b->setTitle("hi");
         $b->setLanguage($this->english);
 
@@ -75,7 +74,7 @@ final class BookRepository_Test extends DatabaseTestBase
         $t = new Text();
         $t->setTitle("page 1");
         $t->setLanguage($this->english);
-        $t->setText("some more text");
+        $t->setText("some more text.");
         $t->setOrder(1);  // PAGE 1
         $b->addText($t);
 
@@ -83,16 +82,44 @@ final class BookRepository_Test extends DatabaseTestBase
         $t->setTitle("page 2");
         $t->setOrder(2);
         $t->setLanguage($this->english);
-        $t->setText("some text");
+        $t->setText("some text.");
         $b->addText($t);
 
         $this->book_repo->save($b, true);
-
+        return $b;
+    }
+    
+    public function test_texts_can_be_retrieved_by_index()
+    {
+        $b = $this->make_multipage_book();
         $bret = $this->book_repo->find($b->getId());
         $this->assertEquals($bret->getTitle(), "hi", "sanity check");
-        $this->assertEquals($bret->getTexts()[0]->getText(), "some more text", "1st page");
-        $this->assertEquals($bret->getTexts()[1]->getText(), "some text", "2nd page");
+        $this->assertEquals($bret->getTexts()[0]->getText(), "some more text.", "1st page");
+        $this->assertEquals($bret->getTexts()[1]->getText(), "some text.", "2nd page");
     }
 
+    /**
+     * @group bookarch
+     */
+    public function test_archive_book_dels_ti2s_archives_texts() {
+        $b = $this->make_multipage_book();
+        DbHelpers::assertRecordcountEquals("select * from books", 1, 'b');
+        DbHelpers::assertRecordcountEquals("select * from texts", 2, 't');
+        DbHelpers::assertRecordcountEquals("select * from textitems2", 10, 'i');
+        DbHelpers::assertRecordcountEquals("select * from sentences", 2, 's');
+        $b->setArchived(true);
+        $this->book_repo->save($b, true);
+        DbHelpers::assertRecordcountEquals("select * from books where BkArchived = 1", 1, 'b');
+        DbHelpers::assertRecordcountEquals("select * from texts where TxArchived = 1", 2, 'texts archived');
+        DbHelpers::assertRecordcountEquals("select * from textitems2", 0, 'ti2s deleted');
+        DbHelpers::assertRecordcountEquals("select * from sentences", 2, 'sentences left');
+    }
 
+    /**
+     * @group bookdel
+     */
+    public function DIStest_delete_book_deletes_ti2s_and_texts() {
+        $b = $this->make_multipage_book();
+
+    }
 }

@@ -105,7 +105,6 @@ you must use a dedicated test database when running tests.
             "texttags",
 
             "booktags",
-            "tagsforbooks",
             "books",
 
             "tts",
