@@ -88,6 +88,7 @@ class BookRepository extends ServiceEntityRepository
           BkArchived,
           tags.taglist AS TagList,
           CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats,
+          pagecnt.c as PageCount,
           c.wordcount as WordCount,
           c.sUnk as Unknown,
           c.s1 + c.s2 as Learn1_2,
@@ -97,6 +98,10 @@ class BookRepository extends ServiceEntityRepository
 
           FROM Books b
           INNER JOIN languages on LgID = b.BkLgID
+          INNER JOIN (
+            select TxBkID, count(TxID) as c from texts
+            group by TxBkID
+          ) pagecnt on pagecnt.TxBkID = b.BkID
           LEFT OUTER JOIN (
             select
               t.TxBkID,

@@ -89,17 +89,21 @@
           "orderable": false,
           "render": function ( data, type, row, meta ) {
             // TODO:security - add CSRF token
-            let ret = '';
+            const ret = [];
             const bkid = row[5];
             if (row[6] == 0) {
               // not archived
-              ret += `<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`;
+              ret.push(`<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`);
             }
             else {
-              ret += `<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${bkid})" />`;
+              ret.push(`<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${bkid})" />`);
             }
-            ret += `<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${bkid})" />`;
-            return ret;
+            ret.push(`<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${bkid})" />`);
+
+            if (parseInt(row[11]) == 1 && parseInt(row[3]) > 600) {
+              ret.push(`<img src="/icn/lightning.png" title="Rebind long text" onclick="confirm_rebind(${bkid})" />`)
+            }
+            return ret.join('&nbsp;');
           }
         },
 
@@ -109,7 +113,8 @@
         { "name": "Unknown", "targets": 8, "data": null, "visible": false },
         { "name": "Learn1_2", "targets": 9, "data": null, "visible": false },
         { "name": "Learn3_4", "targets": 10, "data": null, "visible": false },
-        { "name": "Learn5", "targets": 11, "data": null, "visible": false }
+        { "name": "Learn5", "targets": 11, "data": null, "visible": false },
+        { "name": "PageCount", "targets": 12, "data": null, "visible": false }
       ],
 
       // Ajax call
@@ -144,6 +149,10 @@
 
   function confirm_unarchive(bookid) {
     do_action_post('unarchive', bookid);
+  }
+
+  function confirm_rebind(bookid) {
+    do_action_post('rebind', bookid);
   }
 
   function confirm_delete(bookid) {

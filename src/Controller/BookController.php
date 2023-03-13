@@ -2,13 +2,12 @@
 
 namespace App\Controller;
 
-// use App\Entity\Text;
 use App\Entity\Book;
 use App\DTO\BookDTO;
 use App\Form\BookDTOType;
 use App\Domain\TextStatsCache;
+use App\Domain\BookBinder;
 use App\Repository\BookRepository;
-// use App\Repository\SettingsRepository;
 use App\Repository\TextTagRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -159,6 +158,28 @@ class BookController extends AbstractController
         // }
         $book->setArchived(false);
         $bookRepository->save($book, true);
+        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{BkID}/rebind', name: 'app_book_rebind', methods: ['POST'])]
+    public function rebind(Request $request, Book $book, BookRepository $bookRepository): Response
+    {
+        // TODO:security - CSRF token for datatables actions.
+        // $tok = $request->request->get('_token');
+        // if ($this->isCsrfTokenValid('archive'.$book->getID(), $tok)) {
+        //     $book->setArchived(true);
+        //     $bookRepository->save($book, true);
+        // }
+        if (count($book->getTexts()) != 1)
+            throw new \Exception("Can only rebind books with one page.");
+        $rebound = BookBinder::makeBook($book->getTitle(), $book->getLanguage(), $book->getTexts()[0]->getText());
+        $rebound->setSourceURI($book->getSourceURI());
+        foreach ($book->getTags() as $t) {
+            $rebound->addTag($t);
+        }
+
+        $bookRepository->remove($book, true);
+        $bookRepository->save($rebound, true);
         return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
     }
 
