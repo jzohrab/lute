@@ -122,9 +122,47 @@ class BookController extends AbstractController
         ]);
     }
 
+    #[Route('/{BkID}/delete', name: 'app_book_delete', methods: ['POST'])]
+    public function delete(Request $request, Book $book, BookRepository $bookRepository): Response
+    {
+        // TODO:security - CSRF token for datatables actions.
+        // $tok = $request->request->get('_token');
+        // if ($this->isCsrfTokenValid('delete'.$book->getID(), $tok)) {
+        //     $bookRepository->remove($book, true);
+        // }
+        $bookRepository->remove($book, true);
+        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{BkID}/archive', name: 'app_book_archive', methods: ['POST'])]
+    public function archive(Request $request, Book $book, BookRepository $bookRepository): Response
+    {
+        // TODO:security - CSRF token for datatables actions.
+        // $tok = $request->request->get('_token');
+        // if ($this->isCsrfTokenValid('archive'.$book->getID(), $tok)) {
+        //     $book->setArchived(true);
+        //     $bookRepository->save($book, true);
+        // }
+        $book->setArchived(true);
+        $bookRepository->save($book, true);
+        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{BkID}/unarchive', name: 'app_book_unarchive', methods: ['POST'])]
+    public function unarchive(Request $request, Book $book, BookRepository $bookRepository): Response
+    {
+        // TODO:security - CSRF token for datatables actions.
+        // $tok = $request->request->get('_token');
+        // if ($this->isCsrfTokenValid('unarchive'.$book->getID(), $tok)) {
+        //     $book->setArchived(false);
+        //     $bookRepository->save($book, true);
+        // }
+        $book->setArchived(false);
+        $bookRepository->save($book, true);
+        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+    }
 
     /*
-
     #[Route('/{TxID}/edit', name: 'app_text_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Text $text, TextRepository $textRepository, SettingsRepository $settingsRepository): Response
     {
@@ -149,45 +187,6 @@ class BookController extends AbstractController
         ]);
     }
 
-    #[Route('/{TxID}/delete', name: 'app_text_delete', methods: ['POST'])]
-    public function delete(Request $request, Text $text, TextRepository $textRepository): Response
-    {
-        // TODO:security - CSRF token for datatables actions.
-        // $tok = $request->request->get('_token');
-        // if ($this->isCsrfTokenValid('delete'.$text->getID(), $tok)) {
-        //     $textRepository->remove($text, true);
-        // }
-        $textRepository->remove($text, true);
-        return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/{TxID}/archive', name: 'app_text_archive', methods: ['POST'])]
-    public function archive(Request $request, Text $text, TextRepository $textRepository): Response
-    {
-        // TODO:security - CSRF token for datatables actions.
-        // $tok = $request->request->get('_token');
-        // if ($this->isCsrfTokenValid('archive'.$text->getID(), $tok)) {
-        //     $text->setArchived(true);
-        //     $textRepository->save($text, true);
-        // }
-        $text->setArchived(true);
-        $textRepository->save($text, true);
-        return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/{TxID}/unarchive', name: 'app_text_unarchive', methods: ['POST'])]
-    public function unarchive(Request $request, Text $text, TextRepository $textRepository): Response
-    {
-        // TODO:security - CSRF token for datatables actions.
-        // $tok = $request->request->get('_token');
-        // if ($this->isCsrfTokenValid('unarchive'.$text->getID(), $tok)) {
-        //     $text->setArchived(false);
-        //     $textRepository->save($text, true);
-        // }
-        $text->setArchived(false);
-        $textRepository->save($text, true);
-        return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
-    }
     */
 
 }

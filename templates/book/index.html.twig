@@ -88,19 +88,17 @@
           "searchable": false,
           "orderable": false,
           "render": function ( data, type, row, meta ) {
-            return ''; // TODO:book_archive_delete
-
             // TODO:security - add CSRF token
             let ret = '';
-            const txid = row[5];
+            const bkid = row[5];
             if (row[6] == 0) {
               // not archived
-              ret += `<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${txid})" />`;
+              ret += `<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`;
             }
             else {
-              ret += `<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${txid})" />`;
+              ret += `<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${bkid})" />`;
             }
-            ret += `<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${txid})" />`;
+            ret += `<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${bkid})" />`;
             return ret;
           }
         },
@@ -134,7 +132,6 @@
     setup_text_datatable("{{ initial_search ?? '' }}");
   });
 
-  /*
   function do_action_post(action, bookid) {
     let f = $('#actionposter');
     f.attr('action', `/book/${bookid}/${action}`);
@@ -155,7 +152,6 @@
     }
     do_action_post('delete', bookid);
   }
-  */
 
 </script>
 
