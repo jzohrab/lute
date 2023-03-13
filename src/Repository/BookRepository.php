@@ -54,10 +54,6 @@ class BookRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            if ($isnew) {
-                foreach ($entity->getTexts() as $t)
-                    $t->parse();
-            }
             if ($entity->isArchived()) {
                 $this->removeTi2s($entity->getId());
             }

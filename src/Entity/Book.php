@@ -109,6 +109,11 @@ class Book
         return $this;
     }
 
+    public function fullParse() {
+        foreach ($this->getTexts() as $t)
+            $t->parse();
+    }
+    
     /**
      * @return Collection<int, TextTag>
      */

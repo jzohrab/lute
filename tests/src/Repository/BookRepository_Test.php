@@ -86,6 +86,7 @@ final class BookRepository_Test extends DatabaseTestBase
         $b->addText($t);
 
         $this->book_repo->save($b, true);
+        $b->fullParse();
 
         DbHelpers::assertRecordcountEquals("select * from books", 1, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts", 2, 't');

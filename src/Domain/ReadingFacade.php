@@ -72,10 +72,8 @@ class ReadingFacade {
 
         $tis = $this->repo->getTextItems($text);
 
+        // Parse if needed.
         if (count($tis) == 0) {
-            // Catch-all to clean up missing parsing data,
-            // if the user has cleaned out the existing text items.
-            // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
             $text->parse();
             $tis = $this->repo->getTextItems($text);
         }

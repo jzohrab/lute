@@ -151,6 +151,7 @@ abstract class DatabaseTestBase extends WebTestCase
     public function make_text(string $title, string $text, Language $lang): Text {
         $b = BookBinder::makeBook($title, $lang, $text);
         $this->book_repo->save($b, true);
+        $b->fullParse();  // Most tests require full parsing.
         return $b->getTexts()[0];
     }
 
