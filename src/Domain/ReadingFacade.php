@@ -106,6 +106,23 @@ class ReadingFacade {
             $t = new Term();
             $t->setLanguage($lang);
             $t->setText($u);
+
+            // In some cases, the parser thinks that a TextItem
+            // contains text and punctuation (e.g., "Los últimos días
+            // de Franklin Masacre" returned "no." as a text item).
+            // When the textitem's raw text is compared against the
+            // DB, it's not found, because the DB stores the Term as
+            // "text{$zws}punct", where $zws is the zero-width space.
+            // This results in an integrity violation (e.g for the
+            // "Franklin" text, it fails with "duplicate key no.-1")
+            // Ensure that a multi-work unknown isn't already saved.
+            if ($t->getTokenCount() > 1) {
+                if ($this->dictionary->find($t->getText(), $lang) != null) {
+                    // Skip to the next item.
+                    continue;
+                }
+            }
+
             $t->setStatus(Status::WELLKNOWN);
             $this->dictionary->add($t, false);
             $i += 1;
