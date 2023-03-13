@@ -67,6 +67,8 @@ class BookRepository extends ServiceEntityRepository
     public function remove(Book $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
+        $this->removeTi2s($entity->getId());
+        $this->removeSentences($entity->getId());
 
         if ($flush) {
             $this->getEntityManager()->flush();
