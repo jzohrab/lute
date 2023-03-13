@@ -41,10 +41,13 @@ class ReadingController extends AbstractController
     {
         $facade->set_current_book_text($text);
         [ $prev, $next ] = $facade->get_prev_next($text);
+        [ $prev10, $next10 ] = $facade->get_prev_next_by_10($text);
         return $this->render('read/index.html.twig', [
             'text' => $text,
             'prevtext' => $prev,
-            'nexttext' => $next
+            'prevtext10' => $prev10,
+            'nexttext' => $next,
+            'nexttext10' => $next10,
         ]);
     }
 
