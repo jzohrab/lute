@@ -1,0 +1,7 @@
+# Ignore files and directories in the root directory
+docker
+.env
+
+# Ignore files and directories in subdirectories
+vendor
+node_modules
