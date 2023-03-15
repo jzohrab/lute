@@ -6,6 +6,8 @@ use App\DTO\BookDTO;
 use App\Entity\Language;
 use App\Form\DataTransformer\TextTagsCollection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -49,10 +51,28 @@ class BookDTOType extends AbstractType
             ->add('Text',
                   TextareaType::class,
                   [ 'label' => 'Text',
-                    'attr' => [ 'class' => 'form-largetextarea' ],
-                    'required' => true
+                    'help' => 'Use for short texts, e.g. up to a few thousand words.  For longer texts, use the "Text File" below.',
+                    'attr' => [
+                        'class' => 'form-largetextarea'
+                    ],
+                    'required' => false
                   ]
             )
+            ->add('TextFile', FileType::class,
+                  [ 'label' => 'Text file',
+                    'mapped' => false,
+                    'required' => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '1024k',
+                            'mimeTypes' => [
+                                'text/plain'
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid text document',
+                        ])
+                    ]
+                  ]
+                )
             ->add('SourceURI',
                   TextType::class,
                   [ 'label' => 'Source URI',

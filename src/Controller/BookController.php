@@ -84,6 +84,13 @@ class BookController extends AbstractController
         if (! $submitted_valid)
             return null;
 
+        // ref https://symfony.com/doc/current/controller/upload_file.html
+        $textfile = $form->get('TextFile')->getData();
+        if ($textfile) {
+            $content = file_get_contents($textfile->getPathname());
+            $bookdto->Text = $content;
+        }
+
         $book = BookDTO::buildBook($bookdto, $texttag_repo);
         try {
             $book_repo->save($book, true);
