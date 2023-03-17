@@ -3,6 +3,10 @@
 #
 Welcome to Lute!  This short guide should get you going.
 
+0. Navigation
+
+This tutorial is too long to fit in one screen.  Next to the title above are some arrows to navigate forwards and backwards.  In longer texts, you can jump forward or back ten pages at a time as well.
+
 1. The Basics
 
 All of these words are blue because they are "unknown" - according to Lute, this is the first time you're seeing these words.
@@ -29,6 +33,8 @@ Note: sometimes these images make _no sense_ -- it's using Bing image search, an
 
 You can create multi-word terms by clicking and dragging across multiple words, then release the mouse.  Try creating a term for the phrase "the cat's pyjamas", and add a translation and set the status.
 
+(A brief side note: Lute keeps track of where you are in any text.  If you click the Home link above to leave this tutorial, and later click the Tutorial link from the Text listing, Lute will open the last page you were at.)
+
 3. Parent Terms
 
 Sometimes it helps to associate terms with a "parent".  For example, the verb "to have" is conjugated in various forms as "I have a cold", "he has a dog", "they had dinner".  First create a Term for "have".  Then create a Term for "has", and in the Parent field start typing "have".  Lute will show the the existing Term "have" in the drop down, and if you select it, "has" will be associated with that on save, and when you hover over "has" you'll see the parent's information as well.
@@ -45,8 +51,8 @@ If you hold down Shift and click a bunch of words, you can bulk update their sta
 
 6. Mark the remainder as "Well Known"
 
-When you're done creating Terms, you will likely still have a bunch of blue words, or "unknowns", left over, even though you really know these words.  You can set all of these to "Well Known" in one shot by hitting the "Set all to known" button at the top of the screen.  The blue highlight will disappear, and if you hover over any word, it will show that its status is "Well Known".
+When you're done creating Terms, you will likely still have a bunch of blue words, or "unknowns", left over on this page, even though you really know these words.  You can set all of these to "Well Known" in one shot with the "Set all to known" button at the top of the screen.  Try that now to see what happens.  This button only affects words on the current page, so when you go to the next page, you'll see that some words are still unknown.
 
 All done this text!
 
-You've now "processed" all of the words on this tutorial, and Lute keeps track of all of this in your database.  You can go to the Tutorial follow up by either clicking the right arrow next to the title (which moves to the next Text with the same language as the current Text), or go to the Home screen, click the Texts link, and choose the "Tutorial follow-up".
+You've now "processed" all of the words on this tutorial, and Lute keeps track of all of this in your database.  There's a tutorial follow-up: go to the Home screen, click the Texts link, and choose the "Tutorial follow-up".

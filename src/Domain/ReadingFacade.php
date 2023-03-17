@@ -10,6 +10,7 @@ use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TextRepository;
+use App\Repository\BookRepository;
 use App\Repository\TextItemRepository;
 use App\Repository\SettingsRepository;
 use App\Repository\TermTagRepository;
@@ -19,6 +20,7 @@ class ReadingFacade {
 
     private ReadingRepository $repo;
     private TextRepository $textrepo;
+    private BookRepository $bookrepo;
     private SettingsRepository $settingsrepo;
     private Dictionary $dictionary;
     private TermTagRepository $termtagrepo;
@@ -26,6 +28,7 @@ class ReadingFacade {
     public function __construct(
         ReadingRepository $repo,
         TextRepository $textrepo,
+        BookRepository $bookrepo,
         SettingsRepository $settingsrepo,
         Dictionary $dictionary,
         TermTagRepository $termTagRepository
@@ -33,6 +36,7 @@ class ReadingFacade {
         $this->repo = $repo;
         $this->dictionary = $dictionary;
         $this->textrepo = $textrepo;
+        $this->bookrepo = $bookrepo;
         $this->settingsrepo = $settingsrepo;
         $this->termtagrepo = $termTagRepository;
     }
@@ -68,10 +72,8 @@ class ReadingFacade {
 
         $tis = $this->repo->getTextItems($text);
 
+        // Parse if needed.
         if (count($tis) == 0) {
-            // Catch-all to clean up missing parsing data,
-            // if the user has cleaned out the existing text items.
-            // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
             $text->parse();
             $tis = $this->repo->getTextItems($text);
         }
@@ -102,6 +104,23 @@ class ReadingFacade {
             $t = new Term();
             $t->setLanguage($lang);
             $t->setText($u);
+
+            // In some cases, the parser thinks that a TextItem
+            // contains text and punctuation (e.g., "Los últimos días
+            // de Franklin Masacre" returned "no." as a text item).
+            // When the textitem's raw text is compared against the
+            // DB, it's not found, because the DB stores the Term as
+            // "text{$zws}punct", where $zws is the zero-width space.
+            // This results in an integrity violation (e.g for the
+            // "Franklin" text, it fails with "duplicate key no.-1")
+            // Ensure that a multi-work unknown isn't already saved.
+            if ($t->getTokenCount() > 1) {
+                if ($this->dictionary->find($t->getText(), $lang) != null) {
+                    // Skip to the next item.
+                    continue;
+                }
+            }
+
             $t->setStatus(Status::WELLKNOWN);
             $this->dictionary->add($t, false);
             $i += 1;
@@ -138,8 +157,18 @@ class ReadingFacade {
         $this->dictionary->flush();
     }
 
+    public function set_current_book_text(Text $text) {
+        $b = $text->getBook();
+        $b->setCurrentTextID($text->getId());
+        $this->bookrepo->save($b, true);
+    }
+
     public function get_prev_next(Text $text) {
         return $this->textrepo->get_prev_next($text);
+    }
+
+    public function get_prev_next_by_10(Text $text) {
+        return $this->textrepo->get_prev_next_by_10($text);
     }
 
     public function set_current_text(Text $text) {

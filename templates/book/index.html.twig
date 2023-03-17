@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Books{% endblock %}
+
+{% block body %}
+
+<h1>{{ status }} Book index</h1>
+
+<table id="booktable" class="table dataTable stripe" style="table-layout:fixed;" >
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Language</th>
+      <th>Tags</th>
+      <th>Word count (% known)</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+</table>
+
+{% if status == 'Active' %}
+<a href="{{ path('app_book_new') }}">Create new</a>
+{% endif %}
+
+{# Hidden form for archive, unarchive, delete. #}
+<form id="actionposter" method="post" action="">
+</form>
+
+<script>
+  
+  let setup_text_datatable = function(initial_search) {
+    var table = $('#booktable').DataTable({
+      responsive: true,
+      select: true,
+      lengthMenu: [ 25, 50 ],
+      paging: true,
+      info: true,
+      searching: true,
+      processing: true,
+      serverSide: true,
+      search: { search: initial_search },
+      columnDefs: [
+        {
+          "name": "BkTitle", "targets": 0,
+          "render": function ( data, type, row, meta ) {
+            return `<a href="/book/read/${row[3]}">${row[0]}</a>`;
+          }
+        },
+        { "name": "LgName", "targets": 1 },
+        { "name": "TagList", "targets": 2 },
+
+        { "targets": 3,
+          "data": null,
+          "searchable": false,
+          "orderable": false,
+          "render": function ( data, type, row, meta ) {
+            let ret = row[5];
+            const pct = row[7];
+            const unkcount = row[6];
+            if (pct != null) {
+              const termcount = row[9];
+              const knownpct = 100 - parseInt(pct);
+              ret += `&nbsp;<span title="${termcount} unique terms, ${unkcount} unique unknowns">(${knownpct}%)</span>`;
+            }
+            return ret;
+          }
+        },
+        {
+          "targets": 4,
+          "data": null,
+          "searchable": false,
+          "orderable": false,
+          "render": function ( data, type, row, meta ) {
+            // TODO:security - add CSRF token
+            const ret = [];
+            const bkid = row[3];
+            if (row[4] == 0) {
+              // not archived
+              ret.push(`<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`);
+            }
+            else {
+              ret.push(`<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${bkid})" />`);
+            }
+            ret.push(`<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${bkid})" />`);
+
+            if (parseInt(row[8]) == 1 && parseInt(row[5]) > 600) {
+              ret.push(`<img src="/icn/lightning.png" title="Rebind long text" onclick="confirm_rebind(${bkid})" />`)
+            }
+            return ret.join('&nbsp;');
+          }
+        },
+
+        /* Extra data that is returned in the row for rendering, but not shown. */
+        { "name": "BkID", "targets": 5, "data": null, "visible": false },
+        { "name": "BkArchived", "targets": 6, "data": null, "visible": false },
+        { "name": "WordCount", "targets": 7, "data": null, "visible": false },
+        { "name": "UnknownCount", "targets": 8, "data": null, "visible": false },
+        { "name": "UnknownPercent", "targets": 9, "data": null, "visible": false },
+        { "name": "PageCount", "targets": 10, "data": null, "visible": false },
+        { "name": "DistinctCount", "targets": 11, "data": null, "visible": false }
+      ],
+
+      // Ajax call
+      ajax: {
+        url: '/book/datatables/{{ status | lower }}',
+        type: "POST",
+        dataType: "json"
+      },
+
+    });
+
+    // TODO:fix_archived_text_layout  Archived texts don't have stats, but hiding the column messed with the layout.
+    // if ('{{ status }}'.toLowerCase() == 'archived') {
+    //    $('table#texttable > td:nth-child(5),th:nth-child(5)').hide();
+    // }
+  } // end setup_text_datatable
+
+
+  $(document).ready(function () {
+    setup_text_datatable("{{ initial_search ?? '' }}");
+  });
+
+  function do_action_post(action, bookid) {
+    let f = $('#actionposter');
+    f.attr('action', `/book/${bookid}/${action}`);
+    f.submit();
+  }
+
+  function confirm_archive(bookid) {
+    do_action_post('archive', bookid);
+  }
+
+  function confirm_unarchive(bookid) {
+    do_action_post('unarchive', bookid);
+  }
+
+  function confirm_rebind(bookid) {
+    do_action_post('rebind', bookid);
+  }
+
+  function confirm_delete(bookid) {
+    if (!confirm(`Deleting a book.  Click OK to proceed, or Cancel.`)) {
+      return;
+    }
+    do_action_post('delete', bookid);
+  }
+
+</script>
+
+{% endblock %}

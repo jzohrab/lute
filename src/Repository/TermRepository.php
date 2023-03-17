@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Term;
+use App\Entity\Text;
 use App\Entity\Language;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -106,6 +107,89 @@ class TermRepository extends ServiceEntityRepository
             fn($r) => $r->getTextLC() != $search && $r->getChildren()->count() == 0
         );
         return array_merge($ret, $remaining);
+    }
+
+
+    public function findTermsInText(Text $t) {
+        // First get all the terms, disregarding word boundaries.
+        // I figured it would be fine to return all matches,
+        // (eg, "so" would be returned for a text containing "sound"), as
+        // very short words in a language are likely to be frequently used.
+        $wids = [];
+        $conn = $this->getEntityManager()->getConnection();
+
+        /*
+        // Old query that respects word boundaries:
+        $sql = "select WoID from words
+        where (
+          select GROUP_CONCAT(SeText order by SeOrder SEPARATOR 0xE2808B)
+          from sentences
+          where setxid = {$t->getID()}
+        ) like concat('%', 0xE2808B, WoTextLC, 0xE2808B, '%')";
+        // This was running into problems with texts longer than 1024 chars,
+        // due to the "group_concat_max_len" setting.
+        // Ref https://stackoverflow.com/questions/1278184/
+        // for this var.
+        */
+
+        // A naive query that takes a long time to run!
+        // $sql = "select WoID from words
+        // where (
+        //   select TxText from texts where TxID = {$t->getID()}
+        // ) like concat('%', replace(WoTextLC, 0xE2808B, ''), '%')";
+
+        // A faster query (but still slow:)
+        // Get all exact matches from the tokens, and then
+        // check the text for multi-word matches.
+        // dump("starting get ids");
+
+        $sql = "select distinct WoID from words
+            where wotextlc in (select LOWER(TokText) from texttokens where toktxid = {$t->getID()})
+            and WoTokenCount = 1";
+        $res = $conn->executeQuery($sql);
+        // dump("Got exact matches results");
+        while ($row = $res->fetchNumeric()) {
+            $wids[] = $row[0];
+        }
+        // dump("Currently have " . count($wids) . " terms");
+
+        $sql = "select WoID from words
+            where WoTokenCount > 1 AND
+            instr(
+              (select LOWER(TxText) from texts where TxID = {$t->getID()}),
+              replace(WoTextLC, 0xE2808B, '')
+            ) > 0";
+        $res = $conn->executeQuery($sql);
+        // dump("Got mword matches results");
+        while ($row = $res->fetchNumeric()) {
+            $wids[] = $row[0];
+        }
+        // dump("now have " . count($wids) . " terms");
+
+        $sql = "select WpParentWoID from wordparents where WpWoID in (?)";
+        $res = $conn->executeQuery($sql, array($wids), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
+        while ($row = $res->fetchNumeric()) {
+            $wids[] = $row[0];
+        }
+        // dump("With parents added, got " . count($wids) . " terms");
+        
+        // $wids = array_slice($wids, 0, 200);   // TODO:remove!!!
+        $dql = "SELECT t, tt, ti, tp, tpt, tpi
+          FROM App\Entity\Term t
+          LEFT JOIN t.termTags tt
+          LEFT JOIN t.images ti
+          LEFT JOIN t.parents tp
+          LEFT JOIN tp.termTags tpt
+          LEFT JOIN tp.images tpi
+          WHERE t.id in (:tids)";
+
+        // $dql = "SELECT t FROM App\Entity\Term t WHERE t.id in (:tids)";
+        $query = $this->getEntityManager()
+               ->createQuery($dql)
+               ->setParameter('tids', $wids);
+        $raw = $query->getResult();
+        // dump("loaded terms *************************");
+        return $raw;
     }
 
 

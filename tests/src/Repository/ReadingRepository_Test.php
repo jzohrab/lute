@@ -17,11 +17,7 @@ final class ReadingRepository_Test extends DatabaseTestBase
         // Set up db.
         $this->load_languages();
 
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->text = $t;
 
         $tengo = new Term($this->spanish, 'tengo');

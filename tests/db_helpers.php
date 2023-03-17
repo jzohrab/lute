@@ -100,8 +100,13 @@ you must use a dedicated test database when running tests.
             "tempwords",
             "textitems2",
             "texts",
-            "textstatscache",
+            "texttokens",
             "texttags",
+
+            "bookstats",
+            "booktags",
+            "books",
+
             "tts",
             "words",
             "wordparents",

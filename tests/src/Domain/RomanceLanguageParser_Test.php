@@ -25,11 +25,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
      * @group rewire
      */
     public function test_existing_cruft_deleted() {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.", $this->spanish);
 
         $sql = "update textitems2 set ti2text = 'STUFF' where Ti2TxID = {$t->getID()}";
         DbHelpers::exec_sql($sql);
@@ -44,11 +40,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
     // verify it's set!
     public function test_parse_textitems2_textlc_is_set()
     {
-        $t = new Text();
-        $t->setTitle("Hola");
-        $t->setText("Hola");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola", $this->spanish);
 
         $sql = "select ti2text, concat('*', ti2textlc, '*') from textitems2 where ti2txid = {$t->getID()}";
         $expected = [ "Hola; *hola*" ];
@@ -97,11 +89,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
      */
     public function test_parse_no_words_defined()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.", $this->spanish);
 
         $sql = "select ti2seid, ti2order, ti2text, ti2textlc from textitems2 where ti2woid = 0 order by ti2order";
 
@@ -141,11 +129,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
     {
         $this->load_spanish_words();
 
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.", $this->spanish);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
@@ -194,11 +178,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
     {
         $this->addTerms($this->spanish, ["Un gato"]);
 
-        $t = new Text();
-        $t->setTitle("Gato.");
-        $t->setText("Un gato es bueno. No hay un gato.  Veo a un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Gato.", "Un gato es bueno. No hay un gato.  Veo a un gato.", $this->spanish);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -228,11 +208,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
     {
         $this->addTerms($this->spanish, ["Un gato"]);
 
-        $t = new Text();
-        $t->setTitle("Gato.");
-        $t->setText("Un gato es bueno, no hay un gato, veo a un gato.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Gato.", "Un gato es bueno, no hay un gato, veo a un gato.", $this->spanish);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -271,11 +247,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
             'Pese a toddo lo que pasó luego y a que nos distanciamos con el tiempo, fuimos buenos amigos:',
             'Tanto daba si había pasado el día trabajando en los campos o llevaba encima los mismos harapos de toda la semana.'
             ];
-        $t = new Text();
-        $t->setTitle("Problemas.");
-        $t->setText(implode(' ', $sentences));
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Problemas.", implode(' ', $sentences), $this->spanish);
 
 
         $this->addTerms($this->spanish, [
@@ -307,12 +279,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
      */
     public function test_apostrophes()
     {
-
-        $t = new Text();
-        $t->setTitle("Jammies.");
-        $t->setText("This is the cat's pyjamas.");
-        $t->setLanguage($this->english);
-        $this->text_repo->save($t, true);
+        $t = $this->make_text("Jams.", "This is the cat's pyjamas.", $this->english);
 
         $term = $this->addTerms($this->english, "the cat's pyjamas");
 
@@ -349,17 +316,5 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $this->assertEquals(1, 1, 'ok');
     }
     */
-
-
-    public function test_parser_loads_stats_for_text() {
-        $h = new Text();
-        $h->setTitle("Hola");
-        $h->setText("Hola tengo un gato.");
-        $h->setLanguage($this->spanish);
-        $this->text_repo->save($h, true);
-
-        $sql = "select wordcount from textstatscache where TxID = {$h->getID()}";
-        DbHelpers::assertTableContains($sql, [ '4' ], "loaded, spot check only");
-    }
 
 }
