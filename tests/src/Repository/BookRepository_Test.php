@@ -129,4 +129,45 @@ final class BookRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from textitems2", 0, 'ti2s deleted');
         DbHelpers::assertRecordcountEquals("select * from sentences", 0, 'sentences deld');
     }
+
+    /**
+     * @group datatables
+     */
+    public function test_smoke_datatables_query_runs() {
+        // smoke test only.
+
+        $columns = [
+            0 => [
+                "data" => "0",
+                "name" => "BkID",
+                "searchable" => "false",
+                "orderable" => "false"
+            ],
+            1 => [
+                "data" => "1",
+                "name" => "BkTitle",
+                "searchable" => "true",
+                "orderable" => "true"
+            ],
+        ];
+        $params = [
+            "draw" => "1",
+            "columns" => $columns,
+            "order" => [
+                0 => [
+                    "column" => "1",
+                    "dir" => "asc"
+                ]
+            ],
+            "start" => "10",
+            "length" => "50",
+            "search" => [
+                "value" => "",
+                "regex" => "false"
+            ]
+        ];
+
+        $this->book_repo->getDataTablesList($params);
+        $this->assertEquals(1, 1, 'smoke');
+    }
 }
