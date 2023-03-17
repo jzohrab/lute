@@ -80,7 +80,7 @@ class BookRepository extends ServiceEntityRepository
         $base_sql = "SELECT
           b.BkID As BkID,
           LgName,
-          BkTitle,
+          COALESCE(currtext.TxTitle, BkTitle) as BkTitle,
           BkArchived,
           tags.taglist AS TagList,
           CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats,
@@ -94,6 +94,7 @@ class BookRepository extends ServiceEntityRepository
 
           FROM Books b
           INNER JOIN languages on LgID = b.BkLgID
+          LEFT OUTER JOIN texts currtext on currtext.TxID = BkCurrentTxID
           INNER JOIN (
             select TxBkID, count(TxID) as c from texts
             group by TxBkID
