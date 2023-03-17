@@ -12,19 +12,10 @@
       <th>Title</th>
       <th>Language</th>
       <th>Tags</th>
-      <th>Words (Unknown)</th>
+      <th>Word count (% known)</th>
       <th>Actions</th>
     </tr>
   </thead>
-  <tfoot>
-    <tr>
-      <th>Title</th>
-      <th>Language</th>
-      <th>Tags</th>
-      <th>Word count</th>
-      <th>Actions</th>
-    </tr>
-  </tfoot>
 
 </table>
 
@@ -67,8 +58,11 @@
             let ret = row[5];
             const pct = row[7];
             const unkcount = row[6];
-            if (pct != null)
-              ret += `&nbsp;<span class="status0" title="${unkcount} unique unknown terms">(${pct}%)</span>`;
+            if (pct != null) {
+              const termcount = row[9];
+              const knownpct = 100 - parseInt(pct);
+              ret += `&nbsp;<span title="${termcount} unique terms, ${unkcount} unique unknowns">(${knownpct}%)</span>`;
+            }
             return ret;
           }
         },
@@ -101,9 +95,10 @@
         { "name": "BkID", "targets": 5, "data": null, "visible": false },
         { "name": "BkArchived", "targets": 6, "data": null, "visible": false },
         { "name": "WordCount", "targets": 7, "data": null, "visible": false },
-        { "name": "Unknown", "targets": 8, "data": null, "visible": false },
+        { "name": "UnknownCount", "targets": 8, "data": null, "visible": false },
         { "name": "UnknownPercent", "targets": 9, "data": null, "visible": false },
-        { "name": "PageCount", "targets": 10, "data": null, "visible": false }
+        { "name": "PageCount", "targets": 10, "data": null, "visible": false },
+        { "name": "DistinctCount", "targets": 11, "data": null, "visible": false }
       ],
 
       // Ajax call

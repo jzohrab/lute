@@ -78,20 +78,20 @@ class BookStats {
         $fulltext = implode("\n", $fulltext);
         $lang = $b->getLanguage();
         $p = $lang->getParser();
-        $tokens = $p->getParsedTokens($fulltext, $lang);
-        $words = array_filter($tokens, fn($t) => $t->isWord);
+        $texttokens = $p->getParsedTokens($fulltext, $lang);
+        $textwords = array_filter($texttokens, fn($t) => $t->isWord);
 
-        $toks = array_map(fn($t) => str_replace("\r", '', mb_strtolower($t->token)), $words);
-        $uniquetokens = array_unique($toks);
-        $unknowns = array_unique(array_values(array_diff($toks, $allwords)));
-        $percent = round(100.0 * count($unknowns) / count($words));
+        $textwordstrings = array_map(fn($t) => str_replace("\r", '', mb_strtolower($t->token)), $textwords);
+        $uniquewordstrings = array_unique($textwordstrings);
+        $unknowns = array_unique(array_values(array_diff($uniquewordstrings, $allwords)));
+        $percent = round(100.0 * count($unknowns) / count($uniquewordstrings));
 
         // Any change in the below fields requires a change to
         // updateStats as well, query insert doesn't check field
         // order..
         return [
-            count($words),
-            count($uniquetokens),
+            count($textwords),
+            count($uniquewordstrings),
             count($unknowns),
             $percent
         ];
