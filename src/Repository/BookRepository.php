@@ -85,7 +85,7 @@ class BookRepository extends ServiceEntityRepository
           c.distinctunknowns as UnknownCount,
           c.unknownpercent as UnknownPercent
 
-          FROM Books b
+          FROM books b
           INNER JOIN languages on LgID = b.BkLgID
           LEFT OUTER JOIN texts currtext on currtext.TxID = BkCurrentTxID
           INNER JOIN (
