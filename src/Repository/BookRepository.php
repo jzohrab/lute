@@ -92,7 +92,7 @@ class BookRepository extends ServiceEntityRepository
           c.s5 as Learn5,
           c.sWkn as WellKnown
 
-          FROM Books b
+          FROM books b
           INNER JOIN languages on LgID = b.BkLgID
           LEFT OUTER JOIN texts currtext on currtext.TxID = BkCurrentTxID
           INNER JOIN (
