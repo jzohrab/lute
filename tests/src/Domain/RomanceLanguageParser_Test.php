@@ -317,11 +317,4 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
     }
     */
 
-
-    public function test_parser_loads_stats_for_text() {
-        $t = $this->make_text("Hola", "Hola tengo un gato.", $this->spanish);
-        $sql = "select wordcount from textstatscache where TxID = {$t->getID()}";
-        DbHelpers::assertTableContains($sql, [ '4' ], "loaded, spot check only");
-    }
-
 }

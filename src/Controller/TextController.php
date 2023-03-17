@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Text;
 use App\Form\TextType;
-use App\Domain\TextStatsCache;
 use App\Repository\TextRepository;
 use App\Repository\SettingsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
