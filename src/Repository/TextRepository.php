@@ -72,46 +72,6 @@ class TextRepository extends ServiceEntityRepository
     }
 
 
-    /** Returns data for ajax paging. */
-    public function getDataTablesList($parameters, $archived = false) {
-
-        // Required, can't interpolate a bool in the sql string.
-        $archived = $archived ? 'true' : 'false';
-
-        $base_sql = "SELECT
-          t.TxID As TxID,
-          LgName,
-          TxTitle,
-          TxArchived,
-          tags.taglist AS TagList,
-          CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats,
-          c.wordcount as WordCount,
-          c.sUnk as Unknown,
-          c.s1 + c.s2 as Learn1_2,
-          c.s3 + c.s4 as Learn3_4,
-          c.s5 as Learn5,
-          c.sWkn as WellKnown
-
-          FROM texts t
-          INNER JOIN languages on LgID = t.TxLgID
-          LEFT OUTER JOIN textstatscache c on c.TxID = t.TxID
-
-          LEFT OUTER JOIN (
-            SELECT TtTxID as TxID, GROUP_CONCAT(T2Text ORDER BY T2Text SEPARATOR ', ') AS taglist
-            FROM
-            texttags tt
-            INNER JOIN tags2 t2 on t2.T2ID = tt.TtT2ID
-            GROUP BY TtTxID
-          ) AS tags on tags.TxID = t.TxID
-
-          WHERE t.TxArchived = $archived";
-
-        $conn = $this->getEntityManager()->getConnection();
-        
-        return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
-    }
-
-
     private function get_prev_or_next(Text $text, int $offset = 1, bool $getprev = true) {
         $op = $getprev ? " <= " : " >= ";
         $sortorder = $getprev ? " desc " : "";
