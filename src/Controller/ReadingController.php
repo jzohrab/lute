@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Domain\ReadingFacade;
+use App\Domain\BookStats;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
 use App\Repository\ReadingRepository;
@@ -40,6 +41,7 @@ class ReadingController extends AbstractController
     public function read(Request $request, Text $text, ReadingFacade $facade): Response
     {
         $facade->set_current_book_text($text);
+        BookStats::markStale($text->getBook());
         [ $prev, $next ] = $facade->get_prev_next($text);
         [ $prev10, $next10 ] = $facade->get_prev_next_by_10($text);
         return $this->render('read/index.html.twig', [

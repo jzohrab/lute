@@ -7,6 +7,7 @@ use App\DTO\BookDTO;
 use App\Form\BookDTOType;
 use App\Domain\TextStatsCache;
 use App\Domain\BookBinder;
+use App\Domain\BookStats;
 use App\Repository\BookRepository;
 use App\Repository\TextTagRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,8 +21,9 @@ class BookController extends AbstractController
 {
 
     #[Route('/index/{search?}', name: 'app_book_index', methods: ['GET'])]
-    public function index(?string $search): Response
+    public function index(?string $search, BookRepository $repo): Response
     {
+        BookStats::refresh($repo);
         // Can pass an initial search string.  If nothing is passed, $search = null.
         return $this->render('book/index.html.twig', [
             'status' => 'Active',

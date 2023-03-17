@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Book;
+use App\Domain\BookStats;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,11 +41,6 @@ class BookRepository extends ServiceEntityRepository
 
     public function save(Book $entity, bool $flush = false): void
     {
-        // Books only need to be parsed when first saved
-        // (... actually, not true, they only need to be parsed when
-        // first read!).
-        $isnew = ($entity->getId() == null);
-
         if ($entity->isArchived()) {
             foreach ($entity->getTexts() as $t)
                 $t->setArchived(true);
@@ -81,41 +77,21 @@ class BookRepository extends ServiceEntityRepository
           b.BkID As BkID,
           LgName,
           COALESCE(currtext.TxTitle, BkTitle) as BkTitle,
+          pagecnt.c as PageCount,
           BkArchived,
           tags.taglist AS TagList,
-          CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats,
-          pagecnt.c as PageCount,
           c.wordcount as WordCount,
-          c.sUnk as Unknown,
-          c.s1 + c.s2 as Learn1_2,
-          c.s3 + c.s4 as Learn3_4,
-          c.s5 as Learn5,
-          c.sWkn as WellKnown
+          c.distinctunknowns as Unknown,
+          c.unknownpercent as UnknownPercent
 
-          FROM books b
+          FROM Books b
           INNER JOIN languages on LgID = b.BkLgID
           LEFT OUTER JOIN texts currtext on currtext.TxID = BkCurrentTxID
           INNER JOIN (
             select TxBkID, count(TxID) as c from texts
             group by TxBkID
           ) pagecnt on pagecnt.TxBkID = b.BkID
-          LEFT OUTER JOIN (
-            select
-              t.TxBkID,
-              sum(c.distinctterms) as distinctterms,
-              sum(c.sUnk) as sUnk,
-              sum(c.wordcount) as wordcount,
-              sum(c.s1) as s1,
-              sum(c.s2) as s2,
-              sum(c.s3) as s3,
-              sum(c.s4) as s4,
-              sum(c.s5) as s5,
-              sum(c.sWkn) as sWkn
-            from
-            texts t
-            left outer join textstatscache c on c.TxID = t.TxID
-            group by t.TxBkID
-          ) as c on c.TxBkID = b.BkID
+          LEFT OUTER JOIN bookstats c on c.BkID = b.BkID
           LEFT OUTER JOIN (
             SELECT BtBkID as BkID, GROUP_CONCAT(T2Text ORDER BY T2Text SEPARATOR ', ') AS taglist
             FROM
