@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Book;
 use App\DTO\BookDTO;
 use App\Form\BookDTOType;
-use App\Domain\TextStatsCache;
 use App\Domain\BookBinder;
 use App\Domain\BookStats;
 use App\Repository\BookRepository;
@@ -33,7 +32,6 @@ class BookController extends AbstractController
 
     private function datatables_source(Request $request, BookRepository $repo, $archived = false): JsonResponse
     {
-        TextStatsCache::refresh();
         $parameters = $request->request->all();
         $data = $repo->getDataTablesList($parameters, $archived);
         $data["draw"] = $parameters['draw'];

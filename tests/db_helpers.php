@@ -101,7 +101,6 @@ you must use a dedicated test database when running tests.
             "textitems2",
             "texts",
             "texttokens",
-            "textstatscache",
             "texttags",
 
             "bookstats",

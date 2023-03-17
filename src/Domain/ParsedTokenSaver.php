@@ -5,7 +5,6 @@ namespace App\Domain;
 use App\Entity\Text;
 use App\Entity\Language;
 use App\Repository\TextItemRepository;
-use App\Domain\TextStatsCache;
 use App\Utils\Connection;
 
 // TODO:hacking rename this
@@ -94,9 +93,6 @@ class ParsedTokenSaver {
 
         TextItemRepository::mapForText($text);
         $trace("mapped text items");
-
-        TextStatsCache::force_refresh($text);
-        $trace("loaded cache");
 
         // dump($traces);
         $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
