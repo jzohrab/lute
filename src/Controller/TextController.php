@@ -29,7 +29,6 @@ class TextController extends AbstractController
 
     private function datatables_source(Request $request, TextRepository $repo, $archived = false): JsonResponse
     {
-        TextStatsCache::refresh();
         $parameters = $request->request->all();
         $data = $repo->getDataTablesList($parameters, $archived);
         $data["draw"] = $parameters['draw'];

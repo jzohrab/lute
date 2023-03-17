@@ -104,6 +104,7 @@ you must use a dedicated test database when running tests.
             "textstatscache",
             "texttags",
 
+            "bookstats",
             "booktags",
             "books",
 

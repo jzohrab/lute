@@ -12,21 +12,10 @@
       <th>Title</th>
       <th>Language</th>
       <th>Tags</th>
-      <th>Word count</th>
-      <th title="Unknown, learn 1-2, learn 3-4, learn 5.">Stats</th>
+      <th>Word count (% known)</th>
       <th>Actions</th>
     </tr>
   </thead>
-  <tfoot>
-    <tr>
-      <th>Title</th>
-      <th>Language</th>
-      <th>Tags</th>
-      <th>Word count</th>
-      <th>Stats</th>
-      <th>Actions</th>
-    </tr>
-  </tfoot>
 
 </table>
 
@@ -52,51 +41,41 @@
       serverSide: true,
       search: { search: initial_search },
       columnDefs: [
-        // "name" is the column name in your main SQL query.
-        // If the "name" is blank, it's not considered in the SQL query.  This is useful for fields that aren't exact maps of SQL columns (e.g. for rendered cells.)
-        // The fields in each row in the data ajax response are ordered as they are declared here.
-        // All fields default to "orderable" = true, "searchable" = true.
         {
           "name": "BkTitle", "targets": 0,
           "render": function ( data, type, row, meta ) {
-            return `<a href="/book/read/${row[5]}">${row[0]}</a>`;
+            return `<a href="/book/read/${row[3]}">${row[0]}</a>`;
           }
         },
         { "name": "LgName", "targets": 1 },
         { "name": "TagList", "targets": 2 },
 
-        // WordCount and TermStats are temporarily disabled
-        // until the old parsing methods (using TextItems2)
-        // are removed, and stat calculation is sanitized.
-        { "name": "WordCount", "targets": 3, "visible": false },
-        {
-          "name": "TermStats",
-          "targets": 4,
+        { "targets": 3,
+          "data": null,
           "searchable": false,
           "orderable": false,
-          "visible": false,
           "render": function ( data, type, row, meta ) {
-            // columns are defined below.
-            let mkspan = (col, style) => row[col] == null ? '' : `<span class="${style}">${row[col]}</span>`;
-            const arr = [
-              mkspan(7, 'status0'),
-              mkspan(8, 'status1'),
-              mkspan(9, 'status3'),
-              mkspan(10, 'status5')
-            ];
-            return arr.join(' ');
+            let ret = row[5];
+            const pct = row[7];
+            const unkcount = row[6];
+            if (pct != null) {
+              const termcount = row[9];
+              const knownpct = 100 - parseInt(pct);
+              ret += `&nbsp;<span title="${termcount} unique terms, ${unkcount} unique unknowns">(${knownpct}%)</span>`;
+            }
+            return ret;
           }
         },
         {
-          "targets": 5,
+          "targets": 4,
           "data": null,
           "searchable": false,
           "orderable": false,
           "render": function ( data, type, row, meta ) {
             // TODO:security - add CSRF token
             const ret = [];
-            const bkid = row[5];
-            if (row[6] == 0) {
+            const bkid = row[3];
+            if (row[4] == 0) {
               // not archived
               ret.push(`<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`);
             }
@@ -105,7 +84,7 @@
             }
             ret.push(`<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${bkid})" />`);
 
-            if (parseInt(row[11]) == 1 && parseInt(row[3]) > 600) {
+            if (parseInt(row[8]) == 1 && parseInt(row[5]) > 600) {
               ret.push(`<img src="/icn/lightning.png" title="Rebind long text" onclick="confirm_rebind(${bkid})" />`)
             }
             return ret.join('&nbsp;');
@@ -113,13 +92,13 @@
         },
 
         /* Extra data that is returned in the row for rendering, but not shown. */
-        { "name": "BkID", "targets": 6, "data": null, "visible": false },
-        { "name": "BkArchived", "targets": 7, "data": null, "visible": false },
-        { "name": "Unknown", "targets": 8, "data": null, "visible": false },
-        { "name": "Learn1_2", "targets": 9, "data": null, "visible": false },
-        { "name": "Learn3_4", "targets": 10, "data": null, "visible": false },
-        { "name": "Learn5", "targets": 11, "data": null, "visible": false },
-        { "name": "PageCount", "targets": 12, "data": null, "visible": false }
+        { "name": "BkID", "targets": 5, "data": null, "visible": false },
+        { "name": "BkArchived", "targets": 6, "data": null, "visible": false },
+        { "name": "WordCount", "targets": 7, "data": null, "visible": false },
+        { "name": "UnknownCount", "targets": 8, "data": null, "visible": false },
+        { "name": "UnknownPercent", "targets": 9, "data": null, "visible": false },
+        { "name": "PageCount", "targets": 10, "data": null, "visible": false },
+        { "name": "DistinctCount", "targets": 11, "data": null, "visible": false }
       ],
 
       // Ajax call
