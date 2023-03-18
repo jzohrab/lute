@@ -1,5 +1,19 @@
 # Changelog
 
+## 2023-03-17 v1.1.6
+
+* add "books" (i.e. multi-page texts) and book stats
+* add long text rebinding into a book
+* add text file upload for new book creation
+* pagination moves through pages in book
+
+Back end changes:
+
+* lazy parsing of book pages
+* remove unused code
+* new domain classes for future parsing work
+* add texttokens table
+
 ## 2023-03-13 v1.1.5
 
 * Fix issue 10: Case-insensitive search for mword terms.
