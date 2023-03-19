@@ -118,13 +118,14 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    #[Route('/{TxID}/allknown', name: 'app_read_allknown', methods: ['POST'])]
-    public function allknown(Request $request, Text $text, ReadingFacade $facade): Response
+    #[Route('/{TxID}/allknown/{nexttextid?}', name: 'app_read_allknown', methods: ['POST'])]
+    public function allknown(Request $request, ?int $nexttextid, Text $text, ReadingFacade $facade): Response
     {
         $facade->mark_unknowns_as_known($text);
+        $showid = $nexttextid ?? $text->getID();
         return $this->redirectToRoute(
             'app_read',
-            [ 'TxID' => $text->getID() ],
+            [ 'TxID' => $showid ],
             Response::HTTP_SEE_OTHER
         );
     }
