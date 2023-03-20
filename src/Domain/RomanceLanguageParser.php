@@ -134,7 +134,7 @@ class RomanceLanguageParser extends AbstractParser {
         // separators and term tokens.
         $lasttok = $tokens[count($tokens) - 1];
         if (preg_match("/^[$termchar]+$/u", $lasttok->token) == 1) {
-            $lasttok->isWord = 1;
+            $lasttok->isWord = true;
             $tokens[count($tokens) - 1] = $lasttok;
         }
         return $tokens;
