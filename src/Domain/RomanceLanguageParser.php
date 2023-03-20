@@ -122,7 +122,21 @@ class RomanceLanguageParser extends AbstractParser {
                 [ $wordcount, $s ] = explode("\t", $line);
                 $tokens[] = new ParsedToken($s, $wordcount > 0);
             }
-        } 
+        }
+
+        if (count($tokens) == 0)
+            return [];
+
+        // Hack.  If the text doesn't end with a period (or perhaps a
+        // return or other punct), the final token is never classified
+        // as a word.  This is a hack, in future perhaps this entire
+        // approach can be revamped to split words based on word
+        // separators and term tokens.
+        $lasttok = $tokens[count($tokens) - 1];
+        if (preg_match("/^[$termchar]+$/u", $lasttok->token) == 1) {
+            $lasttok->isWord = 1;
+            $tokens[count($tokens) - 1] = $lasttok;
+        }
         return $tokens;
     }
 
