@@ -291,6 +291,21 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected);
     }
 
+    // Last word wasn't getting parsed as a word.
+    /**
+     * @group lastword
+     */
+    public function test_last_word_is_a_word()
+    {
+        $t = $this->make_text("Jams.", "Here is a word", $this->english);
+
+        $sql = "select TokText, TokIsWord from texttokens where TokText = 'word'";
+        $expected = [
+            "word; 1"
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
+    }
+
     /* "Tests" I was using to echo to console during debugging.
     public function test_verify_regexes() {
         $t = new Text();
