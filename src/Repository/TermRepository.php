@@ -116,7 +116,7 @@ class TermRepository extends ServiceEntityRepository
 
         // Querying all words that match the text is very slow, so
         // breaking it up into two parts.
-        
+
         // 1. Get all exact matches from the tokens.
         $lgid = $t->getLanguage()->getLgID();
         $sql = "select distinct WoID from words
