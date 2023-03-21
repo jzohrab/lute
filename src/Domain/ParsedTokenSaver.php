@@ -160,7 +160,7 @@ class ParsedTokenSaver {
         // I'm not sure why, and can't be bothered to look into this
         // more.  (It could be due to how SQL logs queries ... but
         // that seems nuts.)
-        
+        //
         // "+ 1" on the sentence number is a relic of old code
         // ... sentences in the array were numbered starting at 0.
         // Can be amended in the future.
