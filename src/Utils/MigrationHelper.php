@@ -160,14 +160,16 @@ class MigrationHelper {
         $f = Language::makeFrench();
         $s = Language::makeSpanish();
         $g = Language::makeGerman();
+        $cc = Language::makeClassicalChinese();
 
-        $langs = [ $e, $f, $s, $g ];
+        $langs = [ $e, $f, $s, $g, $cc ];
         $files = [
             'tutorial.txt',
             'tutorial_follow_up.txt',
             'es_aladino.txt',
             'fr_goldilocks.txt',
-            'de_Stadtmusikanten.txt'
+            'de_Stadtmusikanten.txt',
+            'cc_demo.txt',
         ];
 
         if (JapaneseParser::MeCab_installed()) {

@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Domain\RomanceLanguageParser;
 use App\Domain\JapaneseParser;
+use App\Domain\ClassicalChineseParser;
 use App\Domain\ParsedTokenSaver;
 
 
@@ -278,6 +279,8 @@ class Language
         switch ($this->LgParserType) {
         case 'romance':
             return new RomanceLanguageParser();
+        case 'classicalchinese':
+            return new ClassicalChineseParser();
         case 'japanese':
             return new JapaneseParser();
         default:
@@ -359,12 +362,28 @@ class Language
         return $japanese;
     }
 
+    public static function makeClassicalChinese() {
+        $lang = new Language();
+        $lang
+            ->setLgName('Classical Chinese')
+            ->setLgDict1URI('https://ctext.org/dictionary.pl?if=en&char=###')
+            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#ch/en/###')
+            ->setLgRegexpWordCharacters('一-龥')
+            ->setLgRegexpSplitSentences('.!?:;。！？：；')
+            ->setLgRemoveSpaces(true)
+            ->setLgShowRomanization(true)
+            ->setLgParserType('classicalchinese');
+        return $lang;
+    }
+
     public static function getPredefined(): array {
         $ret = [
             Language::makeEnglish(),
             Language::makeFrench(),
             Language::makeGerman(),
             Language::makeSpanish(),
+            Language::makeClassicalChinese(),
         ];
 
         if (JapaneseParser::MeCab_installed())
