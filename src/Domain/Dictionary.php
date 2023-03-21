@@ -92,49 +92,44 @@ class Dictionary {
     private function getReferences($term, $conn): array {
         if ($term == null)
             return [];
+        $s = $term->getTextLC();
         $sql = "select distinct TxID, TxTitle, SeText
           from sentences
           inner join texts on TxID = SeTxID
-          where seid in
-          (select ti2seid from textitems2 where ti2woid = {$term->getID()})
-          order by TxID limit 10";
-        $res = $conn->query($sql);
+          where TxArchived = 0
+          AND lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%')
+          LIMIT 20";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('s', $s);
+        if (!$stmt->execute()) {
+            throw new \Exception($stmt->error);
+        }
+        $res = $stmt->get_result();
         return $this->buildTermReferenceDTOs($res);
     }
 
     private function getSiblingReferences($parent, $term, $conn): array {
         if ($term == null || $parent == null)
             return [];
-        $sql = "select distinct TxID, TxTitle, SeText
-          from sentences
-          inner join texts on TxID = SeTxID
-          inner join (
-            select ti2seid
-            from textitems2
-            inner join wordparents on WpWoID = ti2WoID
-            where WpParentWoID = {$parent->getID()}
-            and WpWoID != {$term->getID()}
-          ) siblingSeIDs on siblingSeIDs.ti2seid = SeID
-          order by TxID limit 10";
-        $res = $conn->query($sql);
-        return $this->buildTermReferenceDTOs($res);
+        $sibs = [];
+        foreach ($parent->getChildren() as $s)
+            $sibs[] = $s;
+        $sibs = array_filter($sibs, fn($t) => $t->getID() != $term->getID());
+        $ret = [];
+        foreach ($sibs as $sib) {
+            $ret[] = $this->getReferences($sib, $conn);
+        }
+        return array_merge([], ...$ret);
     }
 
     private function getChildReferences($term, $conn): array {
         if ($term == null)
             return [];
-        $sql = "select distinct TxID, TxTitle, SeText
-          from sentences
-          inner join texts on TxID = SeTxID
-          inner join (
-            select ti2seid
-            from textitems2
-            inner join wordparents on WpWoID = ti2WoID
-            where WpParentWoID = {$term->getID()}
-          ) childSeIDs on childSeIDs.ti2seid = SeID
-          order by TxID limit 10";
-        $res = $conn->query($sql);
-        return $this->buildTermReferenceDTOs($res);
+        $ret = [];
+        foreach ($term->getChildren() as $c) {
+            $ret[] = $this->getReferences($c, $conn);
+        }
+        return array_merge([], ...$ret);
     }
 
     private function getArchivedReferences($term, $conn): array {
@@ -147,7 +142,7 @@ class Dictionary {
             $wpid = $term->getParent()->getID();
         }
 
-        $sql = "select WoText from words where WoID in
+        $sql = "select WoTextLC from words where WoID in
             (
               select WpWoID from wordparents
                 where WpParentWoID in ({$wid}, {$wpid})
@@ -166,13 +161,13 @@ class Dictionary {
         $res = $stmt->get_result();
         $termstrings = [];
         while (($row = $res->fetch_assoc())) {
-            $termstrings[] = $row['WoText'];
+            $termstrings[] = $row['WoTextLC'];
         }
         
         $sql = "select distinct TxID, TxTitle, SeText
           from texts
           inner join sentences on SeTxID = TxID
-          where SeText like concat('%', 0xE2808B, ?, 0xE2808B, '%') and TxArchived = 1
+          where lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%') and TxArchived = 1
            ";
         $fullsql = array_fill(0, count($termstrings), $sql);
         $fullsql = implode(' UNION ', $fullsql);
