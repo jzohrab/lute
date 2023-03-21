@@ -230,44 +230,38 @@ final class Dictionary_Test extends DatabaseTestBase
     {
         $text = $this->make_text('hola', 'tengo un gato', $this->spanish);
 
-        $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
-        DbHelpers::assertTableContains($sql, [], 'no terms');
+        $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
 
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText('gato');
         $this->dictionary->add($t);
 
-        DbHelpers::assertTableContains($sql, [ 'gato' ], '1 term');
+        $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato(1)");
     }
 
     public function test_remove_term_unlinks_existing_TextItems()
     {
         $text = $this->make_text('hola', 'tengo un gato', $this->spanish);
 
-        $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
-        DbHelpers::assertTableContains($sql, [], 'no terms');
+        $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
 
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText('gato');
         $this->dictionary->add($t);
-
-        DbHelpers::assertTableContains($sql, [ 'gato' ], '1 term');
+        $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato(1)");
 
         $this->dictionary->remove($t);
-        DbHelpers::assertTableContains($sql, [], 'again no terms');
+        $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
     }
 
     /**
      * @group dictflush
      */
     public function test_save_and_flush_bulk_updates_text_items() {
-        $sentence = 'tengo un gato en mi cuarto';
+        $sentence = 'tengo un gato';
         $text = $this->make_text('hola', $sentence, $this->spanish);
-
-        $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
-        DbHelpers::assertTableContains($sql, [], 'no terms');
 
         foreach (explode(' ', $sentence) as $s) {
             $t = new Term();
@@ -275,21 +269,18 @@ final class Dictionary_Test extends DatabaseTestBase
             $t->setText($s);
             $this->dictionary->add($t, false);
         }
-        DbHelpers::assertTableContains($sql, [], 'still no mappings');
-        $this->dictionary->flush();
 
-        DbHelpers::assertTableContains($sql, explode(' ', $sentence), 'terms created');
+        $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
+        $this->dictionary->flush();
+        $this->assert_rendered_text_equals($text, "tengo(1)/ /un(1)/ /gato(1)");
     }
 
     /**
      * @group dictflush
      */
     public function test_save_and_flush_with_multiword_terms_bulk_updates_text_items() {
-        $sentence = 'tengo un gato en mi cuarto';
+        $sentence = 'tengo un gato';
         $text = $this->make_text('hola', $sentence, $this->spanish);
-
-        $sql = "select ti2textlc from textitems2 where ti2woid <> 0";
-        DbHelpers::assertTableContains($sql, [], 'no terms');
 
         $terms = [ 'tengo', "un gato" ];
         foreach ($terms as $s) {
@@ -298,10 +289,10 @@ final class Dictionary_Test extends DatabaseTestBase
             $t->setText($s);
             $this->dictionary->add($t, false);
         }
-        DbHelpers::assertTableContains($sql, [], 'still no mappings');
-        $this->dictionary->flush();
 
-        DbHelpers::assertTableContains($sql, [ 'tengo', 'un/ /gato' ], 'terms created');
+        $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
+        $this->dictionary->flush();
+        $this->assert_rendered_text_equals($text, "tengo(1)/ /un gato(1)");
     }
 
     /**

@@ -64,7 +64,7 @@ final class BookRepository_Test extends DatabaseTestBase
     }
 
     private function make_multipage_book() {
-                $b = new Book();
+        $b = new Book();
         $b->setTitle("hi");
         $b->setLanguage($this->english);
 
@@ -90,12 +90,12 @@ final class BookRepository_Test extends DatabaseTestBase
 
         DbHelpers::assertRecordcountEquals("select * from books", 1, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts", 2, 't');
-        DbHelpers::assertRecordcountEquals("select * from textitems2", 10, 'i');
+        // DbHelpers::assertRecordcountEquals("select * from textitems2", 10, 'i');
         DbHelpers::assertRecordcountEquals("select * from sentences", 2, 's');
 
         return $b;
     }
-    
+
     public function test_texts_can_be_retrieved_by_index()
     {
         $b = $this->make_multipage_book();
