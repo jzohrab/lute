@@ -1,5 +1,18 @@
 # Changelog
 
+## 2023-03-21 v1.1.7
+
+Feature changes:
+
+* add classical chinese parser and demo
+* return to same term listing page on term save
+
+Back end:
+
+* misc fixes (language to texts link, last word parse)
+* use model for reference lookups
+* better test abstractions
+
 ## 2023-03-17 v1.1.6
 
 * add "books" (i.e. multi-page texts) and book stats
