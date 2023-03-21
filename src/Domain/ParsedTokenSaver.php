@@ -107,39 +107,39 @@ class ParsedTokenSaver {
     }
 
     private function load_texttokens($allinserts) {
-        $sql = "SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2";
-        $this->conn->query($sql);
-        $sql = "SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2";
-        $this->conn->query($sql);
+        $sqls = [
+            "SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2",
+            "SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2",
+            "DROP TABLE IF EXISTS `temptexttokens`",
 
-        $sql = "DROP TABLE IF EXISTS `temptexttokens`";
-        $this->exec_sql($sql);
-        $sql = "CREATE TABLE `temptexttokens` (
-          `TokTxID` smallint unsigned NOT NULL,
-          `TokSentenceNumber` mediumint unsigned NOT NULL,
-          `TokOrder` smallint unsigned NOT NULL,
-          `TokIsWord` tinyint NOT NULL,
-          `TokText` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
-        ) ENGINE=Memory DEFAULT CHARSET=utf8mb3";
-        $this->exec_sql($sql);
+            "CREATE TABLE `temptexttokens` (
+              `TokTxID` smallint unsigned NOT NULL,
+              `TokSentenceNumber` mediumint unsigned NOT NULL,
+              `TokOrder` smallint unsigned NOT NULL,
+              `TokIsWord` tinyint NOT NULL,
+              `TokText` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+            ) ENGINE=Memory DEFAULT CHARSET=utf8mb3",
 
-        $sql = "SET GLOBAL general_log = 'OFF';";
-        $this->conn->query($sql);
+            "SET GLOBAL general_log = 'OFF'"
+        ];
+        foreach ($sqls as $sql) {
+            $this->conn->query($sql);
+        }
 
         $chunks = array_chunk($allinserts, 5000);
         foreach ($chunks as $chunk) {
             $this->load_temptexttokens($chunk);
         }
 
-        $sql = "SET GLOBAL general_log = 'ON';";
-        $this->conn->query($sql);
-
-        $sql = "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText)
-          select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText from temptexttokens";
-        $this->exec_sql($sql);
-
-        $sql = "DROP TABLE if exists `temptexttokens`";
-        $this->exec_sql($sql);
+        $sqls = [
+            "SET GLOBAL general_log = 'ON'",
+            "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText)
+              select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText from temptexttokens",
+            "DROP TABLE if exists `temptexttokens`"
+        ];
+        foreach ($sqls as $sql) {
+            $this->conn->query($sql);
+        }
     }
 
     // Insert each record in chunk in a prepared statement,
