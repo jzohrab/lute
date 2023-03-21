@@ -67,15 +67,15 @@ class Language
     #[ORM\Column(name: 'LgParserType', length: 20)]
     private string $LgParserType = 'romance';
 
-    #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
-    private Collection $texts;
+    #[ORM\OneToMany(targetEntity: 'Book', mappedBy: 'Language', fetch: 'EXTRA_LAZY')]
+    private Collection $books;
 
     #[ORM\OneToMany(targetEntity: 'Term', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $terms;
 
     public function __construct()
     {
-        $this->texts = new ArrayCollection();
+        $this->books = new ArrayCollection();
         $this->terms = new ArrayCollection();
     }
 
@@ -235,24 +235,24 @@ class Language
     }
 
     /**
-     * @return Collection|Text[]
+     * @return Collection|Book[]
      */
-    public function getTexts(): Collection
+    public function getBooks(): Collection
     {
-        return $this->texts;
+        return $this->books;
     }
 
-    public function getActiveTexts(): Collection
+    public function getActiveBooks(): Collection
     {
         $criteria = Criteria::create()
-            ->andWhere(Criteria::expr()->eq('TxArchived', 0));
+            ->andWhere(Criteria::expr()->eq('Archived', 0));
 
         // Psalm says that this method isn't defined, but a) the code works,
         // and b) symfony docs say this works.
         /**
          * @psalm-suppress UndefinedInterfaceMethod
          */
-        return $this->texts->matching($criteria);
+        return $this->books->matching($criteria);
     }
 
     /**
