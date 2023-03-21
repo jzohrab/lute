@@ -110,8 +110,10 @@ class Book
     }
 
     public function fullParse() {
+        $texts = [];
         foreach ($this->getTexts() as $t)
-            $t->parse();
+            $texts[] = $t;
+        $this->getLanguage()->parse($texts);
     }
     
     /**

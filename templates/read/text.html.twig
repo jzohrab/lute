@@ -2,25 +2,7 @@
 <span id="translateURL" style="visibility:hidden">{{ dictionary_url }}</span>
 
 <div id="thetext">
-
-  <p>
-
-    {% for sentence in sentences %}
-
-    <span class="textsentence" id="sent_{{ sentence.SeID }}">
-      {% for item in sentence.renderable %}
-      {% if item.Text == '¶' %}
-        </p><p>
-    {% else %}
-    {% include '/read/textitem.html.twig' %}
-      {% endif %}
-      {% endfor %}
-    </span>
-
-    {% endfor %}
-
-  </p>
-
+  {% include '/read/sentences.html.twig' %}
 </div>
 
 <script>

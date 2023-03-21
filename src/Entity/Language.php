@@ -288,11 +288,11 @@ class Language
         }
     }
     
-    public function parse(Text $text): void
+    public function parse($texts): void
     {
         $p = $this->getParser();
         $persister = new ParsedTokenSaver($p);
-        $persister->parse($text);
+        $persister->parse($texts);
     }
 
     public function getParsedTokens(string $s): array

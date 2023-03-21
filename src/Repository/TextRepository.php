@@ -44,18 +44,20 @@ class TextRepository extends ServiceEntityRepository
     public function save(Text $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
-
+        $tid = $entity->getId();
         if ($flush) {
             $this->getEntityManager()->flush();
-            $tid = $entity->getID();
-            $entity->parse();
 
             // TODO:optimization_stop_wasteful_parsing - no need to
             // map words, expressions etc if a text is about to be
             // archived, just need to load sentences.  This is a very
             // small savings, though.
-            if ($entity->isArchived())
+            if ($entity->isArchived()) {
                 $this->removeTi2s($tid);
+            }
+            else {
+                $entity->parse();
+            }
         }
     }
 

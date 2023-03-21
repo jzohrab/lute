@@ -114,11 +114,10 @@ function showEditFrame(el, extra_args = {}) {
   };
   const wid = int_attr('data_wid');
   const tid = int_attr('tid');
-  const ord = int_attr('data_order');
+  const ord = 0; // int_attr('data_order');  // TODO:remove
 
-  let data = {
-    text: extra_args.textparts ?? [ '-' ]
-  };
+  let data = extra_args.textparts ?? [ el.text() ];
+  // console.log(`got data = ${data}`);
 
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
@@ -129,7 +128,7 @@ function showEditFrame(el, extra_args = {}) {
   // disassembled on the server back into the component words.
   const zeroWidthSpace = '\u200b';
 
-  const sendtext = data.text.join(zeroWidthSpace);
+  const sendtext = data.join(zeroWidthSpace);
   const url = `/read/termform/${wid}/${tid}/${ord}/${sendtext}?${extras}`;
   top.frames.wordframe.location.href = url;
 }
