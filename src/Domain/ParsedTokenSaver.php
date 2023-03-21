@@ -64,18 +64,57 @@ class ParsedTokenSaver {
         $allinserts = array_merge([], ...$inserts);
 
         $idjoin = implode(',', $allids);
-        $cleanup = [
+        $setup = [
             "DROP TABLE IF EXISTS temptextitems",
             "DELETE FROM sentences WHERE SeTxID in ($idjoin)",
             "DELETE FROM textitems2 WHERE Ti2TxID in ($idjoin)",
-            "DELETE FROM texttokens WHERE TokTxID in ($idjoin)"
+            "DELETE FROM texttokens WHERE TokTxID in ($idjoin)",
+
+            "SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2",
+            "SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2",
+            "DROP TABLE IF EXISTS `temptexttokens`",
+
+            "CREATE TABLE `temptexttokens` (
+              `TokTxID` smallint unsigned NOT NULL,
+              `TokSentenceNumber` mediumint unsigned NOT NULL,
+              `TokOrder` smallint unsigned NOT NULL,
+              `TokIsWord` tinyint NOT NULL,
+              `TokText` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+            ) ENGINE=Memory DEFAULT CHARSET=utf8mb3",
+
+            "SET GLOBAL general_log = 'OFF'"
         ];
-        foreach ($cleanup as $sql) {
+        foreach ($setup as $sql) {
             $this->exec_sql($sql);
         }
 
-        $this->load_texttokens($allinserts);
-        $this->load_sentences($allids);
+        $chunks = array_chunk($allinserts, 5000);
+        foreach ($chunks as $chunk) {
+            $this->load_temptexttokens($chunk);
+        }
+
+        $sqls = [
+            "SET GLOBAL general_log = 'ON'",
+            "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText)
+              select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText from temptexttokens",
+            "DROP TABLE if exists `temptexttokens`",
+
+            // Load sentences.
+            // 0xE2808B (the zero-width space) is added between each
+            // token, and at the start and end of each sentence, to
+            // standardize the string search when looking for terms.
+            "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
+              SELECT TxLgID, TxID, TokSentenceNumber, min(TokOrder),
+              CONCAT(0xE2808B, GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B), 0xE2808B)
+              FROM texttokens
+              inner join texts on TxID = TokTxID
+              WHERE TxID in ({$idjoin})
+              group by TxLgID, TxID, TokSentenceNumber"
+        ];
+        foreach ($sqls as $sql) {
+            $this->conn->query($sql);
+        }
+
     }
 
 
@@ -106,41 +145,6 @@ class ParsedTokenSaver {
         return $arr;
     }
 
-    private function load_texttokens($allinserts) {
-        $sqls = [
-            "SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2",
-            "SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2",
-            "DROP TABLE IF EXISTS `temptexttokens`",
-
-            "CREATE TABLE `temptexttokens` (
-              `TokTxID` smallint unsigned NOT NULL,
-              `TokSentenceNumber` mediumint unsigned NOT NULL,
-              `TokOrder` smallint unsigned NOT NULL,
-              `TokIsWord` tinyint NOT NULL,
-              `TokText` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
-            ) ENGINE=Memory DEFAULT CHARSET=utf8mb3",
-
-            "SET GLOBAL general_log = 'OFF'"
-        ];
-        foreach ($sqls as $sql) {
-            $this->conn->query($sql);
-        }
-
-        $chunks = array_chunk($allinserts, 5000);
-        foreach ($chunks as $chunk) {
-            $this->load_temptexttokens($chunk);
-        }
-
-        $sqls = [
-            "SET GLOBAL general_log = 'ON'",
-            "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText)
-              select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText from temptexttokens",
-            "DROP TABLE if exists `temptexttokens`"
-        ];
-        foreach ($sqls as $sql) {
-            $this->conn->query($sql);
-        }
-    }
 
     // Insert each record in chunk in a prepared statement,
     // where chunk record is [ sentence_num, ord, wordcount, word ].
@@ -174,117 +178,6 @@ class ParsedTokenSaver {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-    }
-
-    private function load_sentences($allids) {
-        $idlist = implode(',', $allids);
-
-        // 0xE2808B (the zero-width space) is added between each
-        // token, and at the start and end of each sentence, to
-        // standardize the string search when looking for terms.
-        $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
-            SELECT TxLgID, TxID, TokSentenceNumber, min(TokOrder),
-            CONCAT(0xE2808B, GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B), 0xE2808B)
-            FROM texttokens
-            inner join texts on TxID = TokTxID
-            WHERE TxID in ({$idlist})
-            group by TxLgID, TxID, TokSentenceNumber";
-        $this->exec_sql($sql);
-    }
-    
-    // Load array
-    private function load_temptextitems_from_array(array $arr) {
-        $this->conn->query("drop table if exists temptextitems");
-
-        // Note the charset/collation here is very important!
-        // If not used, then when the import is done, a new text item
-        // can match to both an accented *and* unaccented word.
-        $sql = "CREATE TABLE temptextitems (
-          TiSeID mediumint(8) unsigned NOT NULL,
-          TiOrder smallint(5) unsigned NOT NULL,
-          TiWordCount tinyint(3) unsigned NOT NULL,
-          TiText varchar(250) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-        ) ENGINE=MEMORY DEFAULT CHARSET=utf8";
-        $this->conn->query($sql);
-
-        $chunks = array_chunk($arr, 1000);
-
-        foreach ($chunks as $chunk) {
-            $this->insert_array_chunk($chunk);
-        }
-    }
-
-    // Insert each record in chunk in a prepared statement,
-    // where chunk record is [ sentence_num, ord, wordcount, word ].
-    private function insert_array_chunk(array $chunk) {
-        $sqlbase = "insert into temptextitems values ";
-        $n = count($chunk);
-        $valplaceholders = str_repeat("(?,?,?,?),", $n);
-        $valplaceholders = rtrim($valplaceholders, ',');
-        $parmtypes = str_repeat("iiis", $n);
-
-        // Flatten the records in the chunks.
-        // Ref belyas's solution in https://gist.github.com/SeanCannon/6585889.
-        $prmarray = [];
-        array_map(
-            function($arr) use (&$prmarray) {
-                $prmarray = array_merge($prmarray, $arr);
-            },
-            $chunk
-        );
-
-        $sql = $sqlbase . $valplaceholders;
-        // echo $sql . "\n";
-        // echo $parmtypes . "\n";
-
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param($parmtypes, ...$prmarray);
-        if (!$stmt->execute()) {
-            throw new \Exception($stmt->error);
-        }
-    }
-
-
-    /**
-     * Move data from temptextitems to final tables.
-     * 
-     * @param int    $id  New default text ID
-     * @param int    $lid New default language ID
-     * 
-     * @return void
-     */
-    private function import_temptextitems(Text $text)
-    {
-        $id = $text->getID();
-        $lid = $text->getLanguage()->getLgID();
-
-        // 0xE2808B (the zero-width space) is added between each
-        // token, and at the start and end of each sentence, to
-        // standardize the string search when looking for terms.
-        $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
-            SELECT {$lid}, {$id}, TiSeID, 
-            min(TiOrder),
-            CONCAT(0xE2808B, GROUP_CONCAT(TiText order by TiOrder SEPARATOR 0xE2808B), 0xE2808B)
-            FROM temptextitems 
-            group by TiSeID";
-        $this->exec_sql($sql);
-
-        $minmax = "SELECT MIN(SeID) as minseid, MAX(SeID) as maxseid FROM sentences WHERE SeTxID = {$id}";
-        $rec = $this->conn
-             ->query($minmax)->fetch_array();
-        $firstSeID = intval($rec['minseid']);
-        $lastSeID = intval($rec['maxseid']);
-    
-        $addti2 = "INSERT INTO textitems2 (
-                Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text, Ti2TextLC
-            )
-            select {$lid}, {$id}, WoID, TiSeID + {$firstSeID}, TiOrder, TiWordCount, TiText, lower(TiText) 
-            FROM temptextitems 
-            left join words 
-            on lower(TiText) = WoTextLC and TiWordCount>0 and WoLgID = {$lid} 
-            order by TiOrder,TiWordCount";
-
-        $this->exec_sql($addti2);
     }
 
 }
