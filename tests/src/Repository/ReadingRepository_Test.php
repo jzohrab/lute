@@ -31,29 +31,19 @@ final class ReadingRepository_Test extends DatabaseTestBase
         $dict->add($tengo, true);
         $dict->add($gato, true);
 
-        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup ti2');
+        DbHelpers::assertRecordcountEquals("texttokens", 8, 'setup tokens');
         DbHelpers::assertRecordcountEquals("wordimages", 2, 'setup images');
         DbHelpers::assertRecordcountEquals("wordparents", 1, 'setup parent');
         DbHelpers::assertRecordcountEquals("sentences", 1, 'setup sentences');
         DbHelpers::assertRecordcountEquals("texts", 1, 'setup texts');
     }
 
-    public function test_smoke_test_get_textitems()
+    public function test_smoke_tests()
     {
-        $ti = $this->reading_repo->getTextItems($this->text);
-        $this->assertEquals(8, count($ti), "items");
-
-        $gatotis = array_filter($ti, fn($c) => $c->Text == 'gato');
-        $this->assertEquals(count($gatotis), 1, 'have gato');
-        $gti = array_values($gatotis)[0];
-        $this->assertEquals($gti->ImageSource, 'gato.jpg');
-        $this->assertEquals($gti->ParentImageSource, 'tengo.jpg');
-
-        $holatis = array_filter($ti, fn($c) => $c->TextLC == 'hola');
-        $this->assertEquals(count($holatis), 1, 'have hola');
-        $hti = array_values($holatis)[0];
-        $this->assertEquals($hti->ImageSource, null);
-        $this->assertEquals($hti->ParentImageSource, null);
+        $ss = $this->reading_repo->getSentences($this->text);
+        $this->assertEquals(1, count($ss), "1 sentence");
+        $zws = mb_chr(0x200B);
+        $this->assertEquals(str_replace($zws, "/", $ss[0]->SeText), "/Hola/ /tengo/ /un/ /gato/./");
     }
 
 }

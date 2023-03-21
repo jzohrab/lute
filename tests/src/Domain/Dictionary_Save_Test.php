@@ -26,31 +26,23 @@ final class Dictionary_Save_Test extends DatabaseTestBase
 
 
     public function test_add_updates_associated_textitems() {
-        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
-        $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
-
-        DbHelpers::assertRecordcountEquals("textitems2", 16, 'sanity check');
-        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
-        DbHelpers::assertTableContains($sql, [], "No associations");
+        $st = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+        $ft = $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
 
         $t = new Term($this->spanish, "tengo");
         $this->dictionary->add($t, true);
-        $expected = [ "{$t->getID()}; 1; 1; tengo" ];
-        DbHelpers::assertTableContains($sql, $expected, "associated textitems in spanish text only");
+
+        $this->assert_rendered_text_equals($st, "Hola/ /tengo(1)/ /un/ /gato/.");
+        $this->assert_rendered_text_equals($ft, "Je/ /veux/ /un/ /tengo/.");
 
         $t = new Term($this->spanish, "un gato");
         $this->dictionary->add($t, true);
-        $expected[] = "{$t->getID()}; 1; 2; un/ /gato";
-        DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
+        $this->assert_rendered_text_equals($st, "Hola/ /tengo(1)/ /un gato(1)/.");
     }
 
 
     public function test_textitems_not_associated_until_flush() {
-        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
-        $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
-
-        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
-        DbHelpers::assertTableContains($sql, [], "No associations");
+        $st = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         $t1 = new Term($this->spanish, "tengo");
         $t2 = new Term($this->spanish, "un gato");
@@ -58,15 +50,10 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         $this->dictionary->add($t1, false);
         $this->dictionary->add($t2, false);
 
-        DbHelpers::assertTableContains($sql, [], "No associations, not flushed");
+        $this->assert_rendered_text_equals($st, "Hola/ /tengo/ /un/ /gato/.");
 
         $this->dictionary->flush();
-
-        $expected = [
-            "{$t1->getID()}; 1; 1; tengo",
-            "{$t2->getID()}; 1; 2; un/ /gato"
-        ];
-        DbHelpers::assertTableContains($sql, $expected, "Now associated textitems (in spanish text only)");
+        $this->assert_rendered_text_equals($st, "Hola/ /tengo(1)/ /un gato(1)/.");
     }
 
 
@@ -74,26 +61,18 @@ final class Dictionary_Save_Test extends DatabaseTestBase
      * @group mwordparent
      */
     public function test_multiword_parent_item_associated() {
-        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
-
-        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
-        DbHelpers::assertTableContains($sql, [], "No associations");
+        $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         $t1 = new Term($this->spanish, "tengo");
         $t2 = new Term($this->spanish, "un gato");
         $t1->setParent($t2);
 
+        $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
+
         $this->dictionary->add($t1, false);
 
-        DbHelpers::assertTableContains($sql, [], "No associations, not flushed");
-
         $this->dictionary->flush();
-
-        $expected = [
-            "{$t1->getID()}; 1; 1; tengo",
-            "{$t2->getID()}; 1; 2; un/ /gato"
-        ];
-        DbHelpers::assertTableContains($sql, $expected, "Now associated textitems (in spanish text only)");
+        $this->assert_rendered_text_equals($t, "Hola/ /tengo(1)/ /un gato(1)/.");
     }
 
 
@@ -101,59 +80,40 @@ final class Dictionary_Save_Test extends DatabaseTestBase
      * @group zws
      */
     public function test_textitems_un_associated_after_remove() {
-        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+        $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
 
-        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2Text = 'tengo' or Ti2Text like '%un%gato%'";
-        $expected = [
-            "0; 1; 1; tengo",
-            "0; 2; 1; tengo"
-        ];
-
-        DbHelpers::assertTableContains($sql, $expected, "No associations");
+        $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
 
         $t1 = new Term($this->spanish, "tengo");
         $t2 = new Term($this->spanish, "un gato");
-
         $this->dictionary->add($t1, false);
         $this->dictionary->add($t2, false);
         $this->dictionary->flush();
-        $expected = [
-            "1; 1; 1; tengo",
-            "0; 2; 1; tengo",
-            "2; 1; 2; un/ /gato"
-        ];
-        DbHelpers::assertTableContains($sql, $expected, "Now associated textitems (in spanish text only)");
+
+        $this->assert_rendered_text_equals($t, "Hola/ /tengo(1)/ /un gato(1)/.");
 
         $this->dictionary->remove($t1, false);
         $this->dictionary->remove($t2, false);
         $this->dictionary->flush();
-        $expected = [
-            "0; 1; 1; tengo",
-            "0; 2; 1; tengo"
-        ];
-        DbHelpers::assertTableContains($sql, $expected, "No associated textitems");
-
+        $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
     }
 
 
     // Production bug.
     public function test_save_multiword_term_multiple_times_is_ok() {
-        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+        $text = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("un gato");
         $this->dictionary->add($t, true);
-
-        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
-        $expected[] = "{$t->getID()}; 1; 2; un/ /gato";
-        DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
+        $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un gato(1)/.");
 
         // Update and resave
         $t->setStatus(5);
         $this->dictionary->add($t, true);
-        DbHelpers::assertTableContains($sql, $expected, "still associated correctly");
+        $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un gato(5)/.");
     }
 
 
@@ -168,14 +128,13 @@ final class Dictionary_Save_Test extends DatabaseTestBase
         $japanese = Language::makeJapanese();
         $this->language_repo->save($japanese, true);
 
-        $this->make_text("Hi", "私は元気です.", $japanese);
+        $text = $this->make_text("Hi", "私は元気です.", $japanese);
+        $this->assert_rendered_text_equals($text, "私/は/元気/です/./¶");
+        
+        $term = new Term($japanese, "元気です");
+        $this->dictionary->add($term, true);
 
-        $t = new Term($japanese, "元気です");
-        $this->dictionary->add($t, true);
-
-        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
-        $expected[] = "{$t->getID()}; {$japanese->getLgID()}; 2; 元気/です";
-        DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
+        $this->assert_rendered_text_equals($text, "私/は/元気です(1)/./¶");
     }
 
 }

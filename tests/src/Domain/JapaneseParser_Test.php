@@ -30,18 +30,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     public function test_parse_no_words_defined()
     {
         $t = $this->make_text("Test", "私は元気です.", $this->japanese);
-
-        $sql = "select ti2seid, ti2order, ti2text, ti2textlc from textitems2 where ti2woid = 0 order by ti2order";
-
-        $expected = [
-            "1; 1; 私; 私",
-            "1; 2; は; は",
-            "1; 3; 元気; 元気",
-            "1; 4; です; です",
-            "1; 5; .; .",
-            "1; 6; ¶; ¶"
-        ];
-        DbHelpers::assertTableContains($sql, $expected, 'after parse');
+        $this->assert_rendered_text_equals($t, "私/は/元気/です/./¶");
     }
 
     /**
@@ -86,14 +75,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     {
         $this->addTerms($this->japanese, [ '私', '元気', 'です' ]);
         $t = $this->make_text("Test", "私は元気です.", $this->japanese);
-
-        $sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2 where ti2woid > 0 order by ti2order";
-        $expected = [
-            "1; 1; 1; 私",
-            "2; 1; 3; 元気",
-            "3; 1; 4; です"
-        ];
-        DbHelpers::assertTableContains($sql, $expected);
+        $this->assert_rendered_text_equals($t, "私(1)/は/元気(1)/です(1)/./¶");
     }
 
     // futari wasn't getting parsed correctly.
@@ -103,17 +85,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     public function test_futari()
     {
         $t = $this->make_text("Test", "二人はどちらの力が強いか.", $this->japanese);
-
-        $sql = "select ti2seid, ti2order, ti2text, ti2wordcount from textitems2
-          where ti2order <= 4";
-
-        $expected = [
-            "1; 1; 二; 1",
-            "1; 2; 人; 1",
-            "1; 3; は; 1",
-            "1; 4; どちら; 1"
-        ];
-        DbHelpers::assertTableContains($sql, $expected, 'after parse');
+        $this->assert_rendered_text_equals($t, "二/人/は/どちら/の/力/が/強い/か/./¶");
     }
 
     // Tests to do:
