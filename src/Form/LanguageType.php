@@ -84,7 +84,8 @@ class LanguageType extends AbstractType
                   ChoiceType::class,
                   [ 'choices'  => [
                       'Romance Language' => 'romance',
-                      'Japanese Language (MeCab)' => 'japanese'
+                      'Japanese Language (MeCab)' => 'japanese',
+                      'Classical Chinese' => 'classicalchinese'
                      ],
                     'label' => 'Parse as',
                     'required' => true
