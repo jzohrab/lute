@@ -31,44 +31,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
         );
     }
 
-    // Util methods ------------
-
-    private function save_term($text, $s) {
-        $textid = $text->getID();
-        $dto = $this->facade->loadDTO(0, $textid, 0, $s);
-        $this->facade->saveDTO($dto, $textid);
-    }
-
-    private function get_renderable_textitems($text) {
-        $ret = [];
-        $ss = $this->facade->getSentences($text);
-        foreach ($ss as $s) {
-            foreach ($s->renderable() as $ti) {
-                $ret[] = $ti;
-            }
-        }
-        return $ret;
-    }
-
-    private function get_rendered_string($text) {
-        $tis = $this->get_renderable_textitems($text);
-        $stringize = function($ti) {
-            $zws = mb_chr(0x200B);
-            $status = "({$ti->WoStatus})";
-            if ($status == '(0)')
-                $status = '';
-            return str_replace($zws, '', "{$ti->Text}{$status}");
-        };
-        $ss = array_map($stringize, $tis);
-        return implode('/', $ss);
-    }
-
-    private function assert_rendered_text_equals($text, $expected) {
-        $s = $this->get_rendered_string($text);
-        $this->assertEquals($s, $expected);
-    }
-
-
     // TESTS -----------------
 
     public function test_get_sentences_no_sentences() {
@@ -92,6 +54,18 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals(2, count($sentences), "reparsed");
     }
 
+    /**
+     * @group renderablesentences
+     */
+    public function test_get_renderable_sentences()
+    {
+        $this->addTerms($this->spanish, [ "Un gato", 'lista', "tiene una", 'listo' ]);
+        $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
+        $t = $this->make_text("Hola", $content, $this->spanish);
+
+        $sentences = $this->facade->getSentences($t);
+        $this->assertEquals(4, count($sentences));
+    }
 
     /**
      * @group associations
@@ -204,29 +178,19 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $sentences = $this->facade->getSentences($t);
         $this->assertEquals(count($sentences), 1, "sanity check");
         $sentence = $sentences[0];
-        $terms = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == 'tiene');
+        $terms = array_filter($sentence->renderable(), fn($ti) => $ti->TextLC == 'tiene');
         $this->assertEquals(count($terms), 1, "just one match, sanity check");
         $tiene = array_values($terms)[0];
         $this->assertEquals($tiene->TextLC, 'tiene', 'sanity check, got the term ...');
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
         $txt = "tiene una bebida";
-        $tiene_una_bebida = $this->facade->loadDTO($tiene->WoID, $t->getID(), $tiene->Order, $txt);
+        $tiene_una_bebida = $this->facade->loadDTO($tiene->WoID, $t->getID(), 0, $txt);
         $zws = mb_chr(0x200B);
         $this->assertEquals(str_replace($zws, '', $tiene_una_bebida->Text), $txt, 'text loaded');
         $this->assertTrue($tiene_una_bebida->id == null, 'should be a new term');
     }
 
-
-    private function get_text_textitem_matching($text, $textlc) {
-        $all_tis = $this->facade->getTextItems($text);
-        $matching_tis = array_filter($all_tis, fn($ti) => $ti->TextLC == $textlc);
-        $arr = array_values($matching_tis);
-        $this->assertEquals(count($arr), 1, "Guard against ambiguous return textitem!");
-        $ti = $arr[0];
-        $this->assertEquals($ti->TextLC, $textlc, "sanity check, got textitem for $textlc");
-        return $ti;
-    }
 
     // Prod bug: setting all to known in one Text wasn't updating the TextItems in other texts!
     /**
@@ -237,21 +201,12 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $gato_text = $this->make_text("Gato", "Ella tiene un gato.", $this->spanish);
         $this->facade->mark_unknowns_as_known($bebida_text);
 
-        $gti = function($textlc) use ($gato_text) {
-            return $this->get_text_textitem_matching($gato_text, $textlc);
-        };
-        $ella = $gti('ella');
-        $tiene = $gti('tiene');
-        $un = $gti('un');
-        $gato = $gti('gato');
-
-        $this->assertTrue($ella->WoID != 0, 'ella mapped');
-        $this->assertTrue($tiene->WoID != 0, 'tiene mapped');
-        $this->assertTrue($un->WoID == 0, 'un NOT mapped');
-        $this->assertTrue($gato->WoID == 0, 'gato NOT mapped');
+        $this->assert_rendered_text_equals($bebida_text, "Ella(99)/ /tiene(99)/ /una(99)/ /bebida(99)/.");
+        $this->assert_rendered_text_equals($gato_text, "Ella(99)/ /tiene(99)/ /un/ /gato/.");
     }
 
-    
+
+
     // Prod bug: when updating the status of an existing multi-term
     // TextItem (that hides other text items), the UI wasn't getting
     // updated, because the ID of the element to replace wasn't
@@ -434,7 +389,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
 
     private function get_sentence_textitem($sentence, $textlc) {
-        $tis = array_filter($sentence->getTextItems(), fn($ti) => $ti->TextLC == $textlc);
+        $tis = array_filter($sentence->renderable(), fn($ti) => $ti->TextLC == $textlc);
         $ti = array_values($tis)[0];
         $this->assertEquals($ti->TextLC, $textlc, "sanity check, got textitem for $textlc");
         return $ti;
@@ -450,6 +405,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         // Update "tiene" to have "tener uno" as parent.
         $tid = $text->getID();
+
         $dto = $this->facade->loadDTO(0, $tid, 0, 'tengo');
         $dto->ParentText = 'que';
         $dto->Status = 1;

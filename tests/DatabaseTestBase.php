@@ -24,6 +24,7 @@ use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\Dictionary;
 use App\Domain\BookBinder;
+use App\Domain\ReadingFacade;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -153,6 +154,61 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->book_repo->save($b, true);
         $b->fullParse();  // Most tests require full parsing.
         return $b->getTexts()[0];
+    }
+
+    public function save_term($text, $s) {
+        $textid = $text->getID();
+        $dict = new Dictionary($this->term_repo);
+        $facade = new ReadingFacade(
+            $this->reading_repo,
+            $this->text_repo,
+            $this->book_repo,
+            $this->settings_repo,
+            $dict,
+            $this->termtag_repo
+        );
+        $dto = $facade->loadDTO(0, $textid, 0, $s);
+        $facade->saveDTO($dto, $textid);
+    }
+
+    private function get_renderable_textitems($text) {
+        $ret = [];
+
+        $dict = new Dictionary($this->term_repo);
+        $facade = new ReadingFacade(
+            $this->reading_repo,
+            $this->text_repo,
+            $this->book_repo,
+            $this->settings_repo,
+            $dict,
+            $this->termtag_repo
+        );
+
+        $ss = $facade->getSentences($text);
+        foreach ($ss as $s) {
+            foreach ($s->renderable() as $ti) {
+                $ret[] = $ti;
+            }
+        }
+        return $ret;
+    }
+
+    private function get_rendered_string($text) {
+        $tis = $this->get_renderable_textitems($text);
+        $stringize = function($ti) {
+            $zws = mb_chr(0x200B);
+            $status = "({$ti->WoStatus})";
+            if ($status == '(0)' || $status == '()')
+                $status = '';
+            return str_replace($zws, '', "{$ti->Text}{$status}");
+        };
+        $ss = array_map($stringize, $tis);
+        return implode('/', $ss);
+    }
+
+    public function assert_rendered_text_equals($text, $expected) {
+        $s = $this->get_rendered_string($text);
+        $this->assertEquals($s, $expected);
     }
 
 }

@@ -20,7 +20,7 @@ class Book
     #[ORM\Column(name: 'BkTitle', length: 200)]
     private ?string $Title = null;
 
-    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
+    #[ORM\ManyToOne(targetEntity: 'Language', inversedBy: 'books', fetch: 'EAGER')]
     #[ORM\JoinColumn(name: 'BkLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $Language = null;
 

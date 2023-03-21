@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Domain\RomanceLanguageParser;
 use App\Domain\JapaneseParser;
+use App\Domain\ClassicalChineseParser;
 use App\Domain\ParsedTokenSaver;
 
 
@@ -66,15 +67,15 @@ class Language
     #[ORM\Column(name: 'LgParserType', length: 20)]
     private string $LgParserType = 'romance';
 
-    #[ORM\OneToMany(targetEntity: 'Text', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
-    private Collection $texts;
+    #[ORM\OneToMany(targetEntity: 'Book', mappedBy: 'Language', fetch: 'EXTRA_LAZY')]
+    private Collection $books;
 
     #[ORM\OneToMany(targetEntity: 'Term', mappedBy: 'language', fetch: 'EXTRA_LAZY')]
     private Collection $terms;
 
     public function __construct()
     {
-        $this->texts = new ArrayCollection();
+        $this->books = new ArrayCollection();
         $this->terms = new ArrayCollection();
     }
 
@@ -234,24 +235,24 @@ class Language
     }
 
     /**
-     * @return Collection|Text[]
+     * @return Collection|Book[]
      */
-    public function getTexts(): Collection
+    public function getBooks(): Collection
     {
-        return $this->texts;
+        return $this->books;
     }
 
-    public function getActiveTexts(): Collection
+    public function getActiveBooks(): Collection
     {
         $criteria = Criteria::create()
-            ->andWhere(Criteria::expr()->eq('TxArchived', 0));
+            ->andWhere(Criteria::expr()->eq('Archived', 0));
 
         // Psalm says that this method isn't defined, but a) the code works,
         // and b) symfony docs say this works.
         /**
          * @psalm-suppress UndefinedInterfaceMethod
          */
-        return $this->texts->matching($criteria);
+        return $this->books->matching($criteria);
     }
 
     /**
@@ -278,6 +279,8 @@ class Language
         switch ($this->LgParserType) {
         case 'romance':
             return new RomanceLanguageParser();
+        case 'classicalchinese':
+            return new ClassicalChineseParser();
         case 'japanese':
             return new JapaneseParser();
         default:
@@ -359,12 +362,28 @@ class Language
         return $japanese;
     }
 
+    public static function makeClassicalChinese() {
+        $lang = new Language();
+        $lang
+            ->setLgName('Classical Chinese')
+            ->setLgDict1URI('https://ctext.org/dictionary.pl?if=en&char=###')
+            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#ch/en/###')
+            ->setLgRegexpWordCharacters('一-龥')
+            ->setLgRegexpSplitSentences('.!?:;。！？：；')
+            ->setLgRemoveSpaces(true)
+            ->setLgShowRomanization(true)
+            ->setLgParserType('classicalchinese');
+        return $lang;
+    }
+
     public static function getPredefined(): array {
         $ret = [
             Language::makeEnglish(),
             Language::makeFrench(),
             Language::makeGerman(),
             Language::makeSpanish(),
+            Language::makeClassicalChinese(),
         ];
 
         if (JapaneseParser::MeCab_installed())
