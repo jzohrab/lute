@@ -64,6 +64,15 @@ class ReadingController extends AbstractController
         ]);
     }
 
+    #[Route('/sentences/{TxID}', name: 'app_read_sentences', methods: ['GET'])]
+    public function sentences(Request $request, Text $text, ReadingFacade $facade): Response
+    {
+        $sentences = $facade->getSentences($text);
+        return $this->render('read/sentences.html.twig', [
+            'sentences' => $sentences
+        ]);
+    }
+
     #[Route('/termform/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
         int $wid,
@@ -95,16 +104,10 @@ class ReadingController extends AbstractController
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            [ $updateitems, $update_js ] = $facade->saveDTO($termdto, $textid);
-
-            // The updates are encoded here, and decoded in the
-            // twig javascript.  Thanks to
-            // https://stackoverflow.com/questions/38072085/
-            //   how-to-render-json-into-a-twig-in-symfony2
+            $facade->saveDTO($termdto, $textid);
             return $this->render('read/updated.html.twig', [
                 'termdto' => $termdto,
-                'textitems' => $updateitems,
-                'updates' => json_encode($update_js)
+                'textid' => $textid
             ]);
         }
 

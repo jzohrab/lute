@@ -7,7 +7,7 @@ use App\Entity\Language;
 use App\Repository\TextItemRepository;
 use App\Utils\Connection;
 
-// TODO:hacking rename this
+
 class ParsedTokenSaver {
 
     /** PUBLIC **/
@@ -19,8 +19,8 @@ class ParsedTokenSaver {
         $this->parser = $p;
     }
 
-    public function parse(Text $text) {
-        $this->parseText($text);
+    public function parse($texts) {
+        $this->parseText($texts);
     }
 
     /** PRIVATE **/
@@ -40,62 +40,42 @@ class ParsedTokenSaver {
         return $stmt->get_result();
     }
  
-    private function parseText(Text $text) {
+    private function parseText($texts) {
         $this->conn = Connection::getFromEnvironment();
 
-        // dump("parsing text ===============");
-        $start = microtime(true);
-        $curr = microtime(true);
-        $traces = [];
+        $allids = [];
+        $inserts = [];
+        $colltokens = [];
+        foreach ($texts as $text) {
+            // Reset token/sentence counters for text.
+            // Global state sucks.
+            $this->sentence_number = 0;
+            $this->ord = 0;
 
-        $trace = function($msg) use (&$curr, $start, &$traces) {
-            $elapsed = (microtime(true) - $curr);
-            $sincestart = (microtime(true) - $start);
-            $t = "{$msg}: {$elapsed}; since start: {$sincestart}";
-            // dump($t);
-            $traces[] = [ $msg, $elapsed, $sincestart ];
-            $curr = microtime(true);
-        };
+            $s = $text->getText();
+            $zws = mb_chr(0x200B); // zero-width space.
+            $s = str_replace($zws, '', $s);
+            $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
 
-        $id = $text->getID();
+            $id = $text->getID();
+            $allids[] = $id;
+            $inserts[] = $this->build_insert_array($id, $tokens);
+        }
+        $allinserts = array_merge([], ...$inserts);
+
+        $idjoin = implode(',', $allids);
         $cleanup = [
             "DROP TABLE IF EXISTS temptextitems",
-            "DELETE FROM sentences WHERE SeTxID = $id",
-            "DELETE FROM textitems2 WHERE Ti2TxID = $id",
-            "DELETE FROM texttokens WHERE TokTxID = $id"
+            "DELETE FROM sentences WHERE SeTxID in ($idjoin)",
+            "DELETE FROM textitems2 WHERE Ti2TxID in ($idjoin)",
+            "DELETE FROM texttokens WHERE TokTxID in ($idjoin)"
         ];
         foreach ($cleanup as $sql) {
             $this->exec_sql($sql);
-            $trace($sql);
-        }
-        // $trace("drops");
-
-        $s = $text->getText();
-        $zws = mb_chr(0x200B); // zero-width space.
-        $s = str_replace($zws, '', $s);
-        $trace("replaces");
-        $tokens = $this->parser->getParsedTokens($text->getText(), $text->getLanguage());
-        $trace("got tokens");
-
-        $arr = $this->build_insert_array($tokens);
-        $trace("built array");
-
-        // To be enabled later.
-        $chunks = array_chunk($arr, 1000);
-        foreach ($chunks as $chunk) {
-            $this->load_texttokens($id, $chunk);
         }
 
-        $this->load_temptextitems_from_array($arr);
-        $trace("loaded temp table");
-        $this->import_temptextitems($text);
-        $trace("imported temp table");
-
-        TextItemRepository::mapForText($text);
-        $trace("mapped text items");
-
-        // dump($traces);
-        $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
+        $this->load_texttokens($allinserts);
+        $this->load_sentences($allids);
     }
 
 
@@ -103,14 +83,14 @@ class ParsedTokenSaver {
     private int $sentence_number = 0;
     private int $ord = 0;
 
-    private function build_insert_array($tokens): array {
+    private function build_insert_array($txid, $tokens): array {
         // Make the array row, incrementing $sentence_number as
         // needed.
-        $makeentry = function($token) {
+        $makeentry = function($token) use ($txid) {
             $isword = $token->isWord ? 1 : 0;
             $s = $token->token;
             $this->ord += 1;
-            $ret = [ $this->sentence_number, $this->ord, $isword, rtrim($s, "\r") ];
+            $ret = [ $txid, $this->sentence_number, $this->ord, $isword, rtrim($s, "\r") ];
 
             // Word ending with \r marks the end of the current
             // sentence.
@@ -126,31 +106,68 @@ class ParsedTokenSaver {
         return $arr;
     }
 
+    private function load_texttokens($allinserts) {
+        $sql = "SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2";
+        $this->conn->query($sql);
+        $sql = "SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2";
+        $this->conn->query($sql);
+
+        $sql = "DROP TABLE IF EXISTS `temptexttokens`";
+        $this->exec_sql($sql);
+        $sql = "CREATE TABLE `temptexttokens` (
+          `TokTxID` smallint unsigned NOT NULL,
+          `TokSentenceNumber` mediumint unsigned NOT NULL,
+          `TokOrder` smallint unsigned NOT NULL,
+          `TokIsWord` tinyint NOT NULL,
+          `TokText` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+        ) ENGINE=Memory DEFAULT CHARSET=utf8mb3";
+        $this->exec_sql($sql);
+
+        $sql = "SET GLOBAL general_log = 'OFF';";
+        $this->conn->query($sql);
+
+        $chunks = array_chunk($allinserts, 5000);
+        foreach ($chunks as $chunk) {
+            $this->load_temptexttokens($chunk);
+        }
+
+        $sql = "SET GLOBAL general_log = 'ON';";
+        $this->conn->query($sql);
+
+        $sql = "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText)
+          select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText from temptexttokens";
+        $this->exec_sql($sql);
+
+        $sql = "DROP TABLE if exists `temptexttokens`";
+        $this->exec_sql($sql);
+    }
+
     // Insert each record in chunk in a prepared statement,
     // where chunk record is [ sentence_num, ord, wordcount, word ].
-    private function load_texttokens(int $txid, array $chunk) {
-        $sqlbase = "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText) values ";
-        $n = count($chunk);
+    private function load_temptexttokens(array $chunk) {
+        $sqlbase = "insert into temptexttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText) values ";
+
+        // NOTE: I'm building the raw sql string for the integer
+        // values, because it is _much_ faster to do this instead of
+        // doing query params ("?") and later binding the params.
+        // Originally, this used parameterized queries for the
+        // inserts, but it took ~0.5 seconds to insert 500 records at
+        // a time, and with straight values it takes < 0.01 second.
+        // I'm not sure why, and can't be bothered to look into this
+        // more.  (It could be due to how SQL logs queries ... but
+        // that seems nuts.)
+        
         // "+ 1" on the sentence number is a relic of old code
         // ... sentences in the array were numbered starting at 0.
         // Can be amended in the future.
-        $valplaceholders = str_repeat("({$txid},? + 1,?,?,?),", $n);
-        $valplaceholders = rtrim($valplaceholders, ',');
-        $parmtypes = str_repeat("iiis", $n);
+        $vals = array_map(fn($t) => '(' . implode(',', [ $t[0], $t[1] + 1, $t[2], $t[3], '?' ]) . ')', $chunk);
+        $valstring = implode(',', $vals);
 
-        // Flatten the records in the chunks.
-        // Ref belyas's solution in https://gist.github.com/SeanCannon/6585889.
-        $prmarray = [];
-        array_map(
-            function($arr) use (&$prmarray) {
-                $prmarray = array_merge($prmarray, $arr);
-            },
-            $chunk
-        );
+        $n = count($chunk);
+        $parmtypes = str_repeat("s", $n);
+        $prmarray = array_map(fn($t) => $t[4], $chunk);
 
-        $sql = $sqlbase . $valplaceholders;
-        // echo $sql . "\n";
-        // echo $parmtypes . "\n";
+        $sql = $sqlbase . $valstring;
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param($parmtypes, ...$prmarray);
@@ -159,7 +176,22 @@ class ParsedTokenSaver {
         }
     }
 
+    private function load_sentences($allids) {
+        $idlist = implode(',', $allids);
 
+        // 0xE2808B (the zero-width space) is added between each
+        // token, and at the start and end of each sentence, to
+        // standardize the string search when looking for terms.
+        $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
+            SELECT TxLgID, TxID, TokSentenceNumber, min(TokOrder),
+            CONCAT(0xE2808B, GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B), 0xE2808B)
+            FROM texttokens
+            inner join texts on TxID = TokTxID
+            WHERE TxID in ({$idlist})
+            group by TxLgID, TxID, TokSentenceNumber";
+        $this->exec_sql($sql);
+    }
+    
     // Load array
     private function load_temptextitems_from_array(array $arr) {
         $this->conn->query("drop table if exists temptextitems");

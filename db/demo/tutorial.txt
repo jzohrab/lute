@@ -37,7 +37,7 @@ You can create multi-word terms by clicking and dragging across multiple words, 
 
 3. Parent Terms
 
-Sometimes it helps to associate terms with a "parent".  For example, the verb "to have" is conjugated in various forms as "I have a cold", "he has a dog", "they had dinner".  First create a Term for "have".  Then create a Term for "has", and in the Parent field start typing "have".  Lute will show the the existing Term "have" in the drop down, and if you select it, "has" will be associated with that on save, and when you hover over "has" you'll see the parent's information as well.
+Sometimes it helps to associate terms with a "parent".  For example, the verb "to have" is conjugated in various forms as "I have a cold", "he has a dog", "they had dinner".  First create a Term for "have".  Then create a Term for "has", and in the Parent field start typing "have".  Lute will show the existing Term "have" in the drop down, and if you select it, "has" will be associated with that on save, and when you hover over "has" you'll see the parent's information as well.
 
 If you enter a non-existent Parent word, Lute will create a placeholder Term for that Parent, copying some content from your term.  For example, try creating a Term for the word "dogs", associating it with the non-existent Term "dog".  When you save "dogs", both will be updated.
 

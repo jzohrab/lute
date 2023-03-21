@@ -308,8 +308,8 @@ class ReadingRepository
     private function findSentence($tid, $ord) : string {
         $sql = "select SeText
            from sentences
-           INNER JOIN textitems2 on Ti2SeID = SeID
-           WHERE Ti2TxID = :tid and Ti2Order = :ord";
+           INNER JOIN texttokens on TokSentenceNumber = SeID
+           WHERE SeTxID = :tid and TokOrder = :ord";
         $params = [ "tid" => $tid, "ord" => $ord ];
         return $this
             ->manager

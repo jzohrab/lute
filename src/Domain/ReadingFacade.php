@@ -60,7 +60,58 @@ class ReadingFacade {
         return $sentences;
     }
 
+
+    private function getRenderable($terms, $tokens) {
+        $rc = new RenderableCalculator();
+        $textitems = $rc->main($terms, $tokens);
+        return $textitems;
+    }
+
     public function getSentences(Text $text)
+    {
+        if ($text->getID() == null)
+            return [];
+
+        if ($text->isArchived()) {
+            $text->setArchived(false);
+            $this->textrepo->save($text, true);
+        }
+
+        $tokens = $this->repo->getTextTokens($text);
+        if (count($tokens) == 0) {
+            $text->parse();
+            $tokens = $this->repo->getTextTokens($text);
+        }
+
+        $sentences = $this->repo->getSentences($text);
+        $terms = $this->repo->getTermsInText($text);
+
+        $tokens_by_senum = array();
+        foreach ($tokens as $tok) {
+            $tokens_by_senum[$tok->TokSentenceNumber][] = $tok;
+        }
+
+        $usenums = array_keys($tokens_by_senum);
+
+        $lid = $text->getLanguage()->getLgID();
+        $tid = $text->getID();
+        $renderableSentences = [];
+        foreach ($usenums as $senum) {
+            $setokens = $tokens_by_senum[$senum];
+            $renderable = $this->getRenderable($terms, $setokens);
+            $textitems = array_map(
+                fn($i) => $i->makeTextItem($senum, $tid, $lid),
+                $renderable
+            );
+            $rs = new RenderableSentence($senum, $textitems);
+            $renderableSentences[] = $rs;
+        }
+
+        return $renderableSentences;
+    }
+
+    // TODO:DELETE_THIS not called
+    public function getSentences_OLD(Text $text)
     {
         if ($text->getID() == null)
             return [];
@@ -82,15 +133,18 @@ class ReadingFacade {
     }
 
     public function mark_unknowns_as_known(Text $text) {
-        // Map any TextItems in the text to existing Terms.  This
-        // ensures that we don't try to create new Terms for
-        // TextItems, if that Term already exists.
-        TextItemRepository::mapStringMatchesForText($text);
-
-        $tis = $this->repo->getTextItems($text);
+        $sentences = $this->getSentences($text);
+        // dump($sentences);
+        $tis = [];
+        foreach ($sentences as $s) {
+            foreach ($s->renderable() as $ti) {
+                $tis[] = $ti;
+            }
+        }
+        // dump($tis);
 
         $is_unknown = function($ti) {
-            return $ti->WoID == 0 && $ti->WordCount == 1;
+            return $ti->IsWord == 1 && ($ti->WoID == 0 || $ti->WoID == null) && $ti->WordCount == 1;
         };
         $unknowns = array_filter($tis, $is_unknown);
         $words_lc = array_map(fn($ti) => $ti->TextLC, $unknowns);
@@ -176,34 +230,6 @@ class ReadingFacade {
     }
 
 
-    private function get_textitems_for_term(Text $text, Term $term): array {
-        // Use a temporary sentence to determine which items hide
-        // which other items.
-        $sentence = new Sentence(999, $this->getTextItems($text));
-        $all_textitems = $sentence->getTextItems();
-
-        $termid = $term->getID();
-        $pid = null;
-        $parent = $term->getParent();
-        if ($parent != null)
-            $pid = $parent->getID();
-
-        // dump("term id = $termid, pid = $pid");
-        $filt = function($t) use ($termid, $pid) {
-            $tid = $t->WoID;
-            // $ttxt = $t->Text;
-            // dump("curr term id = $tid , and text = $ttxt");
-            $ret = ($tid == $termid);
-            if ($pid != null)
-                $ret = $ret || ($tid == $pid);
-            return $ret;
-        };
-
-        $ret = array_filter($all_textitems, $filt);
-        return array_values($ret);
-    }
-
-
     /**
      * Get fully populated Term from database, or create a new one with available data.
      *
@@ -220,27 +246,12 @@ class ReadingFacade {
     }
 
 
-    /** Save a term, and return an array of UI updates. */
-    public function saveDTO(TermDTO $termdto, int $textid): array {
+    /** Save a term. */
+    public function saveDTO(TermDTO $termdto, int $textid): void {
         $term = TermDTO::buildTerm(
             $termdto, $this->dictionary, $this->termtagrepo
         );
-
-        // Need to know if the term is new or not, because if it's a
-        // multi-word term, it will be a *new element* in the rendered
-        // HTML, and so will have to replace one of the elements it
-        // hides.  Otherwise, it will just replace itself.
-        $is_new = ($term->getID() == 0);
-
         $this->repo->save($term, true);
-
-        // In some cases (e.g., navigating to a parent term
-        // from a child term), we might not have the $textid.
-        // (e.g., see templates/term/_form.html.twig,
-        // "if_parent_link_to_frame" code -- this code feels
-        // clumsy, but it works for now).
-        $text = $this->textrepo->find($textid);
-        return $this->getUIUpdates($text, $term, $is_new);
     }
 
     /** Remove term. */
@@ -251,45 +262,5 @@ class ReadingFacade {
         $this->repo->remove($term, true);
     }
 
-    /**
-     * Get the UI items to replace and hide (delete).
-     * Returns [ array of textitems to update, dict of span IDs -> replacements and hides ].
-     */
-    private function getUIUpdates(?Text $text, Term $term, bool $is_new): array {
-        $items = [];
-        if ($text != null)
-            $items = $this->get_textitems_for_term($text, $term);
-
-        // what updates to do.
-        $update_js = [];
-
-        foreach ($items as $item) {
-            $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
-            $hide_ids = array_values($hide_ids);
-            $hide_texts = array_map(fn($i) => $i->getSpanID() . ':' . $i->Text, $item->hides);
-
-            $replace_id = $item->getSpanID();
-            if ($is_new && count($hide_ids) > 0) {
-                // New multiterm replaces the first element in the
-                // list of things it hides, and the list of things it
-                // hides is reduced.
-                $replace_id = $hide_ids[0];
-                $hide_ids = array_slice($hide_ids, 1);
-            }
-
-            $u = [
-                'replace' => $replace_id,
-                'hide' => $hide_ids,
-                'hidetext' => array_values($hide_texts)  // for debugging only.
-            ];
-            $update_js[ $item->getSpanID() ] = $u;
-        }
-
-        return [
-            $items,
-            $update_js
-        ];
-            
-    }
 
 }

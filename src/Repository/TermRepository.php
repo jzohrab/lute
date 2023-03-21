@@ -143,9 +143,11 @@ class TermRepository extends ServiceEntityRepository
         // check the text for multi-word matches.
         // dump("starting get ids");
 
+        $lgid = $t->getLanguage()->getLgID();
+        
         $sql = "select distinct WoID from words
             where wotextlc in (select LOWER(TokText) from texttokens where toktxid = {$t->getID()})
-            and WoTokenCount = 1";
+            and WoTokenCount = 1 and WoLgID = $lgid";
         $res = $conn->executeQuery($sql);
         // dump("Got exact matches results");
         while ($row = $res->fetchNumeric()) {
@@ -154,7 +156,7 @@ class TermRepository extends ServiceEntityRepository
         // dump("Currently have " . count($wids) . " terms");
 
         $sql = "select WoID from words
-            where WoTokenCount > 1 AND
+            where WoTokenCount > 1 AND WoLgID = $lgid AND
             instr(
               (select LOWER(TxText) from texts where TxID = {$t->getID()}),
               replace(WoTextLC, 0xE2808B, '')

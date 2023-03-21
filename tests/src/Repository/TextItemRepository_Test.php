@@ -21,6 +21,7 @@ final class TextItemRepository_Test extends DatabaseTestBase
 
     public function test_smoke_test()
     {
+        $this->markTestSkipped('SKIPPING - no longer used.');
         $t = $this->make_text("Gato.", "Un gato es bueno. No hay un gato.  Veo a un gato.", $this->spanish);
         $bueno = $this->addTerms($this->spanish, 'bueno');
 
@@ -34,6 +35,7 @@ final class TextItemRepository_Test extends DatabaseTestBase
     // word, which is wrong.
     public function test_accented_words_are_different()
     {
+        $this->markTestSkipped('SKIPPING - no longer used.');
         $t = $this->make_text("Gato.", "Gato que qué.", $this->spanish);
         $que = $this->addTerms($this->spanish, 'que')[0];
         $sql = "select ti2txid, ti2textlc from textitems2 where ti2woid <> 0";
