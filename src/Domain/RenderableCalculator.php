@@ -93,7 +93,7 @@ class RenderableCalculator {
         $subject = $zws . implode($zws, $toktext) . $zws;
 
         foreach ($words as $w) {
-            $pattern = '/' . $zws . '('. $w->getTextLC() . ')' . $zws . '/ui';
+            $pattern = '/' . $zws . '('. preg_quote($w->getTextLC()) . ')' . $zws . '/ui';
             $allmatches = $this->pregMatchCapture(true, $pattern, $subject, 0);
             
             if (count($allmatches) > 0) {

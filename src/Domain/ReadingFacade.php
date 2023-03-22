@@ -85,7 +85,6 @@ class ReadingFacade {
 
         $sentences = $this->repo->getSentences($text);
         $terms = $this->repo->getTermsInText($text);
-
         $tokens_by_senum = array();
         foreach ($tokens as $tok) {
             $tokens_by_senum[$tok->TokSentenceNumber][] = $tok;
