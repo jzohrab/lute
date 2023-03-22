@@ -253,6 +253,41 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    // "Hasta cuando no juega, pero bueno." was getting rendered as
+    // "Hasta cuando nono juega, pero bueno.", when all terms were
+    // known, but "cuando no" was a mword term.
+    /**
+     * @group prodbugnono
+     */
+    public function test_prod_bug_no_no() {
+        $text = $this->make_text("Hola", "Hasta cuando no juega, pero bueno.", $this->spanish);
+        $this->assert_rendered_text_equals($text, "Hasta/ /cuando/ /no/ /juega/, /pero/ /bueno/.");
+        $this->facade->mark_unknowns_as_known($text);
+
+        $this->assert_rendered_text_equals($text, "Hasta(99)/ /cuando(99)/ /no(99)/ /juega(99)/, /pero(99)/ /bueno(99)/.");
+        $this->save_term($text, 'hasta');
+
+        $tid = $text->getID();
+        $dto = $this->facade->loadDTO(0, $tid, 0, 'hasta');
+        $dto->Status = 1;
+        $this->facade->saveDTO($dto, $tid);
+
+        $dto = $this->facade->loadDTO(0, $tid, 0, 'cuando no');
+        $dto->Status = 2;
+        $this->facade->saveDTO($dto, $tid);
+
+        $others = [
+            'no.'
+        ];
+        foreach ($others as $s) {
+            $dto = $this->facade->loadDTO(0, $tid, 0, $s);
+            $this->facade->saveDTO($dto, $tid);
+        }
+
+        $this->assert_rendered_text_equals($text, "Hasta(1)/ /cuando no(2)/ /juega(99)/, /pero(99)/ /bueno(99)/.");
+    }
+    
+
     // Japanese multi-word items were getting placed in the wrong location.
     /**
      * @group reload
