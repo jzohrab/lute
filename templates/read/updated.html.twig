@@ -18,15 +18,16 @@
     </div>
 
     <script>
-      let reload_text_div_for_textid = function(textid) {
+      let reload_text_div = function() {
         const context = window.parent.document;
+        const textid = $('#textid', context).text();
         const repel = $('#thetext', context);
         repel.load(`/read/sentences/${textid}`);
       };
 
       $(document).ready(function() {
         top.frames.dictframe.location.href = '/read/empty';
-        reload_text_div_for_textid({{ textid }});
+        reload_text_div();
         $('#flash').delay(1000).fadeOut();
       });
     </script>

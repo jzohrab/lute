@@ -59,6 +59,7 @@ class ReadingController extends AbstractController
         $facade->set_current_text($text);
         $sentences = $facade->getSentences($text);
         return $this->render('read/text.html.twig', [
+            'textid' => $text->getId(),
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
             'sentences' => $sentences
         ]);
