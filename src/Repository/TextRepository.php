@@ -31,11 +31,6 @@ class TextRepository extends ServiceEntityRepository
         $stmt->executeQuery();
     }
 
-    private function removeTi2s(int $textid): void
-    {
-        $this->exec_sql("delete from textitems2 where Ti2TxID = $textid");
-    }
-
     private function removeSentences(int $textid): void
     {
         $this->exec_sql("delete from sentences where SeTxID = $textid");
@@ -47,15 +42,7 @@ class TextRepository extends ServiceEntityRepository
         $tid = $entity->getId();
         if ($flush) {
             $this->getEntityManager()->flush();
-
-            // TODO:optimization_stop_wasteful_parsing - no need to
-            // map words, expressions etc if a text is about to be
-            // archived, just need to load sentences.  This is a very
-            // small savings, though.
-            if ($entity->isArchived()) {
-                $this->removeTi2s($tid);
-            }
-            else {
+            if (! $entity->isArchived()) {
                 $entity->parse();
             }
         }
