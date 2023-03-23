@@ -63,24 +63,22 @@ final class TextRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sqlsent, [ "2; 1; /Hola/ /tengo/ /un/ /perro/./" ], "sent ID incremented, text changed");
     }
 
-    public function test_removing_Text_removes_sentences_and_textitems2()
+    public function test_removing_Text_removes_sentences()
     {
         $t = $this->text;
         $this->text_repo->remove($t, true);
 
-        DbHelpers::assertRecordcountEquals('textitems2', 0, 'after');
         DbHelpers::assertRecordcountEquals('sentences', 0, 'after');
         DbHelpers::assertRecordcountEquals("texts", 0, 'after');
     }
 
 
-    public function test_archiving_Text_removes_textitems2_but_leaves_sentences()
+    public function test_archiving_Text_leaves_sentences()
     {
         $t = $this->text;
         $t->setArchived(true);
         $this->text_repo->save($t, true);
 
-        DbHelpers::assertRecordcountEquals('textitems2', 0, 'after');
         DbHelpers::assertRecordcountEquals('sentences', 1, 'after');
         DbHelpers::assertRecordcountEquals("texts", 1, 'after');
     }

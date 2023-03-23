@@ -50,7 +50,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_get_sentences_reparses_text_if_no_sentences()
     {
         $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        DbHelpers::exec_sql("delete from textitems2");
         $sentences = $this->facade->getSentences($t);
         $this->assertEquals(2, count($sentences), "reparsed");
     }

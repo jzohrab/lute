@@ -90,7 +90,6 @@ final class BookRepository_Test extends DatabaseTestBase
 
         DbHelpers::assertRecordcountEquals("select * from books", 1, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts", 2, 't');
-        // DbHelpers::assertRecordcountEquals("select * from textitems2", 10, 'i');
         DbHelpers::assertRecordcountEquals("select * from sentences", 2, 's');
 
         return $b;
@@ -114,7 +113,6 @@ final class BookRepository_Test extends DatabaseTestBase
         $this->book_repo->save($b, true);
         DbHelpers::assertRecordcountEquals("select * from books where BkArchived = 1", 1, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts where TxArchived = 1", 2, 'texts archived');
-        DbHelpers::assertRecordcountEquals("select * from textitems2", 0, 'ti2s deleted');
         DbHelpers::assertRecordcountEquals("select * from sentences", 2, 'sentences left');
     }
 
@@ -126,7 +124,6 @@ final class BookRepository_Test extends DatabaseTestBase
         $this->book_repo->remove($b, true);
         DbHelpers::assertRecordcountEquals("select * from books", 0, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts", 0, 'texts archived');
-        DbHelpers::assertRecordcountEquals("select * from textitems2", 0, 'ti2s deleted');
         DbHelpers::assertRecordcountEquals("select * from sentences", 0, 'sentences deld');
     }
 
