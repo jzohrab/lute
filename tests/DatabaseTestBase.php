@@ -167,8 +167,8 @@ abstract class DatabaseTestBase extends WebTestCase
             $dict,
             $this->termtag_repo
         );
-        $dto = $facade->loadDTO(0, $textid, 0, $s);
-        $facade->saveDTO($dto, $textid);
+        $dto = $facade->loadDTO($text->getLanguage()->getLgID(), $s);
+        $facade->saveDTO($dto);
     }
 
     private function get_renderable_textitems($text) {

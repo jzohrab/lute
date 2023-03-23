@@ -94,7 +94,7 @@ class ReadingController extends AbstractController
         $cleanedparts = array_map($cleanspaces, $parts);
         $text = implode($zws, $cleanedparts);
 
-        $termdto = $facade->loadDTO($lgid, $text);
+        $termdto = $facade->loadDTO($lid, $text);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

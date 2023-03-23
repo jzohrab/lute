@@ -197,7 +197,7 @@ class ReadingFacade {
         $batchSize = 100;
         $i = 0;
         foreach ($uniques as $u) {
-            $t = $this->repo->load(0, $tid, 0, $u);
+            $t = $this->repo->load($lang->getLgId(), $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
             $this->dictionary->add($t, false);
