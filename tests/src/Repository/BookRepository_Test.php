@@ -107,7 +107,7 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group bookarch
      */
-    public function test_archive_book_dels_ti2s_archives_texts() {
+    public function test_archive_book_archives_texts() {
         $b = $this->make_multipage_book();
         $b->setArchived(true);
         $this->book_repo->save($b, true);
@@ -119,7 +119,7 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group bookdel
      */
-    public function test_delete_book_deletes_ti2s_and_texts() {
+    public function test_delete_book_deletes_texts() {
         $b = $this->make_multipage_book();
         $this->book_repo->remove($b, true);
         DbHelpers::assertRecordcountEquals("select * from books", 0, 'b');

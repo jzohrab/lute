@@ -126,7 +126,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     // hadn't been associated to the existing word record, and the
     // facade tried to create the _same_ word on marking this textitem2s as
     // well-known.
-    public function test_mark_unknown_as_known_works_if_ti2_already_exists()
+    public function test_mark_unknown_as_known_works_if_term_already_exists()
     {
         $content = "Hola tengo un perro.";
         $t = $this->make_text("Hola", $content, $this->spanish);

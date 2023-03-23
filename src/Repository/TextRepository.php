@@ -56,7 +56,6 @@ class TextRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
             $this->removeSentences($textid);
-            $this->removeTi2s($textid);
         }
     }
 
