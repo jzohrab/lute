@@ -6,7 +6,6 @@ use App\Entity\Term;
 use App\Entity\Language;
 use App\DTO\TermReferenceDTO;
 use App\Utils\Connection;
-use App\Repository\TextItemRepository;
 use App\Repository\TermRepository;
 
 class Dictionary {
@@ -32,14 +31,12 @@ class Dictionary {
     public function flush() {
         // dump('flushing ' . count($this->pendingTerms) . ' terms.');
         $this->term_repo->flush();
-        TextItemRepository::bulkMap($this->pendingTerms);
         $this->pendingTerms = array();
     }
 
     public function remove(Term $term): void
     {
         $this->term_repo->remove($term, false);
-        TextItemRepository::unmapForTerm($term);
         $this->term_repo->flush();
     }
 

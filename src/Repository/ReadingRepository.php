@@ -9,7 +9,6 @@ use App\Entity\Term;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
 use App\Entity\Language;
-use App\Repository\TextItemRepository;
 use App\Domain\Dictionary;
 use Doctrine\ORM\EntityManagerInterface;
  

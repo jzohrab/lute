@@ -7,7 +7,6 @@ use App\Entity\Term;
 use App\Entity\Text;
 use App\Domain\JapaneseParser;
 use App\Entity\Language;
-use App\Repository\TextItemRepository;
 
 final class ReadingRepository_Load_Test extends DatabaseTestBase {
 

@@ -11,7 +11,6 @@ use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TextRepository;
 use App\Repository\BookRepository;
-use App\Repository\TextItemRepository;
 use App\Repository\SettingsRepository;
 use App\Repository\TermTagRepository;
 use App\Domain\Dictionary;
