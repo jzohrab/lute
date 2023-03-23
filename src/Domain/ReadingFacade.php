@@ -41,25 +41,6 @@ class ReadingFacade {
     }
 
     
-    public function getTextItems(Text $text)
-    {
-        return $this->repo->getTextItems($text);
-    }
-
-    private function buildSentences($textitems) {
-        $textitems_by_sentenceid = array();
-        foreach($textitems as $t) {
-            $textitems_by_sentenceid[$t->SeID][] = $t;
-        }
-
-        $sentences = [];
-        foreach ($textitems_by_sentenceid as $seid => $textitems)
-            $sentences[] = new Sentence($seid, $textitems);
-
-        return $sentences;
-    }
-
-
     private function getRenderable($terms, $tokens) {
         $rc = new RenderableCalculator();
         $textitems = $rc->main($terms, $tokens);
@@ -108,27 +89,6 @@ class ReadingFacade {
         return $renderableSentences;
     }
 
-    // TODO:DELETE_THIS not called
-    public function getSentences_OLD(Text $text)
-    {
-        if ($text->getID() == null)
-            return [];
-
-        if ($text->isArchived()) {
-            $text->setArchived(false);
-            $this->textrepo->save($text, true);
-        }
-
-        $tis = $this->repo->getTextItems($text);
-
-        // Parse if needed.
-        if (count($tis) == 0) {
-            $text->parse();
-            $tis = $this->repo->getTextItems($text);
-        }
-
-        return $this->buildSentences($tis);
-    }
 
     public function mark_unknowns_as_known(Text $text) {
         $sentences = $this->getSentences($text);
