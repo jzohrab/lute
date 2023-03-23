@@ -198,124 +198,22 @@ class ReadingRepository
     }
 
 
-    /******************************************/
-    // Loading a Term for the reading pane.
-    //
-    // Loading is rather complex.  It can be done by the Term ID (aka
-    // the 'wid') or the textid and position in the text (the 'tid'
-    // and 'ord'), or it might be a brand new multi-word term
-    // (specified by the 'text').  The integration tests cover these
-    // scenarios in /hopefully/ enough detail.
-
     /**
-     * Get fully populated Term from database, or create a new one with available data.
+     * Get fully populated Term from database, or create a new one.
      *
-     * @param wid  int    WoID, an actual ID, or 0 if new.
-     * @param tid  int    TxID, text ID
-     * @param ord  int    Ti2Order, the order in the text
-     * @param text string Multiword text (overrides tid/ord text)
+     * @param lid  int    LgID, the language ID
+     * @param text string
      *
      * @return Term
      */
-    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term
+    public function load(int $lid, string $text): Term
     {
-        $ret = null;
-        if ($wid > 0 && ($text == '' || $text == '-')) {
-            // Use wid, *provided that there is no text specified*.
-            // If there is, the user has mousedown-drag created
-            // a new multiword term.
-            $ret = $this->term_repo->find($wid);
-        }
-        elseif ($text != '') {
-            $language = $this->getTextLanguage($tid);
-            $ret = $this->loadFromText($text, $language);
-        }
-        elseif ($tid != 0 && $ord != 0) {
-            $language = $this->getTextLanguage($tid);
-            $ret = $this->loadFromTidAndOrd($tid, $ord, $language);
-        }
-        else {
-            throw new \Exception("Out of options to search for term");
-        }
-
-        if ($ret->getSentence() == null && $tid != 0 && $ord != 0) {
-            $s = $this->findSentence($tid, $ord);
-            $ret->setSentence($s);
-        }
-
-        return $ret;
-    }
-
-    private function getTextLanguage($tid): ?Language {
-        $sql = "SELECT TxLgID FROM texts WHERE TxID = {$tid}";
-        $record = $this
-            ->manager
-            ->getConnection()
-            ->executeQuery($sql)
-            ->fetchAssociative();
-        if (! $record) {
-            throw new \Exception("no record for tid = $tid ???");
-        }
-        $lang = $this->lang_repo->find((int) $record['TxLgID']);
-        return $lang;
-    }
-
-    /**
-     * Get baseline data from tid and ord.
-     *
-     * @return Term.
-     */
-    private function loadFromTidAndOrd($tid, $ord, Language $lang): ?Term {
-        $sql = "SELECT ifnull(WoID, 0) as WoID,
-          Ti2Text AS t
-          FROM textitems2
-          LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
-          WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
-        $record = $this
-            ->manager
-            ->getConnection()
-            ->executeQuery($sql)
-            ->fetchAssociative();
-        if (! $record) {
-            throw new \Exception("no matching textitems2 for tid = $tid , ord = $ord");
-        }
-
-        $wid = (int) $record['WoID'];
-        if ($wid > 0) {
-            return $this->term_repo->find($wid);
-        }
-
-        $t = new Term();
-        $t->setLanguage($lang);
-        $t->setText($record['t']);
-        return $t;
-    }
-
-
-    private function loadFromText(string $text, Language $lang): Term {
+        $language = $this->lang_repo->find($lid);
         $textlc = mb_strtolower($text);
-        $t = $this->dictionary->find($text, $lang);
+        $t = $this->dictionary->find($textlc, $language);
         if (null != $t)
             return $t;
-
-        $t = new Term();
-        $t->setLanguage($lang);
-        $t->setText($text);
-        return $t;
-    }
-
-
-    private function findSentence($tid, $ord) : string {
-        $sql = "select SeText
-           from sentences
-           INNER JOIN texttokens on TokSentenceNumber = SeID
-           WHERE SeTxID = :tid and TokOrder = :ord";
-        $params = [ "tid" => $tid, "ord" => $ord ];
-        return $this
-            ->manager
-            ->getConnection()
-            ->executeQuery($sql, $params)
-            ->fetchNumeric()[0];
+        return new Term($language, $textlc);
     }
 
 

@@ -197,7 +197,7 @@ class ReadingFacade {
         $batchSize = 100;
         $i = 0;
         foreach ($uniques as $u) {
-            $t = $this->repo->load(0, $tid, 0, $u);
+            $t = $this->repo->load($lang->getLgId(), $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
             $this->dictionary->add($t, false);
@@ -232,21 +232,19 @@ class ReadingFacade {
     /**
      * Get fully populated Term from database, or create a new one with available data.
      *
-     * @param wid  int    WoID, an actual ID, or 0 if new.
-     * @param tid  int    TxID, text ID
-     * @param ord  int    Ti2Order, the order in the text
-     * @param text string Multiword text (overrides tid/ord text)
+     * @param lid  int    LgID, language ID
+     * @param text string
      *
      * @return TermDTO
      */
-    public function loadDTO(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): TermDTO {
-        $term = $this->repo->load($wid, $tid, $ord, $text);
+    public function loadDTO(int $lid, string $text): TermDTO {
+        $term = $this->repo->load($lid, $text);
         return $term->createTermDTO();
     }
 
 
     /** Save a term. */
-    public function saveDTO(TermDTO $termdto, int $textid): void {
+    public function saveDTO(TermDTO $termdto): void {
         $term = TermDTO::buildTerm(
             $termdto, $this->dictionary, $this->termtagrepo
         );

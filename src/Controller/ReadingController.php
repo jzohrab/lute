@@ -59,6 +59,7 @@ class ReadingController extends AbstractController
         $facade->set_current_text($text);
         $sentences = $facade->getSentences($text);
         return $this->render('read/text.html.twig', [
+            'textid' => $text->getId(),
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
             'sentences' => $sentences
         ]);
@@ -73,21 +74,14 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    #[Route('/termform/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
+    #[Route('/termform/{lid}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
-        int $wid,
-        int $textid,
-        int $ord,
+        int $lid,
         string $text,
         Request $request,
         ReadingFacade $facade
     ): Response
     {
-        // The $text is '-' if missing,
-        // b/c otherwise the route didn't work.
-        if ($text == '-')
-            $text = '';
-
         // When a term is created in the form, the spaces passed by
         // the form are "nbsp;" = non-breaking spaces, which are
         // actually different from regular spaces, as seen by the
@@ -100,14 +94,13 @@ class ReadingController extends AbstractController
         $cleanedparts = array_map($cleanspaces, $parts);
         $text = implode($zws, $cleanedparts);
 
-        $termdto = $facade->loadDTO($wid, $textid, $ord, $text);
+        $termdto = $facade->loadDTO($lid, $text);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $facade->saveDTO($termdto, $textid);
+            $facade->saveDTO($termdto);
             return $this->render('read/updated.html.twig', [
-                'termdto' => $termdto,
-                'textid' => $textid
+                'termdto' => $termdto
             ]);
         }
 
