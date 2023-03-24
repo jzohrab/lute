@@ -96,7 +96,6 @@ you must use a dedicated test database when running tests.
             "settings",
             "tags",
             "tags2",
-            "tempwords",
             "texts",
             "texttokens",
             "texttags",
@@ -105,7 +104,6 @@ you must use a dedicated test database when running tests.
             "booktags",
             "books",
 
-            "tts",
             "words",
             "wordparents",
             "wordimages",
