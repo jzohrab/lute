@@ -193,7 +193,7 @@ abstract class DatabaseTestBase extends WebTestCase
         return $ret;
     }
 
-    private function get_rendered_string($text) {
+    public function get_rendered_string($text, $imploder = '/', $overridestringize = null) {
         $tis = $this->get_renderable_textitems($text);
         $stringize = function($ti) {
             $zws = mb_chr(0x200B);
@@ -202,8 +202,9 @@ abstract class DatabaseTestBase extends WebTestCase
                 $status = '';
             return str_replace($zws, '', "{$ti->Text}{$status}");
         };
-        $ss = array_map($stringize, $tis);
-        return implode('/', $ss);
+        $usestringize = $overridestringize ?? $stringize;
+        $ss = array_map($usestringize, $tis);
+        return implode($imploder, $ss);
     }
 
     public function assert_rendered_text_equals($text, $expected) {

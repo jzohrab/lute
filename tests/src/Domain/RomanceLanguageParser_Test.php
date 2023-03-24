@@ -108,9 +108,11 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
 
     // While using the legacy code, I ran into problems with specific sentences,
     // and fixed them.  Porting those old tests here.
+    /**
+     * @group oldprodbugfixes
+     */
     public function test_old_production_bugfixes()
     {
-        $this->markTestSkipped('TODO - update these checks');
         // Misspelling "toddo" in the test case so it doesn't show up in my list of to-do's. :-)
         $sentences = [
             '¿Qué me dice si nos acercamos al bar de la plaza de Sarriá y nos marcamos dos bocadillos de tortilla con muchísima cebolla?',
@@ -119,30 +121,33 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
             'Pese a toddo lo que pasó luego y a que nos distanciamos con el tiempo, fuimos buenos amigos:',
             'Tanto daba si había pasado el día trabajando en los campos o llevaba encima los mismos harapos de toda la semana.'
             ];
-        $t = $this->make_text("Problemas.", implode(' ', $sentences), $this->spanish);
+        $content = implode(' ', $sentences);
+        $t = $this->make_text("Problemas.", $content, $this->spanish);
 
-
-        $this->addTerms($this->spanish, [
+        $added_terms = [
             "Un gato",
             "de refilón",
-            "Con el tiempo",
+            "con el tiempo",
             "pabellón auditivo",
             "nos marcamos",
             "Tanto daba"
-        ]);
-
-        /*
-        $sql = "select ti2seid, ti2order, ti2text from textitems2
-          where ti2woid <> 0 order by ti2seid";
-        $expected = [
-            '1; 30; nos/ /marcamos',
-            '2; 139; pabellón/ /auditivo',
-            '3; 162; de/ /refilón',
-            '4; 211; con/ /el/ /tiempo',
-            '5; 224; Tanto/ /daba'
         ];
-        DbHelpers::assertTableContains($sql, $expected);
-        */
+        $this->addTerms($this->spanish, $added_terms);
+
+        $stringize = function($ti) {
+            if ($ti->TokenCount == 1)
+                return $ti->Text;
+            $zws = mb_chr(0x200B);
+            return str_replace($zws, '', "[[{$ti->Text}]]");
+        };
+
+        $expected = $content;
+        foreach ($added_terms as $s) {
+            $expected = str_replace($s, "[[{$s}]]", $expected);
+        }
+
+        $r = $this->get_rendered_string($t, '', $stringize);
+        $this->assertEquals($r, $expected);
     }
 
 
