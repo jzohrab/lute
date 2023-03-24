@@ -4,7 +4,6 @@ namespace App\Domain;
 
 use App\Entity\Text;
 use App\Entity\Language;
-use App\Repository\TextItemRepository;
 use App\Utils\Connection;
 
 
@@ -65,9 +64,7 @@ class ParsedTokenSaver {
 
         $idjoin = implode(',', $allids);
         $setup = [
-            "DROP TABLE IF EXISTS temptextitems",
             "DELETE FROM sentences WHERE SeTxID in ($idjoin)",
-            "DELETE FROM textitems2 WHERE Ti2TxID in ($idjoin)",
             "DELETE FROM texttokens WHERE TokTxID in ($idjoin)",
 
             "SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2",

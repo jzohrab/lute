@@ -90,7 +90,6 @@ final class BookRepository_Test extends DatabaseTestBase
 
         DbHelpers::assertRecordcountEquals("select * from books", 1, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts", 2, 't');
-        // DbHelpers::assertRecordcountEquals("select * from textitems2", 10, 'i');
         DbHelpers::assertRecordcountEquals("select * from sentences", 2, 's');
 
         return $b;
@@ -108,25 +107,23 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group bookarch
      */
-    public function test_archive_book_dels_ti2s_archives_texts() {
+    public function test_archive_book_archives_texts() {
         $b = $this->make_multipage_book();
         $b->setArchived(true);
         $this->book_repo->save($b, true);
         DbHelpers::assertRecordcountEquals("select * from books where BkArchived = 1", 1, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts where TxArchived = 1", 2, 'texts archived');
-        DbHelpers::assertRecordcountEquals("select * from textitems2", 0, 'ti2s deleted');
         DbHelpers::assertRecordcountEquals("select * from sentences", 2, 'sentences left');
     }
 
     /**
      * @group bookdel
      */
-    public function test_delete_book_deletes_ti2s_and_texts() {
+    public function test_delete_book_deletes_texts() {
         $b = $this->make_multipage_book();
         $this->book_repo->remove($b, true);
         DbHelpers::assertRecordcountEquals("select * from books", 0, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts", 0, 'texts archived');
-        DbHelpers::assertRecordcountEquals("select * from textitems2", 0, 'ti2s deleted');
         DbHelpers::assertRecordcountEquals("select * from sentences", 0, 'sentences deld');
     }
 

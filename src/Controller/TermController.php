@@ -8,7 +8,6 @@ use App\Form\TermDTOType;
 use App\Repository\TermRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\LanguageRepository;
-use App\Repository\TextItemRepository;
 use App\Domain\Dictionary;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

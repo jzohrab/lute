@@ -29,11 +29,6 @@ class BookRepository extends ServiceEntityRepository
         $stmt->executeQuery();
     }
 
-    private function removeTi2s(int $bookid): void
-    {
-        $this->exec_sql("delete from textitems2 where Ti2TxID in (select TxID from texts where TxBkID = $bookid)");
-    }
-
     private function removeSentences(int $bookid): void
     {
         $this->exec_sql("delete from sentences where SeTxID in (select TxID from texts where TxBkID = $bookid)");
@@ -50,16 +45,12 @@ class BookRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            if ($entity->isArchived()) {
-                $this->removeTi2s($entity->getId());
-            }
         }
     }
 
     public function remove(Book $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
-        $this->removeTi2s($entity->getId());
         $this->removeSentences($entity->getId());
 
         if ($flush) {

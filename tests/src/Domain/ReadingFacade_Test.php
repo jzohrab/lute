@@ -50,7 +50,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_get_sentences_reparses_text_if_no_sentences()
     {
         $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        DbHelpers::exec_sql("delete from textitems2");
         $sentences = $this->facade->getSentences($t);
         $this->assertEquals(2, count($sentences), "reparsed");
     }
@@ -127,7 +126,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     // hadn't been associated to the existing word record, and the
     // facade tried to create the _same_ word on marking this textitem2s as
     // well-known.
-    public function test_mark_unknown_as_known_works_if_ti2_already_exists()
+    public function test_mark_unknown_as_known_works_if_term_already_exists()
     {
         $content = "Hola tengo un perro.";
         $t = $this->make_text("Hola", $content, $this->spanish);
