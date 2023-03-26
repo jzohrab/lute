@@ -14,6 +14,21 @@ final class Backup_Test extends DatabaseTestBase
     public function test_s() {
         $this->assertEquals(1,1);
     }
+
+    public function test_missing_keys_all_keys_present() {
+        $keys = [
+            'BACKUP_MYSQLDUMP_COMMAND',
+            'BACKUP_DIR',
+            'BACKUP_AUTO',
+            'BACKUP_WARN'
+        ];
+        foreach ($keys as $k) {
+            $_ENV[$k] = $k . '_value';
+        }
+
+        $b = new Backup();
+        $this->assertFalse($b->is_missing_keys(), "all keys present");
+    }
     
     /*
     public function test_smoke_can_get_params() {
