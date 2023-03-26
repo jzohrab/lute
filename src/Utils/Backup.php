@@ -16,20 +16,16 @@ class Backup {
     /**
      * Create new Backup using environment keys as settings.
      */
-    public function __construct() {
-        $this->config = array();
-        foreach (Backup::$reqkeys as $k) {
-            $v = array_key_exists($k, $_ENV) ?
-               $_ENV[$k] : null;
-            $this->config[$k] = $v;
-        }
+    public function __construct($config) {
+        $this->config = $config;
         return $this;
     }
 
     public function missing_keys(): string {
         $missing = [];
         foreach (Backup::$reqkeys as $k) {
-            $v = $this->config[$k];
+            $v = array_key_exists($k, $_ENV) ?
+               $this->config[$k] : null;
             if ($v == null || trim($v) == '')
                 $missing[] = $k;
         }
