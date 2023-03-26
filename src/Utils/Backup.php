@@ -4,7 +4,7 @@ namespace App\Utils;
 
 class Backup {
 
-    private array $reqkeys = [
+    public static $reqkeys = [
         'BACKUP_MYSQLDUMP_COMMAND',
         'BACKUP_DIR',
         'BACKUP_AUTO',
@@ -22,22 +22,20 @@ class Backup {
 
     public function __construct() {
         $this->config = array();
-        foreach ($this->reqkeys as $k) {
-            $this->config[$k] = $_ENV[$k];
+        foreach (Backup::$reqkeys as $k) {
+            $v = array_key_exists($k, $_ENV) ?
+               $_ENV[$k] : null;
+            $this->config[$k] = $v;
         }
         return $this;
     }
 
     public function missing_keys(): string {
         $missing = [];
-        foreach ($this->reqkeys as $k) {
-            if (!array_key_exists($k, $this->config))
+        foreach (Backup::$reqkeys as $k) {
+            $v = $this->config[$k];
+            if ($v == null || trim($v) == '')
                 $missing[] = $k;
-            else {
-                $v = $this->config[$k];
-                if ($v == null || trim($v) == '')
-                    $missing[] = $k;
-            }
         }
         return implode(', ', $missing);
     }
