@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
 use App\Utils\MigrationHelper;
 use App\Utils\AppManifest;
+use App\Utils\Backup;
 
 class IndexController extends AbstractController
 {
@@ -41,13 +42,17 @@ class IndexController extends AbstractController
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
+        $bkp = new Backup();
+
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
             'demoisempty' => MigrationHelper::isEmptyDemo(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
-            'currtxtitle' => $txtitle
+            'currtxtitle' => $txtitle,
+            'bkp_configured' => $bkp->config_keys_set(),
+            'bkp_missing_keys' => $bkp->missing_keys(),
         ]);
     }
 

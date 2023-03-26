@@ -16,10 +16,6 @@ class Backup {
     /**
      * Create new Backup using environment keys as settings.
      */
-    public static function createBackupUtil(): Backup {
-        return new Backup();
-    }
-
     public function __construct() {
         $this->config = array();
         foreach (Backup::$reqkeys as $k) {
@@ -40,11 +36,11 @@ class Backup {
         return implode(', ', $missing);
     }
 
-    public function is_missing_keys(): bool {
+    public function config_keys_set(): bool {
         $s = $this->missing_keys();
         if ($s == null || $s == '')
-            return false;
-        return true;
+            return true;
+        return false;
     }
     
     public function show_warning(): bool {
