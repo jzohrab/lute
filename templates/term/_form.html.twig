@@ -30,7 +30,7 @@
     {% if not form.ParentID.vars.value is empty %}
     <td>
       {% if parent_link_to_frame ?? false %}
-      <a href="/read/termform/{{form.ParentID.vars.value}}/0/0/-">&gt;</a>
+      <a href="/read/termform/{{form.language.vars.value}}/{{form.ParentText.vars.value}}">&gt;</a>
       {% else %}
       <a href="/term/{{form.ParentID.vars.value}}/edit">&gt;</a>
       {% endif %}
