@@ -2,7 +2,35 @@
 
 {% block body %}
 
-TODO:BACKUP content
-Backup page.
+<h1>Backing up ...</h1>
+
+<p>
+  Creating backup at {{ backup_folder }}.
+</p>
+<p>
+  Don't refresh this page!  You'll be redirected to the Home page when the backup is finished.
+</p>
+
+<p>TODO:BACKUP content - Backup page.</p>
+
+<p id="backupResult" />
+
+<p id="returnHome" style="visibility:hidden;"><a href="/">Back to home.</a></p>
+
+<script>
+  $(document).ready(function() {
+    $.post('/utils/do_backup', {})
+      .done( function(msg) {
+        msg = "Backup completed successfully.";
+        $('#backupResult').text(msg);
+        $('#returnHome').css({ visibility: 'visible' })
+      })
+      .fail( function(xhr, textStatus, errorThrown) {
+        const p = JSON.parse(xhr.responseText);
+        const msg = "BACKUP ERROR: " + p.errmsg;
+        $('#backupResult').text(msg);
+      });
+  });
+</script>
 
 {% endblock %}
