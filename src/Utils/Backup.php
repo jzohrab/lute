@@ -48,7 +48,11 @@ class Backup {
     }
 
     public function create_backup(): void {
+        $outdir = $this->config['BACKUP_DIR'];
+        if (!is_dir($outdir))
+            throw new \Exception("Missing output directory {$outdir}");
 
+        return;
     }
 
 }

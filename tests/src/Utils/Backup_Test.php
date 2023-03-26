@@ -39,4 +39,15 @@ final class Backup_Test extends DatabaseTestBase
         $this->assertEquals($b->missing_keys(), 'BACKUP_DIR');
     }
 
+    public function test_backup_fails_if_missing_output_dir() {
+        $config = [
+            'BACKUP_MYSQLDUMP_COMMAND' => 'mysqldump',
+            'BACKUP_DIR' => 'some_missing_dir'
+        ];
+        $b = new Backup($config);
+
+        $this->expectException(Exception::class);
+        $b->create_backup();
+    }
+
 }
