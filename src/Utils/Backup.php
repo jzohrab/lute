@@ -96,7 +96,7 @@ class Backup {
         gzclose($gzFile);
 
         return $gzFilename;
-}
+    }
 
 
     public function create_backup(): void {
@@ -104,8 +104,18 @@ class Backup {
         if (!is_dir($outdir))
             throw new \Exception("Missing output directory {$outdir}");
 
-        $backupfile = $outdir . '/lute_export.sql';
         $cmd = $this->config['BACKUP_MYSQLDUMP_COMMAND'];
+        if (strtolower($cmd) == 'skip') {
+            // do nothing
+        }
+        else {
+            $this->do_export_and_zip($cmd, $outdir);
+        }
+        return;
+    }
+
+    private function do_export_and_zip($cmd, $outdir) {
+        $backupfile = $outdir . '/lute_export.sql';
 
         // TODO:BACKUP get this from env.
         $dbhost = 'localhost';
@@ -116,7 +126,6 @@ class Backup {
         system("$cmd -h $dbhost -u $dbuser -p$dbpass $dbname > $backupfile");
         $this->gzcompressfile($backupfile);
         unlink($backupfile);
-        return;
     }
 
 }

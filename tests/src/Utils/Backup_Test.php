@@ -60,11 +60,16 @@ final class Backup_Test extends TestCase
         rmdir($directory);
     }
 
-    public function test_backup_writes_file_to_output_dir() {
+    private function make_backup_dir() {
         $dir = __DIR__ . '/../../zz_bkp';
         $this->rrmdir($dir);
         mkdir($dir);
         $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
+        return $dir;
+    }
+
+    public function test_backup_writes_file_to_output_dir() {
+        $dir = $this->make_backup_dir();
 
         // I'm assuming that anyone running tests also has the
         // mysqldump command available!!!
@@ -79,4 +84,21 @@ final class Backup_Test extends TestCase
         $this->assertEquals(1, count(glob($dir . "/*.*")), "1 file");
         $this->assertEquals(1, count(glob($dir . "/lute_export.sql.gz")), "1 zip file");
     }
+
+    // TOTALLY HACKY method for testing.  Backing up takes time, and I
+    // don't want to actually back up during tests.  And this is
+    // really just testing the testing ... lame.
+    public function test_command_skip_skips_backup() {
+        $dir = $this->make_backup_dir();
+        $config = [
+            'BACKUP_MYSQLDUMP_COMMAND' => 'skip',
+            'BACKUP_DIR' => $dir
+        ];
+        $b = new Backup($config);
+        $b->create_backup();
+
+        $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
+    }
+
+
 }
