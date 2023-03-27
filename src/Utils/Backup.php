@@ -103,11 +103,12 @@ class Backup {
     }
 
 
-    public function create_backup(): void {
+    public function create_backup(): string {
         $outdir = $this->config['BACKUP_DIR'];
         if (!is_dir($outdir))
             throw new \Exception("Missing output directory {$outdir}");
 
+        $f = "zippedfilename";
         $cmd = $this->config['BACKUP_MYSQLDUMP_COMMAND'];
         if (strtolower($cmd) == 'skip') {
             // do nothing
@@ -116,14 +117,14 @@ class Backup {
             throw new \Exception("Bad BACKUP_MYSQLDUMP_COMMAND setting '{$cmd}', must contain 'mysqldump'");
         }
         else {
-            $this->do_export_and_zip($cmd, $outdir);
+            $f = $this->do_export_and_zip($cmd, $outdir);
         }
 
         $this->settings_repo->saveLastBackupDatetime(getdate()[0]);
-        return;
+        return $f;
     }
 
-    private function do_export_and_zip($cmd, $outdir) {
+    private function do_export_and_zip($cmd, $outdir): string {
         $backupfile = $outdir . '/lute_export.sql';
 
         // TODO:BACKUP get this from env.
@@ -135,8 +136,10 @@ class Backup {
         $fullcmd = "$cmd --complete-insert --quote-names --skip-triggers ";
         $fullcmd = $fullcmd . " --user={$dbuser} --password={$dbpass} {$dbname} > {$backupfile}";
         system($fullcmd);
-        $this->gzcompressfile($backupfile);
+        $f = $this->gzcompressfile($backupfile);
         unlink($backupfile);
+
+        return $f;
     }
 
     public function should_run_auto_backup(): bool {

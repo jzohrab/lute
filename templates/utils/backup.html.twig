@@ -21,8 +21,8 @@
   $(document).ready(function() {
     $.post('/utils/do_backup', {})
       .done( function(msg) {
-        msg = "Backup completed successfully.";
-        $('#backupResult').text(msg);
+        const fullmsg = "Backup created at " + msg;
+        $('#backupResult').text(fullmsg);
         $('#returnHome').css({ visibility: 'visible' })
       })
       .fail( function(xhr, textStatus, errorThrown) {
