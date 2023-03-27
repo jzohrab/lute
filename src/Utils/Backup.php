@@ -62,7 +62,7 @@ class Backup {
      * @param string $inFilename Input filename
      * @param int    $level      Compression level (default: 9)
      *
-     * @throws Exception if the input or output file can not be opened
+     * @throws \Exception if the input or output file can not be opened
      *
      * @return string Output filename
      */
@@ -132,7 +132,9 @@ class Backup {
         $dbpass = 'root';
         $dbname = 'test_lute';
 
-        system("$cmd -h $dbhost -u $dbuser -p$dbpass $dbname > $backupfile");
+        $fullcmd = "$cmd --complete-insert --quote-names --skip-triggers ";
+        $fullcmd = $fullcmd . " --user={$dbuser} --password={$dbpass} {$dbname} > {$backupfile}";
+        system($fullcmd);
         $this->gzcompressfile($backupfile);
         unlink($backupfile);
     }

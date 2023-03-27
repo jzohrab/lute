@@ -3,7 +3,7 @@
 # set -e
 # set -x
 
-find src -name "*.*" -print0 | xargs -0 grep -i dump 2>/dev/null | grep -v "src/Utils/OneTimeJobs" | grep -v "// dump" | grep -v "// var_dump" > zzfound_dumps.txt
+find src -name "*.*" -print0 | xargs -0 grep -i dump 2>/dev/null | grep -v "src/Utils/OneTimeJobs" | grep -v "// dump" | grep -v "// var_dump" | grep -iv "mysqldump" > zzfound_dumps.txt
 
 find src -name "*.php" -print0 | xargs -0 grep -i echo 2>/dev/null | grep -v "src/Utils/OneTimeJobs" | grep -v "// echo" >> zzfound_dumps.txt
 

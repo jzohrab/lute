@@ -42,11 +42,25 @@ final class Backup_Test extends TestCase
     // https://stackoverflow.com/questions/1653771/how-do-i-remove-a-directory-that-is-not-empty
     private function rrmdir(string $directory)
     {
-        if (!is_dir($directory))
+        $rd = realpath($directory);
+        if (!is_dir($rd))
             return;
-        array_map(fn (string $file) => is_dir($file) ? $this->rrmdir($file) : unlink($file), glob($directory . '/' . '*'));
 
-        rmdir($directory);
+        // Ref https://www.php.net/manual/en/function.glob.php
+        // "Include dotfiles excluding . and .. special dirs with .[!.]*"
+        // Brutal.
+        $pattern = $rd . '/{.[!.],}*';
+
+        $files = glob($pattern, GLOB_BRACE);
+        foreach ($files as $f) {
+            if (is_dir($f)) {
+                $this->rrmdir($f);
+            }
+            else {
+                unlink($f);
+            }
+        }
+        rmdir($rd);
     }
 
     private function make_backup_dir() {
@@ -84,6 +98,9 @@ final class Backup_Test extends TestCase
         $b->create_backup();
     }
 
+    /**
+     * @group actualbackup
+     */
     public function test_backup_writes_file_to_output_dir() {
         $b = $this->createBackup();
         $b->create_backup();

@@ -11,6 +11,7 @@ use App\Utils\Connection;
 use App\Utils\MigrationHelper;
 use App\Utils\AppManifest;
 use App\Utils\Backup;
+use App\Repository\SettingsRepository;
 
 class IndexController extends AbstractController
 {
@@ -31,7 +32,7 @@ class IndexController extends AbstractController
 
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
-    public function index(Request $request): Response
+    public function index(Request $request, SettingsRepository $repo): Response
     {
         $conn = Connection::getFromEnvironment();
         [ $txid, $txtitle ] = $this->get_current_text($conn);
@@ -42,7 +43,7 @@ class IndexController extends AbstractController
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
-        $bkp = new Backup();
+        $bkp = new Backup($_ENV, $repo);
 
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
