@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @backupGlobals enabled
  */
-final class Backup_Test extends DatabaseTestBase
+final class Backup_Test extends TestCase
 {
 
     public function test_missing_keys_all_keys_present() {
@@ -50,4 +50,33 @@ final class Backup_Test extends DatabaseTestBase
         $b->create_backup();
     }
 
+    // https://stackoverflow.com/questions/1653771/how-do-i-remove-a-directory-that-is-not-empty
+    private function rrmdir(string $directory)
+    {
+        if (!is_dir($directory))
+            return;
+        array_map(fn (string $file) => is_dir($file) ? $this->rrmdir($file) : unlink($file), glob($directory . '/' . '*'));
+
+        rmdir($directory);
+    }
+
+    public function test_backup_writes_file_to_output_dir() {
+        $dir = __DIR__ . '/../../zz_bkp';
+        $this->rrmdir($dir);
+        mkdir($dir);
+        $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
+
+        // I'm assuming that anyone running tests also has the
+        // mysqldump command available!!!
+        // This may not work in github actions.
+        $config = [
+            'BACKUP_MYSQLDUMP_COMMAND' => 'mysqldump',
+            'BACKUP_DIR' => $dir
+        ];
+        $b = new Backup($config);
+        $b->create_backup();
+
+        $this->assertEquals(1, count(glob($dir . "/*.*")), "1 file");
+        $this->assertEquals(1, count(glob($dir . "/lute_export.sql.gz")), "1 zip file");
+    }
 }
