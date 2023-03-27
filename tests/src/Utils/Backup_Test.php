@@ -12,43 +12,24 @@ use PHPUnit\Framework\TestCase;
 final class Backup_Test extends TestCase
 {
 
-    public function test_missing_keys_all_keys_present() {
+    private $config;
+    private $dir;
+
+    public function setUp(): void {
+        $config = array();
         foreach (Backup::$reqkeys as $k) {
-            $_ENV[$k] = $k . '_value';
+            $config[$k] = $k . '_value';
         }
-        $b = new Backup($_ENV);
-        $this->assertTrue($b->config_keys_set(), "all keys present");
-    }
 
-    public function test_missing_keys() {
-        foreach (Backup::$reqkeys as $k) {
-            $this->assertFalse(array_key_exists($k, $_ENV), "shouldn't have key " . $k);
-        }
-        $b = new Backup($_ENV);
-        $this->assertFalse($b->config_keys_set(), "not all keys present");
-        $this->assertEquals($b->missing_keys(), implode(', ', Backup::$reqkeys));
-    }
+        // I'm assuming that anyone running tests also has the
+        // mysqldump command available!!!
+        // This may not work in github actions.
+        $config['BACKUP_MYSQLDUMP_COMMAND'] = 'mysqldump';
 
-    public function test_one_missing_key() {
-        foreach (Backup::$reqkeys as $k) {
-            $_ENV[$k] = $k . '_value';
-        }
-        $_ENV['BACKUP_DIR'] = null;
+        $this->dir = $this->make_backup_dir();
+        $config['BACKUP_DIR'] = $this->dir;
 
-        $b = new Backup($_ENV);
-        $this->assertFalse($b->config_keys_set(), "not all keys present");
-        $this->assertEquals($b->missing_keys(), 'BACKUP_DIR');
-    }
-
-    public function test_backup_fails_if_missing_output_dir() {
-        $config = [
-            'BACKUP_MYSQLDUMP_COMMAND' => 'mysqldump',
-            'BACKUP_DIR' => 'some_missing_dir'
-        ];
-        $b = new Backup($config);
-
-        $this->expectException(Exception::class);
-        $b->create_backup();
+        $this->config = $config;
     }
 
     // https://stackoverflow.com/questions/1653771/how-do-i-remove-a-directory-that-is-not-empty
@@ -69,56 +50,65 @@ final class Backup_Test extends TestCase
         return $dir;
     }
 
-    public function test_backup_writes_file_to_output_dir() {
-        $dir = $this->make_backup_dir();
 
-        // I'm assuming that anyone running tests also has the
-        // mysqldump command available!!!
-        // This may not work in github actions.
-        $config = [
-            'BACKUP_MYSQLDUMP_COMMAND' => 'mysqldump',
-            'BACKUP_DIR' => $dir
-        ];
-        $b = new Backup($config);
+    public function test_missing_keys_all_keys_present() {
+        $b = new Backup($this->config);
+        $this->assertTrue($b->config_keys_set(), "all keys present");
+    }
+
+    public function test_missing_keys() {
+        $b = new Backup([]);
+        $this->assertFalse($b->config_keys_set(), "not all keys present");
+        $this->assertEquals($b->missing_keys(), implode(', ', Backup::$reqkeys));
+    }
+
+    public function test_one_missing_key() {
+        unset($this->config['BACKUP_DIR']);
+        $b = new Backup($this->config);
+        $this->assertFalse($b->config_keys_set(), "not all keys present");
+        $this->assertEquals($b->missing_keys(), 'BACKUP_DIR');
+    }
+
+    public function test_backup_fails_if_missing_output_dir() {
+        $this->config['BACKUP_DIR'] = 'some_missing_dir';
+        $b = new Backup($this->config);
+
+        $this->expectException(Exception::class);
         $b->create_backup();
+    }
 
-        $this->assertEquals(1, count(glob($dir . "/*.*")), "1 file");
-        $this->assertEquals(1, count(glob($dir . "/lute_export.sql.gz")), "1 zip file");
+    public function test_backup_writes_file_to_output_dir() {
+        $b = new Backup($this->config);
+        $b->create_backup();
+        $this->assertEquals(1, count(glob($this->dir . "/*.*")), "1 file");
+        $this->assertEquals(1, count(glob($this->dir . "/lute_export.sql.gz")), "1 zip file");
     }
 
     // TOTALLY HACKY method for testing.  Backing up takes time, and I
     // don't want to actually back up during tests.  And this is
     // really just testing the testing ... lame.
     public function test_command_skip_skips_backup() {
-        $dir = $this->make_backup_dir();
-        $config = [
-            'BACKUP_MYSQLDUMP_COMMAND' => 'skip',
-            'BACKUP_DIR' => $dir
-        ];
-        $b = new Backup($config);
+        $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'skip';
+        $b = new Backup($this->config);
         $b->create_backup();
 
-        $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
+        $this->assertEquals(0, count(glob($this->dir . "/*.*")), "no files");
     }
 
     /**
      * @group backup
      */
     public function test_last_import_setting_is_updated_on_successful_backup() {
-        $dir = $this->make_backup_dir();
-        $config = [
-            'BACKUP_MYSQLDUMP_COMMAND' => 'skip',
-            'BACKUP_DIR' => $dir
-        ];
+        $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'skip';
 
         $repo = $this->createMock(SettingsRepository::class);
         $repo->expects($this->once())
             ->method('saveSetting');
 
-        $b = new Backup($config, $repo);
+        $b = new Backup($this->config, $repo);
         $b->create_backup();
 
-        $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
+        $this->assertEquals(0, count(glob($this->dir . "/*.*")), "no files");
     }
 
 }
