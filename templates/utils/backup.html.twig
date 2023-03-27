@@ -2,16 +2,16 @@
 
 {% block body %}
 
+<p>TODO:BACKUP content - Backup page.</p>
+
 <h1>Backing up ...</h1>
 
 <p>
   Creating backup at {{ backup_folder }}.
 </p>
 <p>
-  Don't refresh this page!  You'll be redirected to the Home page when the backup is finished.
+  <b>Don't refresh this page, or another backup process will be kicked off!</b>
 </p>
-
-<p>TODO:BACKUP content - Backup page.</p>
 
 <p id="backupResult" />
 
@@ -29,6 +29,7 @@
         const p = JSON.parse(xhr.responseText);
         const msg = "BACKUP ERROR: " + p.errmsg;
         $('#backupResult').text(msg);
+        $('#returnHome').css({ visibility: 'visible' })
       });
   });
 </script>
