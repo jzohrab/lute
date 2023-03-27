@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Utils\Backup;
+use App\Repository\SettingsRepository;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -100,5 +101,24 @@ final class Backup_Test extends TestCase
         $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
     }
 
+    /**
+     * @group backup
+     */
+    public function test_last_import_setting_is_updated_on_successful_backup() {
+        $dir = $this->make_backup_dir();
+        $config = [
+            'BACKUP_MYSQLDUMP_COMMAND' => 'skip',
+            'BACKUP_DIR' => $dir
+        ];
+
+        $repo = $this->createMock(SettingsRepository::class);
+        $repo->expects($this->once())
+            ->method('saveSetting');
+
+        $b = new Backup($config, $repo);
+        $b->create_backup();
+
+        $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
+    }
 
 }

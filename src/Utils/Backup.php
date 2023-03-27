@@ -2,6 +2,8 @@
 
 namespace App\Utils;
 
+use App\Repository\SettingsRepository;
+
 class Backup {
 
     public static $reqkeys = [
@@ -12,12 +14,14 @@ class Backup {
     ];
 
     private array $config;
+    private SettingsRepository $settings_repo;
     
     /**
      * Create new Backup using environment keys as settings.
      */
-    public function __construct($config) {
+    public function __construct($config, SettingsRepository $settings_repo) {
         $this->config = $config;
+        $this->settings_repo = $settings_repo;
         return $this;
     }
 
@@ -111,6 +115,8 @@ class Backup {
         else {
             $this->do_export_and_zip($cmd, $outdir);
         }
+
+        $this->settings_repo->saveSetting('lastbackup', getdate()[0]);
         return;
     }
 
