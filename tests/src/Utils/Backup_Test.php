@@ -168,4 +168,40 @@ final class Backup_Test extends TestCase
         $this->assertFalse($b->should_run_auto_backup(), 'newer than 1 day');
     }
 
+    public function test_warning_is_set_if_keys_missing() {
+        $this->config = [];
+        $b = $this->createBackup();
+        $expected = "Missing backup environment keys in .env.local: BACKUP_MYSQLDUMP_COMMAND, BACKUP_DIR, BACKUP_AUTO, BACKUP_WARN";
+        $this->assertEquals($b->warning(), $expected);
+    }
+
+    public function test_warn_if_last_backup_never_happened_or_is_old() {
+        $currdatetime = getdate()[0];
+        $oneweekago = $currdatetime - (7 * 24 * 60 * 60);
+
+        $this->config['BACKUP_WARN'] = 'yes';
+        $this->repo = $this->createMock(SettingsRepository::class);
+        $this->repo->method('getLastBackupDatetime')->willReturn(null);
+        $b = $this->createBackup();
+        $this->assertEquals($b->warning(), 'Last backup was more than 1 week ago.', 'never backed up');
+
+        $this->config['BACKUP_WARN'] = 'yes';
+        $this->repo = $this->createMock(SettingsRepository::class);
+        $this->repo->method('getLastBackupDatetime')->willReturn($oneweekago - 10);
+        $b = $this->createBackup();
+        $this->assertEquals($b->warning(), 'Last backup was more than 1 week ago.', 'old backup');
+
+        $this->config['BACKUP_WARN'] = 'no';
+        $this->repo = $this->createMock(SettingsRepository::class);
+        $this->repo->method('getLastBackupDatetime')->willReturn($oneweekago - 10);
+        $b = $this->createBackup();
+        $this->assertEquals($b->warning(), '', 'no warning, turned off!');
+
+        $this->config['BACKUP_WARN'] = 'yes';
+        $this->repo = $this->createMock(SettingsRepository::class);
+        $this->repo->method('getLastBackupDatetime')->willReturn($oneweekago + 10);
+        $b = $this->createBackup();
+        $this->assertEquals($b->warning(), '', 'No warning, backup is recent');
+    }
+
 }

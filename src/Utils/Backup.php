@@ -150,4 +150,26 @@ class Backup {
         $diff = $curr - $last;
         return ($diff > 24 * 60 * 60);
     }
+
+    public function warning(): string {
+        $m = $this->missing_keys();
+        if ($m != null && $m != '')
+            return "Missing backup environment keys in .env.local: {$m}";
+
+        $setting = strtolower($this->config['BACKUP_WARN']);
+        if ($setting == 'no' || $setting == 'false')
+            return "";
+
+        $oldbackupmsg = "Last backup was more than 1 week ago.";
+        $last = $this->settings_repo->getLastBackupDatetime();
+        if ($last == null)
+            return $oldbackupmsg;
+
+        $curr = getdate()[0];
+        $diff = $curr - $last;
+        if ($diff > 7 * 24 * 60 * 60)
+            return $oldbackupmsg;
+
+        return "";
+    }
 }
