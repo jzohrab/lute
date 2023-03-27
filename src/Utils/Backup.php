@@ -43,14 +43,6 @@ class Backup {
         return false;
     }
     
-    public function show_warning(): bool {
-        return true;
-    }
-
-    public function warning_message(): string {
-        return 'TODO:BACKUP check folder';
-    }
-
     // https://stackoverflow.com/questions/6073397/
     // how-do-you-create-a-gz-file-using-php/56140427#56140427
     /**
@@ -104,6 +96,13 @@ class Backup {
 
     public function missing_enabled_key(): bool {
         return !array_key_exists('BACKUP_ENABLED', $this->config);
+    }
+
+    public function is_enabled(): bool {
+        if ($this->missing_enabled_key())
+            return false;
+        $k = strtolower($this->config['BACKUP_ENABLED']);
+        return ($k == 'yes' || $k == 'true');
     }
 
     public function create_backup(): string {

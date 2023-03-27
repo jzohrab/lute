@@ -65,8 +65,19 @@
     live dangerously: <b>BACKUP_ENABLED=false</b>
   </p>
 </div>
-{% endif %}
 
+{% elseif bkp_enabled and bkp_missing_keys %}
+<div class="flash-notice">
+  <p>Missing required backup keys: {{ bkp_missing_keys_list }}.</p>
+  <p>See <a href="TODO">TODO:BACKUP</a> for config notes.</p>
+</div>
+
+{% elseif bkp_show_warning %}
+<div class="flash-notice">
+  <p>Backup warning: {{ bkp_warning }}</p>
+  <p><a href="/utils/backup">Create a backup.</a></p>
+</div>
+{% endif %}
 
 
 <div id="userlinks" style="margin-top: 30px;">
@@ -85,13 +96,9 @@
 
 <div id="techlinks" style="margin-top: 30px;">
   <ul>
-    <li>
-      {% if not bkp_configured %}
-      <i>Backup not enabled: missing config file settings {{ bkp_missing_keys }}</i>
-      {% else %}
-      <a href="/utils/backup">Create backup</a>
-      {% endif %}
-    </li>
+    {% if not bkp_missing_keys %}
+    <li><a href="/utils/backup">Create backup</a></li>
+    {% endif %}
     <li><a href="/server_info">Version and software info</a></li>
     <li><a href="/cache/clear">Clear application cache</a></li>
     <li><a href="https://github.com/jzohrab/lute/tree/master/docs">Docs (on GitHub)</a></li>

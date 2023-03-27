@@ -44,6 +44,7 @@ class IndexController extends AbstractController
         $gittag = $m['tag'];
 
         $bkp = new Backup($_ENV, $repo);
+        $bkp_warning = $bkp->warning();
 
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
@@ -53,8 +54,11 @@ class IndexController extends AbstractController
             'currtxid' => $txid,
             'currtxtitle' => $txtitle,
             'bkp_missing_enabled_key' => $bkp->missing_enabled_key(),
-            'bkp_configured' => $bkp->config_keys_set(),
-            'bkp_missing_keys' => $bkp->missing_keys(),
+            'bkp_enabled' => $bkp->is_enabled(),
+            'bkp_missing_keys' => !$bkp->config_keys_set(),
+            'bkp_missing_keys_list' => $bkp->missing_keys(),
+            'bkp_show_warning' => $bkp->is_enabled() && ($bkp_warning != ''),
+            'bkp_warning' => $bkp_warning,
         ]);
     }
 
