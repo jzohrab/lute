@@ -28,7 +28,7 @@ class Backup {
     public function missing_keys(): string {
         $missing = [];
         foreach (Backup::$reqkeys as $k) {
-            $v = array_key_exists($k, $_ENV) ?
+            $v = array_key_exists($k, $this->config) ?
                $this->config[$k] : null;
             if ($v == null || trim($v) == '')
                 $missing[] = $k;
