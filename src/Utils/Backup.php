@@ -119,7 +119,7 @@ class Backup {
             $this->do_export_and_zip($cmd, $outdir);
         }
 
-        $this->settings_repo->saveSetting('lastbackup', getdate()[0]);
+        $this->settings_repo->saveLastBackupDatetime(getdate()[0]);
         return;
     }
 
@@ -137,4 +137,17 @@ class Backup {
         unlink($backupfile);
     }
 
+    public function should_run_auto_backup(): bool {
+        $setting = strtolower($this->config['BACKUP_AUTO']);
+        if ($setting == 'no' || $setting == 'false')
+            return false;
+
+        $last = $this->settings_repo->getLastBackupDatetime();
+        if ($last == null)
+            return true;
+
+        $curr = getdate()[0];
+        $diff = $curr - $last;
+        return ($diff > 24 * 60 * 60);
+    }
 }

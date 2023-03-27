@@ -105,7 +105,7 @@ final class Backup_Test extends TestCase
 
     public function test_last_import_setting_is_updated_on_successful_backup() {
         $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'skip';
-        $this->repo->expects($this->once())->method('saveSetting');
+        $this->repo->expects($this->once())->method('saveLastBackupDatetime');
 
         $b = $this->createBackup();
         $b->create_backup();
@@ -126,9 +126,46 @@ final class Backup_Test extends TestCase
 
         $b = $this->createBackup();
         $this->expectException(Exception::class);
-        $this->repo->expects($this->never())->method('saveSetting');
+        $this->repo->expects($this->never())->method('saveLastBackupDatetime');
 
         $b->create_backup();
+    }
+
+    public function test_should_not_run_autobackup_if_auto_is_no_or_false() {
+        $this->config['BACKUP_AUTO'] = 'no';
+        $b = $this->createBackup();
+        $this->repo->expects($this->never())->method('getLastBackupDatetime');
+        $this->assertFalse($b->should_run_auto_backup());
+    }
+
+    public function test_checks_if_should_not_run_autobackup_if_auto_is_yes_or_true() {
+        $this->config['BACKUP_AUTO'] = 'yes';
+        $b = $this->createBackup();
+        $this->repo->expects($this->once())->method('getLastBackupDatetime');
+        $b->should_run_auto_backup();
+    }
+
+    public function test_autobackup_returns_true_if_never_backed_up() {
+        $this->config['BACKUP_AUTO'] = 'yes';
+        $this->repo->method('getLastBackupDatetime')->willReturn(null);
+        $b = $this->createBackup();
+        $this->assertTrue($b->should_run_auto_backup());
+    }
+
+    public function test_autobackup_returns_true_last_backed_up_over_one_day_ago() {
+        $this->config['BACKUP_AUTO'] = 'yes';
+        $currdatetime = getdate()[0];
+        $onedayago = $currdatetime - (24 * 60 * 60);
+
+        $this->repo = $this->createMock(SettingsRepository::class);
+        $this->repo->method('getLastBackupDatetime')->willReturn($onedayago - 10);
+        $b = $this->createBackup();
+        $this->assertTrue($b->should_run_auto_backup(), 'older than 1 day');
+
+        $this->repo = $this->createMock(SettingsRepository::class);
+        $this->repo->method('getLastBackupDatetime')->willReturn($onedayago + 10);
+        $b = $this->createBackup();
+        $this->assertFalse($b->should_run_auto_backup(), 'newer than 1 day');
     }
 
 }

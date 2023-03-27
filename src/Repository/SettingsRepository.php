@@ -42,4 +42,15 @@ class SettingsRepository
         return intval($this->getSetting('currenttext'));;
     }
 
+    public function saveLastBackupDatetime(int $last) {
+        $this->saveSetting('lastbackup', $last);
+    }
+
+    public function getLastBackupDatetime(): ?int {
+        $v = $this->getSetting('lastbackup');
+        if ($v == null)
+            return null;
+        return intval($v);
+    }
+
 }
