@@ -41,7 +41,33 @@
   name.  (Lute will create that database for you, if it doesn't
   already exist.)</p>
 </div>
+
+{% elseif bkp_missing_enabled_key %}
+<div class="flash-notice">
+  <p>The key <b>BACKUP_ENABLED</b> is not defined in your .env.local file.</p>
+
+  <p>
+    This is a safeguard to ensure that you have some backup strategy
+    in place, because it would be <i>really bad</i> if you used Lute
+    and then one day lost all of your defined terms and texts due to
+    a computer issue.  Things happen, so put together a backup plan.
+  </p>
+
+  <p>
+    Either you or Lute can handle backups.  See the wiki
+    page <a href="TODO">TODO:BACKUP</a> for notes on the backup
+    settings.
+  </p>
+
+  <p>
+    If you don't to back things up, and want to hide this message,
+    just set the following in your .env.local file, and prepare to
+    live dangerously: <b>BACKUP_ENABLED=false</b>
+  </p>
+</div>
 {% endif %}
+
+
 
 <div id="userlinks" style="margin-top: 30px;">
   <ul>

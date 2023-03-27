@@ -52,6 +52,7 @@ class IndexController extends AbstractController
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
             'currtxtitle' => $txtitle,
+            'bkp_missing_enabled_key' => $bkp->missing_enabled_key(),
             'bkp_configured' => $bkp->config_keys_set(),
             'bkp_missing_keys' => $bkp->missing_keys(),
         ]);

@@ -102,6 +102,9 @@ class Backup {
         return $gzFilename;
     }
 
+    public function missing_enabled_key(): bool {
+        return !array_key_exists('BACKUP_ENABLED', $this->config);
+    }
 
     public function create_backup(): string {
         $outdir = $this->config['BACKUP_DIR'];
