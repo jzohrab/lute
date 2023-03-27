@@ -27,7 +27,7 @@ class SettingsRepository
     }
 
     public function getSetting($key) {
-        $sql = "select StValue from settings where StKey = '{$key}'";
+        $sql = "select StValue from settings where StKey = '{$key}' UNION select NULL";
         $conn = $this->manager->getConnection();
         $stmt = $conn->prepare($sql);
         $ret = $stmt->executeQuery()->fetchNumeric()[0];
