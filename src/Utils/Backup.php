@@ -112,6 +112,9 @@ class Backup {
         if (strtolower($cmd) == 'skip') {
             // do nothing
         }
+        elseif (!str_contains(strtolower($cmd), 'mysqldump')) {
+            throw new \Exception("Bad BACKUP_MYSQLDUMP_COMMAND setting '{$cmd}', must contain 'mysqldump'");
+        }
         else {
             $this->do_export_and_zip($cmd, $outdir);
         }

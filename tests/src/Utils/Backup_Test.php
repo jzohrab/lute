@@ -103,9 +103,6 @@ final class Backup_Test extends TestCase
         $this->assertEquals(0, count(glob($this->dir . "/*.*")), "no files");
     }
 
-    /**
-     * @group backup
-     */
     public function test_last_import_setting_is_updated_on_successful_backup() {
         $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'skip';
         $this->repo->expects($this->once())->method('saveSetting');
@@ -114,6 +111,14 @@ final class Backup_Test extends TestCase
         $b->create_backup();
 
         $this->assertEquals(0, count(glob($this->dir . "/*.*")), "no files");
+    }
+
+    public function test_dump_command_fails_if_doesnt_contain_mysqldump() {
+        $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'someweirdcommand';
+        $b = $this->createBackup();
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Bad BACKUP_MYSQLDUMP_COMMAND setting 'someweirdcommand', must contain 'mysqldump'");
+        $b->create_backup();
     }
 
 }
