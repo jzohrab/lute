@@ -121,4 +121,14 @@ final class Backup_Test extends TestCase
         $b->create_backup();
     }
 
+    public function test_last_import_setting_not_updated_on_failure() {
+        $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'badcommand';
+
+        $b = $this->createBackup();
+        $this->expectException(Exception::class);
+        $this->repo->expects($this->never())->method('saveSetting');
+
+        $b->create_backup();
+    }
+
 }
