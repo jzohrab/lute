@@ -46,6 +46,14 @@ class IndexController extends AbstractController
         $bkp = new Backup($_ENV, $repo);
         $bkp_warning = $bkp->warning();
 
+        if ($bkp->should_run_auto_backup()) {
+            return $this->redirectToRoute(
+                'app_backup_index',
+                [ ],
+                Response::HTTP_SEE_OTHER
+            );
+        }
+
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
             'demoisempty' => MigrationHelper::isEmptyDemo(),

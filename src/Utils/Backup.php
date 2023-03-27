@@ -145,6 +145,10 @@ class Backup {
     }
 
     public function should_run_auto_backup(): bool {
+        if (!$this->is_enabled())
+            return false;
+        if (!$this->config_keys_set())
+            return false;
         $setting = strtolower($this->config['BACKUP_AUTO']);
         if ($setting == 'no' || $setting == 'false')
             return false;

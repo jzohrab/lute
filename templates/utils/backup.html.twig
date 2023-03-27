@@ -2,8 +2,6 @@
 
 {% block body %}
 
-<p>TODO:BACKUP content - Backup page.</p>
-
 <h1>Backing up ...</h1>
 
 <p>
@@ -21,8 +19,7 @@
   $(document).ready(function() {
     $.post('/utils/do_backup', {})
       .done( function(msg) {
-        const fullmsg = "Backup created at " + msg;
-        $('#backupResult').text(fullmsg);
+        $('#backupResult').text('Completed.');
         $('#returnHome').css({ visibility: 'visible' })
       })
       .fail( function(xhr, textStatus, errorThrown) {

@@ -19,7 +19,7 @@ class UtilsController extends AbstractController
     public function backup(): Response
     {
         return $this->render('utils/backup.html.twig', [
-            'backup_folder' => 'TODO:BACKUP some folder'
+            'backup_folder' => $_ENV['BACKUP_DIR']
         ]);
     }
 
