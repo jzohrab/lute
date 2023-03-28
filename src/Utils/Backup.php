@@ -122,18 +122,25 @@ class Backup {
     private function do_export_and_zip($cmd, $outdir): string {
         $backupfile = $outdir . '/lute_export.sql';
 
-        // TODO:BACKUP get this from env.
-        $dbhost = 'localhost';
-        $dbuser = 'root';
-        $dbpass = 'root';
-        $dbname = 'test_lute';
+        $dbhost = $_ENV['DB_HOSTNAME'];
+        $dbuser = $_ENV['DB_USER'];
+        $dbpass = $_ENV['DB_PASSWORD'];
+        $dbname = $_ENV['DB_DATABASE'];
 
         $fullcmd = "$cmd --complete-insert --quote-names --skip-triggers ";
         $fullcmd = $fullcmd . " --user={$dbuser} --password={$dbpass} {$dbname} > {$backupfile}";
         $ret = system($fullcmd, $resultcode);
 
         if ($resultcode != 0) {
-            throw new \Exception("Backup command '{$cmd}' failed (err_code {$resultcode}).__BREAK__Please check your BACKUP_MYSQLDUMP_COMMAND config setting.");
+            $msg = [
+                "Backup command failed with error code {$resultcode}.",
+                "",
+                "Command:",
+                $fullcmd,
+                "",
+                "Please check your BACKUP_MYSQLDUMP_COMMAND config setting."
+            ];
+            throw new \Exception(implode("__BREAK__", $msg));
         }
 
         $f = $this->gzcompressfile($backupfile);
