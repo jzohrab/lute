@@ -156,7 +156,13 @@ class Backup {
 
         $fullcmd = "$cmd --complete-insert --quote-names --skip-triggers ";
         $fullcmd = $fullcmd . " --user={$dbuser} --password={$dbpass} {$dbname} > {$backupfile}";
-        system($fullcmd);
+        $ret = system($fullcmd, $resultcode);
+        dump('hello ' . $ret . ', result code = ' . $resultcode);
+
+        if ($resultcode != 0) {
+            throw new \Exception("Backup command '{$cmd}' failed (err_code {$resultcode}).__BREAK__Please check your BACKUP_MYSQLDUMP_COMMAND config setting.");
+        }
+
         $f = $this->gzcompressfile($backupfile);
         unlink($backupfile);
 

@@ -25,7 +25,7 @@
       .fail( function(xhr, textStatus, errorThrown) {
         const p = JSON.parse(xhr.responseText);
         const msg = "BACKUP ERROR: " + p.errmsg;
-        $('#backupResult').text(msg);
+        $('#backupResult').html(msg.replace(/__BREAK__/, '<br />'));
         $('#returnHome').css({ visibility: 'visible' })
       });
   });
