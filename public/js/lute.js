@@ -105,32 +105,20 @@ let tooltip_textitem_hover_content = function (el) {
 
 
 function showEditFrame(el, extra_args = {}) {
-
-  const int_attr = function(name) {
-    let ret = el.attr(name);
-    if (!ret || ret == '')
-      return 0;
-    return parseInt(ret);
-  };
-  const wid = int_attr('data_wid');
-  const tid = int_attr('tid');
-  const ord = int_attr('data_order');
-
-  let data = {
-    text: extra_args.textparts ?? [ '-' ]
-  };
-
-  let extras = Object.entries(extra_args).
-      map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
-      join('&');
+  const lid = parseInt(el.attr('lid'));
 
   // Join the words together so they can be sent in the URL
   // string, but in such a way that the string can be "safely"
   // disassembled on the server back into the component words.
   const zeroWidthSpace = '\u200b';
+  let text = extra_args.textparts ?? [ el.text() ];
+  const sendtext = text.join(zeroWidthSpace);
 
-  const sendtext = data.text.join(zeroWidthSpace);
-  const url = `/read/termform/${wid}/${tid}/${ord}/${sendtext}?${extras}`;
+  let extras = Object.entries(extra_args).
+      map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
+      join('&');
+
+  const url = `/read/termform/${lid}/${sendtext}?${extras}`;
   top.frames.wordframe.location.href = url;
 }
 

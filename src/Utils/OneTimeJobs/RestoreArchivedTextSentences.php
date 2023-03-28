@@ -41,7 +41,7 @@ class RestoreArchivedTextSentences {
             $c = $conn->query($sql)->fetch_array();
             if ($c['c'] == '0') {
                 $echo("  {$t->getTitle()}\n");
-                $repo->save($t, true);
+                $t->parse();
             }
         }
         $echo("Done.\n");

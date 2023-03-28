@@ -96,9 +96,6 @@ you must use a dedicated test database when running tests.
             "settings",
             "tags",
             "tags2",
-            // "temptextitems",  // is dropped and re-created as needed.
-            "tempwords",
-            "textitems2",
             "texts",
             "texttokens",
             "texttags",
@@ -107,7 +104,6 @@ you must use a dedicated test database when running tests.
             "booktags",
             "books",
 
-            "tts",
             "words",
             "wordparents",
             "wordimages",
@@ -120,7 +116,6 @@ you must use a dedicated test database when running tests.
         $alters = [
             "sentences",
             "tags",
-            "textitems2",
             "texts",
             "words"
         ];

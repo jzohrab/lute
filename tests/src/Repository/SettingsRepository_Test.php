@@ -21,4 +21,18 @@ final class SettingsRepository_Test extends DatabaseTestBase
         $this->assertEquals(intval($v), 99, 'updated');
     }
 
+    public function test_missing_key_value_is_null() {
+        $v = $this->settings_repo->getSetting('zzmissing');
+        $this->assertTrue($v == null, 'missing setting = null');
+    }
+
+    public function test_smoke_last_backup() {
+        $v = $this->settings_repo->getLastBackupDatetime();
+        $this->assertTrue($v == null, 'not set');
+
+        $this->settings_repo->saveLastBackupDatetime(42);
+        $v = $this->settings_repo->getLastBackupDatetime();
+        $this->assertTrue($v == 42, 'set');
+
+    }
 }

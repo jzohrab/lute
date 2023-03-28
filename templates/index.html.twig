@@ -41,7 +41,46 @@
   name.  (Lute will create that database for you, if it doesn't
   already exist.)</p>
 </div>
+
+{% elseif bkp_missing_enabled_key %}
+<div class="flash-notice">
+  <p>The key <b>BACKUP_ENABLED</b> is not defined in your .env.local file.</p>
+
+  <p>
+    This is a safeguard to ensure that you have some backup strategy
+    in place, because it would be <i>really bad</i> if you used Lute
+    and then one day lost all of your defined terms and texts due to
+    a computer issue.  Things happen, so put together a backup plan.
+  </p>
+
+  <p>
+    Either you or Lute can handle backups.  See
+    the <a href="https://github.com/jzohrab/lute/wiki/Backup">wiki
+    Backup page</a> for notes on the backup settings.
+  </p>
+
+  <p>
+    If you don't to back things up, and want to hide this message,
+    just set the following in your .env.local file, and prepare to
+    live dangerously: <b>BACKUP_ENABLED=false</b>
+  </p>
+</div>
+
+{% elseif bkp_enabled and bkp_missing_keys %}
+<div class="flash-notice">
+  <p>Missing required backup keys: {{ bkp_missing_keys_list }}.</p>
+  <p>
+    See the <a href="https://github.com/jzohrab/lute/wiki/Backup">wiki
+      Backup page</a> for config notes.
+  </p>
+</div>
+
+{% elseif bkp_show_warning %}
+<div class="flash-notice">
+  <p>Warning: {{ bkp_warning }}  <a href="/utils/backup">Create a backup.</a></p>
+</div>
 {% endif %}
+
 
 <div id="userlinks" style="margin-top: 30px;">
   <ul>
@@ -59,7 +98,10 @@
 
 <div id="techlinks" style="margin-top: 30px;">
   <ul>
-    <li><a href="/server_info">Version and software info.</a></li>
+    {% if not bkp_missing_keys %}
+    <li><a href="/utils/backup">Create backup</a></li>
+    {% endif %}
+    <li><a href="/server_info">Version and software info</a></li>
     <li><a href="/cache/clear">Clear application cache</a></li>
     <li><a href="https://github.com/jzohrab/lute/tree/master/docs">Docs (on GitHub)</a></li>
   </ul>

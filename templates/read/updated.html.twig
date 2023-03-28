@@ -18,79 +18,16 @@
     </div>
 
     <script>
-
-      {#
-       Update all of the text items.
-       Originally, I had tried to render the textitems
-       into a variable and return it in the twig options
-       array, but had trouble with the encoding/decoding
-       of the HTML, or it would be interpreted
-       as HTML etc (eg &quot;).
-
-       This feels like it's too complicated ...
-       there is likely a simpler way to do it.  Another way
-       would perhaps have been to make an ajax call to get
-       back HTML, but that also felt incorrect, since I'm
-       already rendering this template from a controller
-       that has all the data!
-
-       Regardless, this works.
-      #}
-      
-      let update_reading_pane_elements = function(updates_dict) {
-        let content = null;
-
-        {#
-         Note that the two js lines get re-rendered for every
-         item, so, e.g., content cannot be declared as "const".
-        #}
-        {% for item in textitems %}
-        content = `{% include '/read/textitem.html.twig' %}`;
-        update_element(content, updates_dict);
-        {% endfor %}
-      }
-  
-      let update_element = function(content, updates_dict) {
+      let reload_text_div = function() {
         const context = window.parent.document;
-
-        const newel = $($.parseHTML(content));
-        const newid = newel.attr('id');
-        const replaceid = updates_dict[newid].replace;
-        const removeids = updates_dict[newid].hide;
-
-        const repel = $(`#${replaceid}`, context);
-        if (repel.length == 0) {
-          console.log(`could not find ${replaceid} to update UI`);
-          // Sometimes ids may have been hidden by other terms,
-          // so they're not rendered.  Not an issue, just quit.
-          return;
-        }
-        // console.log(`replacing ${replaceid} with content.`);
-        repel.replaceWith(content);
-
-        // console.log('removing elements');
-        for(let i = 0; i < removeids.length; i++) {
-          const delid = removeids[i];
-          $(`#${delid}`, context).remove();
-        }
-
-        // console.log('refocus');
-        const k = 'kwordmarked';
-        $(`span.${k}`, context).removeClass(k)
-        const refocus = $(`#${newid}`, context);
-        if (refocus.length == 0)
-          console.log(`could not find id #${newid} to refocus?`);
-        refocus.addClass(k);
-
-        // Reload the array so that navigation works!
-        parent.load_reading_pane_globals();
-      }
-
-      top.frames.dictframe.location.href = '/read/empty';
+        const textid = $('#textid', context).text();
+        const repel = $('#thetext', context);
+        repel.load(`/read/sentences/${textid}`);
+      };
 
       $(document).ready(function() {
-        const updates_by_spanid = {{ updates | raw }};
-        update_reading_pane_elements(updates_by_spanid);
+        top.frames.dictframe.location.href = '/read/empty';
+        reload_text_div();
         $('#flash').delay(1000).fadeOut();
       });
     </script>
