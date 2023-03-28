@@ -10,6 +10,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
 use App\Utils\MigrationHelper;
 use App\Utils\AppManifest;
+use App\Utils\Backup;
+use App\Repository\SettingsRepository;
 
 class IndexController extends AbstractController
 {
@@ -30,7 +32,7 @@ class IndexController extends AbstractController
 
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
-    public function index(Request $request): Response
+    public function index(Request $request, SettingsRepository $repo): Response
     {
         $conn = Connection::getFromEnvironment();
         [ $txid, $txtitle ] = $this->get_current_text($conn);
@@ -41,13 +43,30 @@ class IndexController extends AbstractController
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
+        $bkp = new Backup($_ENV, $repo);
+        $bkp_warning = $bkp->warning();
+
+        if ($bkp->should_run_auto_backup()) {
+            return $this->redirectToRoute(
+                'app_backup_index',
+                [ ],
+                Response::HTTP_SEE_OTHER
+            );
+        }
+
         return $this->render('index.html.twig', [
             'isdemodb' => MigrationHelper::isLuteDemo(),
             'demoisempty' => MigrationHelper::isEmptyDemo(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
-            'currtxtitle' => $txtitle
+            'currtxtitle' => $txtitle,
+            'bkp_missing_enabled_key' => $bkp->missing_enabled_key(),
+            'bkp_enabled' => $bkp->is_enabled(),
+            'bkp_missing_keys' => !$bkp->config_keys_set(),
+            'bkp_missing_keys_list' => $bkp->missing_keys(),
+            'bkp_show_warning' => $bkp->is_enabled() && ($bkp_warning != ''),
+            'bkp_warning' => $bkp_warning,
         ]);
     }
 

@@ -27,7 +27,7 @@ class SettingsRepository
     }
 
     public function getSetting($key) {
-        $sql = "select StValue from settings where StKey = '{$key}'";
+        $sql = "select StValue from settings where StKey = '{$key}' UNION select NULL";
         $conn = $this->manager->getConnection();
         $stmt = $conn->prepare($sql);
         $ret = $stmt->executeQuery()->fetchNumeric()[0];
@@ -40,6 +40,17 @@ class SettingsRepository
 
     public function getCurrentTextID(): int {
         return intval($this->getSetting('currenttext'));;
+    }
+
+    public function saveLastBackupDatetime(int $last) {
+        $this->saveSetting('lastbackup', $last);
+    }
+
+    public function getLastBackupDatetime(): ?int {
+        $v = $this->getSetting('lastbackup');
+        if ($v == null)
+            return null;
+        return intval($v);
     }
 
 }
