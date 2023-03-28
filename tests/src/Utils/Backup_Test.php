@@ -167,13 +167,15 @@ final class Backup_Test extends TestCase
     }
 
     public function test_should_not_run_autobackup_if_auto_is_no_or_false() {
+        $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'no';
         $b = $this->createBackup();
         $this->repo->expects($this->never())->method('getLastBackupDatetime');
         $this->assertFalse($b->should_run_auto_backup());
     }
 
-    public function test_checks_if_should_not_run_autobackup_if_auto_is_yes_or_true() {
+    public function test_checks_if_should_run_autobackup_if_auto_is_yes_or_true() {
+        $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
         $b = $this->createBackup();
         $this->repo->expects($this->once())->method('getLastBackupDatetime');
@@ -181,6 +183,7 @@ final class Backup_Test extends TestCase
     }
 
     public function test_autobackup_returns_true_if_never_backed_up() {
+        $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
         $this->repo->method('getLastBackupDatetime')->willReturn(null);
         $b = $this->createBackup();
@@ -188,6 +191,7 @@ final class Backup_Test extends TestCase
     }
 
     public function test_autobackup_returns_true_last_backed_up_over_one_day_ago() {
+        $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
         $currdatetime = getdate()[0];
         $onedayago = $currdatetime - (24 * 60 * 60);
