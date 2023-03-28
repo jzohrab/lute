@@ -39,7 +39,7 @@ echo
 echo "Making the debug zip file, including dev dependencies:"
 touch ../lute_debug.zip
 rm ../lute_debug.zip
-zip ../lute_debug.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*"
+zip ../lute_debug.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup"
 
 echo
 echo "Removing dev dependencies to reduce release zip size."
@@ -49,7 +49,7 @@ echo
 echo "Making the release zip file:"
 touch ../lute_release.zip
 rm ../lute_release.zip
-zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*"
+zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup"
 
 echo
 echo "Restoring my .env files"
