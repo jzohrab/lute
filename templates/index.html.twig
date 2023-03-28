@@ -54,9 +54,9 @@
   </p>
 
   <p>
-    Either you or Lute can handle backups.  See the wiki
-    page <a href="TODO">TODO:BACKUP</a> for notes on the backup
-    settings.
+    Either you or Lute can handle backups.  See
+    the <a href="https://github.com/jzohrab/lute/wiki/Backup">wiki
+    Backup page</a> for notes on the backup settings.
   </p>
 
   <p>
@@ -69,7 +69,10 @@
 {% elseif bkp_enabled and bkp_missing_keys %}
 <div class="flash-notice">
   <p>Missing required backup keys: {{ bkp_missing_keys_list }}.</p>
-  <p>See <a href="TODO">TODO:BACKUP</a> for config notes.</p>
+  <p>
+    See the <a href="https://github.com/jzohrab/lute/wiki/Backup">wiki
+      Backup page</a> for config notes.
+  </p>
 </div>
 
 {% elseif bkp_show_warning %}
