@@ -27,6 +27,17 @@ class Backup {
         return $this;
     }
 
+    public function missing_enabled_key(): bool {
+        return !array_key_exists('BACKUP_ENABLED', $this->config);
+    }
+
+    public function is_enabled(): bool {
+        if ($this->missing_enabled_key())
+            return false;
+        $k = strtolower($this->config['BACKUP_ENABLED']);
+        return ($k == 'yes' || $k == 'true');
+    }
+
     public function missing_keys(): string {
         $missing = [];
         foreach (Backup::$reqkeys as $k) {
@@ -44,7 +55,93 @@ class Backup {
             return true;
         return false;
     }
-    
+
+    public function should_run_auto_backup(): bool {
+        if (!$this->is_enabled())
+            return false;
+        if (!$this->config_keys_set())
+            return false;
+        $setting = strtolower($this->config['BACKUP_AUTO']);
+        if ($setting == 'no' || $setting == 'false')
+            return false;
+
+        $last = $this->settings_repo->getLastBackupDatetime();
+        if ($last == null)
+            return true;
+
+        $curr = getdate()[0];
+        $diff = $curr - $last;
+        return ($diff > 24 * 60 * 60);
+    }
+
+    public function warning(): string {
+        $m = $this->missing_keys();
+        if ($m != null && $m != '')
+            return "Missing backup environment keys in .env.local: {$m}";
+
+        $setting = strtolower($this->config['BACKUP_WARN']);
+        if ($setting == 'no' || $setting == 'false')
+            return "";
+
+        $oldbackupmsg = "Last backup was more than 1 week ago.";
+        $last = $this->settings_repo->getLastBackupDatetime();
+        if ($last == null)
+            return $oldbackupmsg;
+
+        $curr = getdate()[0];
+        $diff = $curr - $last;
+        if ($diff > 7 * 24 * 60 * 60)
+            return $oldbackupmsg;
+
+        return "";
+    }
+
+    public function create_backup(): string {
+        $outdir = $this->config['BACKUP_DIR'];
+        if (!is_dir($outdir))
+            throw new \Exception("Missing output directory {$outdir}");
+
+        $this->mirror_images_dir($outdir);
+
+        $f = "zippedfilename";
+        $cmd = $this->config['BACKUP_MYSQLDUMP_COMMAND'];
+        if (strtolower($cmd) == 'skip') {
+            // do nothing
+        }
+        elseif (!str_contains(strtolower($cmd), 'mysqldump')) {
+            throw new \Exception("Bad BACKUP_MYSQLDUMP_COMMAND setting '{$cmd}', must contain 'mysqldump'");
+        }
+        else {
+            $f = $this->do_export_and_zip($cmd, $outdir);
+        }
+
+        $this->settings_repo->saveLastBackupDatetime(getdate()[0]);
+        return $f;
+    }
+
+    private function do_export_and_zip($cmd, $outdir): string {
+        $backupfile = $outdir . '/lute_export.sql';
+
+        // TODO:BACKUP get this from env.
+        $dbhost = 'localhost';
+        $dbuser = 'root';
+        $dbpass = 'root';
+        $dbname = 'test_lute';
+
+        $fullcmd = "$cmd --complete-insert --quote-names --skip-triggers ";
+        $fullcmd = $fullcmd . " --user={$dbuser} --password={$dbpass} {$dbname} > {$backupfile}";
+        $ret = system($fullcmd, $resultcode);
+
+        if ($resultcode != 0) {
+            throw new \Exception("Backup command '{$cmd}' failed (err_code {$resultcode}).__BREAK__Please check your BACKUP_MYSQLDUMP_COMMAND config setting.");
+        }
+
+        $f = $this->gzcompressfile($backupfile);
+        unlink($backupfile);
+
+        return $f;
+    }
+
     // https://stackoverflow.com/questions/6073397/
     // how-do-you-create-a-gz-file-using-php/56140427#56140427
     /**
@@ -96,17 +193,6 @@ class Backup {
         return $gzFilename;
     }
 
-    public function missing_enabled_key(): bool {
-        return !array_key_exists('BACKUP_ENABLED', $this->config);
-    }
-
-    public function is_enabled(): bool {
-        if ($this->missing_enabled_key())
-            return false;
-        $k = strtolower($this->config['BACKUP_ENABLED']);
-        return ($k == 'yes' || $k == 'true');
-    }
-
     private function mirror_images_dir() {
         $targetdir = $this->config['BACKUP_DIR'] . '/userimages';
         $targetdir = Path::canonicalize($targetdir);
@@ -122,89 +208,4 @@ class Backup {
         $fileSystem->mirror($sourcedir, $targetdir);
     }
 
-    public function create_backup(): string {
-        $outdir = $this->config['BACKUP_DIR'];
-        if (!is_dir($outdir))
-            throw new \Exception("Missing output directory {$outdir}");
-
-        $this->mirror_images_dir($outdir);
-
-        $f = "zippedfilename";
-        $cmd = $this->config['BACKUP_MYSQLDUMP_COMMAND'];
-        if (strtolower($cmd) == 'skip') {
-            // do nothing
-        }
-        elseif (!str_contains(strtolower($cmd), 'mysqldump')) {
-            throw new \Exception("Bad BACKUP_MYSQLDUMP_COMMAND setting '{$cmd}', must contain 'mysqldump'");
-        }
-        else {
-            $f = $this->do_export_and_zip($cmd, $outdir);
-        }
-
-        $this->settings_repo->saveLastBackupDatetime(getdate()[0]);
-        return $f;
-    }
-
-    private function do_export_and_zip($cmd, $outdir): string {
-        $backupfile = $outdir . '/lute_export.sql';
-
-        // TODO:BACKUP get this from env.
-        $dbhost = 'localhost';
-        $dbuser = 'root';
-        $dbpass = 'root';
-        $dbname = 'test_lute';
-
-        $fullcmd = "$cmd --complete-insert --quote-names --skip-triggers ";
-        $fullcmd = $fullcmd . " --user={$dbuser} --password={$dbpass} {$dbname} > {$backupfile}";
-        $ret = system($fullcmd, $resultcode);
-
-        if ($resultcode != 0) {
-            throw new \Exception("Backup command '{$cmd}' failed (err_code {$resultcode}).__BREAK__Please check your BACKUP_MYSQLDUMP_COMMAND config setting.");
-        }
-
-        $f = $this->gzcompressfile($backupfile);
-        unlink($backupfile);
-
-        return $f;
-    }
-
-    public function should_run_auto_backup(): bool {
-        if (!$this->is_enabled())
-            return false;
-        if (!$this->config_keys_set())
-            return false;
-        $setting = strtolower($this->config['BACKUP_AUTO']);
-        if ($setting == 'no' || $setting == 'false')
-            return false;
-
-        $last = $this->settings_repo->getLastBackupDatetime();
-        if ($last == null)
-            return true;
-
-        $curr = getdate()[0];
-        $diff = $curr - $last;
-        return ($diff > 24 * 60 * 60);
-    }
-
-    public function warning(): string {
-        $m = $this->missing_keys();
-        if ($m != null && $m != '')
-            return "Missing backup environment keys in .env.local: {$m}";
-
-        $setting = strtolower($this->config['BACKUP_WARN']);
-        if ($setting == 'no' || $setting == 'false')
-            return "";
-
-        $oldbackupmsg = "Last backup was more than 1 week ago.";
-        $last = $this->settings_repo->getLastBackupDatetime();
-        if ($last == null)
-            return $oldbackupmsg;
-
-        $curr = getdate()[0];
-        $diff = $curr - $last;
-        if ($diff > 7 * 24 * 60 * 60)
-            return $oldbackupmsg;
-
-        return "";
-    }
 }
