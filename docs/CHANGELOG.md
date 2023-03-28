@@ -1,5 +1,20 @@
 # Changelog
 
+## 2023-03-27 v1.2.0
+
+Feature changes:
+
+* Add automated backups (ref notes in https://github.com/jzohrab/lute/wiki/Backup).  You will be prompted to make some changes to your `.env.local` file, adding some settings as described in the wiki.
+
+Back end (some very big changes, which simplified many sections of the code):
+
+The changes forced some API changes which may break if your front-end Javascript is cached (in the term form of the reading pane).  Update the page a few times, and clear your javascript cache, and it should sort itself out. :-)
+
+* Use texttokens for rendering and updating
+* Remove textitems2 table and references
+* Remove TextItemRepository
+
+
 ## 2023-03-21 v1.1.7
 
 Feature changes:
