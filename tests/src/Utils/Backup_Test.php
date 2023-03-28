@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Utils\Backup;
 use App\Repository\SettingsRepository;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * @backupGlobals enabled
@@ -14,6 +16,7 @@ final class Backup_Test extends TestCase
 
     private $config;
     private $dir;
+    private $imagedir;
     private $repo;
 
     public function setUp(): void {
@@ -27,14 +30,24 @@ final class Backup_Test extends TestCase
         // This may not work in github actions.
         $config['BACKUP_MYSQLDUMP_COMMAND'] = 'mysqldump';
 
-        $this->dir = $this->make_backup_dir();
+        $this->dir = Path::canonicalize(__DIR__ . '/../../zz_bkp');
+        $this->make_test_dir($this->dir);
         $config['BACKUP_DIR'] = $this->dir;
+
+        $this->imagedir = Path::canonicalize(__DIR__ . '/../../zz_images');
+        $this->make_test_dir($this->imagedir);
+        $config['OVERRIDE_TEST_IMAGES_DIR'] = $this->imagedir;
 
         $this->config = $config;
 
         $this->repo = $this->createMock(SettingsRepository::class);
     }
 
+    public function tearDown(): void {
+        $this->rrmdir($this->imagedir);
+        $this->rrmdir($this->dir);
+    }
+    
     private function createBackup() {
         return new Backup($this->config, $this->repo);
     }
@@ -42,7 +55,8 @@ final class Backup_Test extends TestCase
     // https://stackoverflow.com/questions/1653771/how-do-i-remove-a-directory-that-is-not-empty
     private function rrmdir(string $directory)
     {
-        $rd = realpath($directory);
+        $rd = Path::canonicalize($directory);
+        // dump($directory . ' , ' . $rd);
         if (!is_dir($rd))
             return;
 
@@ -63,12 +77,10 @@ final class Backup_Test extends TestCase
         rmdir($rd);
     }
 
-    private function make_backup_dir() {
-        $dir = __DIR__ . '/../../zz_bkp';
+    private function make_test_dir($dir) {
         $this->rrmdir($dir);
         mkdir($dir);
         $this->assertEquals(0, count(glob($dir . "/*.*")), "no files");
-        return $dir;
     }
 
 
@@ -102,10 +114,16 @@ final class Backup_Test extends TestCase
      * @group actualbackup
      */
     public function test_backup_writes_file_to_output_dir() {
+        $filesystem = new FileSystem();
+        $filesystem->dumpFile($this->imagedir . '/1/file.txt', 'imagefile');
+
         $b = $this->createBackup();
         $b->create_backup();
         $this->assertEquals(1, count(glob($this->dir . "/*.*")), "1 file");
         $this->assertEquals(1, count(glob($this->dir . "/lute_export.sql.gz")), "1 zip file");
+
+        $this->assertEquals(1, count(glob($this->dir . "/userimages/1/*.*")), "1 file");
+        $this->assertEquals(1, count(glob($this->dir . "/userimages/1/file.txt")), "correct file");
     }
 
     // TOTALLY HACKY method for testing.  Backing up takes time, and I

@@ -3,6 +3,8 @@
 namespace App\Utils;
 
 use App\Repository\SettingsRepository;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 class Backup {
 
@@ -105,10 +107,27 @@ class Backup {
         return ($k == 'yes' || $k == 'true');
     }
 
+    private function mirror_images_dir() {
+        $targetdir = $this->config['BACKUP_DIR'] . '/userimages';
+        $targetdir = Path::canonicalize($targetdir);
+        if (!is_dir($targetdir))
+            mkdir($targetdir);
+
+        $sourcedir = __DIR__ . '/../../public/userimages';
+        if (array_key_exists('OVERRIDE_TEST_IMAGES_DIR', $this->config))
+            $sourcedir = $this->config['OVERRIDE_TEST_IMAGES_DIR'];
+        $sourcedir = Path::canonicalize($sourcedir);
+
+        $fileSystem = new FileSystem();
+        $fileSystem->mirror($sourcedir, $targetdir);
+    }
+
     public function create_backup(): string {
         $outdir = $this->config['BACKUP_DIR'];
         if (!is_dir($outdir))
             throw new \Exception("Missing output directory {$outdir}");
+
+        $this->mirror_images_dir($outdir);
 
         $f = "zippedfilename";
         $cmd = $this->config['BACKUP_MYSQLDUMP_COMMAND'];
