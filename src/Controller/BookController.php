@@ -128,6 +128,14 @@ class BookController extends AbstractController
         ]);
     }
 
+
+    #[Route('/import_webpage', name: 'app_book_import_webpage', methods: ['GET', 'POST'])]
+    public function import_webpage(Request $request): Response
+    {
+        return $this->renderForm('book/import_webpage.html.twig', []);
+    }
+
+
     #[Route('/{BkID}/delete', name: 'app_book_delete', methods: ['POST'])]
     public function delete(Request $request, Book $book, BookRepository $bookRepository): Response
     {
