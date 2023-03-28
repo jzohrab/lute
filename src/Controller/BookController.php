@@ -121,12 +121,72 @@ class BookController extends AbstractController
         if ($resp != null)
             return $resp;
 
+        $parameters = $request->query->all();
+        $import_url = null;
+        if (array_key_exists('importurl', $parameters))
+            $import_url = trim($parameters['importurl']);
+        if ($import_url != null && $import_url != "")
+            $this->import_to_dto($import_url, $dto);
+
+        $form = $this->createForm(BookDTOType::class, $dto);
         return $this->renderForm('book/new.html.twig', [
             'bookdto' => $dto,
             'form' => $form,
             'showlanguageselector' => true,
         ]);
     }
+
+
+    private function import_to_dto($url, &$dto) {
+        $s = null;
+        try {
+            $s = file_get_contents($url);
+        }
+        catch (\Exception $e) {
+            $em = $e->getMessage();
+            $msg = "Could not parse $url (error: $em)";
+            $this->addFlash('notice', $msg);
+        }
+        if ($s == null)
+            return;
+
+        $dom = new \DOMDocument;
+        // https://stackoverflow.com/questions/1148928/
+        //   disable-warnings-when-loading-non-well-formed-html-by-domdocument-php
+        $dom->loadHTML($s, LIBXML_NOWARNING | LIBXML_NOERROR);
+
+        $tags = explode(' ', 'p h1 h2 h3 h4');
+        $queryparts = array_map(fn($t) => '/html/body//' . $t, $tags);
+        $q = implode(' | ', $queryparts);
+        $xp = new \DOMXPath($dom);
+        $nodes = $xp->query($q);
+
+        $content = [];
+        foreach($nodes as $node) {
+            $content[] = $node->textContent;
+        }
+        $dto->Text = implode("\n\n", $content);
+
+        $orig_title = $url;
+        $title_nodes = $xp->query('/html/head/title');
+        if (count($title_nodes) == 1) {
+            $orig_title = $title_nodes[0]->textContent;
+        }
+        $short_title = mb_substr($orig_title, 0, 150);
+        if (mb_strlen($orig_title) > 150)
+            $short_title .= ' ...';
+        $dto->Title = $short_title;
+
+        $dto->SourceURI = $url;
+    }
+
+
+    #[Route('/import_webpage', name: 'app_book_import_webpage', methods: ['GET', 'POST'])]
+    public function import_webpage(Request $request): Response
+    {
+        return $this->renderForm('book/import_webpage.html.twig', []);
+    }
+
 
     #[Route('/{BkID}/delete', name: 'app_book_delete', methods: ['POST'])]
     public function delete(Request $request, Book $book, BookRepository $bookRepository): Response
