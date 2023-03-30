@@ -120,7 +120,9 @@ class RomanceLanguageParser extends AbstractParser {
         foreach(explode("\n", $text) as $line) {
             if (trim($line) != '') {
                 [ $wordcount, $s ] = explode("\t", $line);
-                $tokens[] = new ParsedToken($s, $wordcount > 0);
+                $isEOS = str_ends_with($s, "\r");
+                $s = str_replace("\r", "", $s);
+                $tokens[] = new ParsedToken($s, $wordcount > 0, $isEOS);
             }
         }
 

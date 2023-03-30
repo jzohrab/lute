@@ -8,9 +8,10 @@ class ParsedToken
     public bool $isWord;
     public bool $isEndOfSentence;
 
-    public function __construct(string $token, bool $isWord) {
+    public function __construct(string $token, bool $isWord, bool $isEOS = false) {
         $this->token = $token;
         $this->isWord = $isWord;
-        $this->isEndOfSentence = str_ends_with($token, "\r");
+        $this->isEndOfSentence = $isEOS;
+        // $this->isEndOfSentence = str_ends_with($token, "\r");
     }
 }

@@ -52,12 +52,12 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
             [ 'un', true ],
             [ ' ', false ],
             [ 'gato', true ],
-            [ ".\r", false ],
-            [ "¶\r", false ],
+            [ ".", false, true ],
+            [ "¶", false, true ],
             [ 'Tengo', true ],
             [ ' ', false ],
             [ 'dos', true ],
-            [ '.', false ]
+            [ '.', false, false ]
         ];
         $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 
@@ -65,7 +65,8 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
             $ret = '';
             foreach ($tokens as $tok) {
                 $isw = $tok->isWord ? '1' : '0';
-                $ret .= "{$tok->token}-{$isw};";
+                $iseos = $tok->isEndOfSentence ? '1' : '0';
+                $ret .= "{$tok->token}-{$isw}-{$iseos};";
             }
             return $ret;
         };
