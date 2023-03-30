@@ -38,15 +38,6 @@
     <!-- Lacking css skills, so table layout to the rescue. -->
     <table style="width: 100%">
       <tr>
-        <td>
-          <form action="/read/{{ text.ID }}/allknown" method="post" style="float:left;">
-            <button
-              type="submit"
-              name="fallknown"
-              onclick="return confirm('Setting all to unknown words to known.  OK?');"
-              tabindex="-1">Set all to known</button>
-          </form>
-        </td>
         <td align="right">
           <a href="/text/{{ text.ID }}/edit" tabindex="-1">
             <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
@@ -68,20 +59,41 @@
 
   <div id="reading-footer"  style="text-align: center;">
     <h2>
+      <form style="display:none"
+            id="setknown"
+            action="/read/{{ text.ID }}/allknown"
+            method="post">
+      </form>
+      <a style="text-decoration: none;"
+         onclick="document.getElementById('setknown').submit(); return false;"
+         title="Mark rest as known." tabindex="-1">
+        <img src="/icn/tick.png" />
+      </a>
+
       {% if nexttext %}
-      <form id="knowntonext" action="/read/{{ text.ID }}/allknown/{{ nexttext.ID }}" method="post" />
-      <a style="text-decoration: none;" onclick="document.getElementById('knowntonext').submit(); return false;" title="Mark rest as known, then go to {{ nexttext.Title }}" tabindex="-1">
+      &nbsp;
+      <form style="display:none"
+            id="knowntonext"
+            action="/read/{{ text.ID }}/allknown/{{ nexttext.ID }}"
+            method="post">
+      </form>
+      <a style="text-decoration: none;"
+         onclick="document.getElementById('knowntonext').submit(); return false;"
+         title="Mark rest as known, then go to next page"
+         tabindex="-1">
         <img src="/icn/tick.png" />&#8250;
       </a>
       &nbsp;
-      <a style="text-decoration: none;" href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
+
+      <a style="text-decoration: none;"
+         href="/read/{{ nexttext.ID }}"
+         title="Go to next page"
+         tabindex="-1">&#8250;</a>
       {% endif %}
     </h2>
 
     {% if pagenum == pagecount %}
-    <h2>
-      &#127881;
-    </h2>
+    <h2>&#127881;</h2>
     {% endif %}
 
   </div>
