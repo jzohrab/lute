@@ -19,8 +19,8 @@
       <span style="color: lightgrey;">&#8249;</span>
       {% endif %}
 
-      {{ text.Title }}
-      
+      {{ pagenum }}/{{ pagecount }}
+
       {% if nexttext %}
       <a href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
       {% else %}
@@ -59,6 +59,10 @@
     <hr />
 
   </div>
+
+  {% if pagenum == 1 %}
+    <h2>{{ book.Title }}</h2>
+  {% endif %}
 
   {{ render(url('app_read_text', { 'TxID': text.ID })) }}
 
