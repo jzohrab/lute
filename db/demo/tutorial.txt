@@ -3,9 +3,9 @@
 #
 Welcome to Lute!  This short guide should get you going.
 
-0. Navigation
+Navigation
 
-This tutorial is too long to fit in one screen.  Next to the title above are some arrows to navigate forwards and backwards.  In longer texts, you can jump forward or back ten pages at a time as well.
+This tutorial has multiple pages.  Above the title are some arrows to navigate forwards and backwards.  In longer texts, you can jump forward or back ten pages at a time as well.
 
 1. The Basics
 
@@ -41,18 +41,20 @@ Sometimes it helps to associate terms with a "parent".  For example, the verb "t
 
 If you enter a non-existent Parent word, Lute will create a placeholder Term for that Parent, copying some content from your term.  For example, try creating a Term for the word "dogs", associating it with the non-existent Term "dog".  When you save "dogs", both will be updated.
 
-4. Keyboard shortcuts
+4. Mark the remainder as "Well Known"
+
+When you're done creating Terms on a page, you will likely still have a bunch of blue words, or "unknowns", left over, even though you really know these words.  You can set all of these to "Well Known" in one shot with the green checkmark at the bottom of the page ("Mark rest as known").  Try that now to see what happens.  This button only affects words on the current page, so when you go to the next page, you'll see that some words are still unknown.
+
+There are other buttons at the bottom of the page.  The green checkmark with the arrow sets the remaining unknowns on the current page, and also goes to the next page.
+
+5. Keyboard shortcuts
 
 The small blue question mark in the header shows some keyboard shortcuts.  If you click on a word, it's underlined in red: that's the active term.  You can then hit the Left or Right arrow to move around.  You can also set the status of the word by hitting 1, 2, 3, 4, 5, I, or W.
 
-5. Bulk updates
+6. Bulk updates
 
 If you hold down Shift and click a bunch of words, you can bulk update their statuses.
 
-6. Mark the remainder as "Well Known"
-
-When you're done creating Terms, you will likely still have a bunch of blue words, or "unknowns", left over on this page, even though you really know these words.  You can set all of these to "Well Known" in one shot with the "Set all to known" button at the top of the screen.  Try that now to see what happens.  This button only affects words on the current page, so when you go to the next page, you'll see that some words are still unknown.
-
 All done this text!
 
-You've now "processed" all of the words on this tutorial, and Lute keeps track of all of this in your database.  There's a tutorial follow-up: go to the Home screen, click the Texts link, and choose the "Tutorial follow-up".
+Lute keeps track of all of this in your database.  There's a tutorial follow-up: go to the Home screen, click the Texts link, and choose the "Tutorial follow-up".
