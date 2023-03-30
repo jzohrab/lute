@@ -1,12 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Read{% endblock %}
+{% block title %}Reading &quot;{{ book.Title }}&quot;{% endblock %}
 
 {% block body %}
 
 <div id="reading-frames-left" style="width: 50%;">
   <div id="reading-header">
-    <h2>
+
+    <!-- Lacking css skills, so table layout to the rescue. -->
+    <table style="width: 100%">
+      <tr>
+        <td align="left">
+    <h2 style="margin: 0px;">
       {% if prevtext10 %}
       <a href="/read/{{ prevtext10.ID }}" title="{{ prevtext10.Title }}" tabindex="-1">&#171;</a>
       {% else %}
@@ -34,10 +39,7 @@
       {% endif %}
 
     </h2>
-
-    <!-- Lacking css skills, so table layout to the rescue. -->
-    <table style="width: 100%">
-      <tr>
+        </td>
         <td align="right">
           <a href="/text/{{ text.ID }}/edit" tabindex="-1">
             <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
