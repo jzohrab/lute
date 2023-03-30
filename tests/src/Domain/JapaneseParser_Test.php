@@ -49,13 +49,13 @@ final class JapaneseParser_Test extends DatabaseTestBase
             [ "元気", true ],
             [ "です", true ],
             [ "。", false ],
-            [ "¶\r", false ],
+            [ "¶", false, true ],
             [ "私", true ],
             [ "は", true ],
             [ "元気", true ],
             [ "です", true ],
             [ "。", false ],
-            [ "¶\r", false ]
+            [ "¶", false, true ]
         ];
         $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 
@@ -71,6 +71,9 @@ final class JapaneseParser_Test extends DatabaseTestBase
         $this->assertEquals($tostring($actual), $tostring($expected));
     }
 
+    /**
+     * @group jpeos
+     */
     public function test_parse_words_defined()
     {
         $this->addTerms($this->japanese, [ '私', '元気', 'です' ]);

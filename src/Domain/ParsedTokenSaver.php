@@ -124,13 +124,12 @@ class ParsedTokenSaver {
         // needed.
         $makeentry = function($token) use ($txid) {
             $isword = $token->isWord ? 1 : 0;
-            $s = $token->token;
             $this->ord += 1;
-            $ret = [ $txid, $this->sentence_number, $this->ord, $isword, rtrim($s, "\r") ];
+            $ret = [ $txid, $this->sentence_number, $this->ord, $isword, $token->token ];
 
             // Word ending with \r marks the end of the current
             // sentence.
-            if (str_ends_with($s, "\r")) {
+            if ($token->isEndOfSentence) {
                 $this->sentence_number += 1;
             }
             return $ret;

@@ -47,6 +47,9 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals(2, count($sentences));
     }
 
+    /**
+     * @group sentenceeos
+     */
     public function test_get_sentences_reparses_text_if_no_sentences()
     {
         $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
