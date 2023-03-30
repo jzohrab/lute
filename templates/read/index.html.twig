@@ -66,8 +66,8 @@
 
   {{ render(url('app_read_text', { 'TxID': text.ID })) }}
 
-  <div id="reading-footer">
-    <h2 style="text-align: center;">
+  <div id="reading-footer"  style="text-align: center;">
+    <h2>
       {% if nexttext %}
       <form id="knowntonext" action="/read/{{ text.ID }}/allknown/{{ nexttext.ID }}" method="post" />
       <a style="text-decoration: none;" onclick="document.getElementById('knowntonext').submit(); return false;" title="Mark rest as known, then go to {{ nexttext.Title }}" tabindex="-1">
@@ -75,10 +75,15 @@
       </a>
       &nbsp;
       <a style="text-decoration: none;" href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
-      {% else %}
-      &#127881;
       {% endif %}
     </h2>
+
+    {% if pagenum == pagecount %}
+    <h2>
+      &#127881;
+    </h2>
+    {% endif %}
+
   </div>
   
 </div>
