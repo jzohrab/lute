@@ -41,6 +41,11 @@
     </h2>
         </td>
         <td align="right">
+          {% if book.SourceURI %}
+          <a href="{{ book.SourceURI }}" target="_blank" tabindex="-1">
+            <img src="/icn/external.png" title="Show source URL" />
+          </a>
+          {% endif %}
           <a href="/text/{{ text.ID }}/edit" tabindex="-1">
             <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
           </a>
