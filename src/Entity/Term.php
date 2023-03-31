@@ -116,7 +116,7 @@ class Term
 
         // Terms can't contain paragraph markers.
         $isNotPara = function($tok) {
-            return $tok->token !== "¶\r";
+            return $tok->token !== "¶";
         };
         $tokens = array_filter($tokens, $isNotPara);
         $tokstrings = array_map(fn($tok) => $tok->token, $tokens);
