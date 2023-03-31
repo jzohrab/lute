@@ -63,7 +63,8 @@ final class JapaneseParser_Test extends DatabaseTestBase
             $ret = '';
             foreach ($tokens as $tok) {
                 $isw = $tok->isWord ? '1' : '0';
-                $ret .= "{$tok->token}-{$isw};";
+                $iseos = $tok->isEndOfSentence ? '1' : '0';
+                $ret .= "{$tok->token}-{$isw}-{$iseos};";
             }
             return $ret;
         };

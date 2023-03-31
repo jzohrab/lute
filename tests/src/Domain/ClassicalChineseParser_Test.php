@@ -25,7 +25,8 @@ final class ClassicalChineseParser_Test extends TestCase
             $ret = '';
             foreach ($tokens as $tok) {
                 $isw = $tok->isWord ? '1' : '0';
-                $ret .= "{$tok->token}-{$isw}\n";
+                $iseos = $tok->isEndOfSentence ? '1' : '0';
+                $ret .= "{$tok->token}-{$isw}-{$iseos};\n";
             }
             return $ret;
         };
@@ -48,7 +49,7 @@ final class ClassicalChineseParser_Test extends TestCase
             [ '亦', true ],
             [ '說', true ],
             [ '乎', true ],
-            [ "？\r", false ]
+            [ "？", false, true ]
         ];
 
         $this->assertTokensEquals($tokens, $expected);
@@ -70,8 +71,8 @@ final class ClassicalChineseParser_Test extends TestCase
             [ '亦', true ],
             [ '說', true ],
             [ '乎', true ],
-            [ "？\r", false ],
-            [ "¶\r", false ],
+            [ "？", false, true ],
+            [ "¶", false, true ],
             [ "有", true ],
             [ "朋", true ],
             [ "自", true ],
@@ -83,7 +84,7 @@ final class ClassicalChineseParser_Test extends TestCase
             [ "亦", true ],
             [ "樂", true ],
             [ "乎", true ],
-            [ "？\r", false ],
+            [ "？", false, true ],
         ];
 
         $this->assertTokensEquals($tokens, $expected);
