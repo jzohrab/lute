@@ -69,7 +69,8 @@ final class RomanceLanguageParser_UnitTest extends TestCase
     {
         $p = new RomanceLanguageParser();
         $s = "Mrs. Jones is here.";
-        $actual = $p->getParsedTokens($s, Language::makeEnglish());
+        $e = Language::makeEnglish();
+        $actual = $p->getParsedTokens($s, $e);
 
         $expected = [
             [ 'Mrs.', true, false ],
@@ -79,6 +80,31 @@ final class RomanceLanguageParser_UnitTest extends TestCase
             [ 'is', true ],
             [ ' ', false ],
             [ 'here', true ],
+            [ ".", false, false ]
+        ];
+
+        $this->assertTokensEquals($actual, $expected);
+    }
+
+    /**
+     * @group eeuu
+     */
+    public function test_EE_UU_exception_should_be_considered()
+    {
+        $p = new RomanceLanguageParser();
+        $s = "Estamos en EE.UU. hola.";
+        $sp = Language::makeSpanish();
+        $sp->setLgExceptionsSplitSentences("EE.UU.");
+        $actual = $p->getParsedTokens($s, $sp);
+
+        $expected = [
+            [ 'Estamos', true, false ],
+            [ ' ', false ],
+            [ 'en', true ],
+            [ ' ', false ],
+            [ 'EE.UU.', true ],
+            [ ' ', false ],
+            [ 'hola', true ],
             [ ".", false, false ]
         ];
 
