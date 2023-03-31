@@ -22,6 +22,22 @@ final class RomanceLanguageParser_UnitTest extends TestCase
         // echo "tearing down ... \n";
     }
 
+    private function assertTokensEquals($actual, $expected) {
+        $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
+
+        $tostring = function($tokens) {
+            $ret = '';
+            foreach ($tokens as $tok) {
+                $isw = $tok->isWord ? '1' : '0';
+                $iseos = $tok->isEndOfSentence ? '1' : '0';
+                $ret .= "{$tok->token}-{$isw}-{$iseos};\n";
+            }
+            return $ret;
+        };
+
+        $this->assertEquals($tostring($actual), $tostring($expected));
+    }
+
     /**
      * @group parser_eos
      */
@@ -44,19 +60,29 @@ final class RomanceLanguageParser_UnitTest extends TestCase
             [ 'dos', true ],
             [ '.', false, false ]  // note false.
         ];
-        $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 
-        $tostring = function($tokens) {
-            $ret = '';
-            foreach ($tokens as $tok) {
-                $isw = $tok->isWord ? '1' : '0';
-                $iseos = $tok->isEndOfSentence ? '1' : '0';
-                $ret .= "{$tok->token}-{$isw}-{$iseos};";
-            }
-            return $ret;
-        };
+        $this->assertTokensEquals($actual, $expected);
+    }
 
-        $this->assertEquals($tostring($actual), $tostring($expected));
+
+    public function test_exceptions_are_considered_when_splitting_sentences()
+    {
+        $p = new RomanceLanguageParser();
+        $s = "Mrs. Jones is here.";
+        $actual = $p->getParsedTokens($s, Language::makeEnglish());
+
+        $expected = [
+            [ 'Mrs.', true, false ],
+            [ ' ', false ],
+            [ 'Jones', true ],
+            [ ' ', false ],
+            [ 'is', true ],
+            [ ' ', false ],
+            [ 'here', true ],
+            [ ".", false, false ]
+        ];
+
+        $this->assertTokensEquals($actual, $expected);
     }
 
 }
