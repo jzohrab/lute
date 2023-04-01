@@ -102,7 +102,7 @@ class ParsedTokenSaver {
             // standardize the string search when looking for terms.
             "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
               SELECT TxLgID, TxID, TokSentenceNumber, min(TokOrder),
-              CONCAT(0xE2808B, GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B), 0xE2808B)
+              CONCAT(0xE2808B, TRIM(GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B)), 0xE2808B)
               FROM texttokens
               inner join texts on TxID = TokTxID
               WHERE TxID in ({$idjoin})

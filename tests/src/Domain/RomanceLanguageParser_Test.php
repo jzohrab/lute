@@ -94,7 +94,7 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = $this->make_text("Gato.", "Un gato es bueno. No hay un gato.  Veo a un gato.", $this->spanish);
-        $this->assert_rendered_text_equals($t, "Un gato(1)/ /es/ /bueno/./ /No/ /hay/ /un gato(1)/./ /Veo/ /a/ /un gato(1)/.");
+        $this->assert_rendered_text_equals($t, "Un gato(1)/ /es/ /bueno/. /No/ /hay/ /un gato(1)/.  /Veo/ /a/ /un gato(1)/.");
     }
 
 

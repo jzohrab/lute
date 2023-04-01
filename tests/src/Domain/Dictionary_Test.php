@@ -318,7 +318,7 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertEquals("Tengo un gato.", str_replace($zws, '', $trs[0]->Sentence));
         $this->assertEquals($text->getID(), $trs[0]->TxID);
         $this->assertEquals("hola", $trs[0]->Title);
-        $this->assertEquals(" No tengo un perro.", str_replace($zws, '', $trs[1]->Sentence));
+        $this->assertEquals("No tengo un perro.", str_replace($zws, '', $trs[1]->Sentence));
     }
 
     /**
@@ -350,8 +350,8 @@ final class Dictionary_Test extends DatabaseTestBase
             return str_replace($zws, '/', $ret);
         };
         $this->assertEquals("1, hola, /Tengo/ /un/ /gato/./", $tostring($refs['term'][0]), 'term');
-        $this->assertEquals("1, hola, / /No/ /quiero/ /tener/ /nada/./", $tostring($refs['parent'][0]), 'p');
-        $this->assertEquals("1, hola, / /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
+        $this->assertEquals("1, hola, /No/ /quiero/ /tener/ /nada/./", $tostring($refs['parent'][0]), 'p');
+        $this->assertEquals("1, hola, /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
         $this->assertEquals("2, luego, /Tengo/ /un/ /coche/./", $tostring($refs['archived'][0]), 'a');
 
         $refs = $this->dictionary->findReferences($tener);
@@ -361,8 +361,8 @@ final class Dictionary_Test extends DatabaseTestBase
         $this->assertEquals(0, count($refs['siblings']), 'siblings');
         $this->assertEquals(1, count($refs['archived']), 'archived tener');
 
-        $this->assertEquals("1, hola, / /No/ /quiero/ /tener/ /nada/./", $tostring($refs['term'][0]), 'term');
-        $this->assertEquals("1, hola, / /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['children'][1]), 'c tener 1');
+        $this->assertEquals("1, hola, /No/ /quiero/ /tener/ /nada/./", $tostring($refs['term'][0]), 'term');
+        $this->assertEquals("1, hola, /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['children'][1]), 'c tener 1');
         $this->assertEquals("1, hola, /Tengo/ /un/ /gato/./", $tostring($refs['children'][0]), 'c tener 0');
         $this->assertEquals("2, luego, /Tengo/ /un/ /coche/./", $tostring($refs['archived'][0]), 'a tener');
 
@@ -401,8 +401,8 @@ final class Dictionary_Test extends DatabaseTestBase
 
         $this->assertEquals("1, hola, /Tengo/ /un/ /gato/./", $tostring($archrefs[0]), 'c tener 0');
         $this->assertEquals("2, luego, /Tengo/ /un/ /coche/./", $tostring($archrefs[1]), 'a tener');
-        $this->assertEquals("1, hola, / /Ella/ /tiene/ /un/ /perro/./", $tostring($archrefs[2]), 'c tener 1');
-        $this->assertEquals("1, hola, / /No/ /quiero/ /tener/ /nada/./", $tostring($archrefs[3]), 'term');
+        $this->assertEquals("1, hola, /Ella/ /tiene/ /un/ /perro/./", $tostring($archrefs[2]), 'c tener 1');
+        $this->assertEquals("1, hola, /No/ /quiero/ /tener/ /nada/./", $tostring($archrefs[3]), 'term');
 
     }
 

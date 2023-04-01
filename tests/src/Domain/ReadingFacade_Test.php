@@ -109,7 +109,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $content = "Tengo un gato. Una lista.\nElla.";
         $t = $this->make_text("Hola", $content, $this->spanish);
 
-        $this->assert_rendered_text_equals($t, "Tengo/ /un/ /gato/./ /Una/ /lista(1)/./¶/Ella/.");
+        $this->assert_rendered_text_equals($t, "Tengo/ /un/ /gato/. /Una/ /lista(1)/./¶/Ella/.");
 
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         $expected = [
@@ -119,7 +119,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->facade->mark_unknowns_as_known($t);
 
-        $this->assert_rendered_text_equals($t, "Tengo(99)/ /un(99)/ /gato(99)/./ /Una(99)/ /lista(1)/./¶/Ella(99)/.");
+        $this->assert_rendered_text_equals($t, "Tengo(99)/ /un(99)/ /gato(99)/. /Una(99)/ /lista(1)/./¶/Ella(99)/.");
         DbHelpers::assertRecordcountEquals($wordssql, 6, "6 words in sentence all created as terms");
     }
 
@@ -150,14 +150,14 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->assert_rendered_text_equals(
             $t,
-            "Hola/ /tengo/ /un gato(1)/./ /No/ /tengo/ /una/ /lista(1)/./¶/Ella/ /tiene una(1)/ /bebida/."
+            "Hola/ /tengo/ /un gato(1)/.  /No/ /tengo/ /una/ /lista(1)/./¶/Ella/ /tiene una(1)/ /bebida/."
         );
 
         $this->facade->update_status($t, ["tengo", "lista", "perro"], 5);
 
         $this->assert_rendered_text_equals(
             $t,
-            "Hola/ /tengo(5)/ /un gato(1)/./ /No/ /tengo(5)/ /una/ /lista(5)/./¶/Ella/ /tiene una(1)/ /bebida/."
+            "Hola/ /tengo(5)/ /un gato(1)/.  /No/ /tengo(5)/ /una/ /lista(5)/./¶/Ella/ /tiene una(1)/ /bebida/."
         );
 
         $expected = [
