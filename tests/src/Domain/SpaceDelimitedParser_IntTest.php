@@ -2,12 +2,12 @@
 
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\RomanceLanguageParser;
+use App\Domain\SpaceDelimitedParser;
 use App\Domain\ParsedToken;
 use App\Entity\Text;
 use App\Entity\Term;
 
-final class RomanceLanguageParser_Test extends DatabaseTestBase
+final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
 {
 
     public function childSetUp(): void
@@ -34,44 +34,6 @@ final class RomanceLanguageParser_Test extends DatabaseTestBase
 
         $t->parse();
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
-    }
-
-
-    /**
-     * @group parser_tokens
-     */
-    public function test_getParsedTokens()
-    {
-        $p = new RomanceLanguageParser();
-        $s = "Tengo un gato.\nTengo dos.";
-        $actual = $p->getParsedTokens($s, $this->spanish);
-
-        $expected = [
-            [ 'Tengo', true ],
-            [ ' ', false ],
-            [ 'un', true ],
-            [ ' ', false ],
-            [ 'gato', true ],
-            [ ".", false, true ],
-            [ "¶", false, true ],
-            [ 'Tengo', true ],
-            [ ' ', false ],
-            [ 'dos', true ],
-            [ '.', false, false ]
-        ];
-        $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
-
-        $tostring = function($tokens) {
-            $ret = '';
-            foreach ($tokens as $tok) {
-                $isw = $tok->isWord ? '1' : '0';
-                $iseos = $tok->isEndOfSentence ? '1' : '0';
-                $ret .= "{$tok->token}-{$isw}-{$iseos};";
-            }
-            return $ret;
-        };
-
-        $this->assertEquals($tostring($actual), $tostring($expected));
     }
 
 
