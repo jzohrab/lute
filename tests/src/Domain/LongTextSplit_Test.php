@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use App\Domain\LongTextSplit;
-use App\Domain\RomanceLanguageParser;
+use App\Domain\SpaceDelimitedParser;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
 
@@ -20,8 +20,8 @@ final class LongTextSplit_Test extends TestCase
     
     public function test_one_sentence_returned() {
         $eng = Language::makeEnglish();
-        $rlp = new RomanceLanguageParser();
-        $tokens = $rlp->getParsedTokens("Here is a dog.", $eng);
+        $parser = new SpaceDelimitedParser();
+        $tokens = $parser->getParsedTokens("Here is a dog.", $eng);
         $sentences = LongTextSplit::getSentences($tokens);
         $this->assertEquals(1, count($sentences), 'one sentence');
         $s = $this->toks_to_string($sentences[0]);
@@ -30,8 +30,8 @@ final class LongTextSplit_Test extends TestCase
 
     public function test_two_sentence_returned() {
         $eng = Language::makeEnglish();
-        $rlp = new RomanceLanguageParser();
-        $tokens = $rlp->getParsedTokens("Here is a dog. Here is a cat.", $eng);
+        $parser = new SpaceDelimitedParser();
+        $tokens = $parser->getParsedTokens("Here is a dog. Here is a cat.", $eng);
         $sentences = LongTextSplit::getSentences($tokens);
         $this->assertEquals(2, count($sentences), '2');
         $s = $this->toks_to_string($sentences[0]);
@@ -42,8 +42,8 @@ final class LongTextSplit_Test extends TestCase
 
     private function scenario($s, $maxcount, $expected_groups) {
         $eng = Language::makeEnglish();
-        $rlp = new RomanceLanguageParser();
-        $tokens = $rlp->getParsedTokens($s, $eng);
+        $parser = new SpaceDelimitedParser();
+        $tokens = $parser->getParsedTokens($s, $eng);
 
         $groups = LongTextSplit::groups($tokens, $maxcount);
 

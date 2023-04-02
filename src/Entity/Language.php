@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Domain\RomanceLanguageParser;
 use App\Domain\SpaceDelimitedParser;
 use App\Domain\JapaneseParser;
 use App\Domain\ClassicalChineseParser;
@@ -280,7 +279,6 @@ class Language
         switch ($this->LgParserType) {
         case 'romance':
             return new SpaceDelimitedParser();
-            return new RomanceLanguageParser();
         case 'classicalchinese':
             return new ClassicalChineseParser();
         case 'japanese':
