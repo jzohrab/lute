@@ -88,6 +88,20 @@ class TextItem
         return implode('-', $parts);
     }
 
+    private function has_extra_info(): bool {
+        $noextra = (
+            $this->WoTranslation == null &&
+            $this->WoRomanization == null &&
+            $this->ImageSource == null &&
+            $this->Tags == null &&
+            $this->ParentWoTextLC == null &&
+            $this->ParentWoTranslation == null &&
+            $this->ParentImageSource == null &&
+            $this->ParentTags == null
+        );
+        return !$noextra;
+    }
+
     public function getHtmlClassString(): string {
         if ($this->IsWord == 0) {
             return "textitem";
@@ -97,10 +111,12 @@ class TextItem
             return "textitem click word status0 {$tc}";
         }
 
-        $showtooltip = '';
         $st = $this->WoStatus;
-        if ($st != Status::WELLKNOWN && $st != Status::IGNORED)
-            $showtooltip = 'showtooltip';
+        $hidetip = ($st == Status::WELLKNOWN || $st == Status::IGNORED);
+
+        $showtooltip = 'showtooltip';
+        if ($hidetip && !$this->has_extra_info())
+            $showtooltip = '';
 
         return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$tc}";
     }
