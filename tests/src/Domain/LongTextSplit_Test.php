@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use App\Domain\LongTextSplit;
-use App\Domain\RomanceLanguageParser;
+use App\Domain\SpaceDelimitedParser;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
 
@@ -20,8 +20,8 @@ final class LongTextSplit_Test extends TestCase
     
     public function test_one_sentence_returned() {
         $eng = Language::makeEnglish();
-        $rlp = new RomanceLanguageParser();
-        $tokens = $rlp->getParsedTokens("Here is a dog.", $eng);
+        $parser = new SpaceDelimitedParser();
+        $tokens = $parser->getParsedTokens("Here is a dog.", $eng);
         $sentences = LongTextSplit::getSentences($tokens);
         $this->assertEquals(1, count($sentences), 'one sentence');
         $s = $this->toks_to_string($sentences[0]);
@@ -30,20 +30,20 @@ final class LongTextSplit_Test extends TestCase
 
     public function test_two_sentence_returned() {
         $eng = Language::makeEnglish();
-        $rlp = new RomanceLanguageParser();
-        $tokens = $rlp->getParsedTokens("Here is a dog. Here is a cat.", $eng);
+        $parser = new SpaceDelimitedParser();
+        $tokens = $parser->getParsedTokens("Here is a dog. Here is a cat.", $eng);
         $sentences = LongTextSplit::getSentences($tokens);
         $this->assertEquals(2, count($sentences), '2');
         $s = $this->toks_to_string($sentences[0]);
-        $this->assertEquals("Here is a dog.\r", $s);
+        $this->assertEquals("Here is a dog. ", $s);
         $s = $this->toks_to_string($sentences[1]);
-        $this->assertEquals(" Here is a cat.", $s, 'extra space at start');
+        $this->assertEquals("Here is a cat.", $s);
     }
 
     private function scenario($s, $maxcount, $expected_groups) {
         $eng = Language::makeEnglish();
-        $rlp = new RomanceLanguageParser();
-        $tokens = $rlp->getParsedTokens($s, $eng);
+        $parser = new SpaceDelimitedParser();
+        $tokens = $parser->getParsedTokens($s, $eng);
 
         $groups = LongTextSplit::groups($tokens, $maxcount);
 
@@ -60,22 +60,22 @@ final class LongTextSplit_Test extends TestCase
 
         $this->scenario(
             $text, 100,
-            [ "Here is a dog.\r Here is a cat." ]);
+            [ "Here is a dog. Here is a cat." ]);
 
         $this->scenario(
             $text, 3,
-            [ "Here is a dog.\r", " Here is a cat." ]);
+            [ "Here is a dog. ", "Here is a cat." ]);
 
         $this->scenario(
             $text, 6,
-            [ "Here is a dog.\r", " Here is a cat." ]);
+            [ "Here is a dog. ", "Here is a cat." ]);
 
         $this->scenario(
             "Here is a dog. Here is a cat. Here is a thing.",
             10,
             [
-                "Here is a dog.\r Here is a cat.\r",
-                " Here is a thing."
+                "Here is a dog. Here is a cat. ",
+                "Here is a thing."
             ]);
 
     }

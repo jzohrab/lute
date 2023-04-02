@@ -102,7 +102,7 @@ class ParsedTokenSaver {
             // standardize the string search when looking for terms.
             "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
               SELECT TxLgID, TxID, TokSentenceNumber, min(TokOrder),
-              CONCAT(0xE2808B, GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B), 0xE2808B)
+              CONCAT(0xE2808B, TRIM(GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B)), 0xE2808B)
               FROM texttokens
               inner join texts on TxID = TokTxID
               WHERE TxID in ({$idjoin})
@@ -124,13 +124,12 @@ class ParsedTokenSaver {
         // needed.
         $makeentry = function($token) use ($txid) {
             $isword = $token->isWord ? 1 : 0;
-            $s = $token->token;
             $this->ord += 1;
-            $ret = [ $txid, $this->sentence_number, $this->ord, $isword, rtrim($s, "\r") ];
+            $ret = [ $txid, $this->sentence_number, $this->ord, $isword, $token->token ];
 
             // Word ending with \r marks the end of the current
             // sentence.
-            if (str_ends_with($s, "\r")) {
+            if ($token->isEndOfSentence) {
                 $this->sentence_number += 1;
             }
             return $ret;

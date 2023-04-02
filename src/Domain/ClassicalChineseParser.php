@@ -80,9 +80,9 @@ class ClassicalChineseParser extends AbstractParser {
         foreach($chars as $char) {
             $isword = (preg_match("/^[$termchar]$/u", $char) == 1);
             $isEndOfSentence = (preg_match("/^[$splitSentence]$/u", $char) == 1);
-            if ($isEndOfSentence || $char == '¶')
-                $char = "$char\r";
-            $tok = new ParsedToken($char, $isword);
+            if ($char == '¶')
+                $isEndOfSentence = true;
+            $tok = new ParsedToken($char, $isword, $isEndOfSentence);
             $tokens[] = $tok;
         }
 

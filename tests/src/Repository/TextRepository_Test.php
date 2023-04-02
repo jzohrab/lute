@@ -35,12 +35,11 @@ final class TextRepository_Test extends DatabaseTestBase
             "1; 3; 1; un",
             "1; 4; 0;  ",
             "1; 5; 1; gato",
-            "1; 6; 0; .",
-            "2; 7; 0;  ",
-            "2; 8; 1; Un",
-            "2; 9; 0;  ",
-            "2; 10; 1; perro",
-            "2; 11; 0; ."
+            "1; 6; 0; . ",
+            "2; 7; 1; Un",
+            "2; 8; 0;  ",
+            "2; 9; 1; perro",
+            "2; 10; 0; ."
         ];
         DbHelpers::assertTableContains($sql, $expected);
     }
