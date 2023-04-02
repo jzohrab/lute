@@ -41,7 +41,7 @@ let tooltip_textitem_hover_content = function (el) {
   const status_span = function() {
     const status = parseInt(el.attr('data_status'));
     const st = STATUSES[status];
-    const statname = `${st['name']} [${st['abbr']}]`;
+    const statname = `[${st['abbr']}]`;
     return `<span style="margin-left: 12px; float: right;" class="status${status}">${statname}</span>`;
   }
 
@@ -64,7 +64,7 @@ let tooltip_textitem_hover_content = function (el) {
     return `<p>${unique_images}</p>`;
   }
 
-  let build_entry = function(term, transl, roman) {
+  let build_entry = function(term, transl, roman, tags) {
     let have_val = (v) => v != null && `${v}`.trim() != '';
     if (!have_val(term))
       return '';
@@ -73,6 +73,8 @@ let tooltip_textitem_hover_content = function (el) {
       ret.push(` <i>(${roman})</i>`);
     if (have_val(transl))
       ret.push(`: ${transl}`);
+    if (have_val(tags))
+      ret.push(` [${tags}]`);
     return `<p>${ret.join('')}</p>`;
   }
 
@@ -81,17 +83,21 @@ let tooltip_textitem_hover_content = function (el) {
       replace(/(\r\n|\n|\r)/gm, "<br />");  // Some translations have cr/lf.
   ptrans = get_attr('parent_trans');
   ctrans = get_attr('data_trans');
+  ctags = get_attr('data_tags');
 
   let translation_content = ctrans;
+  if (ctags != '') {
+    translation_content = `${translation_content} [${ctags}]`;
+  }
   if (ptrans != '' && ctrans != '' && ctrans != ptrans) {
     // show both.
     translation_content = [
-      build_entry(el.text(), ctrans, el.attr('data_rom')),
-      build_entry(el.attr('parent_text'), ptrans, null)
+      build_entry(el.text(), ctrans, el.attr('data_rom'), el.attr('data_tags')),
+      build_entry(el.attr('parent_text'), ptrans, null, el.attr('parent_tags'))
     ].join('');
   }
   if (ptrans != '' && ctrans == '') {
-    translation_content = build_entry(el.attr('parent_text'), ptrans, null);
+    translation_content = build_entry(el.attr('parent_text'), ptrans, null, el.attr('parent_tags'));
   }
 
   let content = `<p><b style="font-size:120%">${tooltip_title()}</b>${status_span()}</p>`;
