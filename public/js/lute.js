@@ -41,7 +41,7 @@ let tooltip_textitem_hover_content = function (el) {
   const status_span = function() {
     const status = parseInt(el.attr('data_status'));
     const st = STATUSES[status];
-    const statname = `${st['name']} [${st['abbr']}]`;
+    const statname = `[${st['abbr']}]`;
     return `<span style="margin-left: 12px; float: right;" class="status${status}">${statname}</span>`;
   }
 
