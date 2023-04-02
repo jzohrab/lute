@@ -4,13 +4,9 @@
       lid="{{ item.LangID }}"
       seid="{{ item.SeID }}"
       data_order="{{ item.Order }}"
-{% if item.WoID is null %}
-      data_trans=""
-      data_rom=""
-      data_status="0"
-      data_wid=""
-{% else %}
-      data_trans="{{ item.WoTranslation }} {{ item.Tags }}"
+{% if item.WoID is not null %}
+      data_trans="{{ item.WoTranslation }}"
+      data_tags="{{ item.Tags }}"
       data_rom="{{ item.WoRomanization }}"
       data_status="{{ item.WoStatus }}"
       data_code="{{ item.WordCount }}"
@@ -18,7 +14,8 @@
       data_wid="{{ item.WoID }}"
       data_img_src="{{ item.ImageSource }}"
       parent_text="{{ item.ParentWoTextLC }}"
-      parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}"
+      parent_tags="{{ item.ParentTags }}"
+      parent_trans="{{ item.ParentWoTranslation }}"
       parent_img_src="{{ item.ParentImageSource }}"
 {% endif %}
 >{{ item.Text | replace({' ': '&nbsp;'})| raw }}</span>
