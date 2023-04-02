@@ -35,9 +35,9 @@ final class LongTextSplit_Test extends TestCase
         $sentences = LongTextSplit::getSentences($tokens);
         $this->assertEquals(2, count($sentences), '2');
         $s = $this->toks_to_string($sentences[0]);
-        $this->assertEquals("Here is a dog.", $s);
+        $this->assertEquals("Here is a dog. ", $s);
         $s = $this->toks_to_string($sentences[1]);
-        $this->assertEquals(" Here is a cat.", $s, 'extra space at start');
+        $this->assertEquals("Here is a cat.", $s);
     }
 
     private function scenario($s, $maxcount, $expected_groups) {
@@ -64,18 +64,18 @@ final class LongTextSplit_Test extends TestCase
 
         $this->scenario(
             $text, 3,
-            [ "Here is a dog.", " Here is a cat." ]);
+            [ "Here is a dog. ", "Here is a cat." ]);
 
         $this->scenario(
             $text, 6,
-            [ "Here is a dog.", " Here is a cat." ]);
+            [ "Here is a dog. ", "Here is a cat." ]);
 
         $this->scenario(
             "Here is a dog. Here is a cat. Here is a thing.",
             10,
             [
-                "Here is a dog. Here is a cat.",
-                " Here is a thing."
+                "Here is a dog. Here is a cat. ",
+                "Here is a thing."
             ]);
 
     }
