@@ -65,7 +65,7 @@ class Language
     private bool $LgShowRomanization = false;
 
     #[ORM\Column(name: 'LgParserType', length: 20)]
-    private string $LgParserType = 'romance';
+    private string $LgParserType = 'spacedel';
 
     #[ORM\OneToMany(targetEntity: 'Book', mappedBy: 'Language', fetch: 'EXTRA_LAZY')]
     private Collection $books;
@@ -277,7 +277,7 @@ class Language
     public function getParser()
     {
         switch ($this->LgParserType) {
-        case 'romance':
+        case 'spacedel':
             return new SpaceDelimitedParser();
         case 'classicalchinese':
             return new ClassicalChineseParser();
