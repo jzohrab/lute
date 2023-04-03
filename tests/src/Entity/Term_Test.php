@@ -111,4 +111,21 @@ class Term_Test extends TestCase
 
     }
 
+    /**
+     * @group wordcountexception
+     */
+    public function test_term_left_as_is_if_its_an_exception()
+    {
+        $sp = Language::makeSpanish();
+        $sp->setLgExceptionsSplitSentences("EE.UU.");
+
+        $t = new Term($sp, 'EE.UU.');
+        $this->assertEquals($t->getTokenCount(), 1, "1 token");
+        $this->assertEquals($t->getText(), 'EE.UU.');
+
+        $t = new Term($sp, 'ee.uu.');
+        $this->assertEquals($t->getTokenCount(), 1, "1 token");
+        $this->assertEquals($t->getText(), 'ee.uu.');
+    }
+
 }

@@ -19,16 +19,18 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Doctrine\ORM\EntityManagerInterface;
-
+use App\Repository\LanguageRepository;
 
 class BookDTOType extends AbstractType
 {
 
     private EntityManagerInterface $manager;
+    private LanguageRepository $langrepo;
 
-    public function __construct(EntityManagerInterface $manager)
+    public function __construct(EntityManagerInterface $manager, LanguageRepository $langrepo)
     {
         $this->manager = $manager;
+        $this->langrepo = $langrepo;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -37,7 +39,7 @@ class BookDTOType extends AbstractType
             ->add('language',
                   EntityType::class,
                   [ 'class' => Language::class,
-                    'placeholder' => '(Select language)',
+                    'placeholder' => $options['lang_count'] == 1 ? false : '(Select language)',
                     'choice_label' => 'lgName'
                   ]
             )
@@ -99,8 +101,10 @@ class BookDTOType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
+        $langcount = count($this->langrepo->findAll());
         $resolver->setDefaults([
-            'data_class' => BookDTO::class
+            'data_class' => BookDTO::class,
+            'lang_count' => $langcount,
         ]);
     }
 }

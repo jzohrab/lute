@@ -24,7 +24,7 @@ class Book
     #[ORM\JoinColumn(name: 'BkLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $Language = null;
 
-    #[ORM\OneToMany(mappedBy: 'book', targetEntity: Text::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'book', targetEntity: Text::class, orphanRemoval: true, cascade: ['persist'], fetch: 'EXTRA_LAZY')]
     #[ORM\OrderBy(['TxOrder' => 'ASC'])]
     #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
     private Collection $Texts;
@@ -85,6 +85,11 @@ class Book
     public function getTexts(): Collection
     {
         return $this->Texts;
+    }
+
+    public function getPageCount(): int
+    {
+        return count($this->Texts);
     }
 
     public function addText(Text $text): self

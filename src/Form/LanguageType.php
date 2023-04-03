@@ -83,7 +83,7 @@ class LanguageType extends AbstractType
             ->add('LgParserType',
                   ChoiceType::class,
                   [ 'choices'  => [
-                      'Romance Language' => 'romance',
+                      'Space Delimited' => 'spacedel',
                       'Japanese Language (MeCab)' => 'japanese',
                       'Classical Chinese' => 'classicalchinese'
                      ],
