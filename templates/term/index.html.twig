@@ -147,12 +147,7 @@
       type: 'POST',
       dataType: 'json',
       success: function(data) {
-        alert("Updated.");
-        $('#chkAll').prop('checked', false);
-        $('.chkWord:checked').each(function(i) {
-          $(this).prop('checked', false);
-        });
-        handleChkClick();
+        location.reload();
       }
     });
   }
