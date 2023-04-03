@@ -1,5 +1,22 @@
 # Changelog
 
+## 2023-04-03 v1.2.1
+
+Feature changes:
+
+* Show tooltip if there any extra info defined for term (issue https://github.com/jzohrab/lute/issues/18)
+* Bugfix for parsing "EE.UU." (issue https://github.com/jzohrab/lute/issues/16)
+* Import a web page into new book (see https://github.com/jzohrab/lute/wiki/Importing-Web-Pages)
+* Reload term listing on parent change.
+* Remove some cruft from the reading page: only show title at start of book, nav links on page footer.
+
+Back-end changes:
+
+* Change "romance language parser" to better "space delimited parser"
+* Remove some dead code
+* Only show language dropdown if mult langs exist
+
+
 ## 2023-03-27 v1.2.0
 
 Feature changes:
