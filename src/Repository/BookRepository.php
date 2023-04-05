@@ -29,9 +29,10 @@ class BookRepository extends ServiceEntityRepository
         $stmt->executeQuery();
     }
 
-    private function removeSentences(int $bookid): void
+    private function removeParsedData(int $bookid): void
     {
         $this->exec_sql("delete from sentences where SeTxID in (select TxID from texts where TxBkID = $bookid)");
+        $this->exec_sql("delete from texttokens where TokTxID in (select TxID from texts where TxBkID = $bookid)");
     }
 
     public function save(Book $entity, bool $flush = false): void
@@ -51,7 +52,7 @@ class BookRepository extends ServiceEntityRepository
     public function remove(Book $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
-        $this->removeSentences($entity->getId());
+        $this->removeParsedData($entity->getId());
 
         if ($flush) {
             $this->getEntityManager()->flush();

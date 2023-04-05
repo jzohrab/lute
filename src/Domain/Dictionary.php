@@ -161,13 +161,14 @@ class Dictionary {
             $termstrings[] = $row['WoTextLC'];
         }
         
-        $sql = "select distinct TxID, TxTitle, SeText
+        $sql = "select distinct TxID, TxTitle, SeText, SeOrder
           from texts
           inner join sentences on SeTxID = TxID
           where lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%') and TxArchived = 1
            ";
         $fullsql = array_fill(0, count($termstrings), $sql);
         $fullsql = implode(' UNION ', $fullsql);
+        $fullsql .= " order by SeOrder";
         // dump($fullsql);
 
         $stmt = $conn->prepare($fullsql);
