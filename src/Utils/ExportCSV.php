@@ -16,6 +16,20 @@ class ExportCSV {
             throw new \Exception("Error creating $csvfile");
         }
 
+        $headings = [];
+        $dbname = $_ENV["DB_DATABASE"];
+        $sql = "SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA ='{$dbname}'
+        AND TABLE_NAME ='{$tbl}'";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = mysqli_fetch_assoc($res)) {
+            $headings[] = $row['COLUMN_NAME'];
+        }
+        fputcsv($handle, $headings);
+
         $sql = "SELECT * FROM {$tbl}";
         // echo $sql . "<br/>";
         $stmt = $conn->prepare($sql);
