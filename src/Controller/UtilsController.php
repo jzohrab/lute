@@ -41,11 +41,7 @@ class UtilsController extends AbstractController
     public function export_csv(): Response
     {
         ExportCSV::doExport();
-        return $this->redirectToRoute(
-            'app_index',
-            [ ],
-            Response::HTTP_SEE_OTHER
-        );
+        return $this->render('utils/csv_export.html.twig');
     }
 
 }
