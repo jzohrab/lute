@@ -10,14 +10,14 @@ class ExportCSV {
 
     private static function export_table($conn, $targetdir, $tbl) {
         $csvfile = "{$targetdir}/{$tbl}.csv";
-        echo $csvfile . "<br/>";
+        // echo $csvfile . "<br/>";
         $handle = fopen($csvfile, "w");
         if ($handle === false) {
             throw new \Exception("Error creating $csvfile");
         }
 
         $sql = "SELECT * FROM {$tbl}";
-        echo $sql . "<br/>";
+        // echo $sql . "<br/>";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         $res = $stmt->get_result();
