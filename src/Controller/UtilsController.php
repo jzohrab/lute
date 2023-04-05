@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use App\Utils\Backup;
+use App\Utils\ExportCSV;
 use App\Repository\SettingsRepository;
 
 #[Route('/utils')]
@@ -34,6 +35,17 @@ class UtilsController extends AbstractController
         catch(\Exception $e) {
             return new JsonResponse(array('errmsg' => $e->getMessage()), 500);
         }
+    }
+
+    #[Route('/export_csv', name: 'app_export_csv', methods: ['GET'])]
+    public function export_csv(): Response
+    {
+        ExportCSV::doExport();
+        return $this->redirectToRoute(
+            'app_index',
+            [ ],
+            Response::HTTP_SEE_OTHER
+        );
     }
 
 }
