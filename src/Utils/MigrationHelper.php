@@ -2,7 +2,7 @@
 
 namespace App\Utils;
 
-require_once __DIR__ . '/../../db/lib/mysql_migrator.php';
+require_once __DIR__ . '/../../db/mysql/lib/mysql_migrator.php';
 
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
@@ -20,8 +20,8 @@ class MigrationHelper {
     private static function getMigrator($showlogging = false) {
         [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
 
-        $dir = __DIR__ . '/../../db/migrations';
-        $repdir = __DIR__ . '/../../db/migrations_repeatable';
+        $dir = __DIR__ . '/../../db/mysql/migrations';
+        $repdir = __DIR__ . '/../../db/mysql/migrations_repeatable';
         $migration = new \MysqlMigrator($dir, $repdir, $server, $dbname, $userid, $passwd, $showlogging);
         return $migration;
     }
@@ -102,7 +102,7 @@ class MigrationHelper {
             'reference_data.sql'
         ];
         foreach ($files as $f) {
-            $basepath = __DIR__ . '/../../db/baseline/';
+            $basepath = __DIR__ . '/../../db/mysql/baseline/';
             MigrationHelper::process_file($basepath . $f);
         }
     }

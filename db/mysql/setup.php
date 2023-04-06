@@ -2,9 +2,9 @@
 use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\MigrationHelper;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
-(new Dotenv())->bootEnv(__DIR__ . '/../.env');
+(new Dotenv())->bootEnv(__DIR__ . '/../../.env');
 
 echo "\nSetting up {$_ENV['DB_DATABASE']}\n\n";
 [ $messages, $error ] = MigrationHelper::doSetup();
