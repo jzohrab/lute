@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../DatabaseTestBase.php';
 
-use App\Utils\MigrationHelper;
+use App\Utils\MysqlHelper;
 use App\Domain\Dictionary;
 
 // Smoke tests
@@ -11,7 +11,7 @@ final class RestoreArchivedTextSentences_Test extends DatabaseTestBase
 
     public function test_script_reloads_archived_text_sentences() {
         $dict = new Dictionary($this->term_repo);
-        MigrationHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
+        MysqlHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertTrue(true, 'dummy');
         $t = $this->text_repo->find(1);
         $this->assertEquals(explode(' ', $t->getTitle())[0], 'Tutorial', 'got tutorial.');

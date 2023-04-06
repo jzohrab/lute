@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
-use App\Utils\MigrationHelper;
+use App\Utils\MysqlHelper;
 use App\Utils\AppManifest;
 use App\Utils\Backup;
 use App\Repository\SettingsRepository;
@@ -49,8 +49,8 @@ class IndexController extends AbstractController
         }
 
         return $this->render('index.html.twig', [
-            'isdemodb' => MigrationHelper::isLuteDemo(),
-            'demoisempty' => MigrationHelper::isEmptyDemo(),
+            'isdemodb' => MysqlHelper::isLuteDemo(),
+            'demoisempty' => MysqlHelper::isEmptyDemo(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
