@@ -8,7 +8,7 @@ This folder contains simple db scripts and and migrations for db schema manageme
 * See "code migrations" below for special PHP executors
 * The main class `mysql_migrator.php` was lifted from https://github.com/jzohrab/php-migration, and then modified.
 
-The front controller `index.php` calls `src/Utils/MigrationHelper.php` to apply changes automatically for users.
+The front controller `index.php` calls `src/Utils/MysqlHelper.php` to apply changes automatically for users.
 
 # Development
 

@@ -6,7 +6,7 @@ use App\Repository\SettingsRepository;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-class ExportCSV {
+class MysqlExportCSV {
 
     private static function export_table($conn, $targetdir, $tbl) {
         $csvfile = "{$targetdir}/{$tbl}.csv";
@@ -65,7 +65,7 @@ class ExportCSV {
             "wordtags"
         ];
         foreach ($tables as $t)
-            ExportCSV::export_table($conn, $targetdir, $t);
+            MysqlExportCSV::export_table($conn, $targetdir, $t);
     }
 
 }

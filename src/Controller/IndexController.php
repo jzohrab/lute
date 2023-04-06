@@ -8,9 +8,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
-use App\Utils\MigrationHelper;
+use App\Utils\MysqlHelper;
 use App\Utils\AppManifest;
-use App\Utils\Backup;
+use App\Utils\MysqlBackup;
 use App\Repository\SettingsRepository;
 
 class IndexController extends AbstractController
@@ -37,7 +37,7 @@ class IndexController extends AbstractController
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
-        $bkp = new Backup($_ENV, $repo);
+        $bkp = new MysqlBackup($_ENV, $repo);
         $bkp_warning = $bkp->warning();
 
         if ($bkp->should_run_auto_backup()) {
@@ -49,8 +49,8 @@ class IndexController extends AbstractController
         }
 
         return $this->render('index.html.twig', [
-            'isdemodb' => MigrationHelper::isLuteDemo(),
-            'demoisempty' => MigrationHelper::isEmptyDemo(),
+            'isdemodb' => MysqlHelper::isLuteDemo(),
+            'demoisempty' => MysqlHelper::isEmptyDemo(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,

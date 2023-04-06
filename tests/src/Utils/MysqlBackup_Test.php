@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Utils\Backup;
+use App\Utils\MysqlBackup;
 use App\Repository\SettingsRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @backupGlobals enabled
  */
-final class Backup_Test extends TestCase
+final class MysqlBackup_Test extends TestCase
 {
 
     private $config;
@@ -21,7 +21,7 @@ final class Backup_Test extends TestCase
 
     public function setUp(): void {
         $config = array();
-        foreach (Backup::$reqkeys as $k) {
+        foreach (MysqlBackup::$reqkeys as $k) {
             $config[$k] = $k . '_value';
         }
 
@@ -48,8 +48,8 @@ final class Backup_Test extends TestCase
         $this->rrmdir($this->dir);
     }
     
-    private function createBackup() {
-        return new Backup($this->config, $this->repo);
+    private function createMysqlBackup() {
+        return new MysqlBackup($this->config, $this->repo);
     }
     
     // https://stackoverflow.com/questions/1653771/how-do-i-remove-a-directory-that-is-not-empty
@@ -85,27 +85,27 @@ final class Backup_Test extends TestCase
 
 
     public function test_missing_keys_all_keys_present() {
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertTrue($b->config_keys_set(), "all keys present");
     }
 
     public function test_missing_keys() {
         $this->config = [];
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertFalse($b->config_keys_set(), "not all keys present");
-        $this->assertEquals($b->missing_keys(), implode(', ', Backup::$reqkeys));
+        $this->assertEquals($b->missing_keys(), implode(', ', MysqlBackup::$reqkeys));
     }
 
     public function test_one_missing_key() {
         unset($this->config['BACKUP_DIR']);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertFalse($b->config_keys_set(), "not all keys present");
         $this->assertEquals($b->missing_keys(), 'BACKUP_DIR');
     }
 
     public function test_backup_fails_if_missing_output_dir() {
         $this->config['BACKUP_DIR'] = 'some_missing_dir';
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->expectException(Exception::class);
         $b->create_backup();
     }
@@ -130,7 +130,7 @@ final class Backup_Test extends TestCase
         $filesystem = new FileSystem();
         $filesystem->dumpFile($this->imagedir . '/1/file.txt', 'imagefile');
 
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $b->create_backup();
         $this->assertEquals(1, count(glob($this->dir . "/*.*")), "1 file");
         $this->assertEquals(1, count(glob($this->dir . "/lute_export.sql.gz")), "1 zip file");
@@ -145,7 +145,7 @@ final class Backup_Test extends TestCase
     public function test_command_skip_skips_backup() {
         $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'skip';
 
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $b->create_backup();
 
         $this->assertEquals(0, count(glob($this->dir . "/*.*")), "no files");
@@ -155,7 +155,7 @@ final class Backup_Test extends TestCase
         $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'skip';
         $this->repo->expects($this->once())->method('saveLastBackupDatetime');
 
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $b->create_backup();
 
         $this->assertEquals(0, count(glob($this->dir . "/*.*")), "no files");
@@ -163,7 +163,7 @@ final class Backup_Test extends TestCase
 
     public function test_dump_command_fails_if_doesnt_contain_mysqldump() {
         $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'someweirdcommand';
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("Bad BACKUP_MYSQLDUMP_COMMAND setting 'someweirdcommand', must contain 'mysqldump'");
         $b->create_backup();
@@ -172,7 +172,7 @@ final class Backup_Test extends TestCase
     public function test_last_import_setting_not_updated_on_failure() {
         $this->config['BACKUP_MYSQLDUMP_COMMAND'] = 'badcommand';
 
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->expectException(Exception::class);
         $this->repo->expects($this->never())->method('saveLastBackupDatetime');
 
@@ -182,7 +182,7 @@ final class Backup_Test extends TestCase
     public function test_should_not_run_autobackup_if_auto_is_no_or_false() {
         $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'no';
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->repo->expects($this->never())->method('getLastBackupDatetime');
         $this->assertFalse($b->should_run_auto_backup());
     }
@@ -190,7 +190,7 @@ final class Backup_Test extends TestCase
     public function test_checks_if_should_run_autobackup_if_auto_is_yes_or_true() {
         $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->repo->expects($this->once())->method('getLastBackupDatetime');
         $b->should_run_auto_backup();
     }
@@ -199,7 +199,7 @@ final class Backup_Test extends TestCase
         $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
         $this->repo->method('getLastBackupDatetime')->willReturn(null);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertTrue($b->should_run_auto_backup());
     }
 
@@ -211,18 +211,18 @@ final class Backup_Test extends TestCase
 
         $this->repo = $this->createMock(SettingsRepository::class);
         $this->repo->method('getLastBackupDatetime')->willReturn($onedayago - 10);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertTrue($b->should_run_auto_backup(), 'older than 1 day');
 
         $this->repo = $this->createMock(SettingsRepository::class);
         $this->repo->method('getLastBackupDatetime')->willReturn($onedayago + 10);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertFalse($b->should_run_auto_backup(), 'newer than 1 day');
     }
 
     public function test_warning_is_set_if_keys_missing() {
         $this->config = [];
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $expected = "Missing backup environment keys in .env.local: BACKUP_MYSQLDUMP_COMMAND, BACKUP_DIR, BACKUP_AUTO, BACKUP_WARN";
         $this->assertEquals($b->warning(), $expected);
     }
@@ -234,25 +234,25 @@ final class Backup_Test extends TestCase
         $this->config['BACKUP_WARN'] = 'yes';
         $this->repo = $this->createMock(SettingsRepository::class);
         $this->repo->method('getLastBackupDatetime')->willReturn(null);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertEquals($b->warning(), 'Last backup was more than 1 week ago.', 'never backed up');
 
         $this->config['BACKUP_WARN'] = 'yes';
         $this->repo = $this->createMock(SettingsRepository::class);
         $this->repo->method('getLastBackupDatetime')->willReturn($oneweekago - 10);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertEquals($b->warning(), 'Last backup was more than 1 week ago.', 'old backup');
 
         $this->config['BACKUP_WARN'] = 'no';
         $this->repo = $this->createMock(SettingsRepository::class);
         $this->repo->method('getLastBackupDatetime')->willReturn($oneweekago - 10);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertEquals($b->warning(), '', 'no warning, turned off!');
 
         $this->config['BACKUP_WARN'] = 'yes';
         $this->repo = $this->createMock(SettingsRepository::class);
         $this->repo->method('getLastBackupDatetime')->willReturn($oneweekago + 10);
-        $b = $this->createBackup();
+        $b = $this->createMysqlBackup();
         $this->assertEquals($b->warning(), '', 'No warning, backup is recent');
     }
 

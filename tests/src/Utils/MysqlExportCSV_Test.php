@@ -2,14 +2,14 @@
 
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Utils\ExportCSV;
+use App\Utils\MysqlExportCSV;
 
 // Smoke test only.
-final class ExportCSV_Test extends DatabaseTestBase
+final class MysqlExportCSV_Test extends DatabaseTestBase
 {
 
     public function test_smoke_test() {
-        ExportCSV::doExport();
+        MysqlExportCSV::doExport();
         $this->assertEquals(1,1,"dummy");
     }
 

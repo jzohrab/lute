@@ -15,7 +15,7 @@ use App\Domain\BookBinder;
 use App\Domain\JapaneseParser;
 
 // Class for namespacing only.
-class MigrationHelper {
+class MysqlHelper {
 
     private static function getMigrator($showlogging = false) {
         [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
@@ -44,25 +44,25 @@ class MigrationHelper {
 
             $dbexists = Connection::databaseExists();
 
-            if ($dbexists && MigrationHelper::isLearningWithTextsDb()) {
+            if ($dbexists && MysqlHelper::isLearningWithTextsDb()) {
                 [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
                 $args = [
                     'dbname' => $dbname,
                     'username' => $userid
                 ];
-                $error = MigrationHelper::renderError('will_not_migrate_lwt_automatically.html.twig', $args);
+                $error = MysqlHelper::renderError('will_not_migrate_lwt_automatically.html.twig', $args);
                 return [ $messages, $error ];
             }
 
             if (! $dbexists) {
                 Connection::createBlankDatabase();
-                MigrationHelper::installBaseline();
+                MysqlHelper::installBaseline();
                 $newdbcreated = true;
                 $messages[] = 'New database created.';
             }
 
-            if (MigrationHelper::hasPendingMigrations()) {
-                MigrationHelper::runMigrations();
+            if (MysqlHelper::hasPendingMigrations()) {
+                MysqlHelper::runMigrations();
                 if (! $newdbcreated) {
                     $messages[] = 'Database updated.';
                 }
@@ -70,7 +70,7 @@ class MigrationHelper {
         }
         catch (\Exception $e) {
             $args = ['errors' => [ $e->getMessage() ]];
-            $error = MigrationHelper::renderError('fatal_error.html.twig', $args);
+            $error = MysqlHelper::renderError('fatal_error.html.twig', $args);
         }
 
         return [ $messages, $error ];
@@ -85,13 +85,13 @@ class MigrationHelper {
     }
 
     public static function hasPendingMigrations() {
-        $migration = MigrationHelper::getMigrator();
+        $migration = MysqlHelper::getMigrator();
         return count($migration->get_pending()) > 0;
     }
 
     public static function runMigrations($showlogging = false) {
         [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
-        $migration = MigrationHelper::getMigrator($showlogging);
+        $migration = MysqlHelper::getMigrator($showlogging);
         $migration->exec("ALTER DATABASE `{$dbname}` CHARACTER SET utf8 COLLATE utf8_general_ci");
         $migration->process();
     }
@@ -103,7 +103,7 @@ class MigrationHelper {
         ];
         foreach ($files as $f) {
             $basepath = __DIR__ . '/../../db/mysql/baseline/';
-            MigrationHelper::process_file($basepath . $f);
+            MysqlHelper::process_file($basepath . $f);
         }
     }
 
@@ -119,7 +119,7 @@ class MigrationHelper {
     }
 
     public static function isEmptyDemo() {
-        if (! MigrationHelper::isLuteDemo())
+        if (! MysqlHelper::isLuteDemo())
             return false;
 
         $conn = Connection::getFromEnvironment();
