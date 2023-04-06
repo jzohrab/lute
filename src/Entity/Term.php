@@ -31,13 +31,13 @@ class Term
     #[ORM\Column(name: 'WoStatus', type: Types::SMALLINT)]
     private ?int $WoStatus = 1;
 
-    #[ORM\Column(name: 'WoTranslation', length: 500)]
+    #[ORM\Column(name: 'WoTranslation', length: 500, nullable: true)]
     private ?string $WoTranslation = null;
 
-    #[ORM\Column(name: 'WoRomanization', length: 100)]
+    #[ORM\Column(name: 'WoRomanization', length: 100, nullable: true)]
     private ?string $WoRomanization = null;
 
-    #[ORM\Column(name: 'WoSentence', length: 1000)]
+    #[ORM\Column(name: 'WoSentence', length: 1000, nullable: true)]
     private ?string $WoSentence = null;
 
     #[ORM\Column(name: 'WoWordCount', type: Types::SMALLINT)]

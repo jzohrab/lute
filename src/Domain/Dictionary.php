@@ -96,7 +96,10 @@ class Dictionary {
           AND lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%')
           LIMIT 20";
         $stmt = $conn->prepare($sql);
+
+        // TODO:sqlite uses SQLITE3_TEXT
         $stmt->bindValue(1, $s, \PDO::PARAM_STR);
+
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
@@ -154,8 +157,8 @@ class Dictionary {
             throw new \Exception($stmt->error);
         }
         $termstrings = [];
-        while (($row = $stmt->fetch(\PDO::FETCH_ASSOC))) {
-            $termstrings[] = $row['WoTextLC'];
+        while (($row = $stmt->fetch(\PDO::FETCH_NUM))) {
+            $termstrings[] = $row[0];
         }
         
         $sql = "select distinct TxID, TxTitle, SeText, SeOrder
@@ -165,19 +168,22 @@ class Dictionary {
            ";
         $fullsql = array_fill(0, count($termstrings), $sql);
         $fullsql = implode(' UNION ', $fullsql);
-        $fullsql .= " order by SeOrder";
+        $fullsql = $fullsql . ' ORDER BY SeOrder';
         // dump($fullsql);
 
         $stmt = $conn->prepare($fullsql);
         if (!$stmt) {
             throw new \Exception($conn->error);
         }
+
         // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
         // Positional numbering starts at 1. !!!
         $n = count($termstrings);
         for ($i = 1; $i <= $n; $i++) {
+        // TODO:sqlite uses SQLITE3_TEXT
             $stmt->bindValue($i, $termstrings[$i - 1], \PDO::PARAM_STR);
         }
+
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
