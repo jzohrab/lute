@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use App\Utils\MysqlBackup;
-use App\Utils\ExportCSV;
+use App\Utils\MysqlExportCSV;
 use App\Repository\SettingsRepository;
 
 #[Route('/utils')]
@@ -40,7 +40,7 @@ class UtilsController extends AbstractController
     #[Route('/export_csv', name: 'app_export_csv', methods: ['GET'])]
     public function export_csv(): Response
     {
-        ExportCSV::doExport();
+        MysqlExportCSV::doExport();
         return $this->render('utils/csv_export.html.twig');
     }
 
