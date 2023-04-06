@@ -158,7 +158,7 @@ class MysqlMigrator {
     if ($this->conn->error) {
       $this->log("error:");
       $this->log($this->conn->error);
-      die;
+      throw new Exception("Error: " . $this->conn->error);
     }
   }
 

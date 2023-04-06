@@ -88,29 +88,30 @@ you must use a dedicated test database when running tests.
     }
 
     public static function clean_db() {
+        // Clean out tables in ref-integrity order.
         $tables = [
-            "feedlinks",
-            "languages",
-            "newsfeeds",
             "sentences",
             "settings",
+            "texttokens",
+
+            "booktags",
+            "bookstats",
+
+            "texttags",
+            "wordtags",
+            "wordparents",
+            "wordimages",
+
             "tags",
             "tags2",
             "texts",
-            "texttokens",
-            "texttags",
-
-            "bookstats",
-            "booktags",
             "books",
-
             "words",
-            "wordparents",
-            "wordimages",
-            "wordtags"
+            "languages"
         ];
         foreach ($tables as $t) {
-            DbHelpers::exec_sql("truncate {$t}");
+            // truncate doesn't work when referential integrity is set.
+            DbHelpers::exec_sql("delete from {$t}");
         }
 
         $alters = [
