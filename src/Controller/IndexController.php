@@ -16,26 +16,20 @@ use App\Repository\SettingsRepository;
 class IndexController extends AbstractController
 {
 
-    private function get_current_text($conn) {
-        $sql = "select TxID, TxTitle from texts
-           where txid = (
-             select StValue from settings where StKey = 'currenttext'
-           )";
-        $rec = $conn
-             ->query($sql)
-             ->fetch_array();
-        if (! $rec)
+    private function get_current_text(SettingsRepository $repo, TextRepository $trepo) {
+        $tid = $repo->getCurrentTextID();
+        if ($tid == null)
             return [null, null];
-        else
-            return [ $rec['TxID'], $rec['TxTitle'] ];
-    }
-
+        $txt = $trepo->find($tid);
+        if ($txt == null)
+            return [null, null];
+        return [ $txt->getID(), $txt->getTitle() ];
+     }
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
-    public function index(Request $request, SettingsRepository $repo): Response
+    public function index(Request $request, SettingsRepository $repo, TextRepository $trepo): Response
     {
-        $conn = Connection::getFromEnvironment();
-        [ $txid, $txtitle ] = $this->get_current_text($conn);
+        [ $txid, $txtitle ] = $this->get_current_text($repo, $trepo);
 
         // DemoController sets tutorialloaded.
         $tutorialloaded = $request->query->get('tutorialloaded');
@@ -88,7 +82,7 @@ class IndexController extends AbstractController
         $conn = Connection::getFromEnvironment();
         $mysql = $conn
                ->query("SELECT VERSION() as value")
-               ->fetch_array()[0];
+               ->fetch(\PDO::FETCH_NUM)[0];
 
         return $this->render('server_info.html.twig', [
             'tag' => $gittag,

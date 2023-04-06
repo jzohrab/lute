@@ -75,12 +75,9 @@ class Connection {
         // Verify
         try {
             $conn = Connection::getFromEnvironment();
-            mysqli_close($conn);
         }
         catch (\Exception $e) {
-            $errmsg = mysqli_connect_error();
-            $errnum = mysqli_connect_errno();
-            $msg = "{$errmsg} ({$errnum})";
+            $msg = "Unable to connect to newly created db.";
             throw new \Exception($msg);
         }
     }
@@ -89,19 +86,20 @@ class Connection {
      * Open a new connection using the environment settings.
      */
     public static function getFromEnvironment() {
-        $conn = null;
-        try {
-            $conn = @mysqli_connect(...Connection::getParams());
-        }
-        catch (\Exception $e) {
-            $errmsg = mysqli_connect_error();
-            $errnum = mysqli_connect_errno();
-            $msg = "{$errmsg} ({$errnum})";
-            throw new \Exception($msg);
-        }
-        @mysqli_query($conn, "SET NAMES 'utf8'");
-        @mysqli_query($conn, "SET SESSION sql_mode = ''");
-        return $conn;
+        $user = $_ENV['DB_USER'];
+        $password = $_ENV['DB_PASSWORD'];
+        $host = $_ENV['DB_HOSTNAME'];
+        $dbname = $_ENV['DB_DATABASE'];
+        $d = "mysql:host={$host};dbname={$dbname}";
+
+        // TODO:sqlite
+        // $d = str_replace('%kernel.project_dir%', __DIR__ . '/../..', $_ENV['DATABASE_URL']);
+
+        $dbh = new \PDO($d, $user, $password);
+
+        $dbh->query("SET NAMES 'utf8'");
+        $dbh->query("SET SESSION sql_mode = ''");
+        return $dbh;
     }
 
 }

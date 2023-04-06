@@ -136,19 +136,6 @@ you must use a dedicated test database when running tests.
      * Checks.
      */
 
-    // Test-writing-helper method, to get expected output for
-    // assertTableContains.
-    public static function dumpTable($sql) {
-        $content = [];
-        $res = DbHelpers::exec_sql_get_result($sql);
-        echo "\n[\n";
-        while($row = mysqli_fetch_assoc($res)) {
-            $content[] = '"' . implode('; ', $row) . '"';
-        }
-        echo implode(",\n", $content);
-        echo "\n]\n";
-    }
-
     public static function assertTableContains($sql, $expected, $message = '') {
         $content = [];
         $res = DbHelpers::exec_sql_get_result($sql);

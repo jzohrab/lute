@@ -24,8 +24,7 @@ class ExportCSV {
         AND TABLE_NAME ='{$tbl}'";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
-        $res = $stmt->get_result();
-        while ($row = mysqli_fetch_assoc($res)) {
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $headings[] = $row['COLUMN_NAME'];
         }
         fputcsv($handle, $headings);
@@ -34,8 +33,7 @@ class ExportCSV {
         // echo $sql . "<br/>";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
-        $res = $stmt->get_result();
-        while ($row = mysqli_fetch_assoc($res)) {
+        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
             fputcsv($handle, $row);
         }
         fclose($handle);

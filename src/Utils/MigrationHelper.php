@@ -110,14 +110,7 @@ class MigrationHelper {
     private static function process_file($file) {
         $conn = Connection::getFromEnvironment();
         $commands = file_get_contents($file);
-        $conn->multi_query($commands);
-        do {
-            $conn->store_result();
-        } while ($conn->next_result());
-        
-        if ($conn->error) {
-            throw new \Exception($conn->error);
-        }
+        $conn->query($commands);
     }
 
     public static function isLuteDemo() {
@@ -132,7 +125,7 @@ class MigrationHelper {
         $conn = Connection::getFromEnvironment();
         $check = $conn
                ->query('select count(*) as c from Languages')
-               ->fetch_array();
+               ->fetch(\PDO::FETCH_ASSOC);
         $c = intval($check['c']);
         return $c == 0;
     }
@@ -145,7 +138,7 @@ class MigrationHelper {
         $conn = Connection::getFromEnvironment();
         $check = $conn
                ->query($sql)
-               ->fetch_array();
+               ->fetch(\PDO::FETCH_ASSOC);
         $c = intval($check['c']);
         return $c == 1;
     }

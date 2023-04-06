@@ -36,7 +36,7 @@ class ParsedTokenSaver {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        return $stmt->get_result();
+        return $stmt;
     }
  
     private function parseText($texts) {
@@ -163,14 +163,15 @@ class ParsedTokenSaver {
         $vals = array_map(fn($t) => '(' . implode(',', [ $t[0], $t[1] + 1, $t[2], $t[3], '?' ]) . ')', $chunk);
         $valstring = implode(',', $vals);
 
-        $n = count($chunk);
-        $parmtypes = str_repeat("s", $n);
-        $prmarray = array_map(fn($t) => $t[4], $chunk);
-
         $sql = $sqlbase . $valstring;
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param($parmtypes, ...$prmarray);
+        // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
+        // Positional numbering starts at 1. !!!
+        $n = count($chunk);
+        for ($i = 1; $i <= $n; $i++) {
+            $stmt->bindValue($i, $chunk[$i - 1][4], \PDO::PARAM_STR);
+        }
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }

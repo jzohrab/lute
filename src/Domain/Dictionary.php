@@ -71,13 +71,12 @@ class Dictionary {
             'siblings' => $this->getSiblingReferences($p, $term, $conn),
             'archived' => $this->getArchivedReferences($term, $conn)
         ];
-        mysqli_close($conn);
         return $ret;
     }
 
     private function buildTermReferenceDTOs($res) {
         $ret = [];
-        while (($row = $res->fetch_assoc())) {
+        while (($row = $res->fetch(\PDO::FETCH_ASSOC))) {
             $s = $row['SeText'];
             if ($s !== null)
                 $s = trim($s);
@@ -97,12 +96,11 @@ class Dictionary {
           AND lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%')
           LIMIT 20";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param('s', $s);
+        $stmt->bindValue(1, $s, \PDO::PARAM_STR);
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        $res = $stmt->get_result();
-        return $this->buildTermReferenceDTOs($res);
+        return $this->buildTermReferenceDTOs($stmt);
     }
 
     private function getSiblingReferences($parent, $term, $conn): array {
@@ -155,9 +153,8 @@ class Dictionary {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        $res = $stmt->get_result();
         $termstrings = [];
-        while (($row = $res->fetch_assoc())) {
+        while (($row = $stmt->fetch(\PDO::FETCH_ASSOC))) {
             $termstrings[] = $row['WoTextLC'];
         }
         
@@ -175,12 +172,16 @@ class Dictionary {
         if (!$stmt) {
             throw new \Exception($conn->error);
         }
-        $stmt->bind_param(str_repeat('s', count($termstrings)), ...$termstrings);
+        // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
+        // Positional numbering starts at 1. !!!
+        $n = count($termstrings);
+        for ($i = 1; $i <= $n; $i++) {
+            $stmt->bindValue($i, $termstrings[$i - 1], \PDO::PARAM_STR);
+        }
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        $res = $stmt->get_result();
-        return $this->buildTermReferenceDTOs($res);
+        return $this->buildTermReferenceDTOs($stmt);
     }
 
 }

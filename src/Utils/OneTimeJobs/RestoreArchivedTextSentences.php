@@ -38,7 +38,7 @@ class RestoreArchivedTextSentences {
         $echo("Restoring sentences for {$c} archived text(s), as needed.\n");
         foreach ($texts as $t) {
             $sql = "select count(*) as c from sentences where SeTxID = {$t->getID()}";
-            $c = $conn->query($sql)->fetch_array();
+            $c = $conn->query($sql)->fetch(\PDO::FETCH_ASSOC);
             if ($c['c'] == '0') {
                 $echo("  {$t->getTitle()}\n");
                 $t->parse();
