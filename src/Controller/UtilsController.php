@@ -11,10 +11,22 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Utils\MysqlBackup;
 use App\Utils\MysqlExportCSV;
 use App\Repository\SettingsRepository;
+use App\Utils\ImportCSV;
 
 #[Route('/utils')]
 class UtilsController extends AbstractController
 {
+
+    #[Route('/import_csv', name: 'app_import_csv', methods: ['GET'])]
+    public function import_csv(): Response
+    {
+        ImportCSV::doImport();
+        return $this->redirectToRoute(
+            'app_index',
+            [ ],
+            Response::HTTP_SEE_OTHER
+        );
+    }
 
     #[Route('/backup', name: 'app_backup_index', methods: ['GET'])]
     public function backup(): Response
