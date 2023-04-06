@@ -38,7 +38,7 @@ final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
           TIMESTAMPDIFF(SECOND, WoStatusChanged, NOW()) as diffsecs
           FROM words where WoID = {$this->term->getID()}";
         $rec = DbHelpers::exec_sql_get_result($sql);
-        $a = mysqli_fetch_assoc($rec);
+        $a = $rec->fetch(PDO::FETCH_ASSOC);
         $diff = intval($a['diffsecs']);
         return [ $a['WoStatusChanged'], $diff ];
     }
@@ -56,7 +56,7 @@ final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
         $sql = "select WoCreated, WoStatusChanged from words
                 where WoID = {$this->term->getID()}";
         $rec = DbHelpers::exec_sql_get_result($sql);
-        $a = mysqli_fetch_assoc($rec);
+        $a = $rec->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals($a['WoCreated'], $a['WoStatusChanged']);
     }
 
