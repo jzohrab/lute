@@ -185,7 +185,7 @@ class MigrationHelper {
 
         foreach ($files as $f) {
             $fname = $f;
-            $basepath = __DIR__ . '/../../db/demo/';
+            $basepath = __DIR__ . '/../../demo/';
             $fullcontent = file_get_contents($basepath . $fname);
             $content = preg_replace('/#.*\n/u', '', $fullcontent);
 
