@@ -60,7 +60,7 @@ class DbHelpers {
     private static function get_first_value($sql)
     {
         $res = DbHelpers::exec_sql_get_result($sql);
-        $record = $res->fetch(PDO::FETCH_NUM);
+        $record = $res->fetch(\PDO::FETCH_NUM);
         $ret = null;
         if ($record) { 
             $ret = $record[0]; 
@@ -139,7 +139,7 @@ you must use a dedicated test database when running tests.
     public static function assertTableContains($sql, $expected, $message = '') {
         $content = [];
         $res = DbHelpers::exec_sql_get_result($sql);
-        while($row = $res->fetch(PDO::FETCH_NUM)) {
+        while($row = $res->fetch(\PDO::FETCH_NUM)) {
             $rowvals = array_values($row);
             $null_to_NULL = function($v) {
                 $zws = mb_chr(0x200B);
@@ -169,7 +169,7 @@ you must use a dedicated test database when running tests.
         if ($c != $expected) {
             $content = [];
             $res = DbHelpers::exec_sql_get_result($sql);
-            while($row = $res->fetch(PDO::FETCH_NUM)) {
+            while($row = $res->fetch(\PDO::FETCH_NUM)) {
                 $content[] = implode('; ', $row);
             }
             $content = implode("\n", $content);
