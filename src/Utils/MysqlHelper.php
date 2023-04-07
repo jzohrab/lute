@@ -17,14 +17,110 @@ use App\Domain\JapaneseParser;
 // Class for namespacing only.
 class MysqlHelper {
 
+    // Returns [ server, user, pass, dbname ]
+    public static function getParams() {
+        $getOrThrow = function($key, $throwIfMissing = true) {
+            if (! isset($_ENV[$key]))
+                throw new \Exception("Missing ENV key $key");
+            $ret = $_ENV[$key];
+            if ($throwIfMissing && ($ret == null || $ret == ''))
+                throw new \Exception("Empty ENV key $key");
+            return $ret;
+        };
+
+        return [
+            $getOrThrow('DB_HOSTNAME'),
+            $getOrThrow('DB_USER'),
+            $getOrThrow('DB_PASSWORD', false),
+            $getOrThrow('DB_DATABASE')
+        ];
+    }
+
+    /**
+     * Open MySQL connection using the environment settings.
+     */
+    private static function getConn() {
+        $user = $_ENV['DB_USER'];
+        $password = $_ENV['DB_PASSWORD'];
+        $host = $_ENV['DB_HOSTNAME'];
+        $dbname = $_ENV['DB_DATABASE'];
+        $d = "mysql:host={$host};dbname={$dbname}";
+
+        $dbh = new \PDO($d, $user, $password);
+        $dbh->query("SET NAMES 'utf8'");
+        $dbh->query("SET SESSION sql_mode = ''");
+        return $dbh;
+    }
+
+    /**
+     * Verify the environment connection params.
+     * Throws exception if the values are no good.
+     */
+    private static function verifyConnectionParams()
+    {
+        [ $server, $userid, $passwd, $db ] = MysqlHelper::getParams();
+        $conn = @mysqli_connect($server, $userid, $passwd);
+        if (!$conn) {
+            $errmsg = mysqli_connect_error();
+            $errnum = mysqli_connect_errno();
+            $msg = "{$errmsg} ({$errnum})";
+            throw new \Exception($msg);
+        }
+        mysqli_close($conn);
+    }
+
     private static function getMigrator($showlogging = false) {
-        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
+        [ $server, $userid, $passwd, $dbname ] = MysqlHelper::getParams();
 
         $dir = __DIR__ . '/../../db/mysql/migrations';
         $repdir = __DIR__ . '/../../db/mysql/migrations_repeatable';
         $migration = new \MysqlMigrator($dir, $repdir, $server, $dbname, $userid, $passwd, $showlogging);
         return $migration;
     }
+
+
+    private static function databaseExists() {
+        $conn = null;
+        try {
+            $conn = @mysqli_connect(...MysqlHelper::getParams());
+            mysqli_close($conn);
+            return true;
+        }
+        catch (\Exception $e) {
+            if (mysqli_connect_errno() == 1049) {
+                return false;
+            }
+
+            // Otherwise, it was some other weird error ...
+            $errmsg = mysqli_connect_error();
+            $errnum = mysqli_connect_errno();
+            $msg = "{$errmsg} ({$errnum})";
+            throw new \Exception($msg);
+        }
+    }
+
+
+    private static function createBlankDatabase() {
+        [ $server, $userid, $passwd, $dbname ] = MysqlHelper::getParams();
+        $conn = @mysqli_connect($server, $userid, $passwd);
+        $sql = "CREATE DATABASE `{$dbname}` 
+            DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
+        $result = $conn->query($sql);
+        mysqli_close($conn);
+        if (! $result) {
+            throw new \Exception("Unable to create db $dbname");
+        }
+
+        // Verify
+        try {
+            $conn = MysqlHelper::getConn();
+        }
+        catch (\Exception $e) {
+            $msg = "Unable to connect to newly created db.";
+            throw new \Exception($msg);
+        }
+    }
+
 
     /**
      * Used by public/index.php to initiate and migrate the database.
@@ -40,12 +136,12 @@ class MysqlHelper {
         $error = null;
         $newdbcreated = false;
         try {
-            Connection::verifyConnectionParams();
+            MysqlHelper::verifyConnectionParams();
 
-            $dbexists = Connection::databaseExists();
+            $dbexists = MysqlHelper::databaseExists();
 
             if ($dbexists && MysqlHelper::isLearningWithTextsDb()) {
-                [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
+                [ $server, $userid, $passwd, $dbname ] = MysqlHelper::getParams();
                 $args = [
                     'dbname' => $dbname,
                     'username' => $userid
@@ -55,7 +151,7 @@ class MysqlHelper {
             }
 
             if (! $dbexists) {
-                Connection::createBlankDatabase();
+                MysqlHelper::createBlankDatabase();
                 MysqlHelper::installBaseline();
                 $newdbcreated = true;
                 $messages[] = 'New database created.';
@@ -90,7 +186,7 @@ class MysqlHelper {
     }
 
     public static function runMigrations($showlogging = false) {
-        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
+        [ $server, $userid, $passwd, $dbname ] = MysqlHelper::getParams();
         $migration = MysqlHelper::getMigrator($showlogging);
         $migration->exec("ALTER DATABASE `{$dbname}` CHARACTER SET utf8 COLLATE utf8_general_ci");
         $migration->process();
@@ -108,13 +204,13 @@ class MysqlHelper {
     }
 
     private static function process_file($file) {
-        $conn = Connection::getFromEnvironment();
+        $conn = MysqlHelper::getConn();
         $commands = file_get_contents($file);
         $conn->query($commands);
     }
 
     public static function isLuteDemo() {
-        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
+        [ $server, $userid, $passwd, $dbname ] = MysqlHelper::getParams();
         return ($dbname == 'lute_demo');
     }
 
@@ -122,7 +218,7 @@ class MysqlHelper {
         if (! MysqlHelper::isLuteDemo())
             return false;
 
-        $conn = Connection::getFromEnvironment();
+        $conn = MysqlHelper::getConn();
         $check = $conn
                ->query('select count(*) as c from Languages')
                ->fetch(\PDO::FETCH_ASSOC);
@@ -131,11 +227,11 @@ class MysqlHelper {
     }
 
     public static function isLearningWithTextsDb() {
-        [ $server, $userid, $passwd, $dbname ] = Connection::getParams();
+        [ $server, $userid, $passwd, $dbname ] = MysqlHelper::getParams();
         $sql = "select count(*) as c from information_schema.tables
           where table_schema = '{$dbname}'
           and table_name = '_lwtgeneral'";
-        $conn = Connection::getFromEnvironment();
+        $conn = MysqlHelper::getConn();
         $check = $conn
                ->query($sql)
                ->fetch(\PDO::FETCH_ASSOC);
