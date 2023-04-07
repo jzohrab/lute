@@ -35,7 +35,23 @@ class MysqlHelper {
             $getOrThrow('DB_DATABASE')
         ];
     }
-    
+
+    /**
+     * Open MySQL connection using the environment settings.
+     */
+    private static function getConn() {
+        $user = $_ENV['DB_USER'];
+        $password = $_ENV['DB_PASSWORD'];
+        $host = $_ENV['DB_HOSTNAME'];
+        $dbname = $_ENV['DB_DATABASE'];
+        $d = "mysql:host={$host};dbname={$dbname}";
+
+        $dbh = new \PDO($d, $user, $password);
+        $dbh->query("SET NAMES 'utf8'");
+        $dbh->query("SET SESSION sql_mode = ''");
+        return $dbh;
+    }
+
     /**
      * Verify the environment connection params.
      * Throws exception if the values are no good.
@@ -97,7 +113,7 @@ class MysqlHelper {
 
         // Verify
         try {
-            $conn = Connection::getFromEnvironment();
+            $conn = MysqlHelper::getConn();
         }
         catch (\Exception $e) {
             $msg = "Unable to connect to newly created db.";
@@ -188,7 +204,7 @@ class MysqlHelper {
     }
 
     private static function process_file($file) {
-        $conn = Connection::getFromEnvironment();
+        $conn = MysqlHelper::getConn();
         $commands = file_get_contents($file);
         $conn->query($commands);
     }
@@ -202,7 +218,7 @@ class MysqlHelper {
         if (! MysqlHelper::isLuteDemo())
             return false;
 
-        $conn = Connection::getFromEnvironment();
+        $conn = MysqlHelper::getConn();
         $check = $conn
                ->query('select count(*) as c from Languages')
                ->fetch(\PDO::FETCH_ASSOC);
@@ -215,7 +231,7 @@ class MysqlHelper {
         $sql = "select count(*) as c from information_schema.tables
           where table_schema = '{$dbname}'
           and table_name = '_lwtgeneral'";
-        $conn = Connection::getFromEnvironment();
+        $conn = MysqlHelper::getConn();
         $check = $conn
                ->query($sql)
                ->fetch(\PDO::FETCH_ASSOC);

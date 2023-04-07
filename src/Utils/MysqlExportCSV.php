@@ -8,6 +8,22 @@ use Symfony\Component\Filesystem\Path;
 
 class MysqlExportCSV {
 
+    /**
+     * Open MySQL connection using the environment settings.
+     */
+    private static function getConn() {
+        $user = $_ENV['DB_USER'];
+        $password = $_ENV['DB_PASSWORD'];
+        $host = $_ENV['DB_HOSTNAME'];
+        $dbname = $_ENV['DB_DATABASE'];
+        $d = "mysql:host={$host};dbname={$dbname}";
+
+        $dbh = new \PDO($d, $user, $password);
+        $dbh->query("SET NAMES 'utf8'");
+        $dbh->query("SET SESSION sql_mode = ''");
+        return $dbh;
+    }
+
     private static function export_table($conn, $targetdir, $tbl) {
         $csvfile = "{$targetdir}/{$tbl}.csv";
         // echo $csvfile . "<br/>";
@@ -40,7 +56,7 @@ class MysqlExportCSV {
     }
     
     public static function doExport() {
-        $conn = Connection::getFromEnvironment();
+        $conn = MysqlExportCSV::getConn();
 
         $targetdir = __DIR__ . '/../../csv_export';
         $targetdir = Path::canonicalize($targetdir);
