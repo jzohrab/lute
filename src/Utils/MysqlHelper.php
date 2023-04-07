@@ -37,9 +37,9 @@ class MysqlHelper {
     }
 
     /**
-     * Open MySQL connection using the environment settings.
+     * Open MySQL connection using the environment settings.  Public static for testing.
      */
-    private static function getConn() {
+    public static function getConn() {
         $user = $_ENV['DB_USER'];
         $password = $_ENV['DB_PASSWORD'];
         $host = $_ENV['DB_HOSTNAME'];

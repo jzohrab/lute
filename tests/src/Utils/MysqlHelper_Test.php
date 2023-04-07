@@ -19,14 +19,14 @@ final class MysqlHelper_Test extends DatabaseTestBase
     public function childSetUp() {
         $this->oldpass =  $_ENV['DB_PASSWORD'];
         $this->olddb = $_ENV['DB_DATABASE'];
-        DbHelpers::exec_sql('drop database if exists ' . $this->dummydb);
+        MysqlHelper::getConn()->query('drop database if exists ' . $this->dummydb);
     }
 
     public function childTearDown(): void
     {
         $_ENV['DB_PASSWORD'] = $this->oldpass;
         $_ENV['DB_DATABASE'] = $this->olddb;
-        DbHelpers::exec_sql('drop database if exists ' . $this->dummydb);
+        MysqlHelper::getConn()->query('drop database if exists ' . $this->dummydb);
     }
 
     public function test_smoke_tests() {
