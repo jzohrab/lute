@@ -143,7 +143,7 @@ class ParsedTokenSaver {
 
 
     // Insert each record in chunk in a prepared statement,
-    // where chunk record is [ sentence_num, ord, wordcount, word ].
+    // where chunk record is [ txid, sentence_num, ord, wordcount, word ].
     private function load_temptexttokens(array $chunk) {
         $sqlbase = "insert into temptexttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText) values ";
 
@@ -170,6 +170,7 @@ class ParsedTokenSaver {
         // Positional numbering starts at 1. !!!
         $n = count($chunk);
         for ($i = 1; $i <= $n; $i++) {
+            // TODO:sqlite uses SQLITE3_TEXT
             $stmt->bindValue($i, $chunk[$i - 1][4], \PDO::PARAM_STR);
         }
         if (!$stmt->execute()) {

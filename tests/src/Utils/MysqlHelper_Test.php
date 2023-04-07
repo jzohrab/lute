@@ -56,6 +56,7 @@ final class MysqlHelper_Test extends DatabaseTestBase
         $this->assertFalse(MysqlHelper::hasPendingMigrations(), 'fully migrated');
     }
 
+
     /**
      * @group dbsetup
      */

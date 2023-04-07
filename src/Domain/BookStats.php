@@ -42,7 +42,7 @@ class BookStats {
           where bkid not in (select bkid from bookstats)";
         $bkids = [];
         $res = $conn->query($sql);
-        while (($row = $res->fetch(\PDO::FETCH_NUM))) {
+        while ($row = $res->fetch(\PDO::FETCH_NUM)) {
             $bkids[] = intval($row[0]);
         }
 

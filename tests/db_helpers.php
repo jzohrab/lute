@@ -69,28 +69,25 @@ class DbHelpers {
     }
     
     public static function ensure_using_test_db() {
-        $dbname = $_ENV['DB_DATABASE'];
-        $conn_db_name = DbHelpers::get_first_value("SELECT DATABASE()");
-        foreach([$dbname, $conn_db_name] as $s) {
-            $prefix = substr($s, 0, 5);
-            if (strtolower($prefix) != 'test_') {
-                $msg = "
+        $dbname = $_ENV['DATABASE_URL'];
+        $is_test = str_contains($dbname, 'test');
+        if (!$is_test) {
+            $msg = "
 *************************************************************
-ERROR: Db name \"{$s}\" does not start with 'test_'
+ERROR: Db name \"{$dbname}\" does not contain 'test'
 
 (Stopping tests to prevent data loss.)
 
 Since database tests are destructive (delete/edit/change data),
 you must use a dedicated test database when running tests.
 
-1. Create a new database called 'test_<whatever_you_want>'
+1. Create a new database called 'test_<whatever_you_want>' // TODO:sqlite fix this
 2. Update your env.test.local to use this new db
 3. Run the tests.
 *************************************************************
 ";
-                echo $msg;
-                die("Quitting");
-            }
+            echo $msg;
+            die("Quitting");
         }
     }
 
@@ -142,9 +139,9 @@ you must use a dedicated test database when running tests.
         while($row = $res->fetch(\PDO::FETCH_NUM)) {
             $rowvals = array_values($row);
             $null_to_NULL = function($v) {
-                $zws = mb_chr(0x200B);
                 if ($v === null)
                     return 'NULL';
+                $zws = mb_chr(0x200B);
                 if (is_string($v) && str_contains($v, $zws))
                     return str_replace($zws, '/', $v);
                 return $v;

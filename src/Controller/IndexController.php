@@ -24,7 +24,8 @@ class IndexController extends AbstractController
         if ($txt == null)
             return [null, null];
         return [ $txt->getID(), $txt->getTitle() ];
-     }
+    }
+
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
     public function index(Request $request, SettingsRepository $repo, TextRepository $trepo): Response
@@ -80,9 +81,6 @@ class IndexController extends AbstractController
         $php = phpversion();
 
         $conn = Connection::getFromEnvironment();
-        $mysql = $conn
-               ->query("SELECT VERSION() as value")
-               ->fetch(\PDO::FETCH_NUM)[0];
 
         return $this->render('server_info.html.twig', [
             'tag' => $gittag,
@@ -92,7 +90,6 @@ class IndexController extends AbstractController
             'serversoft' => $serversoft,
             'apache' => $apache,
             'php' => $php,
-            'mysql' => $mysql,
             'dbname' => $_ENV['DB_DATABASE'],
             'server' => $_ENV['DB_HOSTNAME'],
             'symfconn' => $_ENV['DATABASE_URL'],
