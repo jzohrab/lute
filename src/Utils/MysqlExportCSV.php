@@ -68,6 +68,7 @@ class MysqlExportCSV {
     }
 
     public static function doExport() {
+        MysqlHelper::runMigrations(false);
         $conn = MysqlExportCSV::getConn();
 
         $targetdir = __DIR__ . '/../../csv_export';
