@@ -45,7 +45,7 @@
 
 <script>
   function do_post() {
-    $.post('/utils/do_csv_import', {})
+    $.post('/utils/do_import_csv', {})
       .done( function(msg) {
         $('#importResult').text('Completed.');
         $('#returnHome').css({ visibility: 'visible' })

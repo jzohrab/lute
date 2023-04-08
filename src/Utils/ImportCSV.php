@@ -90,7 +90,7 @@ class ImportCSV {
 
     public static function doImport() {
         $conn = Connection::getFromEnvironment();
-        $sourcedir = __DIR__ . '/../../csv_export';
+        $sourcedir = __DIR__ . '/../../csv_import';
         $sourcedir = Path::canonicalize($sourcedir);
         $tables = ImportCSV::RequiredTables();
         foreach ($tables as $t) {

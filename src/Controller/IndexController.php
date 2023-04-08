@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
 use App\Utils\MysqlHelper;
+use App\Utils\ImportCSV;
 use App\Utils\AppManifest;
 use App\Utils\MysqlBackup;
 use App\Repository\SettingsRepository;
@@ -49,6 +50,8 @@ class IndexController extends AbstractController
             );
         }
 
+        $show_import_link = count(ImportCSV::DbLoadedTables()) == 0;
+
         return $this->render('index.html.twig', [
             // TODO:sqlite fix MigrationHelper refs
             'isdemodb' => false, // MysqlHelper::isLuteDemo(),
@@ -57,6 +60,7 @@ class IndexController extends AbstractController
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
             'currtxtitle' => $txtitle,
+            'showimportcsv' => $show_import_link,
             'bkp_missing_enabled_key' => $bkp->missing_enabled_key(),
             'bkp_enabled' => $bkp->is_enabled(),
             'bkp_missing_keys' => !$bkp->config_keys_set(),
