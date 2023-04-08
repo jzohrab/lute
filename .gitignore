@@ -8,6 +8,9 @@ composer.phar
 
 /csv_export
 
+# The database itself
+/db/*.sqlite
+
 # User-specific environment files.
 /.env.local
 /.env.local.php
