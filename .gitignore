@@ -9,7 +9,7 @@ composer.phar
 /csv_export
 
 # The database itself
-/db/*.sqlite
+/db/*.db
 
 # User-specific environment files.
 /.env.local

@@ -31,7 +31,7 @@ class SqliteHelper {
     }
 
     public static function CreateDb() {
-        $baseline = __DIR__ . '/../../db/baseline/baseline.sqlite';
+        $baseline = __DIR__ . '/../../db/baseline/baseline.db';
         $dest = SqliteHelper::DbFilename();
         copy($baseline, $dest);
         SqliteHelper::runMigrations();
