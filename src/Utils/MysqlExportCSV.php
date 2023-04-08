@@ -54,7 +54,19 @@ class MysqlExportCSV {
         }
         fclose($handle);
     }
-    
+
+    private static function exportWordsChecksum($conn, $targetdir) {
+        $md5 = md5("START");
+        $sql = "SELECT WoTextLC FROM words order by woid";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+            $md5 = md5($md5 . "|" . $row[0]);
+        }
+        $csvfile = "{$targetdir}/checksum.csv";
+        file_put_contents($csvfile, $md5);
+    }
+
     public static function doExport() {
         $conn = MysqlExportCSV::getConn();
 
@@ -82,6 +94,7 @@ class MysqlExportCSV {
         ];
         foreach ($tables as $t)
             MysqlExportCSV::export_table($conn, $targetdir, $t);
+        MysqlExportCSV::exportWordsChecksum($conn, $targetdir);
     }
 
 }
