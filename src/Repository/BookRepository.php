@@ -86,10 +86,14 @@ class BookRepository extends ServiceEntityRepository
           ) pagecnt on pagecnt.TxBkID = b.BkID
           LEFT OUTER JOIN bookstats c on c.BkID = b.BkID
           LEFT OUTER JOIN (
-            SELECT BtBkID as BkID, GROUP_CONCAT(T2Text ORDER BY T2Text SEPARATOR ', ') AS taglist
+            SELECT BtBkID as BkID, GROUP_CONCAT(T2Text, ', ') AS taglist
             FROM
-            booktags bt
-            INNER JOIN tags2 t2 on t2.T2ID = bt.BtT2ID
+            (
+              select BtBkID, T2Text
+              from booktags bt
+              INNER JOIN tags2 t2 on t2.T2ID = bt.BtT2ID
+              ORDER BY T2Text
+            ) tagssrc
             GROUP BY BtBkID
           ) AS tags on tags.BkID = b.BkID
 

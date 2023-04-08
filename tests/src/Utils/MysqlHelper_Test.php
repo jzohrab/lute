@@ -17,6 +17,8 @@ final class MysqlHelper_Test extends DatabaseTestBase
     private string $olddb;
 
     public function childSetUp() {
+        if (!str_contains(strtolower($_ENV['DATABASE_URL']), 'mysql'))
+            $this->markTestSkipped('Not running mysql tests on sqlite db');
         $this->oldpass =  $_ENV['DB_PASSWORD'];
         $this->olddb = $_ENV['DB_DATABASE'];
         MysqlHelper::getConn()->query('drop database if exists ' . $this->dummydb);

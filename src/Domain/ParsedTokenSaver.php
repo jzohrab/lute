@@ -66,20 +66,14 @@ class ParsedTokenSaver {
         $setup = [
             "DELETE FROM sentences WHERE SeTxID in ($idjoin)",
             "DELETE FROM texttokens WHERE TokTxID in ($idjoin)",
-
-            "SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2",
-            "SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2",
             "DROP TABLE IF EXISTS `temptexttokens`",
-
             "CREATE TABLE `temptexttokens` (
-              `TokTxID` smallint unsigned NOT NULL,
-              `TokSentenceNumber` mediumint unsigned NOT NULL,
-              `TokOrder` smallint unsigned NOT NULL,
+              `TokTxID` INTEGER NOT NULL,
+              `TokSentenceNumber` INTEGER NOT NULL,
+              `TokOrder` INTEGER NOT NULL,
               `TokIsWord` tinyint NOT NULL,
-              `TokText` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
-            ) ENGINE=Memory DEFAULT CHARSET=utf8mb3",
-
-            "SET GLOBAL general_log = 'OFF'"
+              `TokText` varchar(100) NOT NULL
+            )"
         ];
         foreach ($setup as $sql) {
             $this->exec_sql($sql);
@@ -91,21 +85,24 @@ class ParsedTokenSaver {
         }
 
         $sqls = [
-            "SET GLOBAL general_log = 'ON'",
             "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText)
               select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText from temptexttokens",
             "DROP TABLE if exists `temptexttokens`",
 
             // Load sentences.
-            // 0xE2808B (the zero-width space) is added between each
+            // char(0x200B) (the zero-width space) is added between each
             // token, and at the start and end of each sentence, to
             // standardize the string search when looking for terms.
             "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
               SELECT TxLgID, TxID, TokSentenceNumber, min(TokOrder),
-              CONCAT(0xE2808B, TRIM(GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B)), 0xE2808B)
-              FROM texttokens
-              inner join texts on TxID = TokTxID
-              WHERE TxID in ({$idjoin})
+              char(0x200B) || TRIM(GROUP_CONCAT(TokText, char(0x200B))) || char(0x200B)
+              FROM (
+                select TxLgID, TxID, TokSentenceNumber, TokOrder, TokText
+                from texttokens
+                inner join texts on TxID = TokTxID
+                WHERE TxID in ({$idjoin})
+                order by TxLgID, TxID, TokSentenceNumber, TokOrder
+              ) src
               group by TxLgID, TxID, TokSentenceNumber"
         ];
         foreach ($sqls as $sql) {

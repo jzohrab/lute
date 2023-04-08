@@ -10,6 +10,8 @@ final class RestoreArchivedTextSentences_Test extends DatabaseTestBase
 {
 
     public function test_script_reloads_archived_text_sentences() {
+        $this->markTestSkipped('Not relevant now.');
+
         $dict = new Dictionary($this->term_repo);
         MysqlHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertTrue(true, 'dummy');

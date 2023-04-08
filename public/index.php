@@ -22,6 +22,12 @@ if ($_SERVER['APP_DEBUG']) {
     Debug::enable();
 }
 
+// TODO:sqlite handle misconfiguration
+// echo $_ENV['DATABASE_URL'];
+// echo "\n";
+// die('<html><body><h1>Hello! friendly message here</h1></body></html>');
+
+
 if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? false) {
     Request::setTrustedProxies(
       explode(',', $trustedProxies),
@@ -40,6 +46,8 @@ if ($error != null) {
     echo $error;
     die();
 }
+
+$messages = [ "TODO fix setup" ];  // TODO:sqlite
 
 /**
  * Storing update messages in the $_SERVER so I can get it in

@@ -272,6 +272,9 @@ class MysqlHelper {
             $langmap[ $lang->getLgName() ] = $lang;
         }
 
+        $conn = MysqlHelper::getConn();
+        $conn->query('ALTER TABLE texts AUTO_INCREMENT = 1');
+
         foreach ($files as $f) {
             $fname = $f;
             $basepath = __DIR__ . '/../../demo/';

@@ -50,8 +50,9 @@ class IndexController extends AbstractController
         }
 
         return $this->render('index.html.twig', [
-            'isdemodb' => MysqlHelper::isLuteDemo(),
-            'demoisempty' => MysqlHelper::isEmptyDemo(),
+            // TODO:sqlite fix MigrationHelper refs
+            'isdemodb' => false, // MysqlHelper::isLuteDemo(),
+            'demoisempty' => false, // MysqlHelper::isEmptyDemo(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,

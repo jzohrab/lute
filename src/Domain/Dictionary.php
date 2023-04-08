@@ -93,7 +93,7 @@ class Dictionary {
           from sentences
           inner join texts on TxID = SeTxID
           where TxArchived = 0
-          AND lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%')
+          AND lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%'
           LIMIT 20";
         $stmt = $conn->prepare($sql);
 
@@ -164,7 +164,7 @@ class Dictionary {
         $sql = "select distinct TxID, TxTitle, SeText, SeOrder
           from texts
           inner join sentences on SeTxID = TxID
-          where lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%') and TxArchived = 1
+          where lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%' and TxArchived = 1
            ";
         $fullsql = array_fill(0, count($termstrings), $sql);
         $fullsql = implode(' UNION ', $fullsql);

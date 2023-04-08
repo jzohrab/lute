@@ -133,7 +133,7 @@ class TermRepository extends ServiceEntityRepository
             where WoTokenCount > 1 AND WoLgID = $lgid AND
             instr(
               (select LOWER(TxText) from texts where TxID = {$t->getID()}),
-              replace(WoTextLC, 0xE2808B, '')
+              replace(WoTextLC, char(0x200B), '')
             ) > 0";
         $res = $conn->executeQuery($sql);
         while ($row = $res->fetchNumeric()) {
