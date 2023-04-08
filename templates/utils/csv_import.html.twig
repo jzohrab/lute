@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>CSV Import</h1>
+
+{% if not db_is_empty %}
+<h2>Import not possible: The database is not empty.</h2>
+<p>The CSVs exported from your old Lute use raw data, that is, things like database primary keys for records.  Your current database is not empty, so we can't import the CSVs, as there would be data integrity problems.</p>
+<p>Tables containing data:</p>
+<ul>
+  {% for t in loaded_tables %}
+  <li>{{ t }}</li>
+  {% endfor %}
+</ul>
+<p><a href="/">Back to home.</a></p>
+{% endif %}
+
+{% if not all_files_exist %}
+<h2>Import not possible: Missing required files in directory csv_import:</h2>
+<ul>
+  {% for f in missing_files %}
+  <li>{{ f }}</li>
+  {% endfor %}
+</ul>
+<p>Please re-export from your old Lute, and copy the files from that project's csv_export to this project's csv_import.</p>
+<p><a href="/">Back to home.</a></p>
+{% endif %}
+
+
+{% if all_files_exist and db_is_empty %}
+<p>
+  Importing the data from csv_import, in the Lute's root directory.
+</p>
+
+<p>This import can only be done once.  If you want to re-import a new CSV export, you'll have to remove your existing database, and try again.</p>
+
+<form>
+  <input type="button" onclick="do_post(); return false;" value="Import CSVs" /input>
+</form>
+
+<p id="importResult" />
+
+<p id="returnHome" style="visibility:hidden;"><a href="/">Back to home.</a></p>
+
+<script>
+  function do_post() {
+    $.post('/utils/do_csv_import', {})
+      .done( function(msg) {
+        $('#importResult').text('Completed.');
+        $('#returnHome').css({ visibility: 'visible' })
+      })
+      .fail( function(xhr, textStatus, errorThrown) {
+        const p = JSON.parse(xhr.responseText);
+        const msg = "IMPORT ERROR: " + p.errmsg;
+        $('#importResult').html(msg.replace(/__BREAK__/g, '<br />'));
+        $('#returnHome').css({ visibility: 'visible' })
+      })
+  }
+</script>
+
+{% endif %}
+
+{% endblock %}

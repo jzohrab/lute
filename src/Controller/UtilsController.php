@@ -20,13 +20,28 @@ class UtilsController extends AbstractController
     #[Route('/import_csv', name: 'app_import_csv', methods: ['GET'])]
     public function import_csv(): Response
     {
-        ImportCSV::doImport();
-        return $this->redirectToRoute(
-            'app_index',
-            [ ],
-            Response::HTTP_SEE_OTHER
+        $missing_files = ImportCSV::MissingFiles();
+        $loaded_tables = ImportCSV::DbLoadedTables();
+        $db_is_empty = count($loaded_tables) == 0;
+        return $this->render(
+            'utils/csv_import.html.twig',
+            [
+                'all_files_exist' => (count($missing_files) == 0),
+                'missing_files' => $missing_files,
+                'db_is_empty' => $db_is_empty,
+                'loaded_tables' => $loaded_tables
+            ]
         );
     }
+
+    #[Route('/do_import_csv', name: 'app_do_import_csv', methods: ['POST'])]
+    public function do_import_csv(): JsonResponse
+    {
+        ImportCSV::doImport();
+        // Check: csv md5 is the same or not
+        return $this->json('ok');
+    }
+
 
     #[Route('/backup', name: 'app_backup_index', methods: ['GET'])]
     public function backup(): Response

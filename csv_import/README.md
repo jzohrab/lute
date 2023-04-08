@@ -1,0 +1,1 @@
+Move or copy all of your old Lute .csv files from oldLute/csv_export/ to this directory.  Then, from the app main screen in this new Lute, click "import csv".

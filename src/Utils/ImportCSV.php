@@ -7,7 +7,26 @@ use Symfony\Component\Filesystem\Path;
 
 class ImportCSV {
 
-
+    private static function RequiredTables() {
+        return [
+            "books",
+            "bookstats",
+            "booktags",
+            "languages",
+            "sentences",
+            "settings",
+            "tags",
+            "tags2",
+            "texts",
+            "texttags",
+            "texttokens",
+            "wordimages",
+            "wordparents",
+            "words",
+            "wordtags"
+        ];
+    }
+    
     // ref https://gist.github.com/fcingolani/5364532
     private static function import_csv_to_sqlite(&$pdo, $csv_path, $table)
     {
@@ -39,38 +58,41 @@ class ImportCSV {
         $pdo->commit();
 	
         fclose($csv_handle);
-
-        /*
-          return array(
-          'table' => $table,
-          'fields' => $fields,
-          'insert' => $insert_sth,
-          'inserted_rows' => $inserted_rows
-          );
-        */
     }
-    
+
+    public static function MissingFiles() {
+        $missing = [];
+        $sourcedir = __DIR__ . '/../../csv_import';
+        $sourcedir = Path::canonicalize($sourcedir);
+        $tables = ImportCSV::RequiredTables();
+        foreach ($tables as $t) {
+            $csv_path = "{$sourcedir}/{$t}.csv";
+            if (!file_exists($csv_path))
+                $missing[] = "{$t}.csv";
+        }
+        return $missing;
+    }
+
+    /** Tables with data. **/
+    public static function DbLoadedTables() {
+        $loaded = [];
+        $conn = Connection::getFromEnvironment();
+        $tables = ImportCSV::RequiredTables();
+        foreach ($tables as $t) {
+            $sql = "select count(*) from {$t}";
+            $c = $conn->query($sql)->fetch(\PDO::FETCH_NUM)[0];
+            if (intval($c) > 0) {
+                $loaded[] = $t;
+            }
+        }
+        return $loaded;
+    }
+
     public static function doImport() {
         $conn = Connection::getFromEnvironment();
         $sourcedir = __DIR__ . '/../../csv_export';
         $sourcedir = Path::canonicalize($sourcedir);
-        $tables = [
-            "books",
-            "bookstats",
-            "booktags",
-            "languages",
-            "sentences",
-            "settings",
-            "tags",
-            "tags2",
-            "texts",
-            "texttags",
-            "texttokens",
-            "wordimages",
-            "wordparents",
-            "words",
-            "wordtags"
-        ];
+        $tables = ImportCSV::RequiredTables();
         foreach ($tables as $t) {
             $csv_path = "{$sourcedir}/{$t}.csv";
             ImportCSV::import_csv_to_sqlite($conn, $csv_path, $t);

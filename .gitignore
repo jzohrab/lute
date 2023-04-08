@@ -7,6 +7,7 @@ composer.phar
 .phpunit.result.cache
 
 /csv_export
+/csv_import
 
 # The database itself
 /db/*.db
