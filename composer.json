@@ -115,14 +115,23 @@
     "db:newrepeat": "php db/create_repeatable_migration_script.php",
     "db:suggestions": "bin/console doctrine:schema:update --dump-sql",
     "dev:dumpserver": "php bin/console server:dump",
-    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist",
-    "test:nofail": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure",
-    "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group ",
+    "test": [
+      "composer db:create:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist"
+    ],
+    "test:nofail": [
+      "composer db:create:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure"
+    ],
+    "test:group": [
+      "composer db:create:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
+    ],
     "test:full": [
       "composer dev:psalm",
       "composer dev:finddump",
       "composer db:create:test",
-      "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument",
+      "bin/console doctrine:schema:validate --skip-sync  # <-- hash suppresses any arguments",
       "composer test"
     ],
     "dev:find": "./utils/findstring.sh",
