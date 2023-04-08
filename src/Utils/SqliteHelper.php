@@ -34,7 +34,11 @@ class SqliteHelper {
         $baseline = __DIR__ . '/../../db/baseline/baseline.sqlite';
         $dest = SqliteHelper::DbFilename();
         copy($baseline, $dest);
-        $m = SqliteHelper::getMigrator(false);
+        SqliteHelper::runMigrations();
+    }
+
+    public static function runMigrations($showlogging = false) {
+        $m = SqliteHelper::getMigrator($showlogging);
         $m->process();
     }
 

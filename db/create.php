@@ -7,7 +7,6 @@ require __DIR__ . '/../vendor/autoload.php';
 (new Dotenv())->bootEnv(__DIR__ . '/../.env');
 
 $f = SqliteHelper::DbFilename();
-echo "\nCreating {$f}\n\n";
-echo "TODO\n";
-
+SqliteHelper::CreateDb();
+echo "\nCreated new db {$f}\n\n";
 ?>

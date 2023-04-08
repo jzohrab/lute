@@ -7,7 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 (new Dotenv())->bootEnv(__DIR__ . '/../.env');
 
 $f = SqliteHelper::DbFilename();
-echo "\nMigrating {$f}\n\n";
-
-echo "TODO\n";
+echo "\nMigrating {$f} ...\n";
+SqliteHelper::runMigrations(true);
+echo "Done.\n\n";
 ?>
