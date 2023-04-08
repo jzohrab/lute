@@ -2,7 +2,10 @@
 
 namespace App\Utils;
 
+require_once __DIR__ . '/../../db/lib/pdo_migrator.php';
+
 use Symfony\Component\Filesystem\Path;
+use App\Utils\Connection;
 
 // Class for namespacing only.
 class SqliteHelper {
@@ -19,14 +22,25 @@ class SqliteHelper {
         return $filename;
     }
 
+    private static function getMigrator($showlogging = false) {
+        $dir = __DIR__ . '/../../db/migrations';
+        $repdir = __DIR__ . '/../../db/migrations_repeatable';
+        $pdo = Connection::getFromEnvironment();
+        $m = new \PdoMigrator($pdo, $dir, $repdir, $showlogging);
+        return $m;
+    }
+
     public static function CreateDb() {
         $baseline = __DIR__ . '/../../db/baseline/baseline.sqlite';
         $dest = SqliteHelper::DbFilename();
         copy($baseline, $dest);
+        $m = SqliteHelper::getMigrator(false);
+        $m->process();
     }
 
     public static function hasPendingMigrations() {
-        return false;
+        $m = SqliteHelper::getMigrator(false);
+        return count($m->get_pending()) > 0;
     }
 
 }
