@@ -54,4 +54,36 @@ final class SqliteHelper_Test extends TestCase
         $this->assertTrue(SqliteHelper::hasPendingMigrations(), 'has pending');
     }
 
+    public function test_setup_missing_DB_FILENAME_returns_error() {
+        $_ENV['DB_FILENAME'] = null;
+        [ $messages, $error ] = SqliteHelper::doSetup();
+        $this->assertTrue($error != null, 'have error');
+        $this->assertMatchesRegularExpression('/Missing key DB_FILENAME/', $error);
+    }
+
+    /* setup tests
+
+* IF the sqlite env var is missing, or db_filename missing, or is mysql:
+** return error stop everything
+
+* if the sqlfile doesn't exist yet:
+** copy the baseline
+** run any sqlite migrations needed
+
+* if the sqlite link is demo:
+** if the db is empty, load it
+** show the "you're in a demo" message
+** return
+
+* if not demo:
+** the sqlite db is empty:
+*** show "import csv" link
+*** importing: bad fields should throw an error
+** if not empty
+*** hide "import csv" link
+
+* manual tests
+- remove the DB_FILENAME
+- set DATABASE_URL to mysql
+     */
 }
