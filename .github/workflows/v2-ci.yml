@@ -1,0 +1,63 @@
+name: Symfony-CI
+
+# base info created from https://github.com/jzohrab/lute/actions/new, Symfony.
+# then edited until tests are run and passing.
+
+on:
+  push:
+    branches: [ "v2" ]
+
+permissions:
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+    # To automatically get bug fixes and new Php versions for shivammathur/setup-php,
+    # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
+    # uses: shivammathur/setup-php@v2
+    - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+      with:
+        php-version: '8.1'
+
+    - uses: actions/checkout@v3
+
+    # "dump()" appears to cause problems in prod,
+    # and "echo" might print bad things to the user's screen.
+    - name: Prevent debug cruft
+      run: composer dev:finddump
+
+    - name: Copy .env.test.local
+      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+
+    - name: Copy .env.local
+      run: php -r "file_exists('.env.local') || copy('.env.test', '.env.local');"
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install Dependencies
+      run: |
+        composer install --no-progress
+        sudo apt-get update -y
+        sudo apt-get install -y mecab mecab-ipadic-utf8
+
+    - name: Make var dir so psalm config is valid.
+      run: mkdir -p var
+
+    - name: Psalm check
+      run: ./vendor/bin/psalm --config=psalm.xml --no-progress
+
+    - name: Setup testing db
+      run: composer db:create:test
+
+    - name: Run all tests
+      run: composer test
