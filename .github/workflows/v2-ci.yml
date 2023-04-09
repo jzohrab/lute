@@ -1,4 +1,4 @@
-name: Symfony-CI
+name: v2-CI
 
 # base info created from https://github.com/jzohrab/lute/actions/new, Symfony.
 # then edited until tests are run and passing.
