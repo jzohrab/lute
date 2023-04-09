@@ -20,6 +20,9 @@ final class MysqlBackup_Test extends TestCase
     private $repo;
 
     public function setUp(): void {
+        if (!str_contains(strtolower($_ENV['DATABASE_URL']), 'mysql'))
+            $this->markTestSkipped('Not running mysql tests on sqlite db');
+
         $config = array();
         foreach (MysqlBackup::$reqkeys as $k) {
             $config[$k] = $k . '_value';
