@@ -54,17 +54,41 @@ final class SqliteHelper_Test extends TestCase
         $this->assertTrue(SqliteHelper::hasPendingMigrations(), 'has pending');
     }
 
-    public function test_setup_missing_DB_FILENAME_returns_error() {
-        $_ENV['DB_FILENAME'] = null;
+
+    private function assert_setup_gives_error($expected) {
         [ $messages, $error ] = SqliteHelper::doSetup();
         $this->assertTrue($error != null, 'have error');
-        $this->assertMatchesRegularExpression('/Missing key DB_FILENAME/', $error);
+        $this->assertMatchesRegularExpression("/{$expected}/", $error);
+    }
+    
+    public function test_setup_missing_DB_FILENAME_returns_error() {
+        $_ENV['DB_FILENAME'] = null;
+        $this->assert_setup_gives_error('Missing key DB_FILENAME');
+    }
+
+    public function test_setup_blank_DB_FILENAME_returns_error() {
+        $_ENV['DB_FILENAME'] = '';
+        $this->assert_setup_gives_error('Missing key DB_FILENAME');
+    }
+
+    public function test_setup_mysql_DATABASE_URL_returns_error() {
+        $_ENV['DATABASE_URL'] = 'mysql:blahblah';
+        $this->assert_setup_gives_error('DATABASE_URL should start with sqlite');
+    }
+
+    public function test_setup_db_created_if_not_exists() {
+        $f = SqliteHelper::DbFilename();
+        if (file_exists($f))
+            unlink($f);
+        $this->assertFalse(file_exists($f), 'no file');
+        [ $messages, $error ] = SqliteHelper::doSetup();
+        $this->assertTrue($error == null, 'no error');
+        $this->assertMatchesRegularExpression('/New database created./', implode('; ', $messages));
+        $this->assertTrue(file_exists($f), 'have file');
+        $this->assertFalse(SqliteHelper::hasPendingMigrations(), 'nothing pending');
     }
 
     /* setup tests
-
-* IF the sqlite env var is missing, or db_filename missing, or is mysql:
-** return error stop everything
 
 * if the sqlfile doesn't exist yet:
 ** copy the baseline
@@ -78,7 +102,6 @@ final class SqliteHelper_Test extends TestCase
 * if not demo:
 ** the sqlite db is empty:
 *** show "import csv" link
-*** importing: bad fields should throw an error
 ** if not empty
 *** hide "import csv" link
 

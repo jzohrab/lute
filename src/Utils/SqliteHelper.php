@@ -63,42 +63,28 @@ class SqliteHelper {
         if ($dbf == '')
             $config_issues[] = 'Missing key DB_FILENAME';
 
+        $dbu = $_ENV['DATABASE_URL'] ?? '';
+        $dbu = trim($dbu);
+        if (!str_starts_with($dbu, 'sqlite:'))
+            $config_issues[] = 'DATABASE_URL should start with sqlite';
+
         if (count($config_issues) > 0) {
             $args = [ 'errors' => $config_issues ];
             $error = SqliteHelper::renderError('config_error.html.twig', $args);
             return [ $messages, $error ];
         }
 
-        return [ 'ok', [] ];
-        /*
         $newdbcreated = false;
         try {
-            MysqlHelper::verifyConnectionParams();
-
-            $dbexists = MysqlHelper::databaseExists();
-
-            if ($dbexists && MysqlHelper::isLearningWithTextsDb()) {
-                [ $server, $userid, $passwd, $dbname ] = MysqlHelper::getParams();
-                $args = [
-                    'dbname' => $dbname,
-                    'username' => $userid
-                ];
-                $error = MysqlHelper::renderError('will_not_migrate_lwt_automatically.html.twig', $args);
-                return [ $messages, $error ];
-            }
-
+            $dbexists = file_exists(SqliteHelper::DbFilename());
             if (! $dbexists) {
-                MysqlHelper::createBlankDatabase();
-                MysqlHelper::installBaseline();
-                $newdbcreated = true;
+                SqliteHelper::CreateDb();
+                SqliteHelper::runMigrations();
                 $messages[] = 'New database created.';
             }
-
-            if (MysqlHelper::hasPendingMigrations()) {
-                MysqlHelper::runMigrations();
-                if (! $newdbcreated) {
-                    $messages[] = 'Database updated.';
-                }
+            elseif (SqliteHelper::hasPendingMigrations()) {
+                SqliteHelper::runMigrations();
+                $messages[] = 'Database updated.';
             }
         }
         catch (\Exception $e) {
@@ -107,7 +93,6 @@ class SqliteHelper {
         }
 
         return [ $messages, $error ];
-        */
     }
 
     private static function renderError($name, $args = []): string {
