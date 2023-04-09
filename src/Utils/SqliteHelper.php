@@ -37,6 +37,22 @@ class SqliteHelper {
         SqliteHelper::runMigrations();
     }
 
+    public static function isDemoDb(): bool {
+        $f = basename(SqliteHelper::DbFilename());
+        return ($f == 'lute_demo.db');
+    }
+
+    public static function isEmptyDemo() {
+        if (! SqliteHelper::isDemoDb())
+            return false;
+        $conn = Connection::getFromEnvironment();
+        $check = $conn
+               ->query('select count(*) as c from Languages')
+               ->fetch(\PDO::FETCH_ASSOC);
+        $c = intval($check['c']);
+        return $c == 0;
+    }
+
     public static function runMigrations($showlogging = false) {
         $m = SqliteHelper::getMigrator($showlogging);
         $m->process();
@@ -74,7 +90,6 @@ class SqliteHelper {
             return [ $messages, $error ];
         }
 
-        $newdbcreated = false;
         try {
             $dbexists = file_exists(SqliteHelper::DbFilename());
             if (! $dbexists) {
@@ -89,7 +104,7 @@ class SqliteHelper {
         }
         catch (\Exception $e) {
             $args = ['errors' => [ $e->getMessage() ]];
-            $error = MysqlHelper::renderError('fatal_error.html.twig', $args);
+            $error = SqliteHelper::renderError('fatal_error.html.twig', $args);
         }
 
         return [ $messages, $error ];

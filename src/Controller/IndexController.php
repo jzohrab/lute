@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
-use App\Utils\MysqlHelper;
+use App\Utils\SqliteHelper;
 use App\Utils\ImportCSV;
 use App\Utils\AppManifest;
 use App\Utils\SqliteBackup;
@@ -53,9 +53,8 @@ class IndexController extends AbstractController
         $show_import_link = count(ImportCSV::DbLoadedTables()) == 0;
 
         return $this->render('index.html.twig', [
-            // TODO:sqlite fix MigrationHelper refs
-            'isdemodb' => false, // MysqlHelper::isLuteDemo(),
-            'demoisempty' => false, // MysqlHelper::isEmptyDemo(),
+            'isdemodb' => SqliteHelper::isDemoDb(),
+            'demoisempty' => SqliteHelper::isEmptyDemo(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,

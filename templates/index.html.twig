@@ -22,31 +22,33 @@
 
 {% if isdemodb %}
 <div class="flash-notice">
-  <p><b> NOTE: Lute v1 is nearing end-of-life.  Lute v2 will soon be
-      released, if it's not released already.  Join the discord to
-      find out more.
-  </b></p>
-</div>
-
-<div class="flash-notice">
-  <p>Lute is currently using a demo database, <b>lute_demo</b>.</p>
+  <p>Lute is currently using a demo database, <b>lute_demo.db</b>.</p>
 
   {% if demoisempty %}
-  <p>The demo db is currently empty.  You
-  can <a href="/demo/load">load some demo data</a>, or define your own
-  languages and texts to try it out.</p>
+  <p>
+    The demo db is currently empty.  You can <a href="/demo/load"
+    style="text-decoration: underline;">click here to load some demo
+    data</a>, or define your own languages and texts to try it out.
+  </p>
+  <p>
+    If you were a Lute v1.x user, you may have exported your data to
+    CSVs. Puts those csvs in the folder Lute root/csv_import,
+    and <a href="/utils/import_csv" style="text-decoration:
+    underline;">click here to import them</a>.
+  </p>
   {% endif %}
 
   {% if tutorialloaded %}
-  <p>The demo db has been loaded with a <a href="/read/1">brief
-  tutorial</a>, and a few languages and sample stories.
+  <p>The demo db has been loaded with a <a href="/read/1"
+    style="text-decoration: underline;">brief tutorial</a>, and a few
+    languages and sample stories.
   </p>
   {% endif %}
 
   <p>When you are done testing out the demo, update
   your <b>.env.local</b> configuration file to your real database
-  name.  (Lute will create that database for you, if it doesn't
-  already exist.)</p>
+  name.  Lute will create that database for you, if it doesn't
+  already exist.</p>
 </div>
 
 {% elseif bkp_missing_enabled_key %}

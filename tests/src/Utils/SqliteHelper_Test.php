@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use App\Utils\SqliteHelper;
+use App\Utils\Connection;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -55,25 +56,35 @@ final class SqliteHelper_Test extends TestCase
     }
 
 
-    private function assert_setup_gives_error($expected) {
+    private function assert_setup_result($expected_msg, $expected_error) {
         [ $messages, $error ] = SqliteHelper::doSetup();
-        $this->assertTrue($error != null, 'have error');
-        $this->assertMatchesRegularExpression("/{$expected}/", $error);
+
+        if ($expected_msg != null) {
+            $this->assertMatchesRegularExpression("/{$expected_msg}/", implode('; ', $messages));
+        }
+
+        if ($expected_error != null) {
+            $this->assertTrue($error != null, 'have error');
+            $this->assertMatchesRegularExpression("/{$expected_error}/", $error);
+        }
+        else {
+            $this->assertTrue($error == null, 'no error');
+        }
     }
     
     public function test_setup_missing_DB_FILENAME_returns_error() {
         $_ENV['DB_FILENAME'] = null;
-        $this->assert_setup_gives_error('Missing key DB_FILENAME');
+        $this->assert_setup_result(null, 'Missing key DB_FILENAME');
     }
 
     public function test_setup_blank_DB_FILENAME_returns_error() {
         $_ENV['DB_FILENAME'] = '';
-        $this->assert_setup_gives_error('Missing key DB_FILENAME');
+        $this->assert_setup_result(null, 'Missing key DB_FILENAME');
     }
 
     public function test_setup_mysql_DATABASE_URL_returns_error() {
         $_ENV['DATABASE_URL'] = 'mysql:blahblah';
-        $this->assert_setup_gives_error('DATABASE_URL should start with sqlite');
+        $this->assert_setup_result(null, 'DATABASE_URL should start with sqlite');
     }
 
     public function test_setup_db_created_if_not_exists() {
@@ -81,32 +92,37 @@ final class SqliteHelper_Test extends TestCase
         if (file_exists($f))
             unlink($f);
         $this->assertFalse(file_exists($f), 'no file');
-        [ $messages, $error ] = SqliteHelper::doSetup();
-        $this->assertTrue($error == null, 'no error');
-        $this->assertMatchesRegularExpression('/New database created./', implode('; ', $messages));
+        $this->assertFalse(SqliteHelper::isDemoDb(), "not demo db");
+        $this->assert_setup_result("New database created.", null);
         $this->assertTrue(file_exists($f), 'have file');
         $this->assertFalse(SqliteHelper::hasPendingMigrations(), 'nothing pending');
+
+        $this->assertFalse(SqliteHelper::isEmptyDemo(), 'NOT empty demo');
+        $pdo = Connection::getFromEnvironment();
+        $sql = "select count(*) from books";
+        $res = $pdo->query($sql)->fetch(\PDO::FETCH_NUM);
+        $this->assertEquals(0, intval($res[0]), 'no data loaded');
     }
 
-    /* setup tests
+    public function test_setup_demo_db() {
+        $f = '%kernel.project_dir%/var/lute_demo.db';
+        $_ENV['DB_FILENAME'] = $f;
+        $_ENV['DATABASE_URL'] = "sqlite:///{$f}";
 
-* if the sqlfile doesn't exist yet:
-** copy the baseline
-** run any sqlite migrations needed
+        $f = SqliteHelper::DbFilename();
+        if (file_exists($f))
+            unlink($f);
+        $this->assertFalse(file_exists($f), 'no file');
+        $this->assertTrue(SqliteHelper::isDemoDb(), "is demo db");
 
-* if the sqlite link is demo:
-** if the db is empty, load it
-** show the "you're in a demo" message
-** return
+        $this->assert_setup_result("New database created.", null);
+        $this->assertTrue(file_exists($f), 'have file');
 
-* if not demo:
-** the sqlite db is empty:
-*** show "import csv" link
-** if not empty
-*** hide "import csv" link
+        $this->assertTrue(SqliteHelper::isEmptyDemo(), 'empty demo');
+        $pdo = Connection::getFromEnvironment();
+        $sql = "select count(*) from books";
+        $res = $pdo->query($sql)->fetch(\PDO::FETCH_NUM);
+        $this->assertEquals(0, intval($res[0]), 'no demo loaded');
+    }
 
-* manual tests
-- remove the DB_FILENAME
-- set DATABASE_URL to mysql
-     */
 }

@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Utils\SqliteHelper;
 
+use App\Entity\Text;
+
 require dirname(__DIR__).'/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
@@ -40,14 +42,11 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false
 }
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-
 [ $messages, $error ] = SqliteHelper::doSetup();
 if ($error != null) {
     echo $error;
     die();
 }
-
-$messages = [ "TODO fix setup" ];  // TODO:sqlite
 
 /**
  * Storing update messages in the $_SERVER so I can get it in
