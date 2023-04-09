@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/DatabaseTestBase.php';
 
-use App\Utils\MysqlHelper;
+use App\Utils\DemoDataLoader;
 use App\Domain\Dictionary;
 
 // This isn't really a test ... it just loads the database with data.
@@ -25,7 +25,7 @@ final class LoadTestData_Test extends DatabaseTestBase
     public function test_load_dev_data(): void
     {
         $dict = new Dictionary($this->term_repo);
-        MysqlHelper::loadDemoData($this->language_repo, $this->book_repo, $dict);
+        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }
 
