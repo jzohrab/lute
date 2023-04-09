@@ -176,10 +176,14 @@ INNER JOIN statuses S on S.StID = w.WoStatus
 LEFT OUTER JOIN wordparents on WpWoID = w.WoID
 LEFT OUTER JOIN words p on p.WoID = WpParentWoID
 LEFT OUTER JOIN (
-  SELECT WtWoID as WoID, GROUP_CONCAT(TgText ORDER BY TgText SEPARATOR ', ') AS taglist
+  SELECT WtWoID as WoID, GROUP_CONCAT(TgText, ', ') AS taglist
   FROM
-  wordtags wt
-  INNER JOIN tags t on t.TgID = wt.WtTgID
+  (
+    select WtWoID, TgText
+    from wordtags wt
+    INNER JOIN tags t on t.TgID = wt.WtTgID
+    order by TgText
+  ) tagssrc
   GROUP BY WtWoID
 ) AS tags on tags.WoID = w.WoID
 LEFT OUTER JOIN wordimages wi on wi.WiWoID = w.WoID

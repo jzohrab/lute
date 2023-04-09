@@ -99,8 +99,8 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
         $expected = [
             "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) realbase",
-            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))",
-            "data" => "SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%')) ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
+            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE '%' || :s0 || '%' OR Food LIKE '%' || :s0 || '%')",
+            "data" => "SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE '%' || :s0 || '%' OR Food LIKE '%' || :s0 || '%') ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
             'params' => [ 's0' => 'XXX' ]
         ];
         $this->assertHashesEqual($actual, $expected);
@@ -114,8 +114,8 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
         $expected = [
             "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) realbase",
-            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%')) AND (Color LIKE CONCAT('%', :s1, '%') OR Food LIKE CONCAT('%', :s1, '%'))",
-            "data" => "SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%')) AND (Color LIKE CONCAT('%', :s1, '%') OR Food LIKE CONCAT('%', :s1, '%')) ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
+            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE '%' || :s0 || '%' OR Food LIKE '%' || :s0 || '%') AND (Color LIKE '%' || :s1 || '%' OR Food LIKE '%' || :s1 || '%')",
+            "data" => "SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE '%' || :s0 || '%' OR Food LIKE '%' || :s0 || '%') AND (Color LIKE '%' || :s1 || '%' OR Food LIKE '%' || :s1 || '%') ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
             'params' => [ 's0' => 'XXX', 's1' => 'YYY' ]
         ];
         $this->assertHashesEqual($actual, $expected);
@@ -132,12 +132,12 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
     public function test_search_regex_markers()
     {
-        $this->assertWhereEquals('XXX', "(Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))");
-        $this->assertWhereEquals('^XXX', "(Color LIKE CONCAT('', :s0, '%') OR Food LIKE CONCAT('', :s0, '%'))");
-        $this->assertWhereEquals('XXX$', "(Color LIKE CONCAT('%', :s0, '') OR Food LIKE CONCAT('%', :s0, ''))");
-        $this->assertWhereEquals('^XXX$', "(Color LIKE CONCAT('', :s0, '') OR Food LIKE CONCAT('', :s0, ''))");
+        $this->assertWhereEquals('XXX', "(Color LIKE '%' || :s0 || '%' OR Food LIKE '%' || :s0 || '%')");
+        $this->assertWhereEquals('^XXX', "(Color LIKE '' || :s0 || '%' OR Food LIKE '' || :s0 || '%')");
+        $this->assertWhereEquals('XXX$', "(Color LIKE '%' || :s0 || '' OR Food LIKE '%' || :s0 || '')");
+        $this->assertWhereEquals('^XXX$', "(Color LIKE '' || :s0 || '' OR Food LIKE '' || :s0 || '')");
 
-        $this->assertWhereEquals('^XXX YYY$', "(Color LIKE CONCAT('', :s0, '%') OR Food LIKE CONCAT('', :s0, '%')) AND (Color LIKE CONCAT('%', :s1, '') OR Food LIKE CONCAT('%', :s1, ''))");
+        $this->assertWhereEquals('^XXX YYY$', "(Color LIKE '' || :s0 || '%' OR Food LIKE '' || :s0 || '%') AND (Color LIKE '%' || :s1 || '' OR Food LIKE '%' || :s1 || '')");
     }
 
 }

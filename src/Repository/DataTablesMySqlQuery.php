@@ -62,7 +62,7 @@ class DataTablesMySqlQuery
         $dosearch = count($searchablecols) > 0 && count($searchparts) > 0;
         
         if ($dosearch) {
-            // Note that while "LIKE CONCAT('%', :s{$i}, '%')" loos
+            // Note that even though "'%' || :s{$i} || '%'" loos
             // very odd, it's the only way to get the params to match
             // correctly.  Using '%?%' with an array of [
             // $searchstring ] fails with "invalid parameter number:
@@ -93,7 +93,7 @@ class DataTablesMySqlQuery
                 $colwheres = [];
                 for ($j = 0; $j < count($searchablecols); $j++) {
                     $cname = $searchablecols[$j];
-                    $colwheres[] = "{$cname} LIKE CONCAT('{$lwild}', :s{$i}, '{$rwild}')";
+                    $colwheres[] = "{$cname} LIKE '{$lwild}' || :s{$i} || '{$rwild}'";
                 }
                 // Part in at least one field.
                 $partwheress[] = '(' . implode(' OR ', $colwheres) . ')';
