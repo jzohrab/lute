@@ -51,7 +51,7 @@ page</a>.</p>
 </p>
 
 <form>
-  <input type="button" onclick="do_post(); return false;" value="Import CSVs" /input>
+  <input id="btnimport" type="button" onclick="do_post(); return false;" value="Import CSVs" /input>
 </form>
 
 <p id="importResult" />
@@ -63,13 +63,15 @@ page</a>.</p>
     $.post('/utils/do_import_csv', {})
       .done( function(msg) {
         $('#importResult').text('Completed: ' + msg);
-        $('#returnHome').css({ visibility: 'visible' })
+        $('#btnimport').prop("disabled", true);
+        $('#returnHome').css({ visibility: 'visible' });
       })
       .fail( function(xhr, textStatus, errorThrown) {
         const p = JSON.parse(xhr.responseText);
         const msg = "IMPORT ERROR: " + p.errmsg;
         $('#importResult').html(msg.replace(/__BREAK__/g, '<br />'));
-        $('#returnHome').css({ visibility: 'visible' })
+        $('#btnimport').prop("disabled", true);
+        $('#returnHome').css({ visibility: 'visible' });
       })
   }
 </script>
