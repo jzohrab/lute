@@ -7,6 +7,7 @@
 {% if not db_is_empty %}
 <h2>Import not possible: The database is not empty.</h2>
 <p>The CSVs exported from your old Lute use raw data, that is, things like database primary keys for records.  Your current database is not empty, so we can't import the CSVs, as there would be data integrity problems.</p>
+<p>Database: {{ db_filename }}</p>
 <p>Tables containing data:</p>
 <ul>
   {% for t in loaded_tables %}
@@ -47,7 +48,7 @@
   function do_post() {
     $.post('/utils/do_import_csv', {})
       .done( function(msg) {
-        $('#importResult').text('Completed.');
+        $('#importResult').text('Completed: ' + msg);
         $('#returnHome').css({ visibility: 'visible' })
       })
       .fail( function(xhr, textStatus, errorThrown) {

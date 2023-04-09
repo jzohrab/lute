@@ -12,6 +12,7 @@ use App\Utils\MysqlBackup;
 use App\Utils\MysqlExportCSV;
 use App\Repository\SettingsRepository;
 use App\Utils\ImportCSV;
+use App\Utils\SqliteHelper;
 
 #[Route('/utils')]
 class UtilsController extends AbstractController
@@ -26,6 +27,7 @@ class UtilsController extends AbstractController
         return $this->render(
             'utils/csv_import.html.twig',
             [
+                'db_filename' => SqliteHelper::DbFilename(),
                 'all_files_exist' => (count($missing_files) == 0),
                 'missing_files' => $missing_files,
                 'db_is_empty' => $db_is_empty,
@@ -37,9 +39,13 @@ class UtilsController extends AbstractController
     #[Route('/do_import_csv', name: 'app_do_import_csv', methods: ['POST'])]
     public function do_import_csv(): JsonResponse
     {
-        ImportCSV::doImport();
-        // Check: csv md5 is the same or not
-        return $this->json('ok');
+        try {
+            $ret = ImportCSV::doImport();
+            return $this->json($ret);
+        }
+        catch(\Exception $e) {
+            return new JsonResponse(array('errmsg' => $e->getMessage()), 500);
+        }
     }
 
 

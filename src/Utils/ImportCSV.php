@@ -88,6 +88,22 @@ class ImportCSV {
         return $loaded;
     }
 
+    private static function checkWordsChecksum($conn, $sourcedir) {
+        $md5 = md5("START");
+        $sql = "SELECT WoTextLC FROM words order by woid";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+            $md5 = md5($md5 . "|" . $row[0]);
+        }
+        $csvfile = "{$sourcedir}/checksum.csv";
+        $expected_md5 = file_get_contents($csvfile);
+
+        if ($md5 != $expected_md5)
+            return "Warning: exported term checksum $expected_md5 doesn't match actual checksum $md5.  This could indicate an issue with the export ... the terms in your new db might not match the terms in your old db.";
+        return '';
+    }
+
     public static function doImport() {
         $conn = Connection::getFromEnvironment();
         $sourcedir = __DIR__ . '/../../csv_import';
@@ -97,6 +113,11 @@ class ImportCSV {
             $csv_path = "{$sourcedir}/{$t}.csv";
             ImportCSV::import_csv_to_sqlite($conn, $csv_path, $t);
         }
+
+        $w = ImportCSV::checkWordsChecksum($conn, $sourcedir);
+        if ($w != '')
+            return $w;
+        return 'ok';
     }
 
 }
