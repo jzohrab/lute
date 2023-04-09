@@ -2,30 +2,46 @@
 
 {% block body %}
 
-<h1>CSV Import</h1>
+<h1>CSV Import (for Lute v1 users)</h1>
+
+<div class="flash-notice">
+<p>Note: CSV import is for people who used Lute v1, and who exported
+their v1 data to CSV files.  If this is your first time using Lute,
+you won't have any v1 data, so head on back to the <a href="/">home
+page</a>.</p>
+</div>
+<br/>
 
 {% if not db_is_empty %}
+<div style="width: 50%">
 <h2>Import not possible: The database is not empty.</h2>
 <p>The CSVs exported from your old Lute use raw data, that is, things like database primary keys for records.  Your current database is not empty, so we can't import the CSVs, as there would be data integrity problems.</p>
-<p>Database: {{ db_filename }}</p>
+<br/>
+<p>Database file: {{ db_filename }}</p>
 <p>Tables containing data:</p>
 <ul>
   {% for t in loaded_tables %}
   <li>{{ t }}</li>
   {% endfor %}
 </ul>
+
+<p>If you want to re-import your old CSVs, please <b>delete your database file</b> shown above and refresh this page to try again.</p>
+
 <p><a href="/">Back to home.</a></p>
+</div>
 {% endif %}
 
 {% if not all_files_exist %}
+<div style="width: 50%">
 <h2>Import not possible: Missing required files in directory csv_import:</h2>
 <ul>
   {% for f in missing_files %}
   <li>{{ f }}</li>
   {% endfor %}
 </ul>
-<p>Please re-export from your old Lute, and copy the files from that project's csv_export to this project's csv_import.</p>
+<p>Please export your data from your old Lute installation, and copy or move all the files from that project's csv_export directory to this project's csv_import directory.</p>
 <p><a href="/">Back to home.</a></p>
+</div>
 {% endif %}
 
 
@@ -33,8 +49,6 @@
 <p>
   Importing the data from csv_import, in the Lute's root directory.
 </p>
-
-<p>This import can only be done once.  If you want to re-import a new CSV export, you'll have to remove your existing database, and try again.</p>
 
 <form>
   <input type="button" onclick="do_post(); return false;" value="Import CSVs" /input>
