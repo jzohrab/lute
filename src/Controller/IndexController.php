@@ -11,7 +11,7 @@ use App\Utils\Connection;
 use App\Utils\MysqlHelper;
 use App\Utils\ImportCSV;
 use App\Utils\AppManifest;
-use App\Utils\MysqlBackup;
+use App\Utils\SqliteBackup;
 use App\Repository\SettingsRepository;
 
 class IndexController extends AbstractController
@@ -39,7 +39,7 @@ class IndexController extends AbstractController
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
-        $bkp = new MysqlBackup($_ENV, $repo);
+        $bkp = new SqliteBackup($_ENV, $repo);
         $bkp_warning = $bkp->warning();
 
         if ($bkp->should_run_auto_backup()) {

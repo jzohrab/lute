@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-use App\Utils\MysqlBackup;
+use App\Utils\SqliteBackup;
 use App\Utils\MysqlExportCSV;
 use App\Repository\SettingsRepository;
 use App\Utils\ImportCSV;
@@ -61,7 +61,7 @@ class UtilsController extends AbstractController
     public function do_backup(SettingsRepository $repo): JsonResponse
     {
         try {
-            $b = new MysqlBackup($_ENV, $repo);
+            $b = new SqliteBackup($_ENV, $repo);
             $f = $b->create_backup();
             return $this->json($f);
         }
