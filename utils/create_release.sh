@@ -17,8 +17,10 @@ fi
 
 # Run this script from the project root directory.
 clear
-echo "Creating debug and release."
+echo "Creating release. (debug not created, not used?)"
 echo
+
+git clean -xdf
 
 echo
 echo Generating manifest.
@@ -31,25 +33,25 @@ echo ".env files"
 cp .env.example .env
 rm .env.test
 
-echo
-echo "Ensuring full set of dev dependencies"
-APP_ENV=dev composer install --dev
+# echo
+# echo "Ensuring full set of dev dependencies"
+# APP_ENV=dev composer install --dev
+# 
+# echo
+# echo "Making the debug zip file, including dev dependencies:"
+# touch ../lute_debug.zip
+# rm ../lute_debug.zip
+# zip ../lute_debug.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup" -x "db/*.db"
 
 echo
-echo "Making the debug zip file, including dev dependencies:"
-touch ../lute_debug.zip
-rm ../lute_debug.zip
-zip ../lute_debug.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup" -x "db/*.db"
-
-echo
-echo "Removing dev dependencies to reduce release zip size."
+echo "Install w/o dev dependencies to reduce release zip size."
 APP_ENV=prod composer install --no-dev
 
 echo
 echo "Making the release zip file:"
 touch ../lute_release.zip
 rm ../lute_release.zip
-zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup" -x "db/*.db"
+zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*"
 
 echo
 echo "Restoring my .env files"
@@ -61,7 +63,7 @@ echo "Restoring dev dependencies."
 APP_ENV=dev composer install --dev
 
 echo
-echo "Done, debug and release created:"
+echo "Done:"
 ls -larth ../lute_*.zip
 
 echo
