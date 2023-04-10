@@ -72,21 +72,24 @@ class DbHelpers {
     }
     
     public static function ensure_using_test_db() {
-        $dbname = $_ENV['DATABASE_URL'];
-        $is_test = str_contains($dbname, 'test');
+        $dbname = $_ENV['DB_FILENAME'];
+        $basename = basename($dbname);
+        $is_test = str_contains($basename, 'test');
         if (!$is_test) {
             $msg = "
 *************************************************************
-ERROR: Db name \"{$dbname}\" does not contain 'test'
+ERROR: Db name \"{$basename}\" does not start with 'test'
 
 (Stopping tests to prevent data loss.)
 
 Since database tests are destructive (delete/edit/change data),
 you must use a dedicated test database when running tests.
 
-1. Create a new database called 'test_<whatever_you_want>' // TODO:sqlite fix this
-2. Update your env.test.local to use this new db
-3. Run the tests.
+1. Update DB_FILENAME in your env.test.local to something like:
+
+DB_FILENAME=%kernel.project_dir%/test_lute.db
+
+2. Re-run the tests.  Lute will create the db if needed.
 *************************************************************
 ";
             echo $msg;

@@ -10,7 +10,7 @@ composer.phar
 /csv_import
 
 # The database itself
-/db/*.db
+/*.db
 
 # User-specific environment files.
 /.env.local
