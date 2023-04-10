@@ -12,10 +12,10 @@ composer.phar
 # The database itself
 /*.db
 
-# User-specific environment files.
-/.env.local
+# User environment files.
+/.env
+/.env.test
 /.env.local.php
-/.env.*.local
 
 # User config
 /public/css/styles-overrides.css
