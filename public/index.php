@@ -15,6 +15,11 @@ use App\Utils\SqliteHelper;
 
 use App\Entity\Text;
 
+// Symfony requires the APP_SECRET to be set,
+// but users don't care, so removing it from the
+// .env files to here.
+$_ENV['APP_SECRET']='not_secret_at_all';
+          
 require dirname(__DIR__).'/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
