@@ -76,29 +76,15 @@ class IndexController extends AbstractController
         $commit = $m['commit'];
         $gittag = $m['tag'];
         $releasedate = $m['release_date'];
-
-        $serversoft = explode(' ', $_SERVER['SERVER_SOFTWARE']);
-        $apache = "Apache/?";
-        if (substr($serversoft[0], 0, 7) == "Apache/") { 
-            $apache = $serversoft[0]; 
-        }
-        $php = phpversion();
-
         $conn = Connection::getFromEnvironment();
+        $php = phpversion();
 
         return $this->render('server_info.html.twig', [
             'tag' => $gittag,
             'commit' => $commit,
             'release_date' => $releasedate,
-
-            'serversoft' => $serversoft,
-            'apache' => $apache,
             'php' => $php,
-            'dbname' => $_ENV['DB_DATABASE'],
-            'server' => $_ENV['DB_HOSTNAME'],
             'symfconn' => $_ENV['DATABASE_URL'],
-            'webhost' => $_SERVER['HTTP_HOST'],
-
             'isdev' => ($_ENV['APP_ENV'] == 'dev'),
             'allenv' => getenv(),
             'ENV' => $_ENV,

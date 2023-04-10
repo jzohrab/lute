@@ -4,7 +4,8 @@
 RELTESTDIR="../lute_release"
 
 # Open to non-existent site!
-# A bit wonky, but I don't want to run it as a background.
+# On Chrome, the tab refreshes itself periodically, so
+# when php starts, the site is shown.
 open http://localhost:9999/
 
 pushd "$RELTESTDIR/public"
