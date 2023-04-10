@@ -39,7 +39,7 @@ echo
 echo "Making the debug zip file, including dev dependencies:"
 touch ../lute_debug.zip
 rm ../lute_debug.zip
-zip ../lute_debug.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup"
+zip ../lute_debug.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup" -x "db/*.db"
 
 echo
 echo "Removing dev dependencies to reduce release zip size."
@@ -49,7 +49,7 @@ echo
 echo "Making the release zip file:"
 touch ../lute_release.zip
 rm ../lute_release.zip
-zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup"
+zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x "utils" -x "var/*" -x "media/*" -x "public/media/*" -x "public/userimages/*" -x "zz_backup" -x "db/*.db"
 
 echo
 echo "Restoring my .env files"
@@ -79,21 +79,6 @@ pushd "$RELTESTDIR"
   # ls -larth
 popd
 
-## echo
-## echo "Make ../lute_debug folder for local testing."
-## DEBTESTDIR="../lute_debug"
-## rm -rf "$DEBTESTDIR"
-## mkdir -p "$DEBTESTDIR"
-## cp ../lute_debug.zip "$DEBTESTDIR"
-## echo "Unzipping to $DEBTESTDIR ..."
-## 
-## pushd "$DEBTESTDIR"
-##   unzip -q lute_debug.zip
-##   rm lute_debug.zip
-##   echo "Done."
-##   # ls -larth
-## popd
-
 echo
 echo "Done."
-echo "Change the .env.local in $RELTESTDIR and/or $DEBTESTDIR for testing environment as needed."
+echo "Change the .env.local in $RELTESTDIR for testing environment as needed."

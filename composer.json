@@ -97,7 +97,6 @@
   },
   "scripts": {
     "app:release": [
-      "source .env.local && mysqladmin drop lute_demo -u $DB_USER -p$DB_PASSWORD || true",
       "./utils/create_release.sh",
       "./utils/open_release.sh"
     ],
