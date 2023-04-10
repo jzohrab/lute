@@ -27,4 +27,24 @@ class DemoController extends AbstractController
         return $this->redirectToRoute('app_index', [ 'tutorialloaded' => true ]);
     }
 
+    #[Route('/demo/done', name: 'app_demo_done', methods: ['GET'])]
+    public function done_demo(): Response
+    {
+        // This is completely crazy, but it makes the user's life easier.  Maybe.
+        // I hope this doesn't explode in my face.  It shouldn't.
+        $envfile = __DIR__ . '/../../.env.local';
+        $str=file_get_contents($envfile);
+        $str=str_replace('lute_demo.db', 'lute.db', $str);
+        file_put_contents($envfile, $str);
+
+        // Sending back Javascript, b/c we want the browser to kick
+        // off a completely new symfony call, reloading the .env.local
+        // file we just edited. :-P
+        $response = new Response();
+        $response->setContent('<html><body><script>window.location="/";</script></body></html>');
+        $response->headers->set('Content-Type', 'text/html');
+        $response->setStatusCode(Response::HTTP_OK);
+        return $response;
+    }
+
 }
