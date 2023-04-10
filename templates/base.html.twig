@@ -66,7 +66,7 @@
   <body>
 
     {% if app.environment == 'dev' %}
-    <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DB_DATABASE') }}</p>
+    <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DATABASE_URL') }}</p>
     {% endif %}
 
     {% if block("hide_home_link") is not defined %}
