@@ -45,7 +45,7 @@
 
 {% elseif bkp_missing_enabled_key %}
 <div class="flash-notice">
-  <p>The key <b>BACKUP_ENABLED</b> is not defined in your .env.local file.</p>
+  <p>The key <b>BACKUP_ENABLED</b> is not defined in your .env file.</p>
 
   <p>
     This is a safeguard to ensure that you have some backup strategy
@@ -62,7 +62,7 @@
 
   <p>
     If you don't want Lute to back itself up, and want to hide this message,
-    just set the following in your .env.local file, and prepare to
+    just set the following in your .env file, and prepare to
     live dangerously: <b>BACKUP_ENABLED=false</b>
   </p>
 </div>

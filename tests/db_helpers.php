@@ -85,7 +85,7 @@ ERROR: Db name \"{$basename}\" does not start with 'test'
 Since database tests are destructive (delete/edit/change data),
 you must use a dedicated test database when running tests.
 
-1. Update DB_FILENAME in your env.test.local to something like:
+1. Update DB_FILENAME in your env.test to something like:
 
 DB_FILENAME=%kernel.project_dir%/test_lute.db
 

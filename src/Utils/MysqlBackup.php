@@ -77,7 +77,7 @@ class MysqlBackup {
     public function warning(): string {
         $m = $this->missing_keys();
         if ($m != null && $m != '')
-            return "Missing backup environment keys in .env.local: {$m}";
+            return "Missing backup environment keys in .env: {$m}";
 
         $setting = strtolower($this->config['BACKUP_WARN']);
         if ($setting == 'no' || $setting == 'false')

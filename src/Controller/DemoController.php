@@ -32,13 +32,13 @@ class DemoController extends AbstractController
     {
         // This is completely crazy, but it makes the user's life easier.  Maybe.
         // I hope this doesn't explode in my face.  It shouldn't.
-        $envfile = __DIR__ . '/../../.env.local';
+        $envfile = __DIR__ . '/../../.env';
         $str=file_get_contents($envfile);
         $str=str_replace('lute_demo.db', 'lute.db', $str);
         file_put_contents($envfile, $str);
 
         // Sending back Javascript, b/c we want the browser to kick
-        // off a completely new symfony call, reloading the .env.local
+        // off a completely new symfony call, reloading the .env
         // file we just edited. :-P
         $response = new Response();
         $response->setContent('<html><body><script>window.location="/";</script></body></html>');

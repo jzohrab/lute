@@ -25,7 +25,7 @@ class RestoreArchivedTextSentences {
                 echo $s;
         };
         $echo("Preparing environment ...\n");
-        (new Dotenv())->load(__DIR__.'/../../../.env.local');
+        (new Dotenv())->load(__DIR__.'/../../../.env');
         $kernel = new Kernel($_SERVER['APP_ENV'], true);
         $echo("Booting ... ");
         $kernel->boot();

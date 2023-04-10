@@ -31,11 +31,11 @@ jobs:
     - name: Prevent debug cruft
       run: composer dev:finddump
 
-    - name: Copy .env.test.local
-      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+    - name: Copy .env.test
+      run: php -r "file_exists('.env.test') || copy('.env.test.example', '.env.test');"
 
-    - name: Copy .env.local
-      run: php -r "file_exists('.env.local') || copy('.env.test', '.env.local');"
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
     - name: Cache Composer packages
       id: composer-cache

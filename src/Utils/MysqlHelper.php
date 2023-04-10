@@ -296,7 +296,7 @@ class MysqlHelper {
         $zws = mb_chr(0x200B);
         $term->setText("your{$zws} {$zws}local{$zws} {$zws}environment{$zws} {$zws}file");
         $term->setStatus(3);
-        $term->setTranslation("This is \".env.local\", your personal file in the project root folder :-)");
+        $term->setTranslation("This is \".env\", your personal file in the project root folder :-)");
         $dictionary->add($term, true);
     }
 

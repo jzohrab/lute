@@ -169,7 +169,7 @@ final class SqliteBackup_Test extends TestCase
     public function test_warning_is_set_if_keys_missing() {
         $this->config = [];
         $b = $this->createSqliteBackup();
-        $expected = "Missing backup environment keys in .env.local: BACKUP_DIR, BACKUP_AUTO, BACKUP_WARN";
+        $expected = "Missing backup environment keys in .env: BACKUP_DIR, BACKUP_AUTO, BACKUP_WARN";
         $this->assertEquals($b->warning(), $expected);
     }
 

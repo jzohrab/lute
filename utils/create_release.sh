@@ -4,14 +4,14 @@ set -e
 
 # Files are changed here, so you should have your own copies safely stored.
 BACKUPDIR=../lute_my_files
-if [[ ! -f "${BACKUPDIR}/.env.local" ]]
+if [[ ! -f "${BACKUPDIR}/.env" ]]
 then
-    echo "Missing backup .env.local, quitting."
+    echo "Missing backup .env, quitting."
     exit 1
 fi
-if [[ ! -f "${BACKUPDIR}/.env.test.local" ]]
+if [[ ! -f "${BACKUPDIR}/.env.test" ]]
 then
-    echo "Missing backup .env.test.local, quitting."
+    echo "Missing backup .env.test, quitting."
     exit 1
 fi
 
@@ -27,9 +27,9 @@ cat manifest.json
 echo
 
 echo
-echo "Make .env[.test].local"
-cp .env.local.example .env.local
-cp .env.test.local.example .env.test.local
+echo ".env files"
+cp .env.example .env
+rm .env.test
 
 echo
 echo "Ensuring full set of dev dependencies"
@@ -53,8 +53,8 @@ zip ../lute_release.zip . --recurse-paths -qdgds 1m -x "*.git*" -x "tests/*" -x 
 
 echo
 echo "Restoring my .env files"
-cp "${BACKUPDIR}/.env.local" .
-cp "${BACKUPDIR}/.env.test.local" .
+cp "${BACKUPDIR}/.env" .
+cp "${BACKUPDIR}/.env.test" .
 
 echo
 echo "Restoring dev dependencies."
@@ -81,4 +81,4 @@ popd
 
 echo
 echo "Done."
-echo "Change the .env.local in $RELTESTDIR for testing environment as needed."
+echo "Change the .env in $RELTESTDIR for testing environment as needed."

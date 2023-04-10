@@ -124,7 +124,7 @@ final class MysqlBackup_Test extends TestCase
         // so this test is skipped.
         $k = 'TEST_RUN_DB_BACKUP';
         if (!array_key_exists($k, $_ENV)) {
-            $msg = "Skipping test, {$k} not set in .env.test.local.";
+            $msg = "Skipping test, {$k} not set in .env.test.";
             $msg .= "  See comments in test for details.";
             $this->markTestSkipped($msg);
             return;
@@ -226,7 +226,7 @@ final class MysqlBackup_Test extends TestCase
     public function test_warning_is_set_if_keys_missing() {
         $this->config = [];
         $b = $this->createMysqlBackup();
-        $expected = "Missing backup environment keys in .env.local: BACKUP_MYSQLDUMP_COMMAND, BACKUP_DIR, BACKUP_AUTO, BACKUP_WARN";
+        $expected = "Missing backup environment keys in .env: BACKUP_MYSQLDUMP_COMMAND, BACKUP_DIR, BACKUP_AUTO, BACKUP_WARN";
         $this->assertEquals($b->warning(), $expected);
     }
 
