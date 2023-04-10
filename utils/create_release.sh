@@ -31,7 +31,6 @@ echo
 echo
 echo ".env files"
 cp .env.example .env
-rm .env.test
 
 # echo
 # echo "Ensuring full set of dev dependencies"
