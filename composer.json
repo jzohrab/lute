@@ -15,7 +15,6 @@
     "ext-ctype": "*",
     "ext-iconv": "*",
     "ext-mbstring": "*",
-    "ext-mysqli": "*",
     "doctrine/annotations": "^1.0",
     "doctrine/doctrine-bundle": "^2.7",
     "doctrine/doctrine-migrations-bundle": "^3.2",
