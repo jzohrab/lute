@@ -14,12 +14,12 @@ RUN apt-get update && apt-get install -y \
 
 ENV APP_ENV=prod
 
-WORKDIR /usr/src/myapp
-
 # Install Composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && php -r "unlink('composer-setup.php');"
+
+WORKDIR /
 
 COPY ./composer.* ./
 
