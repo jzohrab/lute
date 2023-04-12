@@ -1,0 +1,11 @@
+docker
+docs
+*.db
+
+# var and vendor are installed with composer install
+var
+vendor
+
+# env files are copied into the final layer
+.env
+.env.test
