@@ -9,6 +9,9 @@ composer.phar
 /csv_export
 /csv_import
 
+# User data (db, images, etc.)
+/data
+
 # The database itself
 /*.db
 
