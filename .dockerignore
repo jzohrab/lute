@@ -1,5 +1,8 @@
 .git/
-docker/
+
+Dockerfile
+.dockerignore
+
 docs/
 tests/
 *.db
