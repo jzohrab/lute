@@ -56,6 +56,10 @@ page</a>.</p>
 
 <p id="importResult" />
 
+<p id="deleteImportedCsvs" style="visibility:hidden;">
+  The import is complete.  You can delete the files in your data/csv_import/ directory.
+</p>
+
 <p id="returnHome" style="visibility:hidden;"><a href="/">Back to home.</a></p>
 
 <script>
@@ -64,6 +68,7 @@ page</a>.</p>
       .done( function(msg) {
         $('#importResult').text('Completed: ' + msg);
         $('#btnimport').prop("disabled", true);
+        $('#deleteImportedCsvs').css({ visibility: 'visible' });
         $('#returnHome').css({ visibility: 'visible' });
       })
       .fail( function(xhr, textStatus, errorThrown) {
