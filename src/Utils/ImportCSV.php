@@ -62,7 +62,7 @@ class ImportCSV {
 
     public static function MissingFiles() {
         $missing = [];
-        $sourcedir = __DIR__ . '/../../csv_import';
+        $sourcedir = __DIR__ . '/../../data/csv_import';
         $sourcedir = Path::canonicalize($sourcedir);
         $tables = ImportCSV::RequiredTables();
         foreach ($tables as $t) {
@@ -106,7 +106,7 @@ class ImportCSV {
 
     public static function doImport() {
         $conn = Connection::getFromEnvironment();
-        $sourcedir = __DIR__ . '/../../csv_import';
+        $sourcedir = __DIR__ . '/../../data/csv_import';
         $sourcedir = Path::canonicalize($sourcedir);
         $tables = ImportCSV::RequiredTables();
         foreach ($tables as $t) {

@@ -33,13 +33,13 @@ page</a>.</p>
 
 {% if not all_files_exist %}
 <div style="width: 50%">
-<h2>Import not possible: Missing required files in directory csv_import:</h2>
+<h2>Import not possible: Missing required files in directory data/csv_import:</h2>
 <ul>
   {% for f in missing_files %}
   <li>{{ f }}</li>
   {% endfor %}
 </ul>
-<p>Please export your data from your old Lute installation, and copy or move all the files from that project's csv_export directory to this project's csv_import directory.</p>
+<p>Please export your data from your old Lute installation, and copy or move all the files from that project's csv_export directory to this project's data/csv_import directory.</p>
 <p><a href="/">Back to home.</a></p>
 </div>
 {% endif %}
@@ -47,7 +47,7 @@ page</a>.</p>
 
 {% if all_files_exist and db_is_empty %}
 <p>
-  Importing the data from csv_import, in the Lute's root directory.
+  Importing CSVs from data/csv_import.
 </p>
 
 <form>
