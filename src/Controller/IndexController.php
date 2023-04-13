@@ -53,8 +53,8 @@ class IndexController extends AbstractController
         $show_import_link = count(ImportCSV::DbLoadedTables()) == 0;
 
         return $this->render('index.html.twig', [
-            'isdemodb' => SqliteHelper::isDemoDb(),
-            'demoisempty' => SqliteHelper::isEmptyDemo(),
+            'isdemodata' => SqliteHelper::isDemoData(),
+            'dbisempty' => SqliteHelper::dbIsEmpty(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,

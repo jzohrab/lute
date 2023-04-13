@@ -31,20 +31,24 @@ class SqliteHelper {
     }
 
     public static function CreateDb() {
-        $baseline = __DIR__ . '/../../db/baseline/baseline.sqlite';
+        $baseline = __DIR__ . '/../../db/baseline/demo.sqlite';
         $dest = SqliteHelper::DbFilename();
         copy($baseline, $dest);
         SqliteHelper::runMigrations();
     }
 
-    public static function isDemoDb(): bool {
-        $f = basename(SqliteHelper::DbFilename());
-        return ($f == 'lute_demo.db');
+    public static function isDemoData(): bool {
+        $sql = "select count(*) from books
+          where BkID = 1 and BkTitle = 'Tutorial'";
+        $conn = Connection::getFromEnvironment();
+        $check = $conn
+               ->query($sql)
+               ->fetch(\PDO::FETCH_NUM);
+        $c = $check[0];
+        return $c == 1;
     }
 
-    public static function isEmptyDemo() {
-        if (! SqliteHelper::isDemoDb())
-            return false;
+    public static function dbIsEmpty() {
         $conn = Connection::getFromEnvironment();
         $check = $conn
                ->query('select count(*) as c from Languages')
@@ -116,6 +120,36 @@ class SqliteHelper {
         $twig = new \Twig\Environment($loader);
         $template = $twig->load($name);
         return $template->render($args);
+    }
+
+
+    public static function clearDb() {
+        // Clean out tables in ref-integrity order.
+        // Leave settings.
+        $tables = [
+            "sentences",
+            "texttokens",
+
+            "booktags",
+            "bookstats",
+
+            "texttags",
+            "wordtags",
+            "wordparents",
+            "wordimages",
+
+            "tags",
+            "tags2",
+            "texts",
+            "books",
+            "words",
+            "languages"
+        ];
+        $conn = Connection::getFromEnvironment();
+        foreach ($tables as $t) {
+            // truncate doesn't work when referential integrity is set.
+            $conn->query("delete from {$t}");
+        }
     }
 
 }

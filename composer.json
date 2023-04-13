@@ -108,6 +108,10 @@
     "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
     "db:create:prod": "APP_ENV=prod php db/create.php",
     "db:create:test": "APP_ENV=test php db/create.php",
+    "db:create:demo": [
+      "composer test:group dev:data:load",
+      "cp test_lute.db db/baseline/demo.sqlite"
+    ],
     "db:migrate:prod": "APP_ENV=prod php db/migrate.php",
     "db:migrate:test": "APP_ENV=test php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",
@@ -162,6 +166,7 @@
     "dev:class": "Show public interface methods of class",
     "todo:list": "Show code todos",
     "todo:types": "Show types of todos",
+    "db:create:demobaseline": "Create the demo data loaded for new users",
     "db:migrate:test": "Run db migrations on db in .env.test / .env.test.local",
     "db:migrate:prod": "Run db migrations on db in .env / .env.local",
     "db:newscript": "Make a new db migration script",

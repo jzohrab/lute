@@ -20,27 +20,15 @@
 </table>
 
 
-{% if isdemodb %}
+{% if isdemodata %}
 <div class="flash-notice">
-  <p>Lute is currently using a demo database, <b>lute_demo.db</b>.</p>
-
-  {% if demoisempty %}
-  <p>
-    The demo db is currently empty.  You can <a href="/demo/load"
-    style="text-decoration: underline;">click here to load some demo
-    data</a>, or define your own languages and texts to try it out.
+  <p>The Lute database has been loaded with a <a href="/read/1"
+    style="text-decoration: underline;">brief tutorial</a>, and some
+    languages and short texts for you to try out.
   </p>
-  {% endif %}
-
-  {% if tutorialloaded %}
-  <p>The demo db has been loaded with a <a href="/read/1"
-    style="text-decoration: underline;">brief tutorial</a>, and a few
-    languages and sample stories.
-  </p>
-  {% endif %}
-  <p>When you are done testing out the demo, <a href="/demo/done"
-  style="text-decoration: underline;">click here</a> to have Lute
-  switch to a new empty database.</p>
+  <p>When you're done trying out the demo, <a href="/demo/done"
+  style="text-decoration: underline;">click here</a> to clear out the
+  database.</p>
 </div>
 
 {% elseif bkp_missing_enabled_key %}

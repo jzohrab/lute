@@ -92,37 +92,42 @@ final class SqliteHelper_Test extends TestCase
         if (file_exists($f))
             unlink($f);
         $this->assertFalse(file_exists($f), 'no file');
-        $this->assertFalse(SqliteHelper::isDemoDb(), "not demo db");
         $this->assert_setup_result("New database created.", null);
         $this->assertTrue(file_exists($f), 'have file');
         $this->assertFalse(SqliteHelper::hasPendingMigrations(), 'nothing pending');
-
-        $this->assertFalse(SqliteHelper::isEmptyDemo(), 'NOT empty demo');
-        $pdo = Connection::getFromEnvironment();
-        $sql = "select count(*) from books";
-        $res = $pdo->query($sql)->fetch(\PDO::FETCH_NUM);
-        $this->assertEquals(0, intval($res[0]), 'no data loaded');
     }
 
-    public function test_setup_demo_db() {
-        $f = '%kernel.project_dir%/var/lute_demo.db';
-        $_ENV['DB_FILENAME'] = $f;
-        $_ENV['DATABASE_URL'] = "sqlite:///{$f}";
-
+    public function test_setup_loads_demo_db() {
         $f = SqliteHelper::DbFilename();
         if (file_exists($f))
             unlink($f);
         $this->assertFalse(file_exists($f), 'no file');
-        $this->assertTrue(SqliteHelper::isDemoDb(), "is demo db");
 
         $this->assert_setup_result("New database created.", null);
         $this->assertTrue(file_exists($f), 'have file');
 
-        $this->assertTrue(SqliteHelper::isEmptyDemo(), 'empty demo');
-        $pdo = Connection::getFromEnvironment();
-        $sql = "select count(*) from books";
-        $res = $pdo->query($sql)->fetch(\PDO::FETCH_NUM);
-        $this->assertEquals(0, intval($res[0]), 'no demo loaded');
+        $this->assertTrue(SqliteHelper::isDemoData(), 'demo loaded');
+        $this->assertFalse(SqliteHelper::dbIsEmpty(), 'not empty');
     }
 
+    public function test_wiping_data_resets_to_empty() {
+        $f = SqliteHelper::DbFilename();
+        if (file_exists($f))
+            unlink($f);
+        $this->assertFalse(file_exists($f), 'no file');
+
+        $this->assert_setup_result("New database created.", null);
+        $this->assertTrue(file_exists($f), 'have file');
+
+        $this->assertTrue(SqliteHelper::isDemoData(), 'demo loaded');
+        $this->assertFalse(SqliteHelper::dbIsEmpty(), 'not empty');
+
+        SqliteHelper::clearDb();
+        $this->assertFalse(SqliteHelper::isDemoData(), 'demo not loaded');
+        $this->assertTrue(SqliteHelper::dbIsEmpty(), 'is empty');
+
+    }
+
+    // On load of new, "show_wipe_db_link" is true
+    // after wipe, "show_wipe_db_link" is false
 }
