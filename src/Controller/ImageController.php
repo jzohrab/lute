@@ -14,11 +14,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class ImageController extends AbstractController
 {
 
-    #[Route('/{lang}/{relpath}', name: 'app_userimages', methods: ['GET'])]
-    public function get_image(int $lang, string $relpath): BinaryFileResponse
+    // Note that symfony has problems handling periods in image params!
+    // Ref https://github.com/symfony/symfony/issues/25541.
+    #[Route('/{lgid}/{term}', name: 'app_userimages', methods: ['GET'])]
+    public function get_image(int $lgid, string $term)
     {
-        $filename = __DIR__ . '/../../data/userimages/' . $langid . '/' . $relpath;
-        dump('getting file ' . $filename);
+        $filename = __DIR__ . '/../../data/userimages/' . $lgid . '/' . $term . '.jpeg';
         $stream = new Stream($filename);
         $response = new BinaryFileResponse($stream);
         return $response;

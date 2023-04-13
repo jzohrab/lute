@@ -305,13 +305,24 @@ class Term
         return $this->children;
     }
 
-    public function getCurrentImage(): ?string
+    public function getCurrentImage(bool $strip_jpeg = true): ?string
     {
         if (count($this->images) == 0) {
             return null;
         }
         $i = $this->images->getValues()[0];
-        return $i->getSource();
+
+        $src = $i->getSource();
+
+        if (! $strip_jpeg)
+            return $src;
+
+        // Ugly hack: we have to remove the .jpeg at the end, because
+        // Symfony doesn't handle params with periods.
+        // Ref https://github.com/symfony/symfony/issues/25541.
+        // The src/ImageController adds the .jpeg at the end again to
+        // find the actual file.
+        return preg_replace('/\.jpeg$/ui', '', $src);
     }
 
     public function setCurrentImage(?string $s): self
