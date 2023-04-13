@@ -125,10 +125,10 @@ class SqliteHelper {
 
     public static function clearDb() {
         // Clean out tables in ref-integrity order.
-        // Leave settings.
         $tables = [
             "sentences",
             "texttokens",
+            "settings",
 
             "booktags",
             "bookstats",
