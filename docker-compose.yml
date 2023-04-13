@@ -10,5 +10,6 @@ services:
       - 8000:8000
     volumes:
       - ./data:/data
+      - ~/Dropbox/LuteBackup/:/backup
     working_dir: /public
     command: ["php", "-S", "0.0.0.0:8000"]

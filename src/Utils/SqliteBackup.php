@@ -109,7 +109,7 @@ class SqliteBackup {
 
     private function do_export_and_zip($outdir): string {
         $src = SqliteHelper::DbFilename();
-        $backupfile = $outdir . '/lute_export.db';
+        $backupfile = $outdir . '/lute_backup.db';
         copy($src, $backupfile);
         $f = $this->gzcompressfile($backupfile);
         unlink($backupfile);
@@ -168,12 +168,12 @@ class SqliteBackup {
     }
 
     private function mirror_images_dir() {
-        $targetdir = $this->config['BACKUP_DIR'] . '/userimages';
+        $targetdir = $this->config['BACKUP_DIR'] . '/userimages_backup';
         $targetdir = Path::canonicalize($targetdir);
         if (!is_dir($targetdir))
             mkdir($targetdir);
 
-        $sourcedir = __DIR__ . '/../../public/userimages';
+        $sourcedir = __DIR__ . '/../../data/userimages';
         if (array_key_exists('OVERRIDE_TEST_IMAGES_DIR', $this->config))
             $sourcedir = $this->config['OVERRIDE_TEST_IMAGES_DIR'];
         $sourcedir = Path::canonicalize($sourcedir);
