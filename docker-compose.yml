@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  lute:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./data:/data
+    working_dir: /public
+    command: ["php", "-S", "0.0.0.0:8000"]

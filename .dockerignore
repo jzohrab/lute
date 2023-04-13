@@ -1,16 +1,15 @@
-.git/
+# User data is mounted into the container.
+data/
 
+# Development stuff
+.git/
 Dockerfile
 .dockerignore
-
 docs/
 tests/
 *.db
 
-# junk files during dev
-csv_import/
-
-# var and vendor are installed with composer install
+# var and vendor are installed with composer install.
 var/
 vendor/
 
