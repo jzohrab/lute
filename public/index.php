@@ -7,7 +7,7 @@
 
 
 use App\Kernel;
-use Symfony\Component\Dotenv\Dotenv;
+use App\Utils\MyDotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,14 +15,9 @@ use App\Utils\SqliteHelper;
 
 use App\Entity\Text;
 
-// Symfony requires the APP_SECRET to be set,
-// but users don't care, so removing it from the
-// .env files to here.
-$_ENV['APP_SECRET']='not_secret_at_all';
-          
 require dirname(__DIR__).'/vendor/autoload.php';
 
-(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+MyDotenv::boot(dirname(__DIR__).'/.env');
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);

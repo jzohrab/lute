@@ -1,10 +1,10 @@
 <?php
-use Symfony\Component\Dotenv\Dotenv;
+use App\Utils\MyDotenv;
 use App\Utils\SqliteHelper;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-(new Dotenv())->bootEnv(__DIR__ . '/../.env');
+MyDotenv::boot(__DIR__ . '/../.env');
 
 $f = SqliteHelper::DbFilename();
 echo "\nMigrating {$f} ...\n";
