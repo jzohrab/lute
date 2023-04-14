@@ -73,7 +73,8 @@ class ReadingRepository
           TokSentenceNumber,
           TokOrder,
           TokIsWord,
-          TokText
+          TokText,
+          TokTextLC
           from texttokens
           where toktxid = $textid
           order by TokSentenceNumber, TokOrder";
@@ -90,6 +91,7 @@ class ReadingRepository
             $tok->TokOrder = intval($row['TokOrder']);
             $tok->TokIsWord = intval($row['TokIsWord']);
             $tok->TokText = $row['TokText'];
+            $tok->TokTextLC = $row['TokTextLC'];
             $ret[] = $tok;
         }
         return $ret;

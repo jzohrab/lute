@@ -72,7 +72,8 @@ class ParsedTokenSaver {
               `TokSentenceNumber` INTEGER NOT NULL,
               `TokOrder` INTEGER NOT NULL,
               `TokIsWord` tinyint NOT NULL,
-              `TokText` varchar(100) NOT NULL
+              `TokText` varchar(100) NOT NULL,
+              `TokTextLC` varchar(100) NOT NULL
             )"
         ];
         foreach ($setup as $sql) {
@@ -85,8 +86,8 @@ class ParsedTokenSaver {
         }
 
         $sqls = [
-            "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText)
-              select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText from temptexttokens",
+            "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC)
+              select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC from temptexttokens",
             "DROP TABLE if exists `temptexttokens`",
 
             // Load sentences.
@@ -142,7 +143,7 @@ class ParsedTokenSaver {
     // Insert each record in chunk in a prepared statement,
     // where chunk record is [ txid, sentence_num, ord, wordcount, word ].
     private function load_temptexttokens(array $chunk) {
-        $sqlbase = "insert into temptexttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText) values ";
+        $sqlbase = "insert into temptexttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC) values ";
 
         // NOTE: I'm building the raw sql string for the integer
         // values, because it is _much_ faster to do this instead of
@@ -157,7 +158,7 @@ class ParsedTokenSaver {
         // "+ 1" on the sentence number is a relic of old code
         // ... sentences in the array were numbered starting at 0.
         // Can be amended in the future.
-        $vals = array_map(fn($t) => '(' . implode(',', [ $t[0], $t[1] + 1, $t[2], $t[3], '?' ]) . ')', $chunk);
+        $vals = array_map(fn($t) => '(' . implode(',', [ $t[0], $t[1] + 1, $t[2], $t[3], '?', '?' ]) . ')', $chunk);
         $valstring = implode(',', $vals);
 
         $sql = $sqlbase . $valstring;
@@ -165,10 +166,13 @@ class ParsedTokenSaver {
         $stmt = $this->conn->prepare($sql);
         // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
         // Positional numbering starts at 1. !!!
-        $n = count($chunk);
-        for ($i = 1; $i <= $n; $i++) {
-            // TODO:sqlite uses SQLITE3_TEXT
-            $stmt->bindValue($i, $chunk[$i - 1][4], \PDO::PARAM_STR);
+        $prmIndex = 1;
+        for ($i = 0; $i < count($chunk); $i++) {
+            $w = $chunk[$i][4];
+            $wlc = mb_strtolower($w);
+            $stmt->bindValue($prmIndex, $w, \PDO::PARAM_STR);
+            $stmt->bindValue($prmIndex + 1, $wlc, \PDO::PARAM_STR);
+            $prmIndex += 2;
         }
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);

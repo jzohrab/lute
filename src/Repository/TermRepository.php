@@ -120,7 +120,7 @@ class TermRepository extends ServiceEntityRepository
         // 1. Get all exact matches from the tokens.
         $lgid = $t->getLanguage()->getLgID();
         $sql = "select distinct WoID from words
-            where wotextlc in (select LOWER(TokText) from texttokens where toktxid = {$t->getID()})
+            where wotextlc in (select TokTextLC from texttokens where toktxid = {$t->getID()})
             and WoTokenCount = 1 and WoLgID = $lgid";
         $res = $conn->executeQuery($sql);
         while ($row = $res->fetchNumeric()) {
@@ -128,11 +128,19 @@ class TermRepository extends ServiceEntityRepository
         }
 
         // 2. Get multiword terms that likely match (don't bother
-        // checking word boundaries).
+        // checking word boundaries).  Sqlite doesn't support
+        // "select LOWER(field)", so do a big select of the tokens.
         $sql = "select WoID from words
             where WoTokenCount > 1 AND WoLgID = $lgid AND
             instr(
-              (select LOWER(TxText) from texts where TxID = {$t->getID()}),
+              (
+                select GROUP_CONCAT(TokTextLC, '')
+                from (
+                  select TokTextLC from texttokens
+                  where TokTxID = {$t->getID()}
+                  order by TokOrder
+                ) src
+              ),
               replace(WoTextLC, char(0x200B), '')
             ) > 0";
         $res = $conn->executeQuery($sql);
