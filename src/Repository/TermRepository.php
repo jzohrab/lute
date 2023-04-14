@@ -191,7 +191,7 @@ LEFT OUTER JOIN wordimages wi on wi.WiWoID = w.WoID
 
         $conn = $this->getEntityManager()->getConnection();
         
-        return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
+        return DataTablesSqliteQuery::getData($base_sql, $parameters, $conn);
     }
 
 }

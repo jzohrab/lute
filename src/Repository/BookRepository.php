@@ -101,7 +101,7 @@ class BookRepository extends ServiceEntityRepository
 
         $conn = $this->getEntityManager()->getConnection();
         
-        return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
+        return DataTablesSqliteQuery::getData($base_sql, $parameters, $conn);
     }
 
 }

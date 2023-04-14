@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 /**
- * Utility repo for Mysql backend for DataTables ajax calls.
+ * Utility repo for sqlite backend for DataTables ajax calls.
  */
-class DataTablesMySqlQuery
+class DataTablesSqliteQuery
 {
 
     /**
@@ -131,7 +131,7 @@ class DataTablesMySqlQuery
         $data = null;
 
         try {
-            $sqla = DataTablesMySqlQuery::getSql($base_sql, $parameters);
+            $sqla = DataTablesSqliteQuery::getSql($base_sql, $parameters);
             $recordsTotal = $conn->executeQuery($sqla['recordsTotal'])->fetchNumeric()[0];
             $recordsFiltered = $conn->executeQuery($sqla['recordsFiltered'], $sqla['params'])->fetchNumeric()[0];
 

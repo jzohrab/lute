@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../../src/Repository/DataTablesMySqlQuery.php';
+require_once __DIR__ . '/../../../src/Repository/DataTablesSqliteQuery.php';
 
 use PHPUnit\Framework\TestCase;
-use App\Repository\DataTablesMySqlQuery;
+use App\Repository\DataTablesSqliteQuery;
 
 
-final class DataTablesMySqlQuery_Test extends TestCase
+final class DataTablesSqliteQuery_Test extends TestCase
 {
 
     private string $basesql;
@@ -65,7 +65,7 @@ final class DataTablesMySqlQuery_Test extends TestCase
     
     public function test_smoke_test()
     {
-        $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
+        $actual = DataTablesSqliteQuery::getSql($this->basesql, $this->parameters);
         $expected = [
             'recordsTotal' => 'select count(*) from (select CatID, Color, Food from Cats) realbase',
             'recordsFiltered' => 'select count(*) from (select CatID, Color, Food from Cats) realbase ',
@@ -81,7 +81,7 @@ final class DataTablesMySqlQuery_Test extends TestCase
         $this->parameters["order"][0]["column"] = "2";
         $this->parameters["order"][0]["dir"] = "desc";
 
-        $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
+        $actual = DataTablesSqliteQuery::getSql($this->basesql, $this->parameters);
         $expected = [
             'recordsTotal' => 'select count(*) from (select CatID, Color, Food from Cats) realbase',
             'recordsFiltered' => "select count(*) from (select CatID, Color, Food from Cats) realbase ",
@@ -95,7 +95,7 @@ final class DataTablesMySqlQuery_Test extends TestCase
     {
         $this->parameters["search"]["value"] = "XXX";
 
-        $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
+        $actual = DataTablesSqliteQuery::getSql($this->basesql, $this->parameters);
 
         $expected = [
             "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) realbase",
@@ -110,7 +110,7 @@ final class DataTablesMySqlQuery_Test extends TestCase
     {
         $this->parameters["search"]["value"] = "XXX YYY";
 
-        $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
+        $actual = DataTablesSqliteQuery::getSql($this->basesql, $this->parameters);
 
         $expected = [
             "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) realbase",
@@ -124,7 +124,7 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
     private function assertWhereEquals($searchString, $expected) {
         $this->parameters["search"]["value"] = $searchString;
-        $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
+        $actual = DataTablesSqliteQuery::getSql($this->basesql, $this->parameters);
         $filtered = $actual["recordsFiltered"];
         $where = preg_replace('/.* WHERE /', '', $filtered);
         $this->assertEquals($expected, $where, $searchString);
