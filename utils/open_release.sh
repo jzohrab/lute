@@ -10,13 +10,19 @@ DOCKERRELTESTDIR="../lute_release_docker"
 open http://localhost:9999/
 open http://localhost:8000/
 
-pushd "$RELTESTDIR/public"
+pushd "$RELTESTDIR"
+  mkdir zz_bkp
+  sed -i '' 's/~\/Dropbox\/LuteBackup\//.\/zz_bkp/g' .env
+  pushd public
   php -S localhost:9999 &
+  popd
 popd
 echo "Started PHP in $RELTESTDIR ... to stop it, kill -9 <pid>"
 echo
 
 pushd "$DOCKERRELTESTDIR"
+  mkdir zz_bkp
+  sed -i '' 's/~\/Dropbox\/LuteBackup\//.\/zz_bkp/g' .env
   docker compose build
   docker compose up -d
 popd
