@@ -19,7 +19,3 @@ $ composer db:newrepeat <some_name_here>
 ```
 
 These migration scripts should be committed to the repo.
-
----
-
-Tools for managing the legacy MySQL db are in the `mysql` subfolder.  This folder will contain tools for Sqlite.

@@ -9,7 +9,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use App\Utils\SqliteBackup;
-use App\Utils\MysqlExportCSV;
 use App\Repository\SettingsRepository;
 use App\Utils\ImportCSV;
 use App\Utils\SqliteHelper;
@@ -68,13 +67,6 @@ class UtilsController extends AbstractController
         catch(\Exception $e) {
             return new JsonResponse(array('errmsg' => $e->getMessage()), 500);
         }
-    }
-
-    #[Route('/export_csv', name: 'app_export_csv', methods: ['GET'])]
-    public function export_csv(): Response
-    {
-        MysqlExportCSV::doExport();
-        return $this->render('utils/csv_export.html.twig');
     }
 
 }
