@@ -36,7 +36,7 @@ final class SqliteBackup_Test extends TestCase
         $this->repo = $this->createMock(SettingsRepository::class);
     }
 
-    public function tearDown(): void {
+    public function xxtearDown(): void {
         $this->rrmdir($this->imagedir);
         $this->rrmdir($this->dir);
     }
@@ -113,10 +113,10 @@ final class SqliteBackup_Test extends TestCase
         $b = $this->createSqliteBackup();
         $b->create_backup();
         $this->assertEquals(1, count(glob($this->dir . "/*.*")), "1 file");
-        $this->assertEquals(1, count(glob($this->dir . "/lute_export.db.gz")), "1 zip file");
+        $this->assertEquals(1, count(glob($this->dir . "/lute_backup.db.gz")), "1 zip file");
 
-        $this->assertEquals(1, count(glob($this->dir . "/userimages/1/*.*")), "1 file");
-        $this->assertEquals(1, count(glob($this->dir . "/userimages/1/file.txt")), "correct file");
+        $this->assertEquals(1, count(glob($this->dir . "/userimages_backup/1/*.*")), "1 file");
+        $this->assertEquals(1, count(glob($this->dir . "/userimages_backup/1/file.txt")), "correct file");
     }
 
     public function test_last_import_setting_is_updated_on_successful_backup() {
