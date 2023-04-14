@@ -66,10 +66,11 @@ page</a>.</p>
 
 <script>
   function do_post() {
+    $('#btnimport').prop("disabled", true);
+    $('#importResult').text('Importing ...');
     $.post('/utils/do_import_csv', {})
       .done( function(msg) {
         $('#importResult').text('Completed: ' + msg);
-        $('#btnimport').prop("disabled", true);
         $('#deleteImportedCsvs').css({ visibility: 'visible' });
         $('#returnHome').css({ visibility: 'visible' });
       })
@@ -77,7 +78,6 @@ page</a>.</p>
         const p = JSON.parse(xhr.responseText);
         const msg = "IMPORT ERROR: " + p.errmsg;
         $('#importResult').html(msg.replace(/__BREAK__/g, '<br />'));
-        $('#btnimport').prop("disabled", true);
         $('#returnHome').css({ visibility: 'visible' });
       })
   }
