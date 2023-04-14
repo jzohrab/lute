@@ -17,6 +17,9 @@ class MyDotenv {
     public static function boot(string $path) {
         if (file_exists($path))
             (new Dotenv())->bootEnv($path);
+        $e = $_ENV['APP_ENV'];
+        $_SERVER['APP_ENV'] = $e;
+        $_SERVER['APP_DEBUG'] = $e != 'prod';
         $df = $_ENV['DB_FILENAME'];  // This may throw if it's not set :-)
         if ($df == null || $df == '') {
             $msg = 'DB_FILENAME not set, env not loaded from existing ENV or ' . $path;

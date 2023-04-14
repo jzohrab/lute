@@ -31,7 +31,7 @@ COPY ./composer.* ./
 RUN APP_ENV=prod composer install --no-dev --no-scripts
 
 COPY . .
-COPY .env.example ./.env
+# COPY .env.example ./.env
 
 WORKDIR public
 CMD ["php", "-S", "0.0.0.0:8000"]
