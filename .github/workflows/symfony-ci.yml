@@ -58,16 +58,8 @@ jobs:
     - name: Psalm check
       run: ./vendor/bin/psalm --config=psalm.xml --no-progress
 
-    - uses: shogo82148/actions-setup-mysql@v1
-      with:
-        mysql-version: '8.0'
-        root-password: 'root'
-
-    - name: check DB
-      run: mysql -u root -proot -h127.0.0.1 -e 'SELECT version()'
-
     - name: Setup testing db
-      run: composer db:mysql:setup:test
+      run: composer db:create:test
 
     - name: Run all tests
       run: composer test

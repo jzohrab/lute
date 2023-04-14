@@ -82,8 +82,8 @@ final class SqliteHelper_Test extends TestCase
         $this->assert_setup_result(null, 'Missing key DB_FILENAME');
     }
 
-    public function test_setup_mysql_DATABASE_URL_returns_error() {
-        $_ENV['DATABASE_URL'] = 'mysql:blahblah';
+    public function test_setup_non_sqlite_DATABASE_URL_returns_error() {
+        $_ENV['DATABASE_URL'] = 'something:blahblah';
         $this->assert_setup_result(null, 'DATABASE_URL should start with sqlite');
     }
 
