@@ -14,19 +14,8 @@ use App\Utils\Connection;
 class DbHelpers {
 
     private static function get_connection() {
-        if (!str_contains(strtolower($_ENV['DATABASE_URL']), 'mysql')) {
-            $d = str_replace('%kernel.project_dir%', __DIR__ . '/..', $_ENV['DATABASE_URL']);
-            $dbh = new PDO($d);
-            return $dbh;
-        }
-
-        // OLD mysql conn
-        $user = $_ENV['DB_USER'];
-        $password = $_ENV['DB_PASSWORD'];
-        $host = $_ENV['DB_HOSTNAME'];
-        $dbname = $_ENV['DB_DATABASE'];
-        $d = "mysql:host={$host};dbname={$dbname}";
-        $dbh = new \PDO($d, $user, $password);
+        $d = str_replace('%kernel.project_dir%', __DIR__ . '/..', $_ENV['DATABASE_URL']);
+        $dbh = new PDO($d);
         return $dbh;
     }
 
