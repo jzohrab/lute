@@ -2,15 +2,26 @@
 
 # Lute v2 can run using the built-in PHP web server.
 RELTESTDIR="../lute_release"
+DOCKERRELTESTDIR="../lute_release_docker"
 
 # Open to non-existent site!
 # On Chrome, the tab refreshes itself periodically, so
 # when php starts, the site is shown.
 open http://localhost:9999/
+open http://localhost:8000/
 
 pushd "$RELTESTDIR/public"
-  php -S localhost:9999
+  php -S localhost:9999 &
 popd
+echo "Started PHP in $RELTESTDIR ... to stop it, kill -9 <pid>"
+echo
+
+pushd "$DOCKERRELTESTDIR"
+  docker compose up -d
+popd
+echo "Started docker in $DOCKERRELTESTDIR ... to stop it:"
+echo "pushd $DOCKERRELTESTDIR; docker compose down; popd"
+echo
 
 # Don't bother opening the debug release.  It is the same as the other
 # release except for additional dev composer dependencies.  More

@@ -81,5 +81,20 @@ pushd "$RELTESTDIR"
 popd
 
 echo
+echo "Make ../lute_release_docker folder for local testing."
+DOCKERRELTESTDIR="../lute_release_docker"
+rm -rf "$DOCKERRELTESTDIR"
+mkdir -p "$DOCKERRELTESTDIR"
+cp ../lute_release.zip "$DOCKERRELTESTDIR"
+echo "Unzipping to $DOCKERRELTESTDIR ..."
+
+pushd "$DOCKERRELTESTDIR"
+  unzip -q lute_release.zip
+  rm lute_release.zip
+  echo "Done."
+  # ls -larth
+popd
+
+echo
 echo "Done."
 echo "Change the .env in $RELTESTDIR for testing environment as needed."
