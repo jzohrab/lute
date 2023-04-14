@@ -47,7 +47,7 @@ page</a>.</p>
 
 {% if all_files_exist and db_is_empty %}
 <p>
-  Importing CSVs from data/csv_import.
+  You're all set to import your Lute v1 CSV data.
 </p>
 
 <form>
@@ -57,7 +57,9 @@ page</a>.</p>
 <p id="importResult" />
 
 <p id="deleteImportedCsvs" style="visibility:hidden;">
-  The import is complete.  You can delete the files in your data/csv_import/ directory.
+  The CSV import is complete.  You can delete the files in your data/csv_import/ directory.
+  <br />
+  If you had any user images in your Lute v1 installation (in public/userimages), copy them to the data/userimages folder in this directory.
 </p>
 
 <p id="returnHome" style="visibility:hidden;"><a href="/">Back to home.</a></p>

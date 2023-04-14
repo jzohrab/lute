@@ -17,6 +17,7 @@ echo "Started PHP in $RELTESTDIR ... to stop it, kill -9 <pid>"
 echo
 
 pushd "$DOCKERRELTESTDIR"
+  docker compose build
   docker compose up -d
 popd
 echo "Started docker in $DOCKERRELTESTDIR ... to stop it:"

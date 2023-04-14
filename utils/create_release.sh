@@ -91,6 +91,8 @@ echo "Unzipping to $DOCKERRELTESTDIR ..."
 pushd "$DOCKERRELTESTDIR"
   unzip -q lute_release.zip
   rm lute_release.zip
+  rm .env
+  cp .env.example.docker .env
   echo "Done."
   # ls -larth
 popd
