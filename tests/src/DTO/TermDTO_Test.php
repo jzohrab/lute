@@ -135,14 +135,14 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->termTags[] = 'newtag';
 
         $perros = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
-        $this->assertEquals($perros->getCurrentImage(), 'someimage.jpeg', 'have img');
+        $this->assertEquals($perros->getCurrentImage(), 'someimage', 'have img, but WITHOUT jpeg extension');
         $this->assertEquals($perros->getTranslation(), 'transl', 'c trans');
 
         $parent = $perros->getParent();
         $this->assertTrue($parent != null, 'have parent');
         $this->assertEquals(count($parent->getTermTags()), 1, 'tag count');
         $this->assertEquals($parent->getTermTags()[0]->getText(), 'newtag');
-        $this->assertEquals($parent->getCurrentImage(), 'someimage.jpeg', 'parent have img');
+        $this->assertEquals($parent->getCurrentImage(), 'someimage', 'parent have img no jpeg ext');
         $this->assertEquals($parent->getTranslation(), 'transl', 'parent trans');
     }
 

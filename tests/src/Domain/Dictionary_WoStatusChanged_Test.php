@@ -35,7 +35,7 @@ final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
     private function get_field_value() {
         $sql = "SELECT
           WoStatusChanged,
-          TIMESTAMPDIFF(SECOND, WoStatusChanged, NOW()) as diffsecs
+          ROUND((JULIANDAY(datetime('now')) - JULIANDAY(WoStatusChanged)) * 86400) as diffsecs
           FROM words where WoID = {$this->term->getID()}";
         $rec = DbHelpers::exec_sql_get_result($sql);
         $a = $rec->fetch(\PDO::FETCH_ASSOC);

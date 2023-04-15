@@ -120,7 +120,7 @@ class Language
         return $this->LgDict2URI;
     }
 
-    public function setLgDict2URI(string $LgDict2URI): self
+    public function setLgDict2URI(?string $LgDict2URI): self
     {
         $this->LgDict2URI = $LgDict2URI;
 

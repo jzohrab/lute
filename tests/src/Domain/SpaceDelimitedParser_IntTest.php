@@ -135,7 +135,11 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     {
         $t = $this->make_text("Jams.", "Here is a word", $this->english);
 
-        $sql = "select TokText, TokIsWord from texttokens where TokText = 'word'";
+        // BRUTAL! issue with strings not matching in Sqlite db.
+        // If I use "TokText = 'word'", nothing is returned, but using "like" with
+        // no wildcard works.
+        // Ref https://stackoverflow.com/questions/26719948/sqlite-why-select-like-works-and-equals-does-not
+        $sql = "select TokText, TokIsWord from texttokens where TokText like 'word'";
         $expected = [
             "word; 1"
         ];

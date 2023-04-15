@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  lute:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env
+    ports:
+      - 8000:8000
+    volumes:
+      - ./data:/data
+      - ${BACKUP_HOST_DIR}:/backup
+    working_dir: /public
+    command: ["php", "-S", "0.0.0.0:8000"]

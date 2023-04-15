@@ -14,16 +14,8 @@ use App\Utils\Connection;
 class DbHelpers {
 
     private static function get_connection() {
-        $user = $_ENV['DB_USER'];
-        $password = $_ENV['DB_PASSWORD'];
-        $host = $_ENV['DB_HOSTNAME'];
-        $dbname = $_ENV['DB_DATABASE'];
-        $d = "mysql:host={$host};dbname={$dbname}";
-
-        // TODO:sqlite
-        // $d = str_replace('%kernel.project_dir%', __DIR__ . '/../..', $_ENV['DATABASE_URL']);
-
-        $dbh = new \PDO($d, $user, $password);
+        $d = str_replace('%kernel.project_dir%', __DIR__ . '/..', $_ENV['DATABASE_URL']);
+        $dbh = new PDO($d);
         return $dbh;
     }
 
@@ -69,21 +61,24 @@ class DbHelpers {
     }
     
     public static function ensure_using_test_db() {
-        $dbname = $_ENV['DATABASE_URL'];
-        $is_test = str_contains($dbname, 'test');
+        $dbname = $_ENV['DB_FILENAME'];
+        $basename = basename($dbname);
+        $is_test = str_contains($basename, 'test');
         if (!$is_test) {
             $msg = "
 *************************************************************
-ERROR: Db name \"{$dbname}\" does not contain 'test'
+ERROR: Db name \"{$basename}\" does not start with 'test'
 
 (Stopping tests to prevent data loss.)
 
 Since database tests are destructive (delete/edit/change data),
 you must use a dedicated test database when running tests.
 
-1. Create a new database called 'test_<whatever_you_want>' // TODO:sqlite fix this
-2. Update your env.test.local to use this new db
-3. Run the tests.
+1. Update DB_FILENAME in your env.test to something like:
+
+DB_FILENAME=%kernel.project_dir%/test_lute.db
+
+2. Re-run the tests.  Lute will create the db if needed.
 *************************************************************
 ";
             echo $msg;
@@ -118,6 +113,7 @@ you must use a dedicated test database when running tests.
             DbHelpers::exec_sql("delete from {$t}");
         }
 
+        /*
         $alters = [
             "sentences",
             "tags",
@@ -127,6 +123,7 @@ you must use a dedicated test database when running tests.
         foreach ($alters as $t) {
             DbHelpers::exec_sql("ALTER TABLE {$t} AUTO_INCREMENT = 1");
         }
+        */
     }
 
     /**

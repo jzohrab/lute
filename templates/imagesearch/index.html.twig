@@ -41,14 +41,12 @@
       el.value = filename;
       const img = fr.document.getElementById('term_image');
 
-      // Force image reload by by adding a cache-busting string
-      // to the image URL.
-      // https://stackoverflow.com/questions/1077041/
-      //   refresh-image-with-a-new-one-at-the-same-url
-      // This fills the local browser cache on each image change,
-      // but I imagine that it won't be used that frequently.
-      cachebuster =  "?t=" + new Date().getTime();
-      img.src = filename + cachebuster;
+      // Ugly hack: we have to remove the .jpeg at the end, because
+      // Symfony doesn't handle params with periods.
+      // Ref https://github.com/symfony/symfony/issues/25541.
+      // The src/ImageController adds the .jpeg at the end again to
+      // find the actual file.
+      img.src = filename.replace('.jpeg', '');
     }
 
     function save_image_locally(src, langid, text) {
@@ -81,7 +79,7 @@
   </script>
 
   <body>
-    <p>Clicking an image will save it in public/userimages/{{ langid }}/{{ text }}.jpeg</p>
+    <p>Clicking an image will save it in your userimages/{{ langid }}/{{ text }}.jpeg</p>
 
     {% for image in images %}
     <span style="margin: 2px; display:inline-block;"
