@@ -1,5 +1,18 @@
 # Changelog
 
+## 2023-04-15 v1.3 (end of life of Lute V1)
+
+Feature changes:
+
+* Add CSV export
+* Open sentence link in new tab.
+
+Back end:
+
+* Make Mysql-specific code more obvious
+* Rename classes
+* Db cleanup: change engine, add fks, integrity.
+
 ## 2023-04-03 v1.2.1
 
 Feature changes:
