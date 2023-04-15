@@ -71,13 +71,12 @@ class Dictionary {
             'siblings' => $this->getSiblingReferences($p, $term, $conn),
             'archived' => $this->getArchivedReferences($term, $conn)
         ];
-        mysqli_close($conn);
         return $ret;
     }
 
     private function buildTermReferenceDTOs($res) {
         $ret = [];
-        while (($row = $res->fetch_assoc())) {
+        while (($row = $res->fetch(\PDO::FETCH_ASSOC))) {
             $s = $row['SeText'];
             if ($s !== null)
                 $s = trim($s);
@@ -97,12 +96,14 @@ class Dictionary {
           AND lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%')
           LIMIT 20";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param('s', $s);
+
+        // TODO:sqlite uses SQLITE3_TEXT
+        $stmt->bindValue(1, $s, \PDO::PARAM_STR);
+
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        $res = $stmt->get_result();
-        return $this->buildTermReferenceDTOs($res);
+        return $this->buildTermReferenceDTOs($stmt);
     }
 
     private function getSiblingReferences($parent, $term, $conn): array {
@@ -155,31 +156,38 @@ class Dictionary {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        $res = $stmt->get_result();
         $termstrings = [];
-        while (($row = $res->fetch_assoc())) {
-            $termstrings[] = $row['WoTextLC'];
+        while (($row = $stmt->fetch(\PDO::FETCH_NUM))) {
+            $termstrings[] = $row[0];
         }
         
-        $sql = "select distinct TxID, TxTitle, SeText
+        $sql = "select distinct TxID, TxTitle, SeText, SeOrder
           from texts
           inner join sentences on SeTxID = TxID
           where lower(SeText) like concat('%', 0xE2808B, ?, 0xE2808B, '%') and TxArchived = 1
            ";
         $fullsql = array_fill(0, count($termstrings), $sql);
         $fullsql = implode(' UNION ', $fullsql);
+        $fullsql = $fullsql . ' ORDER BY SeOrder';
         // dump($fullsql);
 
         $stmt = $conn->prepare($fullsql);
         if (!$stmt) {
             throw new \Exception($conn->error);
         }
-        $stmt->bind_param(str_repeat('s', count($termstrings)), ...$termstrings);
+
+        // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
+        // Positional numbering starts at 1. !!!
+        $n = count($termstrings);
+        for ($i = 1; $i <= $n; $i++) {
+        // TODO:sqlite uses SQLITE3_TEXT
+            $stmt->bindValue($i, $termstrings[$i - 1], \PDO::PARAM_STR);
+        }
+
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        $res = $stmt->get_result();
-        return $this->buildTermReferenceDTOs($res);
+        return $this->buildTermReferenceDTOs($stmt);
     }
 
 }

@@ -31,9 +31,10 @@ class TextRepository extends ServiceEntityRepository
         $stmt->executeQuery();
     }
 
-    private function removeSentences(int $textid): void
+    private function removeParsedData(int $textid): void
     {
         $this->exec_sql("delete from sentences where SeTxID = $textid");
+        $this->exec_sql("delete from texttokens where TokTxID = $textid");
     }
 
     public function save(Text $entity, bool $flush = false): void
@@ -52,10 +53,10 @@ class TextRepository extends ServiceEntityRepository
     {
         $textid = $entity->getID();
         $this->getEntityManager()->remove($entity);
+        $this->removeParsedData($textid);
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            $this->removeSentences($textid);
         }
     }
 

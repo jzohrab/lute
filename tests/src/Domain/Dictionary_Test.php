@@ -369,7 +369,7 @@ final class Dictionary_Test extends DatabaseTestBase
     }
 
     /**
-     * @group dictrefs
+     * @group dictrefsarchived
      */
     public function test_archived_references()
     {

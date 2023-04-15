@@ -44,6 +44,9 @@ final class TextRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected);
     }
 
+    /**
+     * @group textsent
+     */
     public function test_parsing_Text_replaces_existing_texttokens()
     {
         $t = $this->text;
@@ -52,7 +55,7 @@ final class TextRepository_Test extends DatabaseTestBase
         $sqlsent = "select SeID, SeTxID, SeText from sentences";
 
         DbHelpers::assertTableContains($sql, [ "1; 7; gato" ]);
-        DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /gato/./" ]);
+        DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /gato/./" ], 'sentences');
 
         $t->setText("Hola tengo un perro.");
         $this->text_repo->save($t, true);

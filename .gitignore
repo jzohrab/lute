@@ -6,6 +6,8 @@ composer.phar
 /phpunit.xml
 .phpunit.result.cache
 
+/csv_export
+
 # User-specific environment files.
 /.env.local
 /.env.local.php

@@ -14,7 +14,17 @@ use App\Utils\Connection;
 class DbHelpers {
 
     private static function get_connection() {
-        return Connection::getFromEnvironment();
+        $user = $_ENV['DB_USER'];
+        $password = $_ENV['DB_PASSWORD'];
+        $host = $_ENV['DB_HOSTNAME'];
+        $dbname = $_ENV['DB_DATABASE'];
+        $d = "mysql:host={$host};dbname={$dbname}";
+
+        // TODO:sqlite
+        // $d = str_replace('%kernel.project_dir%', __DIR__ . '/../..', $_ENV['DATABASE_URL']);
+
+        $dbh = new \PDO($d, $user, $password);
+        return $dbh;
     }
 
     public static function exec_sql_get_result($sql, $params = null) {
@@ -29,7 +39,7 @@ class DbHelpers {
         if (!$stmt->execute()) {
             throw new Exception($stmt->error);
         }
-        return $stmt->get_result();
+        return $stmt;
     }
 
     public static function exec_sql($sql, $params = null) {
@@ -44,15 +54,13 @@ class DbHelpers {
         if (!$stmt->execute()) {
             throw new Exception($stmt->error);
         }
-        return $stmt->insert_id;
     }
 
     /** Gets first field of first record. */
     private static function get_first_value($sql)
     {
         $res = DbHelpers::exec_sql_get_result($sql);
-        $record = mysqli_fetch_array($res, MYSQLI_NUM);
-        mysqli_free_result($res);
+        $record = $res->fetch(\PDO::FETCH_NUM);
         $ret = null;
         if ($record) { 
             $ret = $record[0]; 
@@ -61,56 +69,53 @@ class DbHelpers {
     }
     
     public static function ensure_using_test_db() {
-        $dbname = $_ENV['DB_DATABASE'];
-        $conn_db_name = DbHelpers::get_first_value("SELECT DATABASE()");
-
-        foreach([$dbname, $conn_db_name] as $s) {
-            $prefix = substr($s, 0, 5);
-            if (strtolower($prefix) != 'test_') {
-                $msg = "
+        $dbname = $_ENV['DATABASE_URL'];
+        $is_test = str_contains($dbname, 'test');
+        if (!$is_test) {
+            $msg = "
 *************************************************************
-ERROR: Db name \"{$s}\" does not start with 'test_'
+ERROR: Db name \"{$dbname}\" does not contain 'test'
 
 (Stopping tests to prevent data loss.)
 
 Since database tests are destructive (delete/edit/change data),
 you must use a dedicated test database when running tests.
 
-1. Create a new database called 'test_<whatever_you_want>'
+1. Create a new database called 'test_<whatever_you_want>' // TODO:sqlite fix this
 2. Update your env.test.local to use this new db
 3. Run the tests.
 *************************************************************
 ";
-                echo $msg;
-                die("Quitting");
-            }
+            echo $msg;
+            die("Quitting");
         }
     }
 
     public static function clean_db() {
+        // Clean out tables in ref-integrity order.
         $tables = [
-            "feedlinks",
-            "languages",
-            "newsfeeds",
             "sentences",
             "settings",
+            "texttokens",
+
+            "booktags",
+            "bookstats",
+
+            "texttags",
+            "wordtags",
+            "wordparents",
+            "wordimages",
+
             "tags",
             "tags2",
             "texts",
-            "texttokens",
-            "texttags",
-
-            "bookstats",
-            "booktags",
             "books",
-
             "words",
-            "wordparents",
-            "wordimages",
-            "wordtags"
+            "languages"
         ];
         foreach ($tables as $t) {
-            DbHelpers::exec_sql("truncate {$t}");
+            // truncate doesn't work when referential integrity is set.
+            DbHelpers::exec_sql("delete from {$t}");
         }
 
         $alters = [
@@ -128,35 +133,21 @@ you must use a dedicated test database when running tests.
      * Checks.
      */
 
-    // Test-writing-helper method, to get expected output for
-    // assertTableContains.
-    public static function dumpTable($sql) {
-        $content = [];
-        $res = DbHelpers::exec_sql_get_result($sql);
-        echo "\n[\n";
-        while($row = mysqli_fetch_assoc($res)) {
-            $content[] = '"' . implode('; ', $row) . '"';
-        }
-        echo implode(",\n", $content);
-        echo "\n]\n";
-    }
-
     public static function assertTableContains($sql, $expected, $message = '') {
         $content = [];
         $res = DbHelpers::exec_sql_get_result($sql);
-        while($row = mysqli_fetch_assoc($res)) {
+        while($row = $res->fetch(\PDO::FETCH_NUM)) {
             $rowvals = array_values($row);
             $null_to_NULL = function($v) {
-                $zws = mb_chr(0x200B);
                 if ($v === null)
                     return 'NULL';
+                $zws = mb_chr(0x200B);
                 if (is_string($v) && str_contains($v, $zws))
                     return str_replace($zws, '/', $v);
                 return $v;
             };
             $content[] = implode('; ', array_map($null_to_NULL, $rowvals));
         }
-        mysqli_free_result($res);
 
         PHPUnit\Framework\Assert::assertEquals($expected, $content, $message);
     }
@@ -175,10 +166,9 @@ you must use a dedicated test database when running tests.
         if ($c != $expected) {
             $content = [];
             $res = DbHelpers::exec_sql_get_result($sql);
-            while($row = mysqli_fetch_assoc($res)) {
+            while($row = $res->fetch(\PDO::FETCH_NUM)) {
                 $content[] = implode('; ', $row);
             }
-            mysqli_free_result($res);
             $content = implode("\n", $content);
             $message = "{$message} ... got data:\n\n[ {$content} ]\n";
         }

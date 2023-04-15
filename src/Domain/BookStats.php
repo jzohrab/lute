@@ -42,8 +42,8 @@ class BookStats {
           where bkid not in (select bkid from bookstats)";
         $bkids = [];
         $res = $conn->query($sql);
-        while (($row = $res->fetch_assoc())) {
-            $bkids[] = intval($row['bkid']);
+        while ($row = $res->fetch(\PDO::FETCH_NUM)) {
+            $bkids[] = intval($row[0]);
         }
 
         // This is not performant, but at the moment I don't care as
@@ -61,8 +61,8 @@ class BookStats {
           where WoTokenCount = 1 and WoLgID = {$langid}";
         $allwords = [];
         $res = $conn->query($sql);
-        while (($row = $res->fetch_assoc())) {
-            $allwords[] = $row['WoTextLC'];
+        while (($row = $res->fetch(\PDO::FETCH_NUM))) {
+            $allwords[] = $row[0];
         }
         return $allwords;
     }

@@ -67,7 +67,7 @@ jobs:
       run: mysql -u root -proot -h127.0.0.1 -e 'SELECT version()'
 
     - name: Setup testing db
-      run: composer db:setup:test
+      run: composer db:mysql:setup:test
 
     - name: Run all tests
       run: composer test

@@ -8,6 +8,6 @@ mysqladmin -u root -proot create test_lute
 
 mysql -u root -proot test_lute < dbexport.sql
 
-composer db:migrate:test
+composer db:mysql:migrate:test
 
 rm dbexport.sql

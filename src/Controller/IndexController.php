@@ -8,34 +8,29 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
-use App\Utils\MigrationHelper;
+use App\Utils\MysqlHelper;
 use App\Utils\AppManifest;
-use App\Utils\Backup;
+use App\Utils\MysqlBackup;
 use App\Repository\SettingsRepository;
 
 class IndexController extends AbstractController
 {
 
-    private function get_current_text($conn) {
-        $sql = "select TxID, TxTitle from texts
-           where txid = (
-             select StValue from settings where StKey = 'currenttext'
-           )";
-        $rec = $conn
-             ->query($sql)
-             ->fetch_array();
-        if (! $rec)
+    private function get_current_text(SettingsRepository $repo, TextRepository $trepo) {
+        $tid = $repo->getCurrentTextID();
+        if ($tid == null)
             return [null, null];
-        else
-            return [ $rec['TxID'], $rec['TxTitle'] ];
+        $txt = $trepo->find($tid);
+        if ($txt == null)
+            return [null, null];
+        return [ $txt->getID(), $txt->getTitle() ];
     }
 
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
-    public function index(Request $request, SettingsRepository $repo): Response
+    public function index(Request $request, SettingsRepository $repo, TextRepository $trepo): Response
     {
-        $conn = Connection::getFromEnvironment();
-        [ $txid, $txtitle ] = $this->get_current_text($conn);
+        [ $txid, $txtitle ] = $this->get_current_text($repo, $trepo);
 
         // DemoController sets tutorialloaded.
         $tutorialloaded = $request->query->get('tutorialloaded');
@@ -43,7 +38,7 @@ class IndexController extends AbstractController
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
-        $bkp = new Backup($_ENV, $repo);
+        $bkp = new MysqlBackup($_ENV, $repo);
         $bkp_warning = $bkp->warning();
 
         if ($bkp->should_run_auto_backup()) {
@@ -55,8 +50,8 @@ class IndexController extends AbstractController
         }
 
         return $this->render('index.html.twig', [
-            'isdemodb' => MigrationHelper::isLuteDemo(),
-            'demoisempty' => MigrationHelper::isEmptyDemo(),
+            'isdemodb' => MysqlHelper::isLuteDemo(),
+            'demoisempty' => MysqlHelper::isEmptyDemo(),
             'version' => $gittag,
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
@@ -86,9 +81,6 @@ class IndexController extends AbstractController
         $php = phpversion();
 
         $conn = Connection::getFromEnvironment();
-        $mysql = $conn
-               ->query("SELECT VERSION() as value")
-               ->fetch_array()[0];
 
         return $this->render('server_info.html.twig', [
             'tag' => $gittag,
@@ -98,7 +90,6 @@ class IndexController extends AbstractController
             'serversoft' => $serversoft,
             'apache' => $apache,
             'php' => $php,
-            'mysql' => $mysql,
             'dbname' => $_ENV['DB_DATABASE'],
             'server' => $_ENV['DB_HOSTNAME'],
             'symfconn' => $_ENV['DATABASE_URL'],

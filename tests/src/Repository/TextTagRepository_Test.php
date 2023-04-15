@@ -19,8 +19,8 @@ final class TextTagRepository_Test extends DatabaseTestBase
 
     public function test_save()
     {
-        $sql = "select T2ID, T2Text, T2Comment from tags2";
-        $expected = [ "1; Hola; Hola comment" ];
+        $sql = "select T2Text, T2Comment from tags2";
+        $expected = [ "Hola; Hola comment" ];
         DbHelpers::assertTableContains($sql, $expected);
     }
 

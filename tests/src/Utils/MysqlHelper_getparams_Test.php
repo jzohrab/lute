@@ -1,15 +1,13 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../DatabaseTestBase.php';
-
-use App\Utils\Connection;
+use App\Utils\MysqlHelper;
 use PHPUnit\Framework\TestCase;
 
 // Smoke tests only.
 /**
  * @backupGlobals enabled
  */
-final class Connection_Test extends TestCase
+final class MysqlHelper_getparams_Test extends TestCase
 {
 
     public function test_smoke_can_get_params() {
@@ -20,7 +18,7 @@ final class Connection_Test extends TestCase
         foreach ($keys as $k) {
             $_ENV[$k] = $k . '_value';
         }
-        $arr = Connection::getParams();
+        $arr = MysqlHelper::getParams();
         $expected = [
             'DB_HOSTNAME_value',
             'DB_USER_value',
@@ -39,7 +37,7 @@ final class Connection_Test extends TestCase
             $_ENV[$k] = $k . '_value';
         }
         $_ENV['DB_PASSWORD'] = '';
-        $arr = Connection::getParams();
+        $arr = MysqlHelper::getParams();
         $expected = [
             'DB_HOSTNAME_value',
             'DB_USER_value',
@@ -58,6 +56,6 @@ final class Connection_Test extends TestCase
             $_ENV[$k] = '';
         }
         $this->expectException(\Exception::class);
-        $arr = Connection::getParams();
+        $arr = MysqlHelper::getParams();
     }
 }
