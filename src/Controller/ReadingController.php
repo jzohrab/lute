@@ -100,6 +100,10 @@ class ReadingController extends AbstractController
         $text = implode($zws, $cleanedparts);
 
         $termdto = $facade->loadDTO($lid, $text);
+        if ($termdto->language->getLgParserType() == 'japanese') {
+            $termdto->Romanization = $termdto->language->
+            getParser()->getReading($text, $termdto->language);
+        }
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

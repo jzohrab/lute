@@ -97,4 +97,29 @@ class JapaneseParser extends AbstractParser {
         return $tokens;
     }
 
+    public function getReading(string $text, Language $lang) {
+        // Japanese is an exception
+        $mecab_file = tempnam(sys_get_temp_dir(), "mecab_to_db");
+        $mecab_args = ' -O yomi ';
+        if (file_exists($mecab_file)) { 
+            unlink($mecab_file); 
+        }
+        $fp = fopen($mecab_file, 'w');
+        fwrite($fp, $text . "\n");
+        fclose($fp);
+        $mecab = JapaneseParser::MeCab_command($mecab_args);
+        $handle = popen($mecab . $mecab_file, "r");
+        // $mecab_str Output string
+        $mecab_str = '';
+        while (($line = fgets($handle, 4096)) !== false) {
+            $mecab_str .= $line; 
+        }
+        if (!feof($handle)) {
+            echo "Error: unexpected fgets() fail\n";
+        }
+        pclose($handle);
+        unlink($mecab_file);
+        return $mecab_str;
+    }
+
 }
