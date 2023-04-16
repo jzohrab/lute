@@ -97,4 +97,34 @@ class JapaneseParser extends AbstractParser {
         return $tokens;
     }
 
+    /**
+     * Get the reading in katakana using MeCab.
+     */
+    public function getReading(string $text) {
+        $mecab = JapaneseParser::MeCab_command(' -O yomi ');
+
+        $process = proc_open(
+            $mecab, 
+            array(0 => array("pipe", "r"), 1 => array("pipe", "w")), 
+            $pipes
+        );
+
+        $mecab_str = '';
+        if (is_resource($process)) {
+
+            fwrite($pipes[0], $text);
+            fclose($pipes[0]);
+
+            $mecab_str = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+            
+            $return_value = proc_close($process);
+        
+            if ($return_value !== 0) {
+                // catch MeCab exceptions here
+            }
+        }
+        return $mecab_str;
+    }
+
 }
