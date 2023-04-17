@@ -1,5 +1,8 @@
 version: "3.9"
 
+# Note: Docker users should create an .env file
+# using the .env.example.docker as a template.
+
 services:
   lute:
     build:
@@ -10,7 +13,9 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./data:/data
-      - ${BACKUP_HOST_DIR}:/backup
-    working_dir: /public
+      # The host directories are mounted to the folders
+      # specified in .env
+      - ./data:/lute/data
+      - ${BACKUP_HOST_DIR}:/lute/backup
+    working_dir: /lute/public
     command: ["php", "-S", "0.0.0.0:8000"]
