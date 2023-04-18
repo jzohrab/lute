@@ -1,5 +1,31 @@
 # Changelog
 
+## 2023-04-17 v2.0.0
+
+Big changes:  Moving from MySQL to Sqlite, and adding Docker support.
+
+Users of v1 will need to export CSV data from v1.  See the wiki: https://github.com/jzohrab/lute/wiki/Migrating-from-v1-to-v2
+
+Big user-facing changes
+
+* Change from Mysql to Sqlite, including .env file configuration
+* Move all user specific files (db, user images) to /data subdirectory
+* Add CSV import for v1 users
+* Add Docker support
+
+Smaller user-facing changes
+
+* Remove dashed underline for ignored words, no need for clutter.
+* Read custom styles from .env file.
+* Add convenience links on last page of book reading.
+* Demo data is automatically loaded in new installation
+
+Back end changes:
+
+* Remove all mysql-related code
+* Revamp code as needed for Sqlite-specific sql
+
+
 ## 2023-04-15 v1.3 (end of life of Lute V1)
 
 Feature changes:
