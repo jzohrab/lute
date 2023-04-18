@@ -64,8 +64,6 @@ class TermDTO
         $t->setTranslation($dto->Translation);
         $t->setRomanization($dto->Romanization);
         $t->setSentence($dto->Sentence);
-        if ($dto->WordCount != null)
-            $t->setWordCount($dto->WordCount);
         $t->setCurrentImage($dto->CurrentImage);
 
         $termtags = array();
