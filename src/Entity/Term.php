@@ -189,11 +189,6 @@ class Term
         return $this;
     }
 
-    public function getWordCount(): ?int
-    {
-        return $this->WoWordCount;
-    }
-
     public function setTokenCount(?int $n): self
     {
         $this->WoTokenCount = $n;

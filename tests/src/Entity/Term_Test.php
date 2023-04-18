@@ -29,7 +29,7 @@ class Term_Test extends TestCase
         }
     }
 
-    public function test_getWordCount_and_TokenCount()
+    public function test_TokenCount()
     {
         $cases = [
             [ "hola", 1, 1 ],
@@ -43,19 +43,14 @@ class Term_Test extends TestCase
 
         foreach ($cases as $c) {
             $t = new Term($english, $c[0]);
-            $this->assertEquals($t->getWordCount(), $c[1], '*' . $c[0] . '*');
             $this->assertEquals($t->getTokenCount(), $c[2], '*' . $c[0] . '*');
-
-            // If wc is set, it's used.
-            $t->setWordCount(17);
-            $this->assertEquals($t->getWordCount(), 17, 'override');
         }
     }
 
     /**
      * @group wordcount
      */
-    public function test_getWordCount_and_TokenCount_punct()
+    public function test_TokenCount_punct()
     {
         $cases = [
             [ "  the CAT's pyjamas  ", 4, 7 ],
@@ -73,7 +68,6 @@ class Term_Test extends TestCase
         foreach ($cases as $c) {
             $t = new Term($english, $c[0]);
             $m = $c[0];
-            $this->assertEquals($t->getWordCount(), $c[1], $m . ' wc');
             $this->assertEquals($t->getTokenCount(), $c[2], $m . ' tc');
         }
     }
@@ -81,7 +75,7 @@ class Term_Test extends TestCase
     /**
      * @group wordcount
      */
-    public function test_getWordCount_and_TokenCount_japanese()
+    public function test_TokenCount_japanese()
     {
         if (!JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
@@ -92,8 +86,7 @@ class Term_Test extends TestCase
 
         foreach ($cases as $c) {
             $t = new Term($jp, $c);
-            $this->assertEquals($t->getWordCount(), 1, 'count got ' . $t->getWordCount());
-            $this->assertEquals($t->getTokenCount(), 1, 'token count got ' . $t->getWordCount());
+            $this->assertEquals($t->getTokenCount(), 1, 'token count');
             $this->assertEquals($t->getText(), $c, 'text');
             $this->assertEquals($t->getTextLC(), $c, 'lc');
         }
@@ -105,14 +98,13 @@ class Term_Test extends TestCase
 
         foreach ($cases as $c) {
             $t = new Term($jp, $c[0]);
-            $this->assertEquals($t->getWordCount(), $c[1], "word count for " . $c[0]);
             $this->assertEquals($t->getTokenCount(), $c[1], "token count for " . $c[0]);
         }
 
     }
 
     /**
-     * @group wordcountexception
+     * @group tokencountexception
      */
     public function test_term_left_as_is_if_its_an_exception()
     {
