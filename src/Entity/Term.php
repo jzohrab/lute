@@ -103,7 +103,6 @@ class Term
     public function setLanguage(Language $language): self
     {
         $this->language = $language;
-        $this->calcWordCount();
         return $this;
     }
 
@@ -135,21 +134,8 @@ class Term
         $this->WoText = $t;
         $this->WoTextLC = mb_strtolower($t);
 
-        $this->calcWordCount();
         $this->calcTokenCount();
         return $this;
-    }
-
-    private function calcWordCount() {
-        $wc = 0;
-        if ($this->WoText != null && $this->language != null) {
-            $termchars = $this->getLanguage()->getLgRegexpWordCharacters();
-            $re = '/([' . $termchars . ']+)/u';
-            preg_match_all($re, $this->WoText, $matches);
-            if (count($matches) > 0)
-                $wc = count($matches[0]);
-        }
-        $this->setWordCount($wc);
     }
 
     private function calcTokenCount() {
@@ -181,12 +167,6 @@ class Term
     public function getStatus(): ?int
     {
         return $this->WoStatus;
-    }
-
-    public function setWordCount(?int $n): self
-    {
-        $this->WoWordCount = $n;
-        return $this;
     }
 
     public function setTokenCount(?int $n): self
