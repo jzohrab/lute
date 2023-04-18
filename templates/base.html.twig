@@ -5,9 +5,11 @@
     <title>{% block title %}LUTE{% endblock %}</title>
 
     {% if app.environment == 'dev' %}
-    <link rel="shortcut icon" href="/favicon_dev.ico" type="image/x-icon"/>
+    <link rel="icon" href="favicon_dev.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" href="favicon_dev.ico" type="image/x-icon"/>
     {% else %}
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="icon" href="favicon.ico?v=2" type="image/x-icon"/>
+    <link rel="shortcut icon" href="favicon.ico?v=2" type="image/x-icon"/>
     {% endif %}
 
     <meta name="viewport" content="width=900" />
@@ -21,8 +23,12 @@
     <link rel="stylesheet" type="text/css" href="/css/jquery.tagit.css" />
     <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/styles.css" />
-    <link rel="stylesheet" type="text/css" href="/css/styles-overrides.css" />
-    
+
+    <style>
+      /* Overrides specified in .env CUSTOM_STYLES. */
+      {{ app.request.server.get('CUSTOM_STYLES') | raw }}
+    </style>
+
     <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
     <script type="text/javascript" src="/js/jquery.scrollTo.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="/js/jquery-ui.min.js"  charset="utf-8"></script>
@@ -66,7 +72,7 @@
   <body>
 
     {% if app.environment == 'dev' %}
-    <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DB_DATABASE') }}</p>
+    <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DATABASE_URL') }}</p>
     {% endif %}
 
     {% if block("hide_home_link") is not defined %}

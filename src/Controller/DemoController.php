@@ -11,20 +11,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Utils\Connection;
-use App\Utils\MysqlHelper;
+use App\Utils\DemoDataLoader;
+use App\Utils\SqliteHelper;
 
 class DemoController extends AbstractController
 {
 
-    #[Route('/demo/load', name: 'app_demo_load', methods: ['GET'])]
-    public function load_demo(LanguageRepository $langrepo, BookRepository $bookrepo, Dictionary $dictionary): Response
+    #[Route('/demo/done', name: 'app_demo_done', methods: ['GET'])]
+    public function done_demo(): Response
     {
-        if (! MysqlHelper::isEmptyDemo()) {
-            return $this->redirectToRoute('app_index');
-        }
-        MysqlHelper::loadDemoData($langrepo, $bookrepo, $dictionary);
-        return $this->redirectToRoute('app_index', [ 'tutorialloaded' => true ]);
+        SqliteHelper::clearDb();
+        $this->addFlash('notice', "The database has been wiped clean.  Have fun!");
+        return $this->redirectToRoute('app_index');
     }
-
 
 }

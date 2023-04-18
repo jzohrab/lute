@@ -20,7 +20,8 @@
 </table>
 
 {% if status == 'Active' %}
-<a href="{{ path('app_book_new') }}">Create new</a>
+<a href="{{ path('app_book_new') }}">Create new</a> |
+<a href="{{ path('app_book_import_webpage') }}">Import web page</a>
 {% endif %}
 
 {# Hidden form for archive, unarchive, delete. #}

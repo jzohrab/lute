@@ -62,7 +62,7 @@ final class TextRepository_Test extends DatabaseTestBase
         // Saving a text automatically re-parses it.
 
         DbHelpers::assertTableContains($sql, [ "1; 7; perro" ], "toksentencenumber is _not_ incremented");
-        DbHelpers::assertTableContains($sqlsent, [ "2; 1; /Hola/ /tengo/ /un/ /perro/./" ], "sent ID incremented, text changed");
+        DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /perro/./" ], "sent ID _not_ incremented :-P");
     }
 
     public function test_removing_Text_removes_sentences()

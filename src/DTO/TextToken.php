@@ -10,4 +10,5 @@ class TextToken
     public int $TokOrder;
     public int $TokIsWord;
     public string $TokText;
+    public string $TokTextLC;
 }

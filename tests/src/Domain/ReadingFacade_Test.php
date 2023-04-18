@@ -390,6 +390,18 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
 
     /**
+     * @group v2knowns
+     */
+    public function test_v2_fix_caps_words_not_marked_correctly() {
+        $text = $this->make_text("v2", "Á la una. Éste fué hallado. A la una.", $this->spanish);
+
+        $this->facade->mark_unknowns_as_known($text);
+        $this->facade->mark_unknowns_as_known($text);
+        $expected = "Á(99)/ /la(99)/ /una(99)/. /Éste(99)/ /fué(99)/ /hallado(99)/. /A(99)/ /la(99)/ /una(99)/.";
+        $this->assert_rendered_text_equals($text, $expected);
+    }
+
+    /**
      * @group issue10
      */
     public function test_multiwords_should_highlight_in_new_text() {

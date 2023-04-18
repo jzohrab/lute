@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>CSV Import (for Lute v1 users)</h1>
+
+<div class="flash-notice">
+<p>Note: CSV import is for people who used Lute v1, and who exported
+their v1 data to CSV files.  If this is your first time using Lute,
+you won't have any v1 data, so head on back to the <a href="/">home
+page</a>.</p>
+</div>
+<br/>
+
+{% if not db_is_empty %}
+<div style="width: 50%">
+<h2>Import not possible: The database is not empty.</h2>
+<p>The CSVs exported from your old Lute use raw data, that is, things like database primary keys for records.  Your current database is not empty, so we can't import the CSVs, as there would be data integrity problems.</p>
+<br/>
+<p>Database file: {{ db_filename }}</p>
+<p>Tables containing data:</p>
+<ul>
+  {% for t in loaded_tables %}
+  <li>{{ t }}</li>
+  {% endfor %}
+</ul>
+
+<p>If you want to re-import your old CSVs, please <b>delete your database file</b> shown above and refresh this page to try again.</p>
+
+<p><a href="/">Back to home.</a></p>
+</div>
+{% endif %}
+
+{% if not all_files_exist %}
+<div style="width: 50%">
+<h2>Import not possible: Missing required files in directory data/csv_import:</h2>
+<ul>
+  {% for f in missing_files %}
+  <li>{{ f }}</li>
+  {% endfor %}
+</ul>
+<p>Please export your data from your old Lute installation, and copy or move all the files from that project's csv_export directory to this project's data/csv_import directory.</p>
+<p><a href="/">Back to home.</a></p>
+</div>
+{% endif %}
+
+
+{% if all_files_exist and db_is_empty %}
+<p>
+  You're all set to import your Lute v1 CSV data.
+</p>
+
+<form>
+  <input id="btnimport" type="button" onclick="do_post(); return false;" value="Import CSVs" /input>
+</form>
+
+<p id="importResult" />
+
+<p id="deleteImportedCsvs" style="visibility:hidden;">
+  The CSV import is complete.  You can delete the files in your data/csv_import/ directory.
+  <br />
+  If you had any user images in your Lute v1 installation (in public/userimages), copy them to the data/userimages folder in this directory.
+</p>
+
+<p id="returnHome" style="visibility:hidden;"><a href="/">Back to home.</a></p>
+
+<script>
+  function do_post() {
+    $('#btnimport').prop("disabled", true);
+    $('#importResult').text('Importing ...');
+    $.post('/utils/do_import_csv', {})
+      .done( function(msg) {
+        $('#importResult').text('Completed: ' + msg);
+        $('#deleteImportedCsvs').css({ visibility: 'visible' });
+        $('#returnHome').css({ visibility: 'visible' });
+      })
+      .fail( function(xhr, textStatus, errorThrown) {
+        const p = JSON.parse(xhr.responseText);
+        const msg = "IMPORT ERROR: " + p.errmsg;
+        $('#importResult').html(msg.replace(/__BREAK__/g, '<br />'));
+        $('#returnHome').css({ visibility: 'visible' });
+      })
+  }
+</script>
+
+{% endif %}
+
+{% endblock %}

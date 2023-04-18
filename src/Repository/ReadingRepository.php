@@ -39,9 +39,13 @@ class ReadingRepository
 
         $sql = "select
           TokSentenceNumber,
-          CONCAT(0xE2808B, GROUP_CONCAT(TokText order by TokOrder SEPARATOR 0xE2808B), 0xE2808B) as SeText
-          FROM texttokens
-          where TokTxID = $textid
+          char(0x200B) || GROUP_CONCAT(TokText, char(0x200B)) || char(0x200B) as SeText
+          FROM (
+            select TokSentenceNumber, TokText
+            from texttokens
+            where TokTxID = $textid
+            order by TokOrder
+          ) src
           group by TokSentenceNumber";
 
         // dump($sql);
@@ -69,7 +73,8 @@ class ReadingRepository
           TokSentenceNumber,
           TokOrder,
           TokIsWord,
-          TokText
+          TokText,
+          TokTextLC
           from texttokens
           where toktxid = $textid
           order by TokSentenceNumber, TokOrder";
@@ -86,6 +91,7 @@ class ReadingRepository
             $tok->TokOrder = intval($row['TokOrder']);
             $tok->TokIsWord = intval($row['TokIsWord']);
             $tok->TokText = $row['TokText'];
+            $tok->TokTextLC = $row['TokTextLC'];
             $ret[] = $tok;
         }
         return $ret;

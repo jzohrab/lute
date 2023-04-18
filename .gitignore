@@ -7,11 +7,18 @@ composer.phar
 .phpunit.result.cache
 
 /csv_export
+/csv_import
 
-# User-specific environment files.
-/.env.local
+# User data (db, images, etc.)
+/data
+
+# The database itself
+/*.db
+
+# User environment files.
+/.env
+/.env.test
 /.env.local.php
-/.env.*.local
 
 # User config
 /public/css/styles-overrides.css

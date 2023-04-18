@@ -16,12 +16,12 @@ class SettingsRepository
     // Very hacky setting saver.
     public function saveSetting($key, $value) {
         // sql injection is fun.
-        $sql = "insert ignore into settings (StKey, StValue) values ('{$key}', '$value')";
+        $sql = "insert or ignore into settings (StKey, StValue) values ('{$key}', '$value')";
         $conn = $this->manager->getConnection();
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery();
 
-        $sql = "update settings set StValue = '$value' where StKey = '{$key}'";
+        $sql = "update settings set StValue = '$value' where StKey like '{$key}'";
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery();
     }

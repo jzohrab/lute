@@ -208,11 +208,11 @@
  
  span.status98
  {
-   /*
+   /* no styling, just regular text.
    background-color: #F8F8F8;
+   border-bottom: dashed 1px #000000;
    color: #000000;
    */
-   border-bottom: dashed 1px #000000;
  }
 
  span.textsentence {

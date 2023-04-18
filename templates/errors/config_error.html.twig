@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>LUTE - configuration error</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    </script>
+  </head>
+
+  <body>
+    <h1>Configuration error</h1>
+
+    <p>Nothing to be worried about, you just need to fix your .env file.</p>
+
+    <ul>
+      {% for error in errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+
+    <p>When you've made the fixes, go back to the <a href="/">Home page</a> and try again.</p>
+  </body>
+
+</html>

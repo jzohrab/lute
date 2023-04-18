@@ -20,38 +20,20 @@
 </table>
 
 
-{% if isdemodb %}
+{% if isdemodata %}
 <div class="flash-notice">
-  <p><b> NOTE: Lute v1 is nearing end-of-life.  Lute v2 will soon be
-      released, if it's not released already.  Join the discord to
-      find out more.
-  </b></p>
-</div>
-
-<div class="flash-notice">
-  <p>Lute is currently using a demo database, <b>lute_demo</b>.</p>
-
-  {% if demoisempty %}
-  <p>The demo db is currently empty.  You
-  can <a href="/demo/load">load some demo data</a>, or define your own
-  languages and texts to try it out.</p>
-  {% endif %}
-
-  {% if tutorialloaded %}
-  <p>The demo db has been loaded with a <a href="/read/1">brief
-  tutorial</a>, and a few languages and sample stories.
+  <p>The Lute database has been loaded with a <a href="/read/1"
+    style="text-decoration: underline;">brief tutorial</a>, and some
+    languages and short texts for you to try out.
   </p>
-  {% endif %}
-
-  <p>When you are done testing out the demo, update
-  your <b>.env.local</b> configuration file to your real database
-  name.  (Lute will create that database for you, if it doesn't
-  already exist.)</p>
+  <p>When you're done trying out the demo, <a href="/demo/done"
+  style="text-decoration: underline;">click here</a> to clear out the
+  database.</p>
 </div>
 
 {% elseif bkp_missing_enabled_key %}
 <div class="flash-notice">
-  <p>The key <b>BACKUP_ENABLED</b> is not defined in your .env.local file.</p>
+  <p>The key <b>BACKUP_ENABLED</b> is not defined in your .env file.</p>
 
   <p>
     This is a safeguard to ensure that you have some backup strategy
@@ -67,8 +49,8 @@
   </p>
 
   <p>
-    If you don't to back things up, and want to hide this message,
-    just set the following in your .env.local file, and prepare to
+    If you don't want Lute to back itself up, and want to hide this message,
+    just set the following in your .env file, and prepare to
     live dangerously: <b>BACKUP_ENABLED=false</b>
   </p>
 </div>
@@ -112,7 +94,9 @@
     <li><a href="/server_info">Version and software info</a></li>
     <li><a href="/cache/clear">Clear application cache</a></li>
     <li><a href="https://github.com/jzohrab/lute/tree/master/docs">Docs (on GitHub)</a></li>
-    <li><a href="/utils/export_csv">Export CSVs</a></li>
+    {% if showimportcsv %}
+    <li><a href="/utils/import_csv">Lute v1.x users: Import CSV files</a></li>
+    {% endif %}
   </ul>
 </div>
 

@@ -7,15 +7,17 @@
 
 
 use App\Kernel;
-use Symfony\Component\Dotenv\Dotenv;
+use App\Utils\MyDotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Utils\MysqlHelper;
+use App\Utils\SqliteHelper;
+
+use App\Entity\Text;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+MyDotenv::boot(dirname(__DIR__).'/.env');
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
@@ -34,8 +36,7 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false
 }
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-
-[ $messages, $error ] = MysqlHelper::doSetup();
+[ $messages, $error ] = SqliteHelper::doSetup();
 if ($error != null) {
     echo $error;
     die();

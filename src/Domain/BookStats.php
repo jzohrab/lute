@@ -103,7 +103,7 @@ class BookStats {
             ...$stats
         ];
         $valstring = implode(',', $vals);
-        $sql = "insert ignore into bookstats
+        $sql = "insert or ignore into bookstats
         (BkID, wordcount, distinctterms, distinctunknowns, unknownpercent)
         values ( $valstring )";
         $conn->query($sql);

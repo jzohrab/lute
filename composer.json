@@ -15,7 +15,6 @@
     "ext-ctype": "*",
     "ext-iconv": "*",
     "ext-mbstring": "*",
-    "ext-mysqli": "*",
     "doctrine/annotations": "^1.0",
     "doctrine/doctrine-bundle": "^2.7",
     "doctrine/doctrine-migrations-bundle": "^3.2",
@@ -97,7 +96,6 @@
   },
   "scripts": {
     "app:release": [
-      "source .env.local && mysqladmin drop lute_demo -u $DB_USER -p$DB_PASSWORD || true",
       "./utils/create_release.sh",
       "./utils/open_release.sh"
     ],
@@ -107,22 +105,35 @@
     "dev:class": "./utils/entityInterface.sh",
     "todo:list": "composer dev:find TODO | grep -v docs/",
     "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
-    "db:mysql:setup:prod": "APP_ENV=prod php db/mysql/setup.php",
-    "db:mysql:setup:test": "APP_ENV=test php db/mysql/setup.php",
-    "db:mysql:migrate:prod": "APP_ENV=prod php db/mysql/migrate.php",
-    "db:mysql:migrate:test": "APP_ENV=test php db/mysql/migrate.php",
-    "db:mysql:newscript": "php db/mysql/create_migration_script.php",
-    "db:mysql:newrepeat": "php db/mysql/create_repeatable_migration_script.php",
+    "db:create:prod": "APP_ENV=prod php db/create.php",
+    "db:create:test": "APP_ENV=test php db/create.php",
+    "db:create:demo": [
+      "composer test:group dev:data:load",
+      "cp test_lute.db db/baseline/demo.sqlite"
+    ],
+    "db:migrate:prod": "APP_ENV=prod php db/migrate.php",
+    "db:migrate:test": "APP_ENV=test php db/migrate.php",
+    "db:newscript": "php db/create_migration_script.php",
+    "db:newrepeat": "php db/create_repeatable_migration_script.php",
     "db:suggestions": "bin/console doctrine:schema:update --dump-sql",
     "dev:dumpserver": "php bin/console server:dump",
-    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist",
-    "test:nofail": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure",
-    "test:group": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group ",
+    "test": [
+      "composer db:create:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist"
+    ],
+    "test:nofail": [
+      "composer db:create:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure"
+    ],
+    "test:group": [
+      "composer db:create:test",
+      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
+    ],
     "test:full": [
       "composer dev:psalm",
       "composer dev:finddump",
-      "composer db:mysql:setup:test",
-      "bin/console doctrine:schema:validate --skip-sync  # <-- hash is a clever hack to suppress argument",
+      "composer db:create:test",
+      "bin/console doctrine:schema:validate --skip-sync  # <-- hash suppresses any arguments",
       "composer test"
     ],
     "dev:find": "./utils/findstring.sh",
@@ -154,10 +165,11 @@
     "dev:class": "Show public interface methods of class",
     "todo:list": "Show code todos",
     "todo:types": "Show types of todos",
-    "db:mysql:migrate:test": "Run mysql db migrations on db in .env.test / .env.test.local",
-    "db:mysql:migrate:prod": "Run mysql db migrations on db in .env / .env.local",
-    "db:mysql:newscript": "Make a new mysql db migration script",
-    "db:mysql:newrepeat": "Make a new repeatable mysql db migration script (for triggers, etc)",
+    "db:create:demobaseline": "Create the demo data loaded for new users",
+    "db:migrate:test": "Run db migrations on db in .env.test / .env.test.local",
+    "db:migrate:prod": "Run db migrations on db in .env / .env.local",
+    "db:newscript": "Make a new db migration script",
+    "db:newrepeat": "Make a new repeatable db migration script (for triggers, etc)",
     "db:suggestions": "See the db changes symfony suggests.  Some are good, some are terrible",
     "dev:dumpserver": "Start the dump server",
     "dev:find": "search specific parts of code using grep",
@@ -167,7 +179,7 @@
     "test": "Run tests",
     "test:nofail": "Run tests and stop on first fail/error",
     "test:group": "Run tests with a given '@group xxxx' annotation",
-    "test:full": "Setup the test db, check orm mappings, and run all tests",
+    "test:full": "Create the test db, check orm mappings, and run all tests",
     "dev:data:load": "Abuse the testing system to load the dev db with some data.",
     "dev:data:clear": "Abuse the testing system to wipe the dev db."
   },
