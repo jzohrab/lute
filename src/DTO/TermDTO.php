@@ -24,7 +24,7 @@ class TermDTO
 
     public ?string $Sentence = null;
 
-    public ?int $WordCount = null;
+    public ?int $TokenCount = null;
 
     public array $termTags;
 

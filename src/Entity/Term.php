@@ -355,7 +355,7 @@ class Term
         $f->Translation = $this->getTranslation();
         $f->Romanization = $this->getRomanization();
         $f->Sentence = $this->getSentence();
-        $f->WordCount = $this->getWordCount();
+        $f->TokenCount = $this->getTokenCount();
         $f->CurrentImage = $this->getCurrentImage();
         $f->FlashMessage = $this->getFlashMessage();
 
