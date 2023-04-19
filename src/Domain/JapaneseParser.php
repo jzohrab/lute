@@ -53,12 +53,10 @@ class JapaneseParser extends AbstractParser {
     }
 
 
-    public function getParsedTokens(string $text, Language $lang) {
-        $text = trim(preg_replace('/[ \t]+/u', ' ', $text));
-
+    private function getMecabResult(string $text, string $args) {
         $file_name = tempnam(sys_get_temp_dir(), "lute");
-        // We use the format "word  num num" for all nodes
-        $mecab_args = '-F %m\t%t\t%h\n -U %m\t%t\t%h\n -E EOP\t3\t7\n -o ' . $file_name;
+        // We use the format "word num num" for all nodes
+        $mecab_args = $args . ' -o ' . $file_name;
         $mecab = JapaneseParser::MeCab_command($mecab_args);
 
         // WARNING: \n is converted to PHP_EOL here!
@@ -70,6 +68,15 @@ class JapaneseParser extends AbstractParser {
         $mecabed = fread($handle, filesize($file_name));
         fclose($handle);
         unlink($file_name);
+
+        return $mecabed;
+    }
+
+    public function getParsedTokens(string $text, Language $lang) {
+        $text = trim(preg_replace('/[ \t]+/u', ' ', $text));
+
+        $mecab_args = '-F %m\t%t\t%h\n -U %m\t%t\t%h\n -E EOP\t3\t7\n';
+        $mecabed = $this->getMecabResult($text, $mecab_args);
 
         $tokens = [];
         foreach (explode(PHP_EOL, $mecabed) as $line) {
@@ -101,30 +108,8 @@ class JapaneseParser extends AbstractParser {
      * Get the reading in katakana using MeCab.
      */
     public function getReading(string $text) {
-        $mecab = JapaneseParser::MeCab_command(' -O yomi ');
-
-        $process = proc_open(
-            $mecab, 
-            array(0 => array("pipe", "r"), 1 => array("pipe", "w")), 
-            $pipes
-        );
-
-        $mecab_str = '';
-        if (is_resource($process)) {
-
-            fwrite($pipes[0], $text);
-            fclose($pipes[0]);
-
-            $mecab_str = stream_get_contents($pipes[1]);
-            fclose($pipes[1]);
-            
-            $return_value = proc_close($process);
-        
-            if ($return_value !== 0) {
-                // catch MeCab exceptions here
-            }
-        }
-        return rtrim($mecab_str, "\n");
+        $mecabed = $this->getMecabResult($text, '-O yomi');
+        return rtrim($mecabed, "\n");
     }
 
 }
