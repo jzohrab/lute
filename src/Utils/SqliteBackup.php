@@ -16,11 +16,32 @@ class SqliteBackup {
 
     private array $config;
     private SettingsRepository $settings_repo;
-    
+
+    private bool $enabled;
+    private bool $auto;
+    private bool $warn;
+    private int $keep_count = 5;
+    private string $outdir;
+    private bool $is_manual = false;
+
     /**
      * Create new Backup using environment keys as settings.
      */
-    public function __construct($config, SettingsRepository $settings_repo) {
+    public function __construct($config, SettingsRepository $settings_repo, bool $is_manual = false) {
+
+        $yesortrue = function($k) use ($config) {
+            if (!array_key_exists($k, $config))
+                return false;
+            $v = strtolower($config[$k]);
+            return ($v == 'yes' || $v == 'true');
+        };
+        $this->enabled = $yesortrue('BACKUP_ENABLED');
+        $this->auto = $yesortrue('BACKUP_AUTO');
+        $this->warn = $yesortrue('BACKUP_WARN');
+        if (array_key_exists('BACKUP_COUNT', $config))
+            $this->keep_count = intval($config['BACKUP_COUNT']);
+        $this->is_manual = $is_manual;
+
         $this->config = $config;
         $this->settings_repo = $settings_repo;
         return $this;
@@ -31,10 +52,7 @@ class SqliteBackup {
     }
 
     public function is_enabled(): bool {
-        if ($this->missing_enabled_key())
-            return false;
-        $k = strtolower($this->config['BACKUP_ENABLED']);
-        return ($k == 'yes' || $k == 'true');
+        return $this->enabled;
     }
 
     public function missing_keys(): string {
@@ -56,12 +74,7 @@ class SqliteBackup {
     }
 
     public function should_run_auto_backup(): bool {
-        if (!$this->is_enabled())
-            return false;
-        if (!$this->config_keys_set())
-            return false;
-        $setting = strtolower($this->config['BACKUP_AUTO']);
-        if ($setting == 'no' || $setting == 'false')
+        if (!$this->enabled || !$this->config_keys_set() || !$this->auto)
             return false;
 
         $last = $this->settings_repo->getLastBackupDatetime();
@@ -78,8 +91,7 @@ class SqliteBackup {
         if ($m != null && $m != '')
             return "Missing backup environment keys in .env: {$m}";
 
-        $setting = strtolower($this->config['BACKUP_WARN']);
-        if ($setting == 'no' || $setting == 'false')
+        if (!$this->warn)
             return "";
 
         $oldbackupmsg = "Last backup was more than 1 week ago.";
@@ -95,25 +107,49 @@ class SqliteBackup {
         return "";
     }
 
-    public function create_backup(): string {
+    private function get_outdir() {
         $outdir = $this->config['BACKUP_DIR'];
         if (!is_dir($outdir))
             throw new \Exception("Missing output directory {$outdir}");
+        return $outdir;
+    }
 
+    public function create_backup(): string {
+        $outdir = $this->get_outdir();
         $this->mirror_images_dir($outdir);
-        $f = $this->do_export_and_zip($outdir);
+        return $this->create_db_backup();
+    }
 
+    /** Backup just the database, adding a suffix or datetime stamp to filename. */
+    public function create_db_backup($suffix = null): string {
+        $outdir = $this->get_outdir();
+        if ($suffix == null)
+            $suffix = date("Y-m-d_His");
+        $f = $this->do_export_and_zip($suffix, $outdir);
         $this->settings_repo->saveLastBackupDatetime(getdate()[0]);
+        $this->only_keep_last_N_backups($outdir);
         return $f;
     }
 
-    private function do_export_and_zip($outdir): string {
+    private function do_export_and_zip($suffix, $outdir): string {
         $src = SqliteHelper::DbFilename();
-        $backupfile = $outdir . '/lute_backup.db';
+        $prefix = '';
+        if ($this->is_manual)
+            $prefix = 'manual_';
+        $backupfile = "{$outdir}/{$prefix}lute_backup_{$suffix}.db";
         copy($src, $backupfile);
         $f = $this->gzcompressfile($backupfile);
         unlink($backupfile);
         return $f;
+    }
+
+    private function only_keep_last_N_backups($outdir) {
+        $files = glob($outdir . "/lute_backup_*.db.gz");
+        rsort($files);
+        $remove = array_slice($files, $this->keep_count);
+        foreach ($remove as $r) {
+            unlink($r);
+        }
     }
 
     // https://stackoverflow.com/questions/6073397/
