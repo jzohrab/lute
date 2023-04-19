@@ -40,9 +40,6 @@ class Term
     #[ORM\Column(name: 'WoSentence', length: 1000, nullable: true)]
     private ?string $WoSentence = null;
 
-    #[ORM\Column(name: 'WoWordCount', type: Types::SMALLINT)]
-    private ?int $WoWordCount = null;
-
     #[ORM\Column(name: 'WoTokenCount', type: Types::SMALLINT)]
     private ?int $WoTokenCount = null;
 
