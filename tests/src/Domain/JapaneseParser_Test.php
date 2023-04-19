@@ -92,6 +92,22 @@ final class JapaneseParser_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($t, "二/人/は/どちら/の/力/が/強い/か/./¶");
     }
 
+
+    public function test_reading()
+    {
+        $p = new JapaneseParser();
+        $cases = [
+            [ 'NHK', 'NHK' ], // not sure what reading it should give here, if any.
+            [ '強い', 'ツヨイ' ],
+            [ '二人', 'ニニン' ], // ah well, not perfect :-)
+            [ 'どちら', 'ドチラ' ] // Not sure if it makes sense to provide katakana for hiragana
+            // other cases?
+        ];
+        foreach ($cases as $c) {
+            $this->assertEquals($c[1], $p->getReading($c[0]), $c[0]);
+        }
+    }
+
     // Tests to do:
 
     // carriage returns handled correctly.  e.g:
