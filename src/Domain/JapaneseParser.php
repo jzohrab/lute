@@ -124,7 +124,7 @@ class JapaneseParser extends AbstractParser {
                 // catch MeCab exceptions here
             }
         }
-        return $mecab_str;
+        return rtrim($mecab_str, "\n");
     }
 
 }
