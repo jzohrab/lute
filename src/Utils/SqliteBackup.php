@@ -17,16 +17,17 @@ class SqliteBackup {
     private array $config;
     private SettingsRepository $settings_repo;
 
-    private ?bool $enabled;
+    private bool $enabled;
     private bool $auto;
     private bool $warn;
     private int $keep_count = 5;
     private string $outdir;
+    private bool $is_manual = false;
 
     /**
      * Create new Backup using environment keys as settings.
      */
-    public function __construct($config, SettingsRepository $settings_repo) {
+    public function __construct($config, SettingsRepository $settings_repo, bool $is_manual = false) {
 
         $yesortrue = function($k) use ($config) {
             if (!array_key_exists($k, $config))
@@ -39,6 +40,7 @@ class SqliteBackup {
         $this->warn = $yesortrue('BACKUP_WARN');
         if (array_key_exists('BACKUP_COUNT', $config))
             $this->keep_count = intval($config['BACKUP_COUNT']);
+        $this->is_manual = $is_manual;
 
         $this->config = $config;
         $this->settings_repo = $settings_repo;
@@ -131,7 +133,10 @@ class SqliteBackup {
 
     private function do_export_and_zip($suffix, $outdir): string {
         $src = SqliteHelper::DbFilename();
-        $backupfile = "{$outdir}/lute_backup_{$suffix}.db";
+        $prefix = '';
+        if ($this->is_manual)
+            $prefix = 'manual_';
+        $backupfile = "{$outdir}/{$prefix}lute_backup_{$suffix}.db";
         copy($src, $backupfile);
         $f = $this->gzcompressfile($backupfile);
         unlink($backupfile);

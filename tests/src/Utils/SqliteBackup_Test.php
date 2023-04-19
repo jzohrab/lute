@@ -168,6 +168,24 @@ final class SqliteBackup_Test extends TestCase
         $this->assertEquals($expected, $files);
     }
 
+    /**
+     * @group rollingbackup
+     */
+    public function test_all_manual_backups_are_kept() {
+        $this->config['BACKUP_COUNT'] = 2;  // read from .env
+        $b = new SqliteBackup($this->config, $this->repo, true);
+
+        $expected = [];
+        for ($i = 1; $i <= 9; $i++) {
+            $b->create_db_backup("0{$i}");
+            $expected[] = "manual_lute_backup_0{$i}.db.gz";
+        }
+
+        $files = glob($this->dir . "/*.*");
+        $files = array_map(fn($f) => basename($f), $files);
+        $this->assertEquals($expected, $files);
+    }
+
     public function test_last_import_setting_is_updated_on_successful_backup() {
         $this->repo->expects($this->once())->method('saveLastBackupDatetime');
         $b = $this->createSqliteBackup();
