@@ -97,28 +97,33 @@ class JapaneseParser extends AbstractParser {
         return $tokens;
     }
 
-    public function getReading(string $text, Language $lang) {
-        // Japanese is an exception
-        $mecab_file = tempnam(sys_get_temp_dir(), "mecab_to_db");
-        $mecab_args = ' -O yomi ';
-        if (file_exists($mecab_file)) { 
-            unlink($mecab_file); 
-        }
-        $fp = fopen($mecab_file, 'w');
-        fwrite($fp, $text . "\n");
-        fclose($fp);
-        $mecab = JapaneseParser::MeCab_command($mecab_args);
-        $handle = popen($mecab . $mecab_file, "r");
-        // $mecab_str Output string
+    /**
+     * Get the reading in katakana using MeCab.
+     */
+    public function getReading(string $text) {
+        $mecab = JapaneseParser::MeCab_command(' -O yomi ');
+
+        $process = proc_open(
+            $mecab, 
+            array(0 => array("pipe", "r"), 1 => array("pipe", "w")), 
+            $pipes
+        );
+
         $mecab_str = '';
-        while (($line = fgets($handle, 4096)) !== false) {
-            $mecab_str .= $line; 
+        if (is_resource($process)) {
+
+            fwrite($pipes[0], $text);
+            fclose($pipes[0]);
+
+            $mecab_str = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+            
+            $return_value = proc_close($process);
+        
+            if ($return_value !== 0) {
+                // catch MeCab exceptions here
+            }
         }
-        if (!feof($handle)) {
-            echo "Error: unexpected fgets() fail\n";
-        }
-        pclose($handle);
-        unlink($mecab_file);
         return $mecab_str;
     }
 
