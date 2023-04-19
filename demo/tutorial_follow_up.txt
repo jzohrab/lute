@@ -26,7 +26,7 @@ To archive a text, go to Home, Text, and then click the "Archive" action (the im
 
 Those are the the core feature of Lute!  There are some sample stories for other languages.  Try those out or create your own.
 
-When you're done with the demo, update your local environment file with a new database name, and go back to the Home screen.  Lute will create a new empty database for you, and you can get started.
+When you're done with the demo, go back to the Home screen and click the link to clear out the database.  Lute will delete all of the demo data, and you can get started.
 
 There is a Lute Discord and Wiki as well -- see the GitHub repository for links.
 
