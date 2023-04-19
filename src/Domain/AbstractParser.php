@@ -12,6 +12,6 @@ abstract class AbstractParser {
      * Many writing systems are phonetic and do not need a phonetic reading.
      */
     public function getReading(string $text) {
-        return '';
+        return null;
     }
 }
