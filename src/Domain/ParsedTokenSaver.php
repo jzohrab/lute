@@ -133,7 +133,7 @@ class ParsedTokenSaver {
 
 
     // Insert each record in chunk in a prepared statement,
-    // where chunk record is [ txid, sentence_num, ord, wordcount, word ].
+    // where chunk record is [ txid, sentence_num, ord, isword, word ].
     private function load_temptexttokens(array $chunk) {
         $sqlbase = "insert into temptexttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC) values ";
 

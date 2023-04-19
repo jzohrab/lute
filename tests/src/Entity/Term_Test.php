@@ -48,7 +48,7 @@ class Term_Test extends TestCase
     }
 
     /**
-     * @group wordcount
+     * @group tokencount
      */
     public function test_TokenCount_punct()
     {
@@ -73,7 +73,7 @@ class Term_Test extends TestCase
     }
 
     /**
-     * @group wordcount
+     * @group tokencount
      */
     public function test_TokenCount_japanese()
     {

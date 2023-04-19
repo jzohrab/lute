@@ -106,7 +106,7 @@ class ReadingFacade {
         // dump($tis);
 
         $is_unknown = function($ti) {
-            return $ti->IsWord == 1 && ($ti->WoID == 0 || $ti->WoID == null) && $ti->WordCount == 1;
+            return $ti->IsWord == 1 && ($ti->WoID == 0 || $ti->WoID == null) && $ti->TokenCount == 1;
         };
         $unknowns = array_filter($tis, $is_unknown);
         $words_lc = array_map(fn($ti) => $ti->TextLC, $unknowns);

@@ -48,7 +48,6 @@ class RenderableCandidate {
         $t->TextID = $textid;
         $t->LangID = $langid;
         $t->Text = $this->text;
-        $t->WordCount = $this->length;
         $t->TokenCount = $this->length;
 
         $t->TextLC = mb_strtolower($this->text);
