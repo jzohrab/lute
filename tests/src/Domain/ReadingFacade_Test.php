@@ -150,14 +150,14 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->assert_rendered_text_equals(
             $t,
-            "Hola/ /tengo/ /un gato(1)/.  /No/ /tengo/ /una/ /lista(1)/./¶/Ella/ /tiene una(1)/ /bebida/."
+            "Hola/ /tengo/ /un gato(1)/. /No/ /tengo/ /una/ /lista(1)/./¶/Ella/ /tiene una(1)/ /bebida/."
         );
 
         $this->facade->update_status($t, ["tengo", "lista", "perro"], 5);
 
         $this->assert_rendered_text_equals(
             $t,
-            "Hola/ /tengo(5)/ /un gato(1)/.  /No/ /tengo(5)/ /una/ /lista(5)/./¶/Ella/ /tiene una(1)/ /bebida/."
+            "Hola/ /tengo(5)/ /un gato(1)/. /No/ /tengo(5)/ /una/ /lista(5)/./¶/Ella/ /tiene una(1)/ /bebida/."
         );
 
         $expected = [
