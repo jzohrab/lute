@@ -1,25 +1,30 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+        Symfony\Component\Security\Core\User\InMemoryUser: plaintext
+
     providers:
-        users_in_memory: { memory: null }
+        users_in_memory:
+            memory:
+                users:
+                  # The user is specified in the .env file.
+                  '%env(LOGIN_USERNAME)%':
+                      password: '%env(LOGIN_PASSWORD)%'
+                      roles: ['ROLE_USER']}
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # TURNING OFF SECURITY FOR PROD.
-        # Yes, this looks bad, but Lute is designed to run locally only.
-        # There are _no security checks_.
-        prod:
-            pattern: ^/
+        main:
+            # Ref https://github.com/jzohrab/lute/wiki/Security
+            # for notes on activating security.
             security: false
-
-        # main:
-            # lazy: true
-            # provider: users_in_memory
+            lazy: true
+            provider: users_in_memory
+            http_basic:
+                realm: Secured Area
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -30,8 +35,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+      - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:
