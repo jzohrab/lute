@@ -26,7 +26,11 @@
 
     <style>
       /* Overrides specified in .env CUSTOM_STYLES. */
-      {{ app.request.server.get('CUSTOM_STYLES') | raw }}
+      {#
+       Note the "custom_styles" global var is configured
+       in config/packages/twig.yaml.
+       #}
+      {{ custom_styles }}
     </style>
 
     <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>

@@ -1,6 +1,17 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
 
+    globals:
+
+      # Using app.request.server.get('DATABASE_URL')
+      # wasn't working within Docker for some reason
+      # (would only return a blank string), so getting this
+      # into a global twig value
+      # per https://stackoverflow.com/questions/49090863/
+      #   using-an-environment-variable-from-env-file-in-custom-twig-function-in-symf
+      
+      custom_styles: '%env(CUSTOM_STYLES)%'
+
 when@test:
     twig:
         strict_variables: true
