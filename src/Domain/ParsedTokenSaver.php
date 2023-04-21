@@ -52,7 +52,7 @@ class ParsedTokenSaver {
             $this->ord = 0;
 
             $s = $text->getText();
-            $s = preg_replace('/\s{2,}/u', ' ', $s);
+            $s = preg_replace('/ +/u', ' ', $s);
             $zws = mb_chr(0x200B); // zero-width space.
             $s = str_replace($zws, '', $s);
             $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
