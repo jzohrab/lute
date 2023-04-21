@@ -46,20 +46,17 @@ class ParsedTokenSaver {
         $inserts = [];
         $colltokens = [];
         foreach ($texts as $text) {
-            // Reset token/sentence counters for text.
-            // Global state sucks.
-            $this->sentence_number = 0;
-            $this->ord = 0;
+            $allids[] = $text->getID();
 
             $s = $text->getText();
+            // Replace double spaces, because they can mess up multi-word terms
+            // (e.g., "llevar[ ][ ]a" is different from "llevar[ ]a").
             $s = preg_replace('/ +/u', ' ', $s);
             $zws = mb_chr(0x200B); // zero-width space.
             $s = str_replace($zws, '', $s);
-            $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
 
-            $id = $text->getID();
-            $allids[] = $id;
-            $inserts[] = $this->build_insert_array($id, $tokens);
+            $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
+            $inserts[] = $this->build_insert_array($text->getID(), $tokens);
         }
         $allinserts = array_merge([], ...$inserts);
 
@@ -114,29 +111,23 @@ class ParsedTokenSaver {
     }
 
 
-    // Instance state required while loading temp table:
-    private int $sentence_number = 0;
-    private int $ord = 0;
-
     private function build_insert_array($txid, $tokens): array {
-        // Make the array row, incrementing $sentence_number as
-        // needed.
-        $makeentry = function($token) use ($txid) {
+        // Keep track of the current sentence and the token sort
+        // order.
+        $sentence_number = 0;
+        $ord = 0;
+        $arr = [];
+        foreach ($tokens as $token) {
             $isword = $token->isWord ? 1 : 0;
-            $this->ord += 1;
-            $ret = [ $txid, $this->sentence_number, $this->ord, $isword, $token->token ];
+            $ord += 1;
+            $arr[] = [ $txid, $sentence_number, $ord, $isword, $token->token ];
 
             // Word ending with \r marks the end of the current
             // sentence.
             if ($token->isEndOfSentence) {
-                $this->sentence_number += 1;
+                $sentence_number += 1;
             }
-            return $ret;
-        };
-
-        $arr = array_map($makeentry, $tokens);
-
-        // var_dump($arr);
+        }
         return $arr;
     }
 
