@@ -53,12 +53,10 @@ class JapaneseParser extends AbstractParser {
     }
 
 
-    public function getParsedTokens(string $text, Language $lang) {
-        $text = trim(preg_replace('/[ \t]+/u', ' ', $text));
-
+    private function getMecabResult(string $text, string $args) {
         $file_name = tempnam(sys_get_temp_dir(), "lute");
-        // We use the format "word  num num" for all nodes
-        $mecab_args = '-F %m\t%t\t%h\n -U %m\t%t\t%h\n -E EOP\t3\t7\n -o ' . $file_name;
+        // We use the format "word num num" for all nodes
+        $mecab_args = $args . ' -o ' . $file_name;
         $mecab = JapaneseParser::MeCab_command($mecab_args);
 
         // WARNING: \n is converted to PHP_EOL here!
@@ -70,6 +68,15 @@ class JapaneseParser extends AbstractParser {
         $mecabed = fread($handle, filesize($file_name));
         fclose($handle);
         unlink($file_name);
+
+        return $mecabed;
+    }
+
+    public function getParsedTokens(string $text, Language $lang) {
+        $text = trim(preg_replace('/[ \t]+/u', ' ', $text));
+
+        $mecab_args = '-F %m\t%t\t%h\n -U %m\t%t\t%h\n -E EOP\t3\t7\n';
+        $mecabed = $this->getMecabResult($text, $mecab_args);
 
         $tokens = [];
         foreach (explode(PHP_EOL, $mecabed) as $line) {
@@ -95,6 +102,27 @@ class JapaneseParser extends AbstractParser {
         }
 
         return $tokens;
+    }
+
+    /**
+     * Get the reading in katakana using MeCab.
+     */
+    public function getReading(string $text) {
+        // Ref https://stackoverflow.com/questions/5797505/php-regex-expression-involving-japanese
+        // https://www.php.net/manual/en/function.mb-ereg-replace.php
+        $r = mb_ereg_replace(
+            '^[\p{Hiragana}]+$',
+            '',
+            trim($text)
+        );
+        if ($r == '')
+            return null;
+
+        $mecabed = $this->getMecabResult($text, '-O yomi');
+        $mecabed = rtrim($mecabed, "\n");
+        if ($mecabed == $text)
+            return null;
+        return $mecabed;
     }
 
 }

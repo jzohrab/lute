@@ -361,6 +361,11 @@ class Term
             $f->ParentText = $p->getText();
         }
 
+
+        if (($f->Romanization ?? '') == '') {
+            $f->Romanization = $f->language->getParser()->getReading($f->Text);
+        }
+
         foreach ($this->getTermTags() as $tt) {
             $f->termTags[] = $tt->getText();
         }
