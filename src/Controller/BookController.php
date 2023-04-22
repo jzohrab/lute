@@ -197,7 +197,7 @@ class BookController extends AbstractController
         //     $bookRepository->remove($book, true);
         // }
         $bookRepository->remove($book, true);
-        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{BkID}/archive', name: 'app_book_archive', methods: ['POST'])]
@@ -211,7 +211,7 @@ class BookController extends AbstractController
         // }
         $book->setArchived(true);
         $bookRepository->save($book, true);
-        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{BkID}/unarchive', name: 'app_book_unarchive', methods: ['POST'])]
@@ -225,7 +225,7 @@ class BookController extends AbstractController
         // }
         $book->setArchived(false);
         $bookRepository->save($book, true);
-        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_book_archived', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{BkID}/rebind', name: 'app_book_rebind', methods: ['POST'])]
