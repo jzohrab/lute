@@ -108,8 +108,21 @@ class JapaneseParser extends AbstractParser {
      * Get the reading in katakana using MeCab.
      */
     public function getReading(string $text) {
+        // Ref https://stackoverflow.com/questions/5797505/php-regex-expression-involving-japanese
+        // https://www.php.net/manual/en/function.mb-ereg-replace.php
+        $r = mb_ereg_replace(
+            '^[\p{Hiragana}]+$',
+            '',
+            trim($text)
+        );
+        if ($r == '')
+            return null;
+
         $mecabed = $this->getMecabResult($text, '-O yomi');
-        return rtrim($mecabed, "\n");
+        $mecabed = rtrim($mecabed, "\n");
+        if ($mecabed == $text)
+            return null;
+        return $mecabed;
     }
 
 }
