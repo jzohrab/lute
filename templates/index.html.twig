@@ -73,16 +73,11 @@
 <br />
 {% include '/book/tablelisting.html.twig' %}
 
-<div id="userlinks" style="margin-top: 30px;">
+<div id="userlinks" style="margin-top: 10px;">
   <ul>
     <li><a href="/language/index">Languages</a></li>
     <li><a href="{{ path('app_book_new') }}">Create new Text</a></li>
     <li><a href="{{ path('app_book_import_webpage') }}">Import web page</a></li>
-    <li><a href="/book/index">Texts</a>
-      {% if currtxid is not null %}
-      (continue reading <a href="/read/{{ currtxid }}">&quot;{{ currtxtitle }}&quot;</a>)
-      {% endif %}
-    </li>
     <li><a href="/book/archived">Text archive</a></li>
     <li><a href="/term/index">Terms</a></li>
   </ul>
