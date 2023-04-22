@@ -57,4 +57,4 @@ If you hold down Shift and click a bunch of words, you can bulk update their sta
 
 All done this text!
 
-Lute keeps track of all of this in your database.  There's a tutorial follow-up: go to the Home screen, click the Texts link, and choose the "Tutorial follow-up".
+Lute keeps track of all of this in your database.  There's a tutorial follow-up: go to the Home screen, and click the "Tutorial follow-up" in the table.

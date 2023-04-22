@@ -48,13 +48,21 @@ class SqliteHelper {
         return $c == 1;
     }
 
-    public static function dbIsEmpty() {
+    private static function getCount($tbl) {
         $conn = Connection::getFromEnvironment();
         $check = $conn
-               ->query('select count(*) as c from Languages')
+               ->query('select count(*) as c from ' . $tbl)
                ->fetch(\PDO::FETCH_ASSOC);
         $c = intval($check['c']);
-        return $c == 0;
+        return $c;
+    }
+
+    public static function dbIsEmpty() {
+        return SqliteHelper::getCount('Languages') == 0;
+    }
+
+    public static function dbHasBooks() {
+        return SqliteHelper::getCount('books') > 0;
     }
 
     public static function runMigrations($showlogging = false) {
