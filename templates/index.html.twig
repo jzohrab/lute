@@ -71,7 +71,9 @@
 {% endif %}
 
 <br />
+{% if hasbooks %}
 {% include '/book/tablelisting.html.twig' %}
+{% endif %}
 
 <div id="userlinks" style="margin-top: 10px;">
   <ul>

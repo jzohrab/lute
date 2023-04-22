@@ -63,6 +63,7 @@ class IndexController extends AbstractController
         return $this->render('index.html.twig', [
             'isdemodata' => SqliteHelper::isDemoData(),
             'dbisempty' => SqliteHelper::dbIsEmpty(),
+            'hasbooks' => SqliteHelper::dbHasBooks(),
             'version' => $gittag,
             'status' => 'Active',  // book status
             'tutorialloaded' => $tutorialloaded,
