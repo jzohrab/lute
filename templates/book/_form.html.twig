@@ -26,7 +26,7 @@
 
 </table>
 
-<button class="btn">{{ button_label|default('Save') }}</button>
+<button id="btnSubmit" class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}
 
 <script>
@@ -53,6 +53,13 @@
 
   $(document).ready(function () {
     setupTagit();
+    $('#btnSubmit').click(function() {
+      const f = $("form");
+      $('#btnSubmit').prop( "disabled", true);
+      $("body").css("cursor", "progress");
+      f.submit();
+      return true;
+    });
   });
 
 </script>

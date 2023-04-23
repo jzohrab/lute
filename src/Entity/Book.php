@@ -118,7 +118,14 @@ class Book
         $texts = [];
         foreach ($this->getTexts() as $t)
             $texts[] = $t;
-        $this->getLanguage()->parse($texts);
+        $lang = $this->getLanguage();
+        // Have to chunk the page parsing,
+        // it takes too much memory to parse
+        // large texts otherwise.
+        $chunks = array_chunk($texts, 10);
+        foreach ($chunks as $chunk) {
+            $lang->parse($chunk);
+        }
     }
     
     /**

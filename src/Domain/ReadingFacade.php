@@ -59,7 +59,7 @@ class ReadingFacade {
 
         $tokens = $this->repo->getTextTokens($text);
         if (count($tokens) == 0) {
-            $text->parse();
+            $text->getBook()->fullParse();
             $tokens = $this->repo->getTextTokens($text);
         }
 
