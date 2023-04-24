@@ -94,7 +94,6 @@ class BookController extends AbstractController
         $book = BookDTO::buildBook($bookdto, $texttag_repo);
         try {
             $book_repo->save($book, true);
-            $book->fullParse();
             return $this->redirectToRoute('app_book_read', [ 'BkID' => $book->getId() ], Response::HTTP_SEE_OTHER);
         }
         catch (\Exception $e) {

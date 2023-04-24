@@ -35,18 +35,19 @@ class BookRepository extends ServiceEntityRepository
         $this->exec_sql("delete from texttokens where TokTxID in (select TxID from texts where TxBkID = $bookid)");
     }
 
-    public function save(Book $entity, bool $flush = false): void
+    public function save(Book $entity): void
     {
+        $isnew = ($entity->getID() == null);
         if ($entity->isArchived()) {
             foreach ($entity->getTexts() as $t)
                 $t->setArchived(true);
         }
 
         $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        if ($isnew && !$entity->isArchived())
+            $entity->fullParse();
     }
 
     public function remove(Book $entity, bool $flush = false): void
