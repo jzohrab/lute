@@ -68,8 +68,7 @@ class TermService {
             'term' => $this->getReferences($term, $conn),
             'parent' => $this->getReferences($p, $conn),
             'children' => $this->getChildReferences($term, $conn),
-            'siblings' => $this->getSiblingReferences($p, $term, $conn),
-            'archived' => $this->getArchivedReferences($term, $conn)
+            'siblings' => $this->getSiblingReferences($p, $term, $conn)
         ];
         return $ret;
     }
@@ -97,7 +96,6 @@ class TermService {
         $sql = "select distinct TxID, TxTitle, SeText
           from sentences
           inner join texts on TxID = SeTxID
-          where TxArchived = 0
           AND lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%'
           LIMIT 20";
         $stmt = $conn->prepare($sql);
@@ -133,66 +131,6 @@ class TermService {
             $ret[] = $this->getReferences($c, $conn);
         }
         return array_merge([], ...$ret);
-    }
-
-    private function getArchivedReferences($term, $conn): array {
-        if ($term == null)
-            return [];
-
-        $wid = $term->getID();
-        $wpid = -1;
-        if ($term->getParent() != null) {
-            $wpid = $term->getParent()->getID();
-        }
-
-        $sql = "select WoTextLC from words where WoID in
-            (
-              select WpWoID from wordparents
-                where WpParentWoID in ({$wid}, {$wpid})
-              union
-              select {$wpid} as WoID
-              union
-              select {$wid} as WoID
-            )";
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new \Exception($conn->error);
-        }
-        if (!$stmt->execute()) {
-            throw new \Exception($stmt->error);
-        }
-        $termstrings = [];
-        while (($row = $stmt->fetch(\PDO::FETCH_NUM))) {
-            $termstrings[] = $row[0];
-        }
-        
-        $sql = "select distinct TxID, TxTitle, SeText, SeOrder
-          from texts
-          inner join sentences on SeTxID = TxID
-          where lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%' and TxArchived = 1
-           ";
-        $fullsql = array_fill(0, count($termstrings), $sql);
-        $fullsql = implode(' UNION ', $fullsql);
-        $fullsql = $fullsql . ' ORDER BY SeOrder';
-        // dump($fullsql);
-
-        $stmt = $conn->prepare($fullsql);
-        if (!$stmt) {
-            throw new \Exception($conn->error);
-        }
-
-        // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
-        // Positional numbering starts at 1. !!!
-        $n = count($termstrings);
-        for ($i = 1; $i <= $n; $i++) {
-        // TODO:sqlite uses SQLITE3_TEXT
-            $stmt->bindValue($i, $termstrings[$i - 1], \PDO::PARAM_STR);
-        }
-
-        if (!$stmt->execute()) {
-            throw new \Exception($stmt->error);
-        }
-        return $this->buildTermReferenceDTOs($term->getTextLC(), $stmt);
     }
 
 }
