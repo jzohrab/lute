@@ -306,12 +306,11 @@ final class TermService_Test extends DatabaseTestBase
         $refs = $this->term_service->findReferences($tengo);
 
         $keys = array_keys($refs);
-        $this->assertEquals([ 'term', 'parent', 'children', 'siblings', 'archived' ], $keys);
+        $this->assertEquals([ 'term', 'parent', 'children', 'siblings' ], $keys);
 
         $this->assertEquals(2, count($refs['term']), 'term');
         $this->assertEquals(0, count($refs['parent']), 'parent');
         $this->assertEquals(0, count($refs['siblings']), 'siblings');
-        $this->assertEquals(0, count($refs['archived']), 'archived');
 
         $trs = $refs['term'];
         $zws = mb_chr(0x200B);
@@ -342,7 +341,6 @@ final class TermService_Test extends DatabaseTestBase
         $this->assertEquals(2, count($refs['term']), 'term');
         $this->assertEquals(1, count($refs['parent']), 'parent');
         $this->assertEquals(1, count($refs['siblings']), 'siblings');
-        $this->assertEquals(1, count($refs['archived']), 'archived tengo');
 
         $tostring = function($refdto) {
             $zws = mb_chr(0x200B);
@@ -352,14 +350,13 @@ final class TermService_Test extends DatabaseTestBase
         $this->assertEquals("1, hola, /<b>Tengo</b>/ /un/ /gato/./", $tostring($refs['term'][0]), 'term');
         $this->assertEquals("1, hola, /No/ /quiero/ /<b>tener</b>/ /nada/./", $tostring($refs['parent'][0]), 'p');
         $this->assertEquals("1, hola, /Ella/ /<b>tiene</b>/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
-        $this->assertEquals("2, luego, /<b>Tengo</b>/ /un/ /coche/./", $tostring($refs['archived'][0]), 'a');
+        $this->assertEquals("2, luego, /<b>Tengo</b>/ /un/ /coche/./", $tostring($refs['term'][1]), 't 1');
 
         $refs = $this->term_service->findReferences($tener);
         $this->assertEquals(1, count($refs['term']), 'term');
         $this->assertEquals(0, count($refs['parent']), 'parent');
         $this->assertEquals(3, count($refs['children']), 'children');
         $this->assertEquals(0, count($refs['siblings']), 'siblings');
-        $this->assertEquals(1, count($refs['archived']), 'archived tener');
 
         $this->assertEquals("1, hola, /No/ /quiero/ /<b>tener</b>/ /nada/./", $tostring($refs['term'][0]), 'term');
         $this->assertEquals("1, hola, /<b>Tengo</b>/ /un/ /gato/./", $tostring($refs['children'][0]), 'c tener 1');
