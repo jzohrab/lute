@@ -24,9 +24,10 @@
     <p>The term:</p>
     <ul class="sentencelist">
       {% for dto in term %}
-      <li>
+      <li style="margin-top: 4px;">
         {{ dto.Sentence | raw }}
-        <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
+        <br/>
+        <a onclick="open_sentence_text({{ dto.TxID }});" style="cursor: pointer; font-size: 0.9em; font-style: italic;">{{ dto.Title }}</a>
       </li>
       {% endfor %}
     </ul>
