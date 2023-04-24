@@ -4,7 +4,7 @@ namespace App\DTO;
 
 use App\Entity\Language;
 use App\Entity\Term;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\Repository\TermTagRepository;
 
 class TermDTO
@@ -43,7 +43,7 @@ class TermDTO
     /**
      * Convert the given TermDTO to a Term.
      */
-    public static function buildTerm(TermDTO $dto, Dictionary $dictionary, TermTagRepository $ttr): Term
+    public static function buildTerm(TermDTO $dto, TermService $term_service, TermTagRepository $ttr): Term
     {
         if (is_null($dto->language)) {
             throw new \Exception('Language not set for term dto');
@@ -52,7 +52,7 @@ class TermDTO
             throw new \Exception('Text not set for term dto');
         }
 
-        $t = $dictionary->find($dto->Text, $dto->language);
+        $t = $term_service->find($dto->Text, $dto->language);
         if ($t == null)
             $t = new Term();
 
@@ -73,7 +73,7 @@ class TermDTO
 
         if ($dto->ParentText == $dto->Text)
             $dto->ParentText = null;
-        $parent = TermDTO::findOrCreateParent($dto, $dictionary, $termtags);
+        $parent = TermDTO::findOrCreateParent($dto, $term_service, $termtags);
         $t->setParent($parent);
 
         $t->removeAllTermTags();
@@ -84,13 +84,13 @@ class TermDTO
         return $t;
     }
 
-    private static function findOrCreateParent(TermDTO $dto, Dictionary $dictionary, array $termtags): ?Term
+    private static function findOrCreateParent(TermDTO $dto, TermService $term_service, array $termtags): ?Term
     {
         $pt = $dto->ParentText;
         if ($pt == null || $pt == '')
             return null;
 
-        $p = $dictionary->find($pt, $dto->language);
+        $p = $term_service->find($pt, $dto->language);
 
         if ($p !== null) {
             if (($p->getTranslation() ?? '') == '')

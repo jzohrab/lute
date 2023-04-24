@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Text;
 use App\Entity\Term;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 final class ReadingRepository_Test extends DatabaseTestBase
 {
@@ -27,9 +27,9 @@ final class ReadingRepository_Test extends DatabaseTestBase
         $gato->setParent($tengo);
 
         // Use dictionary so Terms are associated with TextItems.
-        $dict = new Dictionary($this->term_repo);
-        $dict->add($tengo, true);
-        $dict->add($gato, true);
+        $term_svc = new TermService($this->term_repo);
+        $term_svc->add($tengo, true);
+        $term_svc->add($gato, true);
 
         DbHelpers::assertRecordcountEquals("texttokens", 8, 'setup tokens');
         DbHelpers::assertRecordcountEquals("wordimages", 2, 'setup images');

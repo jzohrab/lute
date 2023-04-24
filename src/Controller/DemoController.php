@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Repository\LanguageRepository;
 use App\Repository\BookRepository;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

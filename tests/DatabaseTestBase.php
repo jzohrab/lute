@@ -22,7 +22,7 @@ use App\Repository\TermRepository;
 use App\Repository\BookRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
 
@@ -125,14 +125,14 @@ abstract class DatabaseTestBase extends WebTestCase
     }
 
     public function addTerms(Language $lang, $term_strings) {
-        $dict = new Dictionary($this->term_repo);
+        $term_svc = new TermService($this->term_repo);
         $arr = $term_strings;
         if (is_string($term_strings))
             $arr = [ $term_strings ];
         $ret = [];
         foreach ($arr as $t) {
             $term = new Term($lang, $t);
-            $dict->add($term, true);
+            $term_svc->add($term, true);
             $ret[] = $term;
         }
         return $ret;
@@ -158,13 +158,13 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function save_term($text, $s) {
         $textid = $text->getID();
-        $dict = new Dictionary($this->term_repo);
+        $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,
             $this->book_repo,
             $this->settings_repo,
-            $dict,
+            $term_svc,
             $this->termtag_repo
         );
         $dto = $facade->loadDTO($text->getLanguage()->getLgID(), $s);
@@ -174,13 +174,13 @@ abstract class DatabaseTestBase extends WebTestCase
     private function get_renderable_textitems($text) {
         $ret = [];
 
-        $dict = new Dictionary($this->term_repo);
+        $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,
             $this->book_repo,
             $this->settings_repo,
-            $dict,
+            $term_svc,
             $this->termtag_repo
         );
 

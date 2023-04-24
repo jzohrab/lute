@@ -8,7 +8,7 @@ use App\Form\TermDTOType;
 use App\Repository\TermRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\LanguageRepository;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +42,7 @@ class TermController extends AbstractController
         Request $request,
         TermRepository $term_repo,
         LanguageRepository $lang_repo,
-        Dictionary $dict
+        TermService $term_svc
     ): JsonResponse
     {
         $parameters = $request->request->all();
@@ -57,7 +57,7 @@ class TermController extends AbstractController
         $lang = $lang_repo->find($langid);
         $parent = null;
         if ($parenttext != '') {
-            $parent = $dict->find($parenttext, $lang);
+            $parent = $term_svc->find($parenttext, $lang);
             if ($parent == null) {
                 $parent = new Term($lang, $parenttext);
             }
@@ -84,11 +84,11 @@ class TermController extends AbstractController
         $text,
         $langid,
         LanguageRepository $lang_repo,
-        Dictionary $dictionary
+        TermService $term_service
     ): JsonResponse
     {
         $lang = $lang_repo->find($langid);
-        $terms = $dictionary->findMatches($text, $lang);
+        $terms = $term_service->findMatches($text, $lang);
         $result = [];
         foreach ($terms as $t) {
             $trans = $t->getTranslation();
@@ -106,7 +106,7 @@ class TermController extends AbstractController
         \Symfony\Component\Form\Form $form,
         Request $request,
         TermDTO $termdto,
-        Dictionary $dict,
+        TermService $term_svc,
         TermTagRepository $termtag_repo
     ): ?Response
     {
@@ -115,9 +115,9 @@ class TermController extends AbstractController
         if (! $submitted_valid)
             return null;
 
-        $term = TermDTO::buildTerm($termdto, $dict, $termtag_repo);
+        $term = TermDTO::buildTerm($termdto, $term_svc, $termtag_repo);
         try {
-            $dict->add($term);
+            $term_svc->add($term);
             return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
         }
         catch (\Exception $e) {
@@ -131,7 +131,7 @@ class TermController extends AbstractController
 
             $msg = $term->getText() . " already exists.";
             $this->addFlash('notice', $msg);
-            $existing = $dict->find($term->getTextLC(), $term->getLanguage());
+            $existing = $term_svc->find($term->getTextLC(), $term->getLanguage());
             return $this->redirectToRoute(
                 'app_term_edit',
                 [ 'id' => $existing->getID() ],
@@ -142,11 +142,11 @@ class TermController extends AbstractController
 
 
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, Dictionary $dict, TermTagRepository $termtag_repo): Response
+    public function new(Request $request, TermService $term_svc, TermTagRepository $termtag_repo): Response
     {
         $dto = new TermDTO();
         $form = $this->createForm(TermDTOType::class, $dto);
-        $resp = $this->processTermForm($form, $request, $dto, $dict, $termtag_repo);
+        $resp = $this->processTermForm($form, $request, $dto, $term_svc, $termtag_repo);
         if ($resp != null)
             return $resp;
 
@@ -160,9 +160,9 @@ class TermController extends AbstractController
 
 
     #[Route('/sentences/{id}', name: 'app_term_sentences', methods: ['GET'])]
-    public function show_sentences(Term $term, Dictionary $dict): Response
+    public function show_sentences(Term $term, TermService $term_svc): Response
     {
-        $refs = $dict->findReferences($term);
+        $refs = $term_svc->findReferences($term);
         return $this->render('term/sentences.html.twig', $refs);
     }
 
@@ -177,11 +177,11 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_term_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Term $term, Dictionary $dict, TermTagRepository $termtag_repo): Response
+    public function edit(Request $request, Term $term, TermService $term_svc, TermTagRepository $termtag_repo): Response
     {
         $dto = $term->createTermDTO();
         $form = $this->createForm(TermDTOType::class, $dto);
-        $resp = $this->processTermForm($form, $request, $dto, $dict, $termtag_repo);
+        $resp = $this->processTermForm($form, $request, $dto, $term_svc, $termtag_repo);
         if ($resp != null)
             return $resp;
 
@@ -194,11 +194,11 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_term_delete', methods: ['POST'])]
-    public function delete(Request $request, Term $term, Dictionary $dict): Response
+    public function delete(Request $request, Term $term, TermService $term_svc): Response
     {
         $reqtok = $request->request->get('_token');
         if ($this->isCsrfTokenValid('delete'.$term->getId(), $reqtok)) {
-            $dict->remove($term);
+            $term_svc->remove($term);
         }
 
         return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);

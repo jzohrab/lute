@@ -23,7 +23,7 @@ class LanguageType extends AbstractType
             )
             ->add('LgDict1URI',
                   TextType::class,
-                  [ 'label' => 'Dictionary 1',
+                  [ 'label' => 'TermService 1',
                     'help' => 'e.g., https://es.thefreedictionary.com/###.  "###" is replaced by the term.',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
@@ -31,7 +31,7 @@ class LanguageType extends AbstractType
             )
             ->add('LgDict2URI',
                   TextType::class,
-                  [ 'label' => 'Dictionary 2',
+                  [ 'label' => 'TermService 2',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
                   ]

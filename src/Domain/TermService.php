@@ -8,7 +8,7 @@ use App\DTO\TermReferenceDTO;
 use App\Utils\Connection;
 use App\Repository\TermRepository;
 
-class Dictionary {
+class TermService {
 
     private TermRepository $term_repo;
     private array $pendingTerms;
