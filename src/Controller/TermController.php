@@ -163,7 +163,34 @@ class TermController extends AbstractController
     public function show_sentences(Term $term, TermService $term_svc): Response
     {
         $refs = $term_svc->findReferences($term);
-        return $this->render('term/sentences.html.twig', $refs);
+
+        // Ref https://stackoverflow.com/questions/2517947/
+        //  ucfirst-function-for-multibyte-character-encodings
+        $mb_ucfirst = function ($string, $encoding = null)
+        {
+            if ($encoding === null)
+                $encoding = mb_internal_encoding();
+            $firstChar = mb_substr($string, 0, 1, $encoding);
+            $then = mb_substr($string, 1, null, $encoding);
+            return mb_strtoupper($firstChar, $encoding) . $then;
+        };
+
+        $ptext = 'Parent';
+        $p = $term->getParent();
+        if ($p != null)
+            $ptext = $mb_ucfirst($p->getText());
+
+        $references = [
+            $mb_ucfirst($term->getText()) => $refs['term'],
+            $ptext => $refs['parent'],
+            'Term children' => $refs['children'],
+            'Sibling terms (with same parent ' . $ptext . ')' => $refs['siblings']
+        ];
+
+        return $this->render(
+            'term/sentences.html.twig',
+            [ 'references' => $references ]
+        );
     }
 
 
