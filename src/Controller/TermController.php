@@ -8,7 +8,7 @@ use App\Form\TermDTOType;
 use App\Repository\TermRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\LanguageRepository;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +42,7 @@ class TermController extends AbstractController
         Request $request,
         TermRepository $term_repo,
         LanguageRepository $lang_repo,
-        Dictionary $dict
+        TermService $dict
     ): JsonResponse
     {
         $parameters = $request->request->all();
@@ -84,7 +84,7 @@ class TermController extends AbstractController
         $text,
         $langid,
         LanguageRepository $lang_repo,
-        Dictionary $dictionary
+        TermService $dictionary
     ): JsonResponse
     {
         $lang = $lang_repo->find($langid);
@@ -106,7 +106,7 @@ class TermController extends AbstractController
         \Symfony\Component\Form\Form $form,
         Request $request,
         TermDTO $termdto,
-        Dictionary $dict,
+        TermService $dict,
         TermTagRepository $termtag_repo
     ): ?Response
     {
@@ -142,7 +142,7 @@ class TermController extends AbstractController
 
 
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, Dictionary $dict, TermTagRepository $termtag_repo): Response
+    public function new(Request $request, TermService $dict, TermTagRepository $termtag_repo): Response
     {
         $dto = new TermDTO();
         $form = $this->createForm(TermDTOType::class, $dto);
@@ -160,7 +160,7 @@ class TermController extends AbstractController
 
 
     #[Route('/sentences/{id}', name: 'app_term_sentences', methods: ['GET'])]
-    public function show_sentences(Term $term, Dictionary $dict): Response
+    public function show_sentences(Term $term, TermService $dict): Response
     {
         $refs = $dict->findReferences($term);
         return $this->render('term/sentences.html.twig', $refs);
@@ -177,7 +177,7 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_term_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Term $term, Dictionary $dict, TermTagRepository $termtag_repo): Response
+    public function edit(Request $request, Term $term, TermService $dict, TermTagRepository $termtag_repo): Response
     {
         $dto = $term->createTermDTO();
         $form = $this->createForm(TermDTOType::class, $dto);
@@ -194,7 +194,7 @@ class TermController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_term_delete', methods: ['POST'])]
-    public function delete(Request $request, Term $term, Dictionary $dict): Response
+    public function delete(Request $request, Term $term, TermService $dict): Response
     {
         $reqtok = $request->request->get('_token');
         if ($this->isCsrfTokenValid('delete'.$term->getId(), $reqtok)) {

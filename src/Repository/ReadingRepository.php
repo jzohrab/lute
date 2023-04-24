@@ -9,14 +9,14 @@ use App\Entity\Term;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
 use App\Entity\Language;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use Doctrine\ORM\EntityManagerInterface;
  
 
 class ReadingRepository
 {
     private EntityManagerInterface $manager;
-    private Dictionary $dictionary;
+    private TermService $dictionary;
     private TermRepository $term_repo;
     private LanguageRepository $lang_repo;
 
@@ -27,7 +27,7 @@ class ReadingRepository
     )
     {
         $this->manager = $manager;
-        $this->dictionary = new Dictionary($term_repo);
+        $this->dictionary = new TermService($term_repo);
         $this->term_repo = $term_repo;
         $this->lang_repo = $lang_repo;
     }

@@ -3,15 +3,15 @@
 require_once __DIR__ . '/../../../src/Domain/ReadingFacade.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\Entity\Term;
 use App\Entity\Text;
 use App\Entity\TermTag;
 
-final class Dictionary_Test extends DatabaseTestBase
+final class TermService_Test extends DatabaseTestBase
 {
 
-    private Dictionary $dictionary;
+    private TermService $dictionary;
     private Term $p;
     private Term $p2;
 
@@ -19,7 +19,7 @@ final class Dictionary_Test extends DatabaseTestBase
     {
         $this->load_languages();
 
-        $this->dictionary = new Dictionary(
+        $this->dictionary = new TermService(
             $this->term_repo
         );
     }

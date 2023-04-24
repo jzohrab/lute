@@ -13,7 +13,7 @@ use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Repository\SettingsRepository;
 use App\Repository\TermTagRepository;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 class ReadingFacade {
 
@@ -21,7 +21,7 @@ class ReadingFacade {
     private TextRepository $textrepo;
     private BookRepository $bookrepo;
     private SettingsRepository $settingsrepo;
-    private Dictionary $dictionary;
+    private TermService $dictionary;
     private TermTagRepository $termtagrepo;
 
     public function __construct(
@@ -29,7 +29,7 @@ class ReadingFacade {
         TextRepository $textrepo,
         BookRepository $bookrepo,
         SettingsRepository $settingsrepo,
-        Dictionary $dictionary,
+        TermService $dictionary,
         TermTagRepository $termTagRepository
     ) {
         $this->repo = $repo;

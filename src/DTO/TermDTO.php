@@ -4,7 +4,7 @@ namespace App\DTO;
 
 use App\Entity\Language;
 use App\Entity\Term;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\Repository\TermTagRepository;
 
 class TermDTO
@@ -43,7 +43,7 @@ class TermDTO
     /**
      * Convert the given TermDTO to a Term.
      */
-    public static function buildTerm(TermDTO $dto, Dictionary $dictionary, TermTagRepository $ttr): Term
+    public static function buildTerm(TermDTO $dto, TermService $dictionary, TermTagRepository $ttr): Term
     {
         if (is_null($dto->language)) {
             throw new \Exception('Language not set for term dto');
@@ -84,7 +84,7 @@ class TermDTO
         return $t;
     }
 
-    private static function findOrCreateParent(TermDTO $dto, Dictionary $dictionary, array $termtags): ?Term
+    private static function findOrCreateParent(TermDTO $dto, TermService $dictionary, array $termtags): ?Term
     {
         $pt = $dto->ParentText;
         if ($pt == null || $pt == '')

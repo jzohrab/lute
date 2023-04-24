@@ -6,17 +6,17 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\TermTag;
 use App\Entity\Term;
 use App\Entity\Text;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 // Tests for checking WoStatusChanged field updates.
-final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
+final class TermService_WoStatusChanged_Test extends DatabaseTestBase
 {
 
     private Term $term;
-    private Dictionary $dictionary;
+    private TermService $dictionary;
 
     public function childSetUp() {
-        $this->dictionary = new Dictionary($this->term_repo);
+        $this->dictionary = new TermService($this->term_repo);
         $this->load_languages();
         $t = new Term();
         $t->setLanguage($this->spanish);

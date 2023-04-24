@@ -6,19 +6,19 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\Language;
 use App\Entity\TermTag;
 use App\Entity\Term;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\DTO\TermDTO;
 
 final class TermDTO_Test extends DatabaseTestBase
 {
 
-    private Dictionary $dictionary;
+    private TermService $dictionary;
 
     public function childSetUp(): void
     {
         $this->load_languages();
 
-        $this->dictionary = new Dictionary(
+        $this->dictionary = new TermService(
             $this->term_repo
         );
     }

@@ -3,7 +3,7 @@
 require_once __DIR__ . '/DatabaseTestBase.php';
 
 use App\Utils\DemoDataLoader;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 // This isn't really a test ... it just loads the database with data.
 // Still reasonable to keep as a test though as it needs to always
@@ -24,7 +24,7 @@ final class LoadTestData_Test extends DatabaseTestBase
      */
     public function test_load_dev_data(): void
     {
-        $dict = new Dictionary($this->term_repo);
+        $dict = new TermService($this->term_repo);
         DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $dict);
         $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }

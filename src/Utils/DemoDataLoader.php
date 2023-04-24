@@ -8,7 +8,7 @@ use App\Entity\Text;
 use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Entity\Term;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\Domain\BookBinder;
 use App\Domain\JapaneseParser;
 
@@ -17,7 +17,7 @@ class DemoDataLoader {
     public static function loadDemoData(
         LanguageRepository $lang_repo,
         BookRepository $book_repo,
-        Dictionary $dictionary
+        TermService $dictionary
     ) {
         $e = Language::makeEnglish();
         $f = Language::makeFrench();

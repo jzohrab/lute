@@ -6,21 +6,21 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Domain\ReadingFacade;
 use App\Domain\BookBinder;
 use App\Entity\Text;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\DTO\TermDTO;
 
 final class ReadingFacade_Test extends DatabaseTestBase
 {
 
     private ReadingFacade $facade;
-    private Dictionary $dictionary;
+    private TermService $dictionary;
     private int $spid;
 
     public function childSetUp(): void
     {
         $this->load_languages();
         $this->spid = $this->spanish->getLgID();
-        $dict = new Dictionary($this->term_repo);
+        $dict = new TermService($this->term_repo);
         $this->dictionary = $dict;
         $this->facade = new ReadingFacade(
             $this->reading_repo,

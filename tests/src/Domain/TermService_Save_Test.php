@@ -8,19 +8,19 @@ use App\Entity\Term;
 use App\Entity\Language;
 use App\Domain\JapaneseParser;
 use App\Entity\Text;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 // Tests to validate the Doctrine mappings.
-final class Dictionary_Save_Test extends DatabaseTestBase
+final class TermService_Save_Test extends DatabaseTestBase
 {
 
-    private Dictionary $dictionary;
+    private TermService $dictionary;
     private TermTag $tag;
     private Term $p;
     private Term $p2;
 
     public function childSetUp() {
-        $this->dictionary = new Dictionary($this->term_repo);
+        $this->dictionary = new TermService($this->term_repo);
         $this->load_languages();
     }
 
