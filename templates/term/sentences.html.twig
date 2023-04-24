@@ -25,7 +25,7 @@
     <ul class="sentencelist">
       {% for dto in term %}
       <li>
-        {{ dto.Sentence }}
+        {{ dto.Sentence | raw }}
         <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
       </li>
       {% endfor %}
@@ -37,7 +37,7 @@
     <ul class="sentencelist">
       {% for dto in parent %}
       <li>
-        {{ dto.Sentence }}
+        {{ dto.Sentence | raw }}
         <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
       </li>
       {% endfor %}
@@ -49,7 +49,7 @@
     <ul class="sentencelist">
       {% for dto in children %}
       <li>
-        {{ dto.Sentence }}
+        {{ dto.Sentence | raw }}
         <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
       </li>
       {% endfor %}
@@ -61,7 +61,7 @@
     <ul class="sentencelist">
       {% for dto in siblings %}
       <li>
-        {{ dto.Sentence }}
+        {{ dto.Sentence | raw }}
         <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
       </li>
       {% endfor %}
@@ -73,7 +73,7 @@
     <ul class="sentencelist">
       {% for dto in archived %}
       <li>
-        {{ dto.Sentence }}
+        {{ dto.Sentence | raw }}
         <img src="/icn/external.png" title="{{ dto.Title }}" onclick="open_sentence_text({{ dto.TxID }});" />
       </li>
       {% endfor %}

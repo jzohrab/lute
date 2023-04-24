@@ -74,12 +74,17 @@ class TermService {
         return $ret;
     }
 
-    private function buildTermReferenceDTOs($res) {
+    private function buildTermReferenceDTOs($termlc, $res) {
         $ret = [];
+        $zws = mb_chr(0x200B); // zero-width space.
         while (($row = $res->fetch(\PDO::FETCH_ASSOC))) {
             $s = $row['SeText'];
-            if ($s !== null)
-                $s = trim($s);
+            $s = trim($s);
+
+            $pattern = "/{$zws}({$termlc}){$zws}/ui";
+            $replacement = "{$zws}<b>" . '${1}' . "</b>{$zws}";
+            $s = preg_replace($pattern, $replacement, $s);
+
             $ret[] = new TermReferenceDTO($row['TxID'], $row['TxTitle'], $s);
         }
         return $ret;
@@ -103,7 +108,7 @@ class TermService {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        return $this->buildTermReferenceDTOs($stmt);
+        return $this->buildTermReferenceDTOs($s, $stmt);
     }
 
     private function getSiblingReferences($parent, $term, $conn): array {
@@ -187,7 +192,7 @@ class TermService {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        return $this->buildTermReferenceDTOs($stmt);
+        return $this->buildTermReferenceDTOs($term->getTextLC(), $stmt);
     }
 
 }
