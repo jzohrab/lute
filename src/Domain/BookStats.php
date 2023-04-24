@@ -76,41 +76,51 @@ class BookStats {
         $count = function($sql) use ($conn) {
             $res = $conn->query($sql);
             $row = $res->fetch(\PDO::FETCH_NUM);
+            if ($row == false)
+                return 0;
             return intval($row[0]);
         };
 
         $lgid = $b->getLanguage()->getLgID();
         $bkid = $b->getID();
 
-        $unknowns = $count("
-select count(distinct toktextlc)
+        $sql = "select count(distinct toktextlc)
 from texttokens
 inner join texts on txid = toktxid
 inner join books on bkid = txbkid
 where toktextlc not in (select wotextlc from words where wolgid = {$lgid})
 and tokisword = 1
 and txbkid = {$bkid}
-group by txbkid");
+group by txbkid";
+        $unknowns = $count($sql);
+        // dump($sql);
+        // dump($unknowns);
 
-        $allunique = $count("
-select count(distinct toktextlc)
+        $sql = "select count(distinct toktextlc)
 from texttokens
 inner join texts on txid = toktxid
 inner join books on bkid = txbkid
 where tokisword = 1
 and txbkid = {$bkid}
-group by txbkid");
+group by txbkid";
+        $allunique = $count($sql);
+        // dump($sql);
+        // dump($allunique);
 
-        $all = $count(
-"select count(toktextlc)
+        $sql = "select count(toktextlc)
 from texttokens
 inner join texts on txid = toktxid
 inner join books on bkid = txbkid
 where tokisword = 1
 and txbkid = {$bkid}
-group by txbkid");
+group by txbkid";
+        $all = $count($sql);
+        // dump($sql);
+        // dump($all);
 
-        $percent = round(100.0 * $unknowns / $allunique);
+        $percent = '-';
+        if ($allunique > 0) // In case not parsed.
+            $percent = round(100.0 * $unknowns / $allunique);
 
         // Any change in the below fields requires a change to
         // updateStats as well, query insert doesn't check field
