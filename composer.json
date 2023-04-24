@@ -140,6 +140,12 @@
     "dev:finddump": "./utils/finddump.sh",
     "dev:data:load": "composer test:group dev:data:load",
     "dev:data:clear": "composer test:group dev:data:clear",
+    "dev:start": "open http://localhost:9999 && cd public && php -S 0.0.0.0:9999 &",
+    "dev:stop": [
+      "echo Killing processes:",
+      "ps -a | grep 9999 | grep php | grep -v ps",
+      "for p in `ps -a | grep 9999 | grep php | grep -v ps | awk '{print $1}'`; do echo \"killing $p\"; kill $p; done"
+    ],
     "dev:nukecache": [
       "rm -rf var/cache",
       "php bin/console cache:clear",
@@ -176,6 +182,8 @@
     "dev:finddump": "search src for 'dump', shouldn't make it into prod",
     "dev:nukecache": "blow things away, b/c symfony likes to cache",
     "dev:psalm": "Run psalm and start crying",
+    "dev:start": "Start dev server on port 9999",
+    "dev:stop": "Stop dev server on port 9999 (nix/mac only)",
     "test": "Run tests",
     "test:nofail": "Run tests and stop on first fail/error",
     "test:group": "Run tests with a given '@group xxxx' annotation",
