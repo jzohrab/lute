@@ -109,6 +109,14 @@ class TermService {
         return $this->buildTermReferenceDTOs($s, $stmt);
     }
 
+    private function getAllRefs($terms, $conn): array {
+        $ret = [];
+        foreach ($terms as $term) {
+            $ret[] = $this->getReferences($term, $conn);
+        }
+        return array_merge([], ...$ret);
+    }
+
     private function getSiblingReferences($parent, $term, $conn): array {
         if ($term == null || $parent == null)
             return [];
@@ -116,21 +124,13 @@ class TermService {
         foreach ($parent->getChildren() as $s)
             $sibs[] = $s;
         $sibs = array_filter($sibs, fn($t) => $t->getID() != $term->getID());
-        $ret = [];
-        foreach ($sibs as $sib) {
-            $ret[] = $this->getReferences($sib, $conn);
-        }
-        return array_merge([], ...$ret);
+        return $this->getAllRefs($sibs, $conn);
     }
 
     private function getChildReferences($term, $conn): array {
         if ($term == null)
             return [];
-        $ret = [];
-        foreach ($term->getChildren() as $c) {
-            $ret[] = $this->getReferences($c, $conn);
-        }
-        return array_merge([], ...$ret);
+        return $this->getAllRefs($term->getChildren(), $conn);
     }
 
 }
