@@ -24,8 +24,8 @@ final class LoadTestData_Test extends DatabaseTestBase
      */
     public function test_load_dev_data(): void
     {
-        $dict = new TermService($this->term_repo);
-        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $dict);
+        $term_svc = new TermService($this->term_repo);
+        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
         $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }
 

@@ -31,7 +31,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $pt = '<none>';
         if ($t->getParent() != null)
             $pt = $t->getParent()->getText();
-        $dict = [
+        $term_svc = [
             'id' => $t->getID(),
             'lang' => $t->getLanguage()->getLgName(),
             'text' => $t->getText(),
@@ -45,7 +45,7 @@ final class TermDTO_Test extends DatabaseTestBase
             'tt' => implode(', ', $tt),
             'pt' => $pt
         ];
-        return json_encode($dict);
+        return json_encode($term_svc);
     }
 
     private function assertTermsEqual(Term $a, Term $b) {
