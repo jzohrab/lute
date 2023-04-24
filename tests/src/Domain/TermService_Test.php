@@ -11,7 +11,7 @@ use App\Entity\TermTag;
 final class TermService_Test extends DatabaseTestBase
 {
 
-    private TermService $dictionary;
+    private TermService $term_service;
     private Term $p;
     private Term $p2;
 

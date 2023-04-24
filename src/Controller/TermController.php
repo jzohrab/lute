@@ -84,11 +84,11 @@ class TermController extends AbstractController
         $text,
         $langid,
         LanguageRepository $lang_repo,
-        TermService $dictionary
+        TermService $term_service
     ): JsonResponse
     {
         $lang = $lang_repo->find($langid);
-        $terms = $dictionary->findMatches($text, $lang);
+        $terms = $term_service->findMatches($text, $lang);
         $result = [];
         foreach ($terms as $t) {
             $trans = $t->getTranslation();

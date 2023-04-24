@@ -17,7 +17,7 @@ class DemoDataLoader {
     public static function loadDemoData(
         LanguageRepository $lang_repo,
         BookRepository $book_repo,
-        TermService $dictionary
+        TermService $term_service
     ) {
         $e = Language::makeEnglish();
         $f = Language::makeFrench();
@@ -69,7 +69,7 @@ class DemoDataLoader {
         $term->setText("your local environment file");
         $term->setStatus(3);
         $term->setTranslation("This is \".env\", your personal file in the project root folder :-)");
-        $dictionary->add($term, true);
+        $term_service->add($term, true);
     }
 
 }

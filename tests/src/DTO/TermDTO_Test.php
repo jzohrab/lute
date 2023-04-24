@@ -12,7 +12,7 @@ use App\DTO\TermDTO;
 final class TermDTO_Test extends DatabaseTestBase
 {
 
-    private TermService $dictionary;
+    private TermService $term_service;
 
     public function childSetUp(): void
     {

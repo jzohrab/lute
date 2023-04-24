@@ -14,7 +14,7 @@ use App\Domain\TermService;
 final class TermService_Save_Test extends DatabaseTestBase
 {
 
-    private TermService $dictionary;
+    private TermService $term_service;
     private TermTag $tag;
     private Term $p;
     private Term $p2;

@@ -13,7 +13,7 @@ final class TermService_WoStatusChanged_Test extends DatabaseTestBase
 {
 
     private Term $term;
-    private TermService $dictionary;
+    private TermService $term_service;
 
     public function childSetUp() {
         $this->dictionary = new TermService($this->term_repo);

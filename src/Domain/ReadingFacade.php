@@ -21,7 +21,7 @@ class ReadingFacade {
     private TextRepository $textrepo;
     private BookRepository $bookrepo;
     private SettingsRepository $settingsrepo;
-    private TermService $dictionary;
+    private TermService $term_service;
     private TermTagRepository $termtagrepo;
 
     public function __construct(
@@ -29,11 +29,11 @@ class ReadingFacade {
         TextRepository $textrepo,
         BookRepository $bookrepo,
         SettingsRepository $settingsrepo,
-        TermService $dictionary,
+        TermService $term_service,
         TermTagRepository $termTagRepository
     ) {
         $this->repo = $repo;
-        $this->dictionary = $dictionary;
+        $this->dictionary = $term_service;
         $this->textrepo = $textrepo;
         $this->bookrepo = $bookrepo;
         $this->settingsrepo = $settingsrepo;

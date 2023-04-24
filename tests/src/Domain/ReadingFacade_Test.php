@@ -13,7 +13,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 {
 
     private ReadingFacade $facade;
-    private TermService $dictionary;
+    private TermService $term_service;
     private int $spid;
 
     public function childSetUp(): void

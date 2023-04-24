@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class ReadingRepository
 {
     private EntityManagerInterface $manager;
-    private TermService $dictionary;
+    private TermService $term_service;
     private TermRepository $term_repo;
     private LanguageRepository $lang_repo;
 
