@@ -20,7 +20,7 @@ final class TermService_Save_Test extends DatabaseTestBase
     private Term $p2;
 
     public function childSetUp() {
-        $this->dictionary = new TermService($this->term_repo);
+        $this->term_service = new TermService($this->term_repo);
         $this->load_languages();
     }
 
@@ -30,13 +30,13 @@ final class TermService_Save_Test extends DatabaseTestBase
         $ft = $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
 
         $t = new Term($this->spanish, "tengo");
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
 
         $this->assert_rendered_text_equals($st, "Hola/ /tengo(1)/ /un/ /gato/.");
         $this->assert_rendered_text_equals($ft, "Je/ /veux/ /un/ /tengo/.");
 
         $t = new Term($this->spanish, "un gato");
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
         $this->assert_rendered_text_equals($st, "Hola/ /tengo(1)/ /un gato(1)/.");
     }
 
@@ -47,12 +47,12 @@ final class TermService_Save_Test extends DatabaseTestBase
         $t1 = new Term($this->spanish, "tengo");
         $t2 = new Term($this->spanish, "un gato");
 
-        $this->dictionary->add($t1, false);
-        $this->dictionary->add($t2, false);
+        $this->term_service->add($t1, false);
+        $this->term_service->add($t2, false);
 
         $this->assert_rendered_text_equals($st, "Hola/ /tengo/ /un/ /gato/.");
 
-        $this->dictionary->flush();
+        $this->term_service->flush();
         $this->assert_rendered_text_equals($st, "Hola/ /tengo(1)/ /un gato(1)/.");
     }
 
@@ -69,9 +69,9 @@ final class TermService_Save_Test extends DatabaseTestBase
 
         $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
 
-        $this->dictionary->add($t1, false);
+        $this->term_service->add($t1, false);
 
-        $this->dictionary->flush();
+        $this->term_service->flush();
         $this->assert_rendered_text_equals($t, "Hola/ /tengo(1)/ /un gato(1)/.");
     }
 
@@ -87,15 +87,15 @@ final class TermService_Save_Test extends DatabaseTestBase
 
         $t1 = new Term($this->spanish, "tengo");
         $t2 = new Term($this->spanish, "un gato");
-        $this->dictionary->add($t1, false);
-        $this->dictionary->add($t2, false);
-        $this->dictionary->flush();
+        $this->term_service->add($t1, false);
+        $this->term_service->add($t2, false);
+        $this->term_service->flush();
 
         $this->assert_rendered_text_equals($t, "Hola/ /tengo(1)/ /un gato(1)/.");
 
-        $this->dictionary->remove($t1, false);
-        $this->dictionary->remove($t2, false);
-        $this->dictionary->flush();
+        $this->term_service->remove($t1, false);
+        $this->term_service->remove($t2, false);
+        $this->term_service->flush();
         $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
     }
 
@@ -107,12 +107,12 @@ final class TermService_Save_Test extends DatabaseTestBase
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("un gato");
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
         $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un gato(1)/.");
 
         // Update and resave
         $t->setStatus(5);
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
         $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un gato(5)/.");
     }
 
@@ -132,7 +132,7 @@ final class TermService_Save_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "私/は/元気/です/./¶");
         
         $term = new Term($japanese, "元気です");
-        $this->dictionary->add($term, true);
+        $this->term_service->add($term, true);
 
         $this->assert_rendered_text_equals($text, "私/は/元気です(1)/./¶");
     }

@@ -19,7 +19,7 @@ final class TermService_Test extends DatabaseTestBase
     {
         $this->load_languages();
 
-        $this->dictionary = new TermService(
+        $this->term_service = new TermService(
             $this->term_repo
         );
     }
@@ -29,7 +29,7 @@ final class TermService_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, 'PARENT');
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
         foreach ($cases as $c) {
-            $p = $this->dictionary->find($c, $this->spanish);
+            $p = $this->term_service->find($c, $this->spanish);
             $this->assertTrue(! is_null($p), 'parent found for case ' . $c);
             $this->assertEquals($p->getText(), 'PARENT', 'parent found for case ' . $c);
         }
@@ -37,14 +37,14 @@ final class TermService_Test extends DatabaseTestBase
 
     public function test_find_by_text_not_found_returns_null()
     {
-        $p = $this->dictionary->find('SOMETHING_MISSING', $this->spanish);
+        $p = $this->term_service->find('SOMETHING_MISSING', $this->spanish);
         $this->assertTrue($p == null, 'nothing found');
     }
 
     public function test_find_only_looks_in_specified_language()
     {
         $this->addTerms($this->french, 'bonjour');
-        $p = $this->dictionary->find('bonjour', $this->spanish);
+        $p = $this->term_service->find('bonjour', $this->spanish);
         $this->assertTrue($p == null, 'french terms not checked');
     }
 
@@ -55,7 +55,7 @@ final class TermService_Test extends DatabaseTestBase
 
         $cases = [ 'PARE', 'pare', 'PAR' ];
         foreach ($cases as $c) {
-            $p = $this->dictionary->findMatches($c, $this->spanish);
+            $p = $this->term_service->findMatches($c, $this->spanish);
             $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
             $this->assertEquals($p[0]->getText(), 'PARENT', 'parent found for case ' . $c);
         }
@@ -63,7 +63,7 @@ final class TermService_Test extends DatabaseTestBase
 
     public function test_findMatches_returns_empty_if_blank_string()
     {
-        $p = $this->dictionary->findMatches('', $this->spanish);
+        $p = $this->term_service->findMatches('', $this->spanish);
         $this->assertEquals(count($p), 0);
     }
 
@@ -71,10 +71,10 @@ final class TermService_Test extends DatabaseTestBase
     {
         $this->addTerms($this->french, 'chien');
 
-        $p = $this->dictionary->findMatches('chien', $this->spanish);
+        $p = $this->term_service->findMatches('chien', $this->spanish);
         $this->assertEquals(count($p), 0, "no chien in spanish");
 
-        $p = $this->dictionary->findMatches('chien', $this->french);
+        $p = $this->term_service->findMatches('chien', $this->french);
         $this->assertEquals(count($p), 1, "mais oui il y a un chien ici");
     }
 
@@ -83,9 +83,9 @@ final class TermService_Test extends DatabaseTestBase
         $term = new Term();
         $term->setLanguage($this->spanish);
         $term->setText('perro');
-        $this->dictionary->add($term);
+        $this->term_service->add($term);
 
-        $f = $this->dictionary->find('perro', $this->spanish);
+        $f = $this->term_service->find('perro', $this->spanish);
         $this->assertEquals($f->getText(), 'perro', 'Term found');
         DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 1, 'in db');
     }
@@ -93,7 +93,7 @@ final class TermService_Test extends DatabaseTestBase
     public function test_add_term_with_new_parent()
     {
         foreach(['perros', 'perro'] as $text) {
-            $f = $this->dictionary->find($text, $this->spanish);
+            $f = $this->term_service->find($text, $this->spanish);
             $this->assertTrue($f == null, 'Term not found at first');
         }
 
@@ -101,10 +101,10 @@ final class TermService_Test extends DatabaseTestBase
         $t = new Term($this->spanish, 'perros');
         $t->setParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
-        $this->dictionary->add($t);
+        $this->term_service->add($t);
 
         foreach(['perros', 'perro'] as $text) {
-            $f = $this->dictionary->find($text, $this->spanish);
+            $f = $this->term_service->find($text, $this->spanish);
             $this->assertEquals($f->getText(), $text, 'Term found');
             DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='{$text}'", 1, 'in db');
         }
@@ -123,13 +123,13 @@ final class TermService_Test extends DatabaseTestBase
 
     public function test_add_term_existing_parent_creates_link() {
         $p = new Term($this->spanish, 'perro');
-        $this->dictionary->add($p);
+        $this->term_service->add($p);
 
         $perros = new Term($this->spanish, 'perros');
         $perros->setParent($p);
-        $this->dictionary->add($perros);
+        $this->term_service->add($perros);
 
-        $f = $this->dictionary->find('perros', $this->spanish);
+        $f = $this->term_service->find('perros', $this->spanish);
         $this->assertEquals($perros->getParent()->getID(), $p->getID(), 'parent set');
     }
 
@@ -138,14 +138,14 @@ final class TermService_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $t->setText('perro');
         $t->setStatus(1);
-        $this->dictionary->add($t);
+        $this->term_service->add($t);
 
-        $f = $this->dictionary->find('perro', $this->spanish);
+        $f = $this->term_service->find('perro', $this->spanish);
         $this->assertEquals($f->getText(), 'perro', 'Term found');
         DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 1, 'in db');
 
-        $this->dictionary->remove($t);
-        $f = $this->dictionary->find('perro', $this->spanish);
+        $this->term_service->remove($t);
+        $f = $this->term_service->find('perro', $this->spanish);
         $this->assertTrue($f == null, 'Term not found');
         DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 0, 'not in db');
     }
@@ -156,18 +156,18 @@ final class TermService_Test extends DatabaseTestBase
         $t = new Term($this->spanish, 'perros');
         $t->setParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
-        $this->dictionary->add($t);
+        $this->term_service->add($t);
 
         foreach(['perros', 'perro'] as $text) {
-            $f = $this->dictionary->find($text, $this->spanish);
+            $f = $this->term_service->find($text, $this->spanish);
             $this->assertEquals($f->getText(), $text, 'Term found');
             DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='{$text}'", 1, 'in db');
         }
 
-        $this->dictionary->remove($t);
-        $f = $this->dictionary->find('perros', $this->spanish);
+        $this->term_service->remove($t);
+        $f = $this->term_service->find('perros', $this->spanish);
         $this->assertTrue($f == null, 'perros was removed');
-        $f = $this->dictionary->find('perro', $this->spanish);
+        $f = $this->term_service->find('perro', $this->spanish);
         $this->assertTrue($f != null, 'perro (parent term) still exists');
         $this->assertEquals($f->getText(), 'perro', 'vive el perro');
 
@@ -180,13 +180,13 @@ final class TermService_Test extends DatabaseTestBase
         $t->setText('perros');
         $t->setParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
-        $this->dictionary->add($t);
+        $this->term_service->add($t);
 
-        $p = $this->dictionary->find('perro', $this->spanish);
-        $this->dictionary->remove($p);
-        $f = $this->dictionary->find('perro', $this->spanish);
+        $p = $this->term_service->find('perro', $this->spanish);
+        $this->term_service->remove($p);
+        $f = $this->term_service->find('perro', $this->spanish);
         $this->assertTrue($f == null, 'perro (parent) was removed');
-        $f = $this->dictionary->find('perros', $this->spanish);
+        $f = $this->term_service->find('perros', $this->spanish);
         $this->assertTrue($f != null, 'perros (child term) still exists');
         $this->assertEquals($f->getText(), 'perros', 'viven los perros');
 
@@ -198,30 +198,30 @@ final class TermService_Test extends DatabaseTestBase
      */
     public function test_change_parent_removes_old_wordparent_record() {
         $parent = new Term($this->spanish, 'perro');
-        $this->dictionary->add($parent, true);
+        $this->term_service->add($parent, true);
 
         $gato = new Term($this->spanish, 'gato');
-        $this->dictionary->add($gato, true);
+        $this->term_service->add($gato, true);
 
         $t = new Term($this->spanish, 'perros');
         $t->setParent($parent);
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
 
         $expected = [ "{$t->getID()}; {$parent->getID()}" ];
         DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "parent set");
 
         $t->setParent($gato);
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
 
         $expected = [ "{$t->getID()}; {$gato->getID()}" ];
         DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "NEW parent set");
 
         $t->setParent(null);
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
         DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
 
         foreach(['perros', 'perro', 'gato'] as $s) {
-            $f = $this->dictionary->find($s, $this->spanish);
+            $f = $this->term_service->find($s, $this->spanish);
             $this->assertTrue($f != null, $s . ' sanity check, still exists');
         }
     }
@@ -235,7 +235,7 @@ final class TermService_Test extends DatabaseTestBase
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText('gato');
-        $this->dictionary->add($t);
+        $this->term_service->add($t);
 
         $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato(1)");
     }
@@ -249,10 +249,10 @@ final class TermService_Test extends DatabaseTestBase
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText('gato');
-        $this->dictionary->add($t);
+        $this->term_service->add($t);
         $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato(1)");
 
-        $this->dictionary->remove($t);
+        $this->term_service->remove($t);
         $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
     }
 
@@ -267,11 +267,11 @@ final class TermService_Test extends DatabaseTestBase
             $t = new Term();
             $t->setLanguage($this->spanish);
             $t->setText($s);
-            $this->dictionary->add($t, false);
+            $this->term_service->add($t, false);
         }
 
         $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
-        $this->dictionary->flush();
+        $this->term_service->flush();
         $this->assert_rendered_text_equals($text, "tengo(1)/ /un(1)/ /gato(1)");
     }
 
@@ -287,11 +287,11 @@ final class TermService_Test extends DatabaseTestBase
             $t = new Term();
             $t->setLanguage($this->spanish);
             $t->setText($s);
-            $this->dictionary->add($t, false);
+            $this->term_service->add($t, false);
         }
 
         $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
-        $this->dictionary->flush();
+        $this->term_service->flush();
         $this->assert_rendered_text_equals($text, "tengo(1)/ /un gato(1)");
     }
 
@@ -303,7 +303,7 @@ final class TermService_Test extends DatabaseTestBase
         $text = $this->make_text('hola', 'Tengo un gato.  No tengo un perro.', $this->spanish);
 
         $tengo = $this->addTerms($this->spanish, 'tengo')[0];
-        $refs = $this->dictionary->findReferences($tengo);
+        $refs = $this->term_service->findReferences($tengo);
 
         $keys = array_keys($refs);
         $this->assertEquals([ 'term', 'parent', 'children', 'siblings', 'archived' ], $keys);
@@ -332,13 +332,13 @@ final class TermService_Test extends DatabaseTestBase
         [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
         $tengo->setParent($tener);
         $tiene->setParent($tener);
-        $this->dictionary->add($tener, true);
-        $this->dictionary->add($tiene, true);
+        $this->term_service->add($tener, true);
+        $this->term_service->add($tiene, true);
 
         $archtext->setArchived(true);
         $this->text_repo->save($archtext, true);
 
-        $refs = $this->dictionary->findReferences($tengo);
+        $refs = $this->term_service->findReferences($tengo);
         $this->assertEquals(1, count($refs['term']), 'term');
         $this->assertEquals(1, count($refs['parent']), 'parent');
         $this->assertEquals(1, count($refs['siblings']), 'siblings');
@@ -354,7 +354,7 @@ final class TermService_Test extends DatabaseTestBase
         $this->assertEquals("1, hola, /Ella/ /tiene/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
         $this->assertEquals("2, luego, /Tengo/ /un/ /coche/./", $tostring($refs['archived'][0]), 'a');
 
-        $refs = $this->dictionary->findReferences($tener);
+        $refs = $this->term_service->findReferences($tener);
         $this->assertEquals(1, count($refs['term']), 'term');
         $this->assertEquals(0, count($refs['parent']), 'parent');
         $this->assertEquals(2, count($refs['children']), 'children');
@@ -379,15 +379,15 @@ final class TermService_Test extends DatabaseTestBase
         [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
         $tengo->setParent($tener);
         $tiene->setParent($tener);
-        $this->dictionary->add($tener, true);
-        $this->dictionary->add($tiene, true);
+        $this->term_service->add($tener, true);
+        $this->term_service->add($tiene, true);
 
         $text->setArchived(true);
         $this->text_repo->save($text, true);
         $archtext->setArchived(true);
         $this->text_repo->save($archtext, true);
 
-        $refs = $this->dictionary->findReferences($tengo);
+        $refs = $this->term_service->findReferences($tengo);
 
         $tostring = function($refdto) {
             $zws = mb_chr(0x200B);
@@ -395,7 +395,7 @@ final class TermService_Test extends DatabaseTestBase
             return str_replace($zws, '/', $ret);
         };
 
-        $refs = $this->dictionary->findReferences($tengo);
+        $refs = $this->term_service->findReferences($tengo);
         $archrefs = $refs['archived'];
         $this->assertEquals(4, count($archrefs), 'archived tengo');
 

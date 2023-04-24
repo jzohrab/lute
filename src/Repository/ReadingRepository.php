@@ -27,7 +27,7 @@ class ReadingRepository
     )
     {
         $this->manager = $manager;
-        $this->dictionary = new TermService($term_repo);
+        $this->term_service = new TermService($term_repo);
         $this->term_repo = $term_repo;
         $this->lang_repo = $lang_repo;
     }
@@ -114,7 +114,7 @@ class ReadingRepository
     {
         $language = $this->lang_repo->find($lid);
         $textlc = mb_strtolower($text);
-        $t = $this->dictionary->find($textlc, $language);
+        $t = $this->term_service->find($textlc, $language);
         if (null != $t)
             return $t;
         return new Term($language, $textlc);
@@ -122,11 +122,11 @@ class ReadingRepository
 
 
     public function save(Term $term): void {
-        $this->dictionary->add($term);
+        $this->term_service->add($term);
     }
 
     public function remove(Term $term): void {
-        $this->dictionary->remove($term);
+        $this->term_service->remove($term);
     }
 
 }

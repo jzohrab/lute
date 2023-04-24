@@ -18,7 +18,7 @@ final class TermDTO_Test extends DatabaseTestBase
     {
         $this->load_languages();
 
-        $this->dictionary = new TermService(
+        $this->term_service = new TermService(
             $this->term_repo
         );
     }
@@ -68,7 +68,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertTrue($dto->ParentText == null, 'null parent');
         $this->assertEquals(count($dto->termTags), 0, 'no tags');
 
-        $loaded = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $loaded = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $this->assertTermsEqual($t, $loaded);
     }
 
@@ -90,17 +90,17 @@ final class TermDTO_Test extends DatabaseTestBase
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText('Hola');
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
 
         $dto = $t->createTermDTO();
-        $loaded = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $loaded = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $this->assertEquals($t->getID(), $loaded->getID(), "saved item returned");
     }
 
     public function test_buildTerm_with_new_parent_text_creates_new_parent()
     {
         foreach(['perros', 'perro'] as $text) {
-            $f = $this->dictionary->find($text, $this->spanish);
+            $f = $this->term_service->find($text, $this->spanish);
             $this->assertTrue($f == null, 'Term not found at first');
         }
 
@@ -109,7 +109,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->Text = 'perros';
         $dto->ParentText = 'perro';
 
-        $perros = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perros = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
 
         $parent = $perros->getParent();
         $this->assertTrue($parent != null, 'have parent');
@@ -122,7 +122,7 @@ final class TermDTO_Test extends DatabaseTestBase
     public function test_buildTerm_with_new_parent_parent_gets_translation_and_image_and_tag()
     {
         foreach(['perros', 'perro'] as $text) {
-            $f = $this->dictionary->find($text, $this->spanish);
+            $f = $this->term_service->find($text, $this->spanish);
             $this->assertTrue($f == null, 'Term not found at first');
         }
 
@@ -134,7 +134,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->ParentText = 'perro';
         $dto->termTags[] = 'newtag';
 
-        $perros = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perros = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $this->assertEquals($perros->getCurrentImage(), 'someimage', 'have img, but WITHOUT jpeg extension');
         $this->assertEquals($perros->getTranslation(), 'transl', 'c trans');
 
@@ -155,7 +155,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->language = $this->spanish;
         $dto->Text = 'perro';
         $dto->ParentText = 'perro';
-        $perro = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perro = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $this->assertTrue($perro->getParent() == null, 'no parent');
     }
 
@@ -166,14 +166,14 @@ final class TermDTO_Test extends DatabaseTestBase
         $p = new Term();
         $p->setLanguage($this->spanish);
         $p->setText('perro');
-        $this->dictionary->add($p);
+        $this->term_service->add($p);
 
         $dto = new TermDTO();
         $dto->language = $this->spanish;
         $dto->Text = 'perros';
         $dto->ParentText = 'perro';
 
-        $perros = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perros = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
 
         $parent = $perros->getParent();
         $this->assertTrue($parent != null, 'have parent');
@@ -186,7 +186,7 @@ final class TermDTO_Test extends DatabaseTestBase
      */
     public function test_add_term_existing_parent_parent_gets_translation_if_missing() {
         $p = new Term($this->spanish, 'perro');
-        $this->dictionary->add($p);
+        $this->term_service->add($p);
 
         $dto = new TermDTO();
         $dto->language = $this->spanish;
@@ -194,7 +194,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->Translation = 'translation';
         $dto->ParentText = 'perro';
 
-        $perros = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perros = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
 
         $parent = $perros->getParent();
         $this->assertEquals($parent->getText(), 'perro', 'which is perro');
@@ -205,7 +205,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $perrito_dto->Text = 'perrito';
         $perrito_dto->Translation = 'small dog';
         $perrito_dto->ParentText = 'perro';
-        $perrito = TermDTO::buildTerm($perrito_dto, $this->dictionary, $this->termtag_repo);
+        $perrito = TermDTO::buildTerm($perrito_dto, $this->term_service, $this->termtag_repo);
 
         $parent = $perrito->getParent();
         $this->assertEquals($parent->getText(), 'perro', 'which is perro');
@@ -217,7 +217,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->language = $this->spanish;
         $dto->Text = 'perro';
 
-        $perro = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perro = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $this->assertTrue($perro->getID() == null, "new term, no id");
     }
 
@@ -228,12 +228,12 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->termTags[] = 'hi';
         $dto->termTags[] = 'there';
 
-        $perro = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perro = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $tt = $perro->getTermTags();
         $this->assertEquals(count($tt), 2, '2 tags');
         $this->assertEquals($tt[0]->getText(), 'hi', 'sanity check');
 
-        $this->dictionary->add($perro, true);  // sanity check only.
+        $this->term_service->add($perro, true);  // sanity check only.
     }
 
     // works even if tags already exist in repo.
@@ -249,12 +249,12 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->termTags[] = 'hi';
         $dto->termTags[] = 'there';
 
-        $perro = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $perro = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $tt = $perro->getTermTags();
         $this->assertEquals(count($tt), 2, '2 tags');
         $this->assertEquals($tt[0]->getText(), 'hi', 'sanity check');
 
-        $this->dictionary->add($perro, true);  // sanity check only.
+        $this->term_service->add($perro, true);  // sanity check only.
         DbHelpers::assertRecordcountEquals("select * from tags", 2, "now 2 after save");
 
         $reloaded = $perro->createTermDTO();
@@ -264,19 +264,19 @@ final class TermDTO_Test extends DatabaseTestBase
     public function test_remove_tags_from_dto_removes_them_from_saved_Term() {
         $t = new Term($this->english, 'Hello');
         $t->addTermTag(TermTag::makeTermTag('a'));
-        $this->dictionary->add($t, true);
-        $retrieved = $this->dictionary->find('Hello', $this->english);
+        $this->term_service->add($t, true);
+        $retrieved = $this->term_service->find('Hello', $this->english);
         $this->assertEquals(count($retrieved->getTermTags()), 1, '1 tag');
 
         $dto = $t->createTermDTO();
         $this->assertEquals(implode(', ', $dto->termTags), 'a');
 
         $dto->termTags = array(); // = remove all tags.
-        $t = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
+        $t = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
         $this->assertEquals(count($t->getTermTags()), 0, 'now 0 tags');
 
-        $this->dictionary->add($t, true);
-        $retrieved = $this->dictionary->find('Hello', $this->english);
+        $this->term_service->add($t, true);
+        $retrieved = $this->term_service->find('Hello', $this->english);
         $this->assertTrue($retrieved != null, 'have term');
         $this->assertEquals(count($retrieved->getTermTags()), 0, '0 tags saved in db');
     }
@@ -292,10 +292,10 @@ final class TermDTO_Test extends DatabaseTestBase
         $dto->ParentText = 'perro';
         $dto->termTags[] = 'hi';
 
-        $t = TermDTO::buildTerm($dto, $this->dictionary, $this->termtag_repo);
-        $this->dictionary->add($t, true);
+        $t = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
+        $this->term_service->add($t, true);
 
-        $retrieved = $this->dictionary->find('perro', $this->spanish);
+        $retrieved = $this->term_service->find('perro', $this->spanish);
         $this->assertTrue($retrieved != null, 'have term');
         $this->assertEquals(count($retrieved->getTermTags()), 1, '1 tags on perro');
     }

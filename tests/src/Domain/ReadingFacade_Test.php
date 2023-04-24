@@ -21,7 +21,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->load_languages();
         $this->spid = $this->spanish->getLgID();
         $term_svc = new TermService($this->term_repo);
-        $this->dictionary = $term_svc;
+        $this->term_service = $term_svc;
         $this->facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,

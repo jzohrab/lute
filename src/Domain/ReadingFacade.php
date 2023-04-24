@@ -33,7 +33,7 @@ class ReadingFacade {
         TermTagRepository $termTagRepository
     ) {
         $this->repo = $repo;
-        $this->dictionary = $term_service;
+        $this->term_service = $term_service;
         $this->textrepo = $textrepo;
         $this->bookrepo = $bookrepo;
         $this->settingsrepo = $settingsrepo;
@@ -127,21 +127,21 @@ class ReadingFacade {
             // "Franklin" text, it fails with "duplicate key no.-1")
             // Ensure that a multi-work unknown isn't already saved.
             if ($t->getTokenCount() > 1) {
-                if ($this->dictionary->find($t->getText(), $lang) != null) {
+                if ($this->term_service->find($t->getText(), $lang) != null) {
                     // Skip to the next item.
                     continue;
                 }
             }
 
             $t->setStatus(Status::WELLKNOWN);
-            $this->dictionary->add($t, false);
+            $this->term_service->add($t, false);
             $i += 1;
             if (($i % $batchSize) === 0) {
-                $this->dictionary->flush();
+                $this->term_service->flush();
             }
         }
         // Remaining items.
-        $this->dictionary->flush();
+        $this->term_service->flush();
     }
 
     public function update_status(Text $text, array $words, int $newstatus) {
@@ -159,14 +159,14 @@ class ReadingFacade {
             $t = $this->repo->load($lang->getLgId(), $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
-            $this->dictionary->add($t, false);
+            $this->term_service->add($t, false);
             $i += 1;
             if (($i % $batchSize) === 0) {
-                $this->dictionary->flush();
+                $this->term_service->flush();
             }
         }
         // Remaining items.
-        $this->dictionary->flush();
+        $this->term_service->flush();
     }
 
     public function set_current_book_text(Text $text) {
@@ -205,7 +205,7 @@ class ReadingFacade {
     /** Save a term. */
     public function saveDTO(TermDTO $termdto): void {
         $term = TermDTO::buildTerm(
-            $termdto, $this->dictionary, $this->termtagrepo
+            $termdto, $this->term_service, $this->termtagrepo
         );
         $this->repo->save($term, true);
     }
@@ -213,7 +213,7 @@ class ReadingFacade {
     /** Remove term. */
     public function removeDTO(TermDTO $dto) {
         $term = TermDTO::buildTerm(
-            $dto, $this->dictionary, $this->termtagrepo
+            $dto, $this->term_service, $this->termtagrepo
         );
         $this->repo->remove($term, true);
     }
