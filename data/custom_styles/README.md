@@ -5,8 +5,8 @@ The file `custom_styles.css` **must be valid CSS**, as it is picked up verbatim 
 An example:
 
 ```
+body p { font-family: "Comic Sans MS" }
 
-/* Example: changing the text size when reading */
+/* Change reading text font. */
 span.textitem { font-size: 16px; }
-
 ```

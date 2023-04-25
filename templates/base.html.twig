@@ -25,12 +25,8 @@
     <link rel="stylesheet" type="text/css" href="/css/styles.css" />
 
     <style>
-      /* Overrides specified in .env CUSTOM_STYLES. */
-      {#
-       Note the "custom_styles" global var is configured
-       in config/packages/twig.yaml.
-       #}
-      {{ custom_styles }}
+      /* Overrides specified in data/custom_styles/custom_styles.css */
+      {{ render(url('app_custom_css')) }}
     </style>
 
     <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
