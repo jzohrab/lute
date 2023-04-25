@@ -1,5 +1,26 @@
 # Changelog
 
+## 2023-04-24 v2.0.1
+
+Feature changes:
+
+* List books on Home page
+* Add automatic Japanese readings for terms
+* Enable basic HTTP auth for simple security (optional)
+* Add rolling backup
+* Improve term Sentences listing
+* Less wide tooltip for terms
+* Update tutorial text
+
+Back end changes:
+
+* Full parse on initial book save, improves stats performance
+* Add composer dev:start and stop for convenience
+* Change Dictionary to TermService.
+* Fix issue 29: remove double spaces in text.
+* Sanity check tests for term deletion.
+
+
 ## 2023-04-17 v2.0.0
 
 Big changes:  Moving from MySQL to Sqlite, and adding Docker support.
