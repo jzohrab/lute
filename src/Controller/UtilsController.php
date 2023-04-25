@@ -79,4 +79,14 @@ class UtilsController extends AbstractController
         }
     }
 
+    #[Route('/custom_css', name: 'app_custom_css', methods: ['GET'])]
+    public function custom_css(Request $request): Response
+    {
+        $f = __DIR__ . '/../../data/custom_styles/custom_styles.css';
+        $ret = "/* No custom file found. */";
+        if (file_exists($f))
+            $ret = file_get_contents($f);
+        return new Response($ret);
+    }
+
 }
