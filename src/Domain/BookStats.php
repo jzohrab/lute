@@ -118,7 +118,7 @@ group by txbkid";
         // dump($sql);
         // dump($all);
 
-        $percent = '-';
+        $percent = 0;
         if ($allunique > 0) // In case not parsed.
             $percent = round(100.0 * $unknowns / $allunique);
 
@@ -134,6 +134,8 @@ group by txbkid";
     }
 
     private static function updateStats($b, $stats, $conn) {
+        if ($b->getID() == null)
+            return;
         $vals = [
             $b->getId(),
             ...$stats
