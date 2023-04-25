@@ -5,7 +5,7 @@
 <h1>Backing up ...</h1>
 
 <p>
-  Creating backup at {{ backup_folder }}.
+  Creating {{ backuptype }} backup at {{ backup_folder }}.
 </p>
 <p>
   <b>Don't refresh this page, or another backup process will be kicked off!</b>
@@ -17,7 +17,7 @@
 
 <script>
   $(document).ready(function() {
-    $.post('/utils/do_backup', {})
+    $.post('/utils/do_backup', { type: '{{ backuptype }}' })
       .done( function(msg) {
         $('#backupResult').text('Completed.');
         $('#returnHome').css({ visibility: 'visible' })

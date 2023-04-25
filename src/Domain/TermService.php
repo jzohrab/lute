@@ -8,7 +8,7 @@ use App\DTO\TermReferenceDTO;
 use App\Utils\Connection;
 use App\Repository\TermRepository;
 
-class Dictionary {
+class TermService {
 
     private TermRepository $term_repo;
     private array $pendingTerms;
@@ -68,18 +68,22 @@ class Dictionary {
             'term' => $this->getReferences($term, $conn),
             'parent' => $this->getReferences($p, $conn),
             'children' => $this->getChildReferences($term, $conn),
-            'siblings' => $this->getSiblingReferences($p, $term, $conn),
-            'archived' => $this->getArchivedReferences($term, $conn)
+            'siblings' => $this->getSiblingReferences($p, $term, $conn)
         ];
         return $ret;
     }
 
-    private function buildTermReferenceDTOs($res) {
+    private function buildTermReferenceDTOs($termlc, $res) {
         $ret = [];
+        $zws = mb_chr(0x200B); // zero-width space.
         while (($row = $res->fetch(\PDO::FETCH_ASSOC))) {
             $s = $row['SeText'];
-            if ($s !== null)
-                $s = trim($s);
+            $s = trim($s);
+
+            $pattern = "/{$zws}({$termlc}){$zws}/ui";
+            $replacement = "{$zws}<b>" . '${1}' . "</b>{$zws}";
+            $s = preg_replace($pattern, $replacement, $s);
+
             $ret[] = new TermReferenceDTO($row['TxID'], $row['TxTitle'], $s);
         }
         return $ret;
@@ -92,7 +96,6 @@ class Dictionary {
         $sql = "select distinct TxID, TxTitle, SeText
           from sentences
           inner join texts on TxID = SeTxID
-          where TxArchived = 0
           AND lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%'
           LIMIT 20";
         $stmt = $conn->prepare($sql);
@@ -103,7 +106,15 @@ class Dictionary {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        return $this->buildTermReferenceDTOs($stmt);
+        return $this->buildTermReferenceDTOs($s, $stmt);
+    }
+
+    private function getAllRefs($terms, $conn): array {
+        $ret = [];
+        foreach ($terms as $term) {
+            $ret[] = $this->getReferences($term, $conn);
+        }
+        return array_merge([], ...$ret);
     }
 
     private function getSiblingReferences($parent, $term, $conn): array {
@@ -113,81 +124,13 @@ class Dictionary {
         foreach ($parent->getChildren() as $s)
             $sibs[] = $s;
         $sibs = array_filter($sibs, fn($t) => $t->getID() != $term->getID());
-        $ret = [];
-        foreach ($sibs as $sib) {
-            $ret[] = $this->getReferences($sib, $conn);
-        }
-        return array_merge([], ...$ret);
+        return $this->getAllRefs($sibs, $conn);
     }
 
     private function getChildReferences($term, $conn): array {
         if ($term == null)
             return [];
-        $ret = [];
-        foreach ($term->getChildren() as $c) {
-            $ret[] = $this->getReferences($c, $conn);
-        }
-        return array_merge([], ...$ret);
-    }
-
-    private function getArchivedReferences($term, $conn): array {
-        if ($term == null)
-            return [];
-
-        $wid = $term->getID();
-        $wpid = -1;
-        if ($term->getParent() != null) {
-            $wpid = $term->getParent()->getID();
-        }
-
-        $sql = "select WoTextLC from words where WoID in
-            (
-              select WpWoID from wordparents
-                where WpParentWoID in ({$wid}, {$wpid})
-              union
-              select {$wpid} as WoID
-              union
-              select {$wid} as WoID
-            )";
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new \Exception($conn->error);
-        }
-        if (!$stmt->execute()) {
-            throw new \Exception($stmt->error);
-        }
-        $termstrings = [];
-        while (($row = $stmt->fetch(\PDO::FETCH_NUM))) {
-            $termstrings[] = $row[0];
-        }
-        
-        $sql = "select distinct TxID, TxTitle, SeText, SeOrder
-          from texts
-          inner join sentences on SeTxID = TxID
-          where lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%' and TxArchived = 1
-           ";
-        $fullsql = array_fill(0, count($termstrings), $sql);
-        $fullsql = implode(' UNION ', $fullsql);
-        $fullsql = $fullsql . ' ORDER BY SeOrder';
-        // dump($fullsql);
-
-        $stmt = $conn->prepare($fullsql);
-        if (!$stmt) {
-            throw new \Exception($conn->error);
-        }
-
-        // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
-        // Positional numbering starts at 1. !!!
-        $n = count($termstrings);
-        for ($i = 1; $i <= $n; $i++) {
-        // TODO:sqlite uses SQLITE3_TEXT
-            $stmt->bindValue($i, $termstrings[$i - 1], \PDO::PARAM_STR);
-        }
-
-        if (!$stmt->execute()) {
-            throw new \Exception($stmt->error);
-        }
-        return $this->buildTermReferenceDTOs($stmt);
+        return $this->getAllRefs($term->getChildren(), $conn);
     }
 
 }

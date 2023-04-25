@@ -8,7 +8,7 @@ use App\Entity\Text;
 use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Entity\Term;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\Domain\BookBinder;
 use App\Domain\JapaneseParser;
 
@@ -17,7 +17,7 @@ class DemoDataLoader {
     public static function loadDemoData(
         LanguageRepository $lang_repo,
         BookRepository $book_repo,
-        Dictionary $dictionary
+        TermService $term_service
     ) {
         $e = Language::makeEnglish();
         $f = Language::makeFrench();
@@ -69,7 +69,7 @@ class DemoDataLoader {
         $term->setText("your local environment file");
         $term->setStatus(3);
         $term->setTranslation("This is \".env\", your personal file in the project root folder :-)");
-        $dictionary->add($term, true);
+        $term_service->add($term, true);
     }
 
 }

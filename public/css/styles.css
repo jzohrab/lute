@@ -541,7 +541,7 @@ a:active {
 
  /* Widening the tooltip. */
  div.ui-tooltip {
-    max-width: 900px !important;
+    max-width: 400px !important;
  }
 
  .tooltip-image {

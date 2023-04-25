@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Repository\TextRepository;
+use App\Repository\BookRepository;
+use App\Domain\BookStats;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +31,12 @@ class IndexController extends AbstractController
 
 
     #[Route('/', name: 'app_index', methods: ['GET'])]
-    public function index(Request $request, SettingsRepository $repo, TextRepository $trepo): Response
+    public function index(
+        Request $request,
+        SettingsRepository $repo,
+        TextRepository $trepo,
+        BookRepository $bookrepo
+    ): Response
     {
         [ $txid, $txtitle ] = $this->get_current_text($repo, $trepo);
 
@@ -51,11 +58,14 @@ class IndexController extends AbstractController
         }
 
         $show_import_link = count(ImportCSV::DbLoadedTables()) == 0;
+        BookStats::refresh($bookrepo);
 
         return $this->render('index.html.twig', [
             'isdemodata' => SqliteHelper::isDemoData(),
             'dbisempty' => SqliteHelper::dbIsEmpty(),
+            'hasbooks' => SqliteHelper::dbHasBooks(),
             'version' => $gittag,
+            'status' => 'Active',  // book status
             'tutorialloaded' => $tutorialloaded,
             'currtxid' => $txid,
             'currtxtitle' => $txtitle,

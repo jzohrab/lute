@@ -6,28 +6,28 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Domain\ReadingFacade;
 use App\Domain\BookBinder;
 use App\Entity\Text;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 use App\DTO\TermDTO;
 
 final class ReadingFacade_Test extends DatabaseTestBase
 {
 
     private ReadingFacade $facade;
-    private Dictionary $dictionary;
+    private TermService $term_service;
     private int $spid;
 
     public function childSetUp(): void
     {
         $this->load_languages();
         $this->spid = $this->spanish->getLgID();
-        $dict = new Dictionary($this->term_repo);
-        $this->dictionary = $dict;
+        $term_svc = new TermService($this->term_repo);
+        $this->term_service = $term_svc;
         $this->facade = new ReadingFacade(
             $this->reading_repo,
             $this->text_repo,
             $this->book_repo,
             $this->settings_repo,
-            $dict,
+            $term_svc,
             $this->termtag_repo
         );
     }
@@ -150,14 +150,14 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->assert_rendered_text_equals(
             $t,
-            "Hola/ /tengo/ /un gato(1)/.  /No/ /tengo/ /una/ /lista(1)/./¶/Ella/ /tiene una(1)/ /bebida/."
+            "Hola/ /tengo/ /un gato(1)/. /No/ /tengo/ /una/ /lista(1)/./¶/Ella/ /tiene una(1)/ /bebida/."
         );
 
         $this->facade->update_status($t, ["tengo", "lista", "perro"], 5);
 
         $this->assert_rendered_text_equals(
             $t,
-            "Hola/ /tengo(5)/ /un gato(1)/.  /No/ /tengo(5)/ /una/ /lista(5)/./¶/Ella/ /tiene una(1)/ /bebida/."
+            "Hola/ /tengo(5)/ /un gato(1)/. /No/ /tengo(5)/ /una/ /lista(5)/./¶/Ella/ /tiene una(1)/ /bebida/."
         );
 
         $expected = [

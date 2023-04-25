@@ -25,8 +25,8 @@
     <link rel="stylesheet" type="text/css" href="/css/styles.css" />
 
     <style>
-      /* Overrides specified in .env CUSTOM_STYLES. */
-      {{ app.request.server.get('CUSTOM_STYLES') | raw }}
+      /* Overrides specified in data/custom_styles/custom_styles.css */
+      {{ render(url('app_custom_css')) }}
     </style>
 
     <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
@@ -72,7 +72,7 @@
   <body>
 
     {% if app.environment == 'dev' %}
-    <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DATABASE_URL') }}</p>
+    <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DATABASE_URL') }}, SERVER_PORT: {{ app.request.server.get('SERVER_PORT') }}</p>
     {% endif %}
 
     {% if block("hide_home_link") is not defined %}

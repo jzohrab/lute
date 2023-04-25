@@ -20,13 +20,17 @@ A2. Archiving, Unarchiving, and Deleting Texts
 
 When you're done reading a text, you can either Archive it, or Delete it.  Archiving clears out the parsing data for a given text, but the text is still available and can be unarchived and re-read.  The sentences are also available for searching with the Term "Sentences" link.  Deletion completely removes a text, the parsing data, and its sentences.  Neither archiving nor deleting touch any Terms you've created, it just clears out the texts.
 
-To archive a text, go to Home, Text, and then click the "Archive" action (the image with the little down arrow) in the right-most column.  The text will disappear from the active listing.  To unarchive the text, go to Home, Text Archive, and click the "Unarchive" action (the little up arrow).
+On the last page of every book, Lute shows a link for you to archive the book.  You can also delete it from the Home screen by clicking on the "Archive" action (the image with the little down arrow) in the right-most column.
+
+To unarchive the text, go to Home, Text Archive, and click the "Unarchive" action (the little up arrow).
+
+
 
 ===
 
 Those are the the core feature of Lute!  There are some sample stories for other languages.  Try those out or create your own.
 
-When you're done with the demo, update your local environment file with a new database name, and go back to the Home screen.  Lute will create a new empty database for you, and you can get started.
+When you're done with the demo, go back to the Home screen and click the link to clear out the database.  Lute will delete all of the demo data, and you can get started.
 
 There is a Lute Discord and Wiki as well -- see the GitHub repository for links.
 

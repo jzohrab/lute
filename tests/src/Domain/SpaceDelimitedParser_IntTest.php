@@ -38,6 +38,16 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
 
 
     /**
+     * @group spaces
+     */
+    public function test_double_spaces_removed()
+    {
+        $t = $this->make_text("Hola.", "Hola  tengo     un gato.", $this->spanish);
+        $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
+    }
+
+
+    /**
      * @group current
      */
     public function test_parse_no_words_defined()
@@ -56,7 +66,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
         $this->addTerms($this->spanish, ["Un gato"]);
 
         $t = $this->make_text("Gato.", "Un gato es bueno. No hay un gato.  Veo a un gato.", $this->spanish);
-        $this->assert_rendered_text_equals($t, "Un gato(1)/ /es/ /bueno/. /No/ /hay/ /un gato(1)/.  /Veo/ /a/ /un gato(1)/.");
+        $this->assert_rendered_text_equals($t, "Un gato(1)/ /es/ /bueno/. /No/ /hay/ /un gato(1)/. /Veo/ /a/ /un gato(1)/.");
     }
 
 

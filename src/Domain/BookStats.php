@@ -24,7 +24,7 @@ class BookStats {
                 $books,
                 fn($b) => $b->getLanguage()->getLgID() == $langid);
             foreach ($langbooks as $b) {
-                $stats = BookStats::getStats($b, $allwords);
+                $stats = BookStats::getStats($b, $conn, $allwords);
                 BookStats::updateStats($b, $stats, $conn);
             }
         }
@@ -69,35 +69,73 @@ class BookStats {
     
     private static function getStats(
         Book $b,
+        $conn,
         array $allwords
     )
     {
-        $fulltext = [];
-        foreach ($b->getTexts() as $t)
-            $fulltext[] = $t->getText();
-        $fulltext = implode("\n", $fulltext);
-        $lang = $b->getLanguage();
-        $p = $lang->getParser();
-        $texttokens = $p->getParsedTokens($fulltext, $lang);
-        $textwords = array_filter($texttokens, fn($t) => $t->isWord);
+        $count = function($sql) use ($conn) {
+            $res = $conn->query($sql);
+            $row = $res->fetch(\PDO::FETCH_NUM);
+            if ($row == false)
+                return 0;
+            return intval($row[0]);
+        };
 
-        $textwordstrings = array_map(fn($t) => str_replace("\r", '', mb_strtolower($t->token)), $textwords);
-        $uniquewordstrings = array_unique($textwordstrings);
-        $unknowns = array_unique(array_values(array_diff($uniquewordstrings, $allwords)));
-        $percent = round(100.0 * count($unknowns) / count($uniquewordstrings));
+        $lgid = $b->getLanguage()->getLgID();
+        $bkid = $b->getID();
+
+        $sql = "select count(distinct toktextlc)
+from texttokens
+inner join texts on txid = toktxid
+inner join books on bkid = txbkid
+where toktextlc not in (select wotextlc from words where wolgid = {$lgid})
+and tokisword = 1
+and txbkid = {$bkid}
+group by txbkid";
+        $unknowns = $count($sql);
+        // dump($sql);
+        // dump($unknowns);
+
+        $sql = "select count(distinct toktextlc)
+from texttokens
+inner join texts on txid = toktxid
+inner join books on bkid = txbkid
+where tokisword = 1
+and txbkid = {$bkid}
+group by txbkid";
+        $allunique = $count($sql);
+        // dump($sql);
+        // dump($allunique);
+
+        $sql = "select count(toktextlc)
+from texttokens
+inner join texts on txid = toktxid
+inner join books on bkid = txbkid
+where tokisword = 1
+and txbkid = {$bkid}
+group by txbkid";
+        $all = $count($sql);
+        // dump($sql);
+        // dump($all);
+
+        $percent = 0;
+        if ($allunique > 0) // In case not parsed.
+            $percent = round(100.0 * $unknowns / $allunique);
 
         // Any change in the below fields requires a change to
         // updateStats as well, query insert doesn't check field
         // order..
         return [
-            count($textwords),
-            count($uniquewordstrings),
-            count($unknowns),
+            $all,
+            $allunique,
+            $unknowns,
             $percent
         ];
     }
 
     private static function updateStats($b, $stats, $conn) {
+        if ($b->getID() == null)
+            return;
         $vals = [
             $b->getId(),
             ...$stats

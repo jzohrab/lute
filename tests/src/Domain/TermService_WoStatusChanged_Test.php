@@ -6,24 +6,24 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\TermTag;
 use App\Entity\Term;
 use App\Entity\Text;
-use App\Domain\Dictionary;
+use App\Domain\TermService;
 
 // Tests for checking WoStatusChanged field updates.
-final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
+final class TermService_WoStatusChanged_Test extends DatabaseTestBase
 {
 
     private Term $term;
-    private Dictionary $dictionary;
+    private TermService $term_service;
 
     public function childSetUp() {
-        $this->dictionary = new Dictionary($this->term_repo);
+        $this->term_service = new TermService($this->term_repo);
         $this->load_languages();
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("PARENT");
         $t->setStatus(1);
         $t->setWordCount(1);
-        $this->dictionary->add($t, true);
+        $this->term_service->add($t, true);
         $this->term = $t;
     }
 
@@ -63,7 +63,7 @@ final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
     public function test_updating_status_updates_field() {
         $this->set_WoStatusChanged("2000-01-01 12:00:00");
         $this->term->setStatus(2);
-        $this->dictionary->add($this->term, true);
+        $this->term_service->add($this->term, true);
         $this->assertUpdated();
     }
 
@@ -71,7 +71,7 @@ final class Dictionary_WoStatusChanged_Test extends DatabaseTestBase
         $d = "2000-01-01 12:00:00";
         $this->set_WoStatusChanged($d);
         $this->term->setStatus(1);
-        $this->dictionary->add($this->term, true);
+        $this->term_service->add($this->term, true);
         [ $val, $diff ] = $this->get_field_value();
         $this->assertEquals($val, $d, "not changed");
     }

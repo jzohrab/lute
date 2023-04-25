@@ -59,8 +59,8 @@
 <div class="flash-notice">
   <p>Missing required backup keys: {{ bkp_missing_keys_list }}.</p>
   <p>
-    See the <a href="https://github.com/jzohrab/lute/wiki/Backup">wiki
-      Backup page</a> for config notes.
+    See the <a href="https://github.com/jzohrab/lute/wiki/Configuration#backup">wiki
+      Configuration page</a> for config notes.
   </p>
 </div>
 
@@ -70,17 +70,16 @@
 </div>
 {% endif %}
 
+<br />
+{% if hasbooks %}
+{% include '/book/tablelisting.html.twig' %}
+{% endif %}
 
-<div id="userlinks" style="margin-top: 30px;">
+<div id="userlinks" style="margin-top: 10px;">
   <ul>
     <li><a href="/language/index">Languages</a></li>
     <li><a href="{{ path('app_book_new') }}">Create new Text</a></li>
     <li><a href="{{ path('app_book_import_webpage') }}">Import web page</a></li>
-    <li><a href="/book/index">Texts</a>
-      {% if currtxid is not null %}
-      (continue reading <a href="/read/{{ currtxid }}">&quot;{{ currtxtitle }}&quot;</a>)
-      {% endif %}
-    </li>
     <li><a href="/book/archived">Text archive</a></li>
     <li><a href="/term/index">Terms</a></li>
   </ul>
@@ -89,7 +88,7 @@
 <div id="techlinks" style="margin-top: 30px;">
   <ul>
     {% if not bkp_missing_keys %}
-    <li><a href="/utils/backup">Create backup</a></li>
+    <li><a href="/utils/backup?type=manual">Create backup</a></li>
     {% endif %}
     <li><a href="/server_info">Version and software info</a></li>
     <li><a href="/cache/clear">Clear application cache</a></li>

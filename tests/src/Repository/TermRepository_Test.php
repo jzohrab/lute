@@ -135,7 +135,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent changed");
     }
 
-    public function test_remove_parent()
+    public function test_set_parent_to_NULL()
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -155,6 +155,57 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->term_repo->save($t, true);
         $exp = [ "HOLA; NULL" ];
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
+    }
+
+    /**
+     * @group termremove
+     */
+    public function test_remove_parent_leaves_children_in_db()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $p = new Term($this->spanish, "PARENT");
+        $t->setParent($p);
+        $this->term_repo->save($t, true);
+
+        $sqllist = "select WoText from words order by WoText";
+        $sql = "select w.WoText, p.WoText as ptext
+            FROM words w
+            LEFT JOIN wordparents on WpWoID = w.WoID
+            LEFT JOIN words p on p.WoID = wordparents.WpParentWoID
+            WHERE w.WoID = {$t->getID()}";
+
+        DbHelpers::assertTableContains($sqllist, [ "HOLA", "PARENT" ], "both exist");
+        DbHelpers::assertTableContains($sql, [ "HOLA; PARENT" ], "parent set");
+
+        $pfound = $this->term_repo->find($p->getID());
+        $this->term_repo->remove($pfound, true);
+
+        DbHelpers::assertTableContains($sqllist, [ "HOLA" ], "parent removed");
+        DbHelpers::assertTableContains($sql, [ "HOLA; NULL" ], "parent not set");
+    }
+
+    /**
+     * @group termremove
+     */
+    public function test_can_remove_term_leaves_parent_and_existing_tags()
+    {
+        $t = new Term($this->spanish, "HOLA");
+        $t->addTermTag($this->termtag_repo->findOrCreateByText('tag'));
+        $p = new Term($this->spanish, "PARENT");
+        $t->setParent($p);
+        $this->term_repo->save($t, true);
+
+        $sqllist = "select WoText from words order by WoText";
+        $sqltags = "select TgText from tags";
+
+        DbHelpers::assertTableContains($sqllist, [ "HOLA", "PARENT" ], "both exist");
+        DbHelpers::assertTableContains($sqltags, [ "tag" ], "tag exists");
+
+        $tfound = $this->term_repo->find($t->getID());
+        $this->term_repo->remove($tfound, true);
+
+        DbHelpers::assertTableContains($sqllist, [ "PARENT" ], "parent left");
+        DbHelpers::assertTableContains($sqltags, [ "tag" ], "tag left");
     }
 
     // Image saves:
