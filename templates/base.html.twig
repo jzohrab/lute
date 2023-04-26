@@ -71,11 +71,13 @@
 
   <body>
 
+    {% if block("hide_home_link") is defined %}
+
     {% if app.environment == 'dev' %}
     <p style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment. db: {{ app.request.server.get('DATABASE_URL') }}, SERVER_PORT: {{ app.request.server.get('SERVER_PORT') }}</p>
     {% endif %}
 
-    {% if block("hide_home_link") is not defined %}
+    {% else %}
 
     <!-- I'm not *supposed* to use tables for layout, but it works. -->
     <table style="table-layout: fixed; border-spacing: 0; ">
@@ -85,6 +87,9 @@
         </td>
         <td>
           <a href="/" tabindex="-1">Home</a>
+          {% if app.environment == 'dev' %}
+          <span style="background-color: red; color: white; margin: 2px; padding: 2px;">Dev environment</span>
+          {% endif %}
         </td>
       </tr>
     </table>

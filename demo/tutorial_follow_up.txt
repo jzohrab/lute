@@ -14,7 +14,9 @@ Appendix: A few other things Lute does
 
 A1. Term sentences
 
-In the "Term" edit form, you can click on the "Sentences" link to see where that term or its relations have been used.  Click on "elephant", and then click the Sentences link shown to see where that term has been used.
+While you're reading, if you click on a non-Unknown term (learning, well-known, etc), you'll see the sentences where that term and its related forms have been used ("related forms" means terms for which you have defined a parent).  This is useful to quickly see the term and its different forms in the various contexts you've already seen it in.  For example, if you click on "elephant", you'll see a bunch of sentences with that term.
+
+You can also click on the "Sentences" link to see the sentence listing.
 
 A2. Archiving, Unarchiving, and Deleting Texts
 
