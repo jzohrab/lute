@@ -21,7 +21,7 @@ class TokenLocator {
         $parts = explode($zws, $beforesubstr);
         $parts = array_filter($parts, fn($s) => $s != '');
         // echo "     get count, parts:\n ";
-        // echo var_dump($parts) . "\n";
+        // dump($parts) . "\n";
         $n = count($parts);
         // echo "     get count, result = {$n} \n";
         return $n;
