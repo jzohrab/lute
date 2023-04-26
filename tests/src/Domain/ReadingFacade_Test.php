@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Domain\ReadingFacade;
 use App\Domain\BookBinder;
 use App\Entity\Text;
+use App\Entity\Language;
 use App\Domain\TermService;
 use App\DTO\TermDTO;
 
@@ -435,6 +436,21 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $ap3 = $this->make_text("AP3", "Ghi wrote to the Associated Press about it.", $this->english);
         $this->assert_rendered_text_equals($ap3, "Ghi/ /wrote(99)/ /to(99)/ /the(99)/ /Associated Press(1)/ /about(99)/ /it(99)/.");
+    }
+
+    /**
+     * @group classicalchinesehighlight
+     */
+    public function test_classical_chinese_first_char_bug() {
+        $cc = Language::makeClassicalChinese();
+        $this->language_repo->save($cc, true);
+
+        $text = $this->make_text("t1", "關關。", $cc);
+        $this->assert_rendered_text_equals($text, "關/關/。");
+
+        $dto = $this->facade->loadDTO($cc->getLgID(), '關');
+        $this->facade->saveDTO($dto);
+        $this->assert_rendered_text_equals($text, "關(1)/關(1)/。");
     }
 
 
