@@ -46,6 +46,7 @@ abstract class DatabaseTestBase extends WebTestCase
     public Language $french;
     public Language $english;
     public Language $japanese;
+    public Language $classicalchinese;
 
     public Text $spanish_hola_text;
     

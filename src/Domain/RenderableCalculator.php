@@ -15,25 +15,23 @@ class RenderableCalculator {
      *
      * Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
      */
-    private function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
+    private function pregMatchCapture($pattern, $subject, $offset = 0)
     {
         if ($offset != 0) { $offset = strlen(mb_substr($subject, 0, $offset)); }
         
         $matchInfo = array();
-        $method    = 'preg_match';
-        $flag      = PREG_OFFSET_CAPTURE;
-        if ($matchAll) {
-            $method .= '_all';
-        }
+        $flag = PREG_OFFSET_CAPTURE;
 
-        // var_dump([$method, $pattern, $subject, $matchInfo, $flag, $offset]);
-        $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
+        $printable = function($s) { return str_replace(mb_chr(0x200B), '_', $s); };
+        echo '<pre>' . var_export([$method, $printable($pattern), $printable($subject), $matchInfo, $flag, $offset]) . '</pre>';
+        // $subject = str_replace(mb_chr(0x200B), '', $subject);
+        // $pattern = str_replace(mb_chr(0x200B), '', $pattern);
+        $n = preg_match_all($pattern, $subject, $matchInfo, PREG_OFFSET_CAPTURE, $offset);
 
         $result = array();
         if ($n !== 0 && !empty($matchInfo)) {
-            if (!$matchAll) {
-                $matchInfo = array($matchInfo);
-            }
+            echo '<p>Match info:</p>';
+            echo '<pre>' . var_export($matchInfo) . '</pre>';
             foreach ($matchInfo as $matches) {
                 $positions = array();
                 foreach ($matches as $match) {
@@ -47,19 +45,25 @@ class RenderableCalculator {
                 }
                 $result[] = $positions;
             }
-            if (!$matchAll) {
-                $result = $result[0];
-            }
         }
         return $result;
     }
 
 
-    private function get_count_before($string, $pos): int {
-        $beforesubstr = mb_substr($string, 0, $pos - 1, 'UTF-8');
-        $zws = mb_chr(0x200B);
+    private function get_count_before($string, $pos, $zws): int {
+        $beforesubstr = mb_substr($string, 0, $pos, 'UTF-8');
+        echo "     get count, string = {$string} \n";
+        echo "     get count, pos = {$pos} \n";
+        echo "     get count, before = {$beforesubstr} \n";
+        if ($beforesubstr == '')
+            return 0;
         $parts = explode($zws, $beforesubstr);
-        return count($parts);
+        $parts = array_filter($parts, fn($s) => $s != '');
+        echo "     get count, parts:\n ";
+        echo var_dump($parts) . "\n";
+        $n = count($parts);
+        echo "     get count, result = {$n} \n";
+        return $n;
     }
 
     private function get_all_textitems($words, $texttokens) {
@@ -88,14 +92,64 @@ class RenderableCalculator {
         }
 
         $firstTokOrder = $texttokens[0]->TokOrder;
-        $zws = mb_chr(0x200B);
+        $zws = '__zws__'; // mb_chr(0x200B)
+        $len_zws = mb_strlen($zws);
         $toktext = array_map(fn($t) => $t->TokText, $texttokens);
         $subject = $zws . implode($zws, $toktext) . $zws;
+        $LCsubject = mb_strtolower($subject);
+
+        $print = function($name, $s) use ($zws) {
+            echo $name . ': ' . str_replace($zws, '_', $s) . "\n";
+        };
+
+        echo "\n-------------\n";
+        $print('lc subject', $LCsubject);
 
         foreach ($words as $w) {
-            $pattern = '/' . $zws . '('. preg_quote($w->getTextLC()) . ')' . $zws . '/ui';
-            $allmatches = $this->pregMatchCapture(true, $pattern, $subject, 0);
-            
+            // $pattern = '/' . $zws . '('. preg_quote($w->getTextLC()) . ')' . $zws . '/ui';
+            // $allmatches = $this->pregMatchCapture($pattern, $subject, 0);
+
+            $tlc = str_replace(mb_chr(0x200B), $zws, $w->getTextLC());
+            $wtokencount = count(explode($zws, $tlc));
+            $find_patt = $zws . $tlc . $zws;
+            $patt_len = mb_strlen($find_patt);
+            $pos = mb_strpos($LCsubject, $find_patt, 0);
+
+            $print('  tlc', $tlc);
+            $print('  find_patt', $find_patt);
+            $print('  patt_len', $patt_len);
+
+            while ($pos !== false) {
+                $result = new RenderableCandidate();
+                $result->term = $w;
+
+                $fullmatch = mb_substr($subject, $pos, $patt_len);
+                $rtext = mb_substr($fullmatch, $len_zws, mb_strlen($tlc));
+                $rtext = str_replace($zws, mb_chr(0x200B), $rtext);
+                $result->text = $rtext;
+
+                // 1 is subtracted because the sentence has an extra $zws at the start,
+                // so there is always an empty element at the start of the sentence.
+                $result->pos = $firstTokOrder + $this->get_count_before($subject, $pos, $zws);
+                $result->length = $wtokencount;
+                $result->isword = 1;
+                // echo "------------\n";
+                $termmatches[] = $result;
+
+                $print('  ->text', $result->text);
+                $print('  ->pos', $result->pos);
+
+                // Find the next instance.
+                $pos = mb_strpos($LCsubject, $find_patt, $pos + 1);
+            }
+
+            /*
+            $printable = function($s) { return str_replace(mb_chr(0x200B), '_', $s); };
+            echo "<p>checking word: {$w->getText()}</p>";
+            echo "<p>pattern: {$printable($pattern)}</p>";
+            echo "<p>subject: {$printable($subject)}</p>";
+            echo '<pre>' . var_export($allmatches, true) . '</pre>';
+
             if (count($allmatches) > 0) {
                 // echo "in loop\n";
                 // echo "===============\n";
@@ -121,6 +175,7 @@ class RenderableCalculator {
             // else {
             // echo "no match for pattern $pattern \n";
             // }
+            */
         }
         
         // Add originals
