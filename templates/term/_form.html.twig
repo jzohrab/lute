@@ -162,6 +162,8 @@
 
   }
   $(document).ready(function () {
+    top.frames.dictframe.location.href = '/read/empty';
+
     setupTagit();
     set_up_parent_autocomplete();
 
@@ -172,7 +174,13 @@
     // console.log(`got term_dto_Text width = ${w} giving hack width ${hackTextareaWidth}`);
     $('#term_dto_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
 
-    if (($('#term_dto_Text').val() ?? '') != '') {
+    // Show sentences if this is a known term, otherwise show
+    // the dictionary.
+    if ('{{ termdto.id }}' != '') {
+      // console.log('got termdto id = {{ termdto.id }}');
+      show_term_sentences({{ termdto.id }});
+    }
+    else if (($('#term_dto_Text').val() ?? '') != '') {
       do_term_lookup(false);
     }
 

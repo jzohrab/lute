@@ -120,13 +120,19 @@ function showEditFrame(el, extra_args = {}) {
   let text = extra_args.textparts ?? [ el.text() ];
   const sendtext = text.join(zeroWidthSpace);
 
+  showEditFrameLangAndText(lid, sendtext, extra_args);
+}
+
+
+function showEditFrameLangAndText(lid, text, extra_args = {}) {
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
 
-  const url = `/read/termform/${lid}/${sendtext}?${extras}`;
+  const url = `/read/termform/${lid}/${text}?${extras}`;
   top.frames.wordframe.location.href = url;
 }
+
 
 function show_help() {
   const url = `/read/shortcuts`;
@@ -150,9 +156,14 @@ function word_clicked(e) {
     add_active($(this));
   }
   else {
+    clear_dict_frame();
     mark_active($(this));
     showEditFrame($(this));
   }
+}
+
+function clear_dict_frame() {
+  top.frames.dictframe.location.href = '/read/empty';
 }
 
 let selection_start_el = null;
