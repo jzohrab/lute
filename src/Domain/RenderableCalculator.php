@@ -52,17 +52,17 @@ class RenderableCalculator {
 
     private function get_count_before($string, $pos, $zws): int {
         $beforesubstr = mb_substr($string, 0, $pos, 'UTF-8');
-        echo "     get count, string = {$string} \n";
-        echo "     get count, pos = {$pos} \n";
-        echo "     get count, before = {$beforesubstr} \n";
+        // echo "     get count, string = {$string} \n";
+        // echo "     get count, pos = {$pos} \n";
+        // echo "     get count, before = {$beforesubstr} \n";
         if ($beforesubstr == '')
             return 0;
         $parts = explode($zws, $beforesubstr);
         $parts = array_filter($parts, fn($s) => $s != '');
-        echo "     get count, parts:\n ";
-        echo var_dump($parts) . "\n";
+        // echo "     get count, parts:\n ";
+        // echo var_dump($parts) . "\n";
         $n = count($parts);
-        echo "     get count, result = {$n} \n";
+        // echo "     get count, result = {$n} \n";
         return $n;
     }
 
@@ -99,17 +99,16 @@ class RenderableCalculator {
         $LCsubject = mb_strtolower($subject);
 
         $print = function($name, $s) use ($zws) {
-            echo $name . ': ' . str_replace($zws, '_', $s) . "\n";
+            // echo $name . ': ' . str_replace($zws, '_', $s) . "\n";
         };
 
-        echo "\n-------------\n";
         $print('lc subject', $LCsubject);
 
         foreach ($words as $w) {
             // $pattern = '/' . $zws . '('. preg_quote($w->getTextLC()) . ')' . $zws . '/ui';
             // $allmatches = $this->pregMatchCapture($pattern, $subject, 0);
 
-            $tlc = str_replace(mb_chr(0x200B), $zws, $w->getTextLC());
+            $tlc = $w->getTextLC();
             $wtokencount = count(explode($zws, $tlc));
             $find_patt = $zws . $tlc . $zws;
             $patt_len = mb_strlen($find_patt);
@@ -133,7 +132,6 @@ class RenderableCalculator {
                 $result->pos = $firstTokOrder + $this->get_count_before($subject, $pos, $zws);
                 $result->length = $wtokencount;
                 $result->isword = 1;
-                // echo "------------\n";
                 $termmatches[] = $result;
 
                 $print('  ->text', $result->text);
