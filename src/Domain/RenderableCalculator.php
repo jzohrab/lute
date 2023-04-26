@@ -92,7 +92,7 @@ class RenderableCalculator {
         }
 
         $firstTokOrder = $texttokens[0]->TokOrder;
-        $zws = '__zws__'; // mb_chr(0x200B)
+        $zws = mb_chr(0x200B);
         $len_zws = mb_strlen($zws);
         $toktext = array_map(fn($t) => $t->TokText, $texttokens);
         $subject = $zws . implode($zws, $toktext) . $zws;
