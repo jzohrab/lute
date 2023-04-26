@@ -4,24 +4,7 @@ namespace App\Domain;
 
 class RenderableCalculator {
 
-    private function get_count_before($string, $pos, $zws): int {
-        $beforesubstr = mb_substr($string, 0, $pos, 'UTF-8');
-        // echo "     get count, string = {$string} \n";
-        // echo "     get count, pos = {$pos} \n";
-        // echo "     get count, before = {$beforesubstr} \n";
-        if ($beforesubstr == '')
-            return 0;
-        $parts = explode($zws, $beforesubstr);
-        $parts = array_filter($parts, fn($s) => $s != '');
-        // echo "     get count, parts:\n ";
-        // echo var_dump($parts) . "\n";
-        $n = count($parts);
-        // echo "     get count, result = {$n} \n";
-        return $n;
-    }
-
     private function get_all_textitems($words, $texttokens) {
-        $termmatches = [];
 
         // Tokens must be contiguous and in order!
         $cmp = function($a, $b) {
@@ -46,46 +29,28 @@ class RenderableCalculator {
         }
 
         $firstTokOrder = $texttokens[0]->TokOrder;
-        $zws = mb_chr(0x200B);
-        $len_zws = mb_strlen($zws);
         $toktext = array_map(fn($t) => $t->TokText, $texttokens);
-        $subject = $zws . implode($zws, $toktext) . $zws;
-        $LCsubject = mb_strtolower($subject);
+        $subject = TokenLocator::make_string($toktext);
+        $zws = mb_chr(0x200B);
 
-        $print = function($name, $s) use ($zws) {
-            // echo $name . ': ' . str_replace($zws, '_', $s) . "\n";
-        };
-
-        $print('lc subject', $LCsubject);
-
+        $termmatches = [];
         foreach ($words as $w) {
             $tlc = $w->getTextLC();
             $wtokencount = count(explode($zws, $tlc));
-            $find_patt = $zws . $tlc . $zws;
-            $patt_len = mb_strlen($find_patt);
-            $pos = mb_strpos($LCsubject, $find_patt, 0);
 
-            $print('  tlc', $tlc);
-            $print('  find_patt', $find_patt);
-            $print('  patt_len', $patt_len);
+            $find_patt = TokenLocator::make_string($tlc);
+            $locations = TokenLocator::locate($subject, $find_patt);
 
-            while ($pos !== false) {
+            foreach ($locations as $loc) {
+                $matchtext = $loc[0];
+                $index = $loc[1];
                 $result = new RenderableCandidate();
                 $result->term = $w;
-
-                $rtext = mb_substr($subject, $pos + $len_zws, mb_strlen($tlc));
-                $result->text = $rtext;
-
-                $result->pos = $firstTokOrder + $this->get_count_before($subject, $pos, $zws);
+                $result->text = $matchtext;
+                $result->pos = $firstTokOrder + $index;
                 $result->length = $wtokencount;
                 $result->isword = 1;
                 $termmatches[] = $result;
-
-                $print('  ->text', $result->text);
-                $print('  ->pos', $result->pos);
-
-                // Find the next instance.
-                $pos = mb_strpos($LCsubject, $find_patt, $pos + 1);
             }
         }
         
