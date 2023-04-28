@@ -347,6 +347,32 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals('gato', $terms[0]->getTextLC(), 'gato found');
     }
 
+    /**
+     * @group termflash
+     */
+    public function test_term_flash_message_mapping() {
+        $p = new Term($this->spanish, 'perro');
+        $this->assertEquals($p->getFlashMessage(), null, "message not set");
+
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $sql = "select WfWoID, WfMessage from wordflashes";
+        $expected = [ "{$p->getID()}; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        $pfind = $this->term_repo->find($p->getID());
+        $this->assertEquals($p->getFlashMessage(), "hola", "message loaded");
+        $this->assertEquals($p->getFlashMessage(), "hola", "still set after get() called");
+
+        $this->assertEquals($p->popFlashMessage(), "hola", "message popped");
+        $this->assertEquals($p->getFlashMessage(), null, "not set after pop");
+
+        $this->term_repo->save($p, true);
+        $expected = [];
+        DbHelpers::assertTableContains($sql, $expected, "removed");
+    }
+
     // TODO:image_integration_tests Future integration-style tests.
     //
     // Integration tests should remove all images from the userimages
