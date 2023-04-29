@@ -24,6 +24,7 @@ class TextItem
     public ?string $WoRomanization = null;
     public ?string $ImageSource = null;
     public ?string $Tags = null;
+    public ?string $FlashMessage = null;
 
     public ?int $ParentWoID = null;
     public ?string $ParentWoTextLC = null;
@@ -79,6 +80,10 @@ class TextItem
         return "TERM{$r}";
     }
 
+    public function getDisplayText(): string {
+        return str_replace(' ', '&nbsp;', $this->Text);
+    }
+
     public function getSpanID(): string {
         $parts = [
             'ID',
@@ -94,6 +99,7 @@ class TextItem
             $this->WoRomanization == null &&
             $this->ImageSource == null &&
             $this->Tags == null &&
+            $this->FlashMessage == null &&
             $this->ParentWoTextLC == null &&
             $this->ParentWoTranslation == null &&
             $this->ParentImageSource == null &&
@@ -118,6 +124,10 @@ class TextItem
         if ($hidetip && !$this->has_extra_info())
             $showtooltip = '';
 
-        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$tc}";
+        $fm = '';
+        if ($this->FlashMessage != null)
+            $fm = 'hasflash';
+
+        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$fm} {$tc}";
     }
 }

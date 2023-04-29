@@ -28,6 +28,8 @@ class TermDTO
 
     public array $termTags;
 
+    public ?string $FlashMessage = null;
+
     public ?string $ParentText = null;
 
     public ?int $ParentID = null;

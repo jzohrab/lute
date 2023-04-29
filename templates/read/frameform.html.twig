@@ -24,6 +24,9 @@
   </head>
 
   <body>
+    {% if termdto.FlashMessage is not empty %}
+    <p class='small-flash-notice'>{{ termdto.FlashMessage }}</p>
+    {% endif %}
     {{ include('term/_form.html.twig') }}
   </body>
 

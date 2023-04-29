@@ -137,4 +137,23 @@ final class TermService_Save_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "私/は/元気です(1)/./¶");
     }
 
+    /**
+     * @group termflashremoval_2
+     */
+    public function test_term_flash_can_be_removed() {
+        $p = new Term($this->spanish, 'perro');
+        $p->setFlashMessage('hola');
+        $this->term_service->add($p, true);
+
+        $sql = "select WfWoID, WfMessage from wordflashmessages";
+        $expected = [ "{$p->getID()}; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        $pfind = $this->term_repo->find($p->getID());
+        $this->assertEquals($pfind->popFlashMessage(), "hola", "message popped");
+        $this->term_service->add($pfind, true);
+        $expected = [];
+        DbHelpers::assertTableContains($sql, $expected, "removed");
+    }
+
 }

@@ -202,7 +202,23 @@ class ReadingFacade {
      */
     public function loadDTO(int $lid, string $text): TermDTO {
         $term = $this->repo->load($lid, $text);
-        return $term->createTermDTO();
+        $dto = $term->createTermDTO();
+        if ($term->getFlashMessage() != null) {
+            //// $term->popFlashMessage();
+            //// $this->term_service->add($term, true);
+            //// $this->term_service->flush();
+            //
+            // Annoying ... I wanted any flash messages to be deleted
+            // when the DTO was loaded.  Popping the flash message and
+            // then saving it via the term service should have worked,
+            // but it never did.  Term service tests showed that
+            // popping the message and saving the term did in fact
+            // remove the message, but whenever I tried to use that
+            // here it never worked!  Using the blunt instrument
+            // "killFlashMessageFor" to just kill it in the database.
+            $this->term_service->killFlashMessageFor($term);
+        }
+        return $dto;
     }
 
 

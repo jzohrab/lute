@@ -72,6 +72,21 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
     /**
+     * @group dtoflash
+     */
+    public function test_loadDTO_removes_term_flash_message()
+    {
+        $t = $this->addTerms($this->spanish, 'term')[0];
+        $t->setFlashMessage('hello');
+        $this->term_repo->save($t, true);
+        $sql = 'select WfMessage from wordflashmessages';
+        DbHelpers::assertTableContains($sql, ['hello'], 'after save');
+        $ft = $this->facade->loadDTO($this->spanish->getLgID(), 'term');
+        // dump($ft);
+        DbHelpers::assertTableContains($sql, [], 'after load, flash message is gone');
+    }
+
+    /**
      * @group associations
      */
     public function test_saving_term_associates_textitems()

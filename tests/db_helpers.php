@@ -100,6 +100,7 @@ DB_FILENAME=%kernel.project_dir%/test_lute.db
             "wordtags",
             "wordparents",
             "wordimages",
+            "wordflashmessages",
 
             "tags",
             "tags2",
