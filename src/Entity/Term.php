@@ -73,6 +73,9 @@ class Term
     private Collection $images;
     /* Currently, a word can only have one image. */
 
+    #[ORM\OneToOne(targetEntity: 'TermFlashMessage', mappedBy: 'Term', fetch: 'EAGER', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private ?TermFlashMessage $termFlashMessage = null;
+
 
     public function __construct(?Language $lang = null, ?string $text = null)
     {
@@ -371,6 +374,34 @@ class Term
         }
 
         return $f;
+    }
+
+    public function getFlashMessage(): ?string
+    {
+        if ($this->termFlashMessage == null)
+            return null;
+        return $this->termFlashMessage->getMessage();
+    }
+
+    public function setFlashMessage(string $m): self
+    {
+        $tfm = $this->termFlashMessage;
+        if ($tfm == null) {
+            $tfm = new TermFlashMessage();
+            $this->termFlashMessage = $tfm;
+            $tfm->setTerm($this);
+        }
+        $tfm->setMessage($m);
+        return $this;
+    }
+
+    public function popFlashMessage(): ?string
+    {
+        if ($this->termFlashMessage == null)
+            return null;
+        $m = $this->termFlashMessage->getMessage();
+        $this->termFlashMessage = null;
+        return $m;
     }
 
 }

@@ -357,7 +357,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $p->setFlashMessage('hola');
         $this->term_repo->save($p, true);
 
-        $sql = "select WfWoID, WfMessage from wordflashes";
+        $sql = "select WfWoID, WfMessage from wordflashmessages";
         $expected = [ "{$p->getID()}; hola" ];
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
 
@@ -371,6 +371,40 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->term_repo->save($p, true);
         $expected = [];
         DbHelpers::assertTableContains($sql, $expected, "removed");
+    }
+
+    /**
+     * @group termflash
+     */
+    public function test_can_change_flash_message() {
+        $p = new Term($this->spanish, 'perro');
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $sql = "select WfWoID, WfMessage from wordflashmessages";
+        $expected = [ "{$p->getID()}; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        $pfind = $this->term_repo->find($p->getID());
+        $p->setFlashMessage('luego');
+
+        $this->term_repo->save($p, true);
+        $expected = [ "{$p->getID()}; luego" ];
+        DbHelpers::assertTableContains($sql, $expected, "removed");
+    }
+
+    /**
+     * @group termflash
+     */
+    public function test_can_delete_term_with_flash_message() {
+        $p = new Term($this->spanish, 'perro');
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $this->term_repo->remove($p, true);
+        foreach (["words", "wordflashmessages"] as $t) {
+            DbHelpers::assertTableContains("select * from {$t}", [], "$t removed");
+        }
     }
 
     // TODO:image_integration_tests Future integration-style tests.
