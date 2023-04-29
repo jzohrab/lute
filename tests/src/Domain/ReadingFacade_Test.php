@@ -82,7 +82,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $sql = 'select WfMessage from wordflashmessages';
         DbHelpers::assertTableContains($sql, ['hello'], 'after save');
         $ft = $this->facade->loadDTO($this->spanish->getLgID(), 'term');
-        dump($ft);
+        // dump($ft);
         DbHelpers::assertTableContains($sql, [], 'after load, flash message is gone');
     }
 
