@@ -362,13 +362,14 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
 
         $pfind = $this->term_repo->find($p->getID());
-        $this->assertEquals($p->getFlashMessage(), "hola", "message loaded");
-        $this->assertEquals($p->getFlashMessage(), "hola", "still set after get() called");
+        $this->assertEquals($pfind->getFlashMessage(), "hola", "message loaded");
+        $this->assertEquals($pfind->getFlashMessage(), "hola", "still set after get() called");
+        $this->term_repo->save($pfind, true);
+        DbHelpers::assertTableContains($sql, $expected, "still in db");
 
-        $this->assertEquals($p->popFlashMessage(), "hola", "message popped");
-        $this->assertEquals($p->getFlashMessage(), null, "not set after pop");
-
-        $this->term_repo->save($p, true);
+        $this->assertEquals($pfind->popFlashMessage(), "hola", "message popped");
+        $this->assertEquals($pfind->getFlashMessage(), null, "not set after pop");
+        $this->term_repo->save($pfind, true);
         $expected = [];
         DbHelpers::assertTableContains($sql, $expected, "removed");
     }
@@ -405,6 +406,25 @@ final class TermRepository_Test extends DatabaseTestBase
         foreach (["words", "wordflashmessages"] as $t) {
             DbHelpers::assertTableContains("select * from {$t}", [], "$t removed");
         }
+    }
+
+    /**
+     * @group termflashremoval_1
+     */
+    public function test_term_flash_can_be_removed() {
+        $p = new Term($this->spanish, 'perro');
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $sql = "select WfWoID, WfMessage from wordflashmessages";
+        $expected = [ "{$p->getID()}; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        $pfind = $this->term_repo->find($p->getID());
+        $this->assertEquals($pfind->popFlashMessage(), "hola", "message popped");
+        $this->term_repo->save($pfind, true);
+        $expected = [];
+        DbHelpers::assertTableContains($sql, $expected, "removed");
     }
 
     // TODO:image_integration_tests Future integration-style tests.

@@ -357,6 +357,7 @@ class Term
         $f->Sentence = $this->getSentence();
         $f->WordCount = $this->getWordCount();
         $f->CurrentImage = $this->getCurrentImage();
+        $f->FlashMessage = $this->getFlashMessage();
 
         $p = $this->getParent();
         if ($p != null) {

@@ -40,6 +40,19 @@ class TermService {
         $this->term_repo->flush();
     }
 
+    /** Force delete of FlashMessage.
+     *
+     * I couldn't get the messages to actually get removed from the db
+     * without directly hitting the db like this (see the comments in
+     * ReadingFacade) ... I suspect something is getting cached but
+     * can't sort it out.  This works fine, so it will do for now!
+    */
+    public function killFlashMessageFor(Term $term): void {
+        $conn = Connection::getFromEnvironment();
+        $sql = 'delete from wordflashmessages where WfWoID = ' . $term->getID();
+        $conn->query($sql);
+    }
+
     /**
      * Find a term by an exact match.
      */
