@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Domain\BookStats;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,7 +22,6 @@ class IndexController extends AbstractController
     public function index(
         Request $request,
         SettingsRepository $repo,
-        TextRepository $trepo,
         BookRepository $bookrepo
     ): Response
     {
