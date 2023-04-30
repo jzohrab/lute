@@ -2,6 +2,34 @@
 
 namespace App\Domain;
 
+/**
+ * Calculating what TextTokens and Terms should be rendered.
+ *
+* Suppose we had the following TextTokens A-I, with spaces between:
+*
+*  A B C D E F G H I
+*
+* Then suppose we had the following Terms:
+*   "B C"       (term J)
+*   "E F G H I" (K)
+*   "F G"       (L)
+*   "C D E"     (M)
+*
+* Stacking these:
+*
+*  A B C D E F G H I
+*
+*   "B C"              (J)
+*         "E F G H I"  (K)
+*           "F G"      (L)
+*     "C D E"          (M)
+*
+* We can say:
+*
+* - term J "contains" TextTokens B and C, so tokens B and C should not be rendered.
+* - K contains tokens E-I, and also term L, so none of those should be rendered.
+* - M is _not_ contained by anything else, so it should be rendered.
+*/
 class RenderableCalculator {
 
     private function get_all_textitems($words, $texttokens) {
@@ -31,7 +59,6 @@ class RenderableCalculator {
         $firstTokOrder = $texttokens[0]->TokOrder;
         $toktext = array_map(fn($t) => $t->TokText, $texttokens);
         $subject = TokenLocator::make_string($toktext);
-        $zws = mb_chr(0x200B);
 
         $termmatches = [];
         foreach ($words as $w) {
