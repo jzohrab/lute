@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Domain\BookStats;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,30 +18,13 @@ use App\Repository\SettingsRepository;
 class IndexController extends AbstractController
 {
 
-    private function get_current_text(SettingsRepository $repo, TextRepository $trepo) {
-        $tid = $repo->getCurrentTextID();
-        if ($tid == null)
-            return [null, null];
-        $txt = $trepo->find($tid);
-        if ($txt == null)
-            return [null, null];
-        return [ $txt->getID(), $txt->getTitle() ];
-    }
-
-
     #[Route('/', name: 'app_index', methods: ['GET'])]
     public function index(
         Request $request,
         SettingsRepository $repo,
-        TextRepository $trepo,
         BookRepository $bookrepo
     ): Response
     {
-        [ $txid, $txtitle ] = $this->get_current_text($repo, $trepo);
-
-        // DemoController sets tutorialloaded.
-        $tutorialloaded = $request->query->get('tutorialloaded');
-
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
@@ -66,9 +48,6 @@ class IndexController extends AbstractController
             'hasbooks' => SqliteHelper::dbHasBooks(),
             'version' => $gittag,
             'status' => 'Active',  // book status
-            'tutorialloaded' => $tutorialloaded,
-            'currtxid' => $txid,
-            'currtxtitle' => $txtitle,
             'showimportcsv' => $show_import_link,
             'bkp_missing_enabled_key' => $bkp->missing_enabled_key(),
             'bkp_enabled' => $bkp->is_enabled(),
