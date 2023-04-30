@@ -62,11 +62,12 @@ class BookDTOType extends AbstractType
             )
             ->add('TextFile', FileType::class,
                   [ 'label' => 'Text file',
+                    'help' => 'Max file size 2048K',
                     'mapped' => false,
                     'required' => false,
                     'constraints' => [
                         new File([
-                            'maxSize' => '1024k',
+                            'maxSize' => '2048k',
                             'mimeTypes' => [
                                 'text/plain'
                             ],

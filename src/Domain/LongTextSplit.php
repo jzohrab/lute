@@ -46,21 +46,22 @@ class LongTextSplit
         foreach ($sentences as $sent) {
             $swcount = $word_count($sent);
             if ($currgroupwordcount + $swcount <= $maxWordCount) {
-                $currgroup = array_merge($currgroup, $sent);
+                $currgroup[] = $sent;
                 $currgroupwordcount += $swcount;
             }
             else {
                 // Overflow if the sentence is appended, so
                 // add the current group if it has any content.
                 if ($currgroupwordcount != 0)
-                    $groups[] = $currgroup;
-                $currgroup = $sent;
+                    $groups[] = array_merge([], ...$currgroup);
+                $currgroup = [ $sent ];
                 $currgroupwordcount = $swcount;
             }
         }
 
+        // Add anything leftover.
         if (count($currgroup) > 0)
-            $groups[] = $currgroup;
+            $groups[] = array_merge([], ...$currgroup);
 
         return $groups;
     }
