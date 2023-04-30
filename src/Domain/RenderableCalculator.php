@@ -36,7 +36,7 @@ class RenderableCalculator {
         $termmatches = [];
         foreach ($words as $w) {
             $tlc = $w->getTextLC();
-            $wtokencount = count(explode($zws, $tlc));
+            $wtokencount = $w->getTokenCount();
 
             $find_patt = TokenLocator::make_string($tlc);
             $locations = TokenLocator::locate($subject, $find_patt);
