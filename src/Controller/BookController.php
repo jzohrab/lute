@@ -80,9 +80,13 @@ class BookController extends AbstractController
     ): ?Response
     {
         $form->handleRequest($request);
-        $submitted_valid = $form->isSubmitted() && $form->isValid();
-        if (! $submitted_valid)
+        if (! $form->isSubmitted())
             return null;
+        if (! $form->isValid()) {
+            $msg = "Error on submit: " . $form->getErrors(true, false);
+            $this->addFlash('notice', $msg);
+            return null;
+        }
 
         // ref https://symfony.com/doc/current/controller/upload_file.html
         $textfile = $form->get('TextFile')->getData();
