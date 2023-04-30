@@ -27,9 +27,6 @@ class IndexController extends AbstractController
         BookRepository $bookrepo
     ): Response
     {
-        // DemoController sets tutorialloaded.
-        $tutorialloaded = $request->query->get('tutorialloaded');
-
         $m = AppManifest::read();
         $gittag = $m['tag'];
 
@@ -53,7 +50,6 @@ class IndexController extends AbstractController
             'hasbooks' => SqliteHelper::dbHasBooks(),
             'version' => $gittag,
             'status' => 'Active',  // book status
-            'tutorialloaded' => $tutorialloaded,
             'showimportcsv' => $show_import_link,
             'bkp_missing_enabled_key' => $bkp->missing_enabled_key(),
             'bkp_enabled' => $bkp->is_enabled(),
