@@ -95,12 +95,13 @@ class BookController extends AbstractController
             $bookdto->Text = $content;
         }
 
-        $book = BookDTO::buildBook($bookdto, $texttag_repo);
         try {
+            $book = BookDTO::buildBook($bookdto, $texttag_repo);
             $book_repo->save($book, true);
             return $this->redirectToRoute('app_book_read', [ 'BkID' => $book->getId() ], Response::HTTP_SEE_OTHER);
         }
         catch (\Exception $e) {
+            /*
             $errcode = intval($e->getCode());
             $INTEGRITY_CONSTRAINT_VIOLATION = 1062;
             if ($errcode != $INTEGRITY_CONSTRAINT_VIOLATION) {
@@ -108,7 +109,7 @@ class BookController extends AbstractController
                 // happening.
                 throw $e;
             }
-
+            */
             $msg = "Error on save: " . $e->getMessage();
             $this->addFlash('notice', $msg);
             return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
