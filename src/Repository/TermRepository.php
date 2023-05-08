@@ -44,9 +44,25 @@ class TermRepository extends ServiceEntityRepository
 
     public function flush(): void
     {
-        $this->getEntityManager()->flush();
+        $em = $this->getEntityManager();
+        $em->flush();
     }
 
+    public function clear(): void
+    {
+        $em = $this->getEntityManager();
+        $em->clear();
+    }
+
+    public function detach(Term $t): void
+    {
+        $this->getEntityManager()->detach($t);
+    }
+
+    public function stopSqlLog(): void
+    {
+        $this->getEntityManager()->getConnection()->getConfiguration()->setSQLLogger(null);
+    }
 
     /**
      * Find a term by an exact match with the specification (only

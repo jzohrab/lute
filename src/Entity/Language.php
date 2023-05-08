@@ -79,6 +79,10 @@ class Language
         $this->terms = new ArrayCollection();
     }
 
+    public function __toString(): string {
+        return $this->LgID . ': ' . $this->LgName;
+    }
+
     public function getLgID(): ?int
     {
         return $this->LgID;

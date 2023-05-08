@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Import Parent Terms{% endblock %}
+
+{% block body %}
+
+<h1>Import Parent Terms</h1>
+
+{% if languages|length == 0 %}
+  <p>No languages defined.</p>
+{% else %}
+
+<div style="width: 50%">
+  <p>You can semi-automatically create parent and child Terms, creating and importing an external "mapping" file that you create. See the wiki, <a href="https://github.com/jzohrab/lute/wiki/Bulk-Mapping-Parent-Terms">Bulk Mapping Parent Terms</a>, for information.</p>
+</div>
+  
+<table class="table dataTable no-footer" style="width: 50%; margin: 0;">
+  <thead>
+    <tr>
+      <th>Language</th>
+      <th>Export base file</td>
+      <th>Import mapping file{% if app.environment == 'dev' %}<i>*</i>{% endif %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for language in languages %}
+    <tr>
+      <td>{{ language.LgName }}</td>
+      <td>
+        <a href="/language/lemma_export/{{ language.LgID }}">export</a>
+      </td>
+      <td>
+        <a href="/language/lemma_import/{{ language.LgID }}">import data/parents/import_{{ language.LgID }}.txt</a>
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div style="width: 50%">
+  <br />
+  <p>
+    <ul>
+      <li>"Export base file" generates a file containing all unknown
+      terms in your currently active books, and all terms that don't
+      have a Parent Term.</li>
+      <li>"Import mapping file" imports a mapping file, creating and
+      adding notes to terms as needed.</li>
+      {% if app.environment == 'dev' %}
+      <li>* Note: Importing in APP_ENV=dev fails because Doctrine
+      collects data on all of the queries that have been run, and
+      mapping can run thousands of queries.  If you want to run this
+      on your dev data, first change the APP_ENV to "prod" in the .env
+      file.</li>
+      {% endif %}
+    </ul>
+  </p>
+</div>
+
+
+
+{% endif %}
+
+{% endblock %}
+

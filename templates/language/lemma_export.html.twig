@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}File exported{% endblock %}
+
+{% block body %}
+
+<h1>File exported</h1>
+
+<p>A file has been generated at {{ outfile }}.</p>
+
+<p>This file contains:
+  <ul>
+    <li>All unknown terms in your currently active {{ language }} books</li>
+    <li>All {{ language }} terms that don't have a Parent Term.</li>
+  </ul>
+</p>
+
+<p>You can use this file to generate an import file, as described in the wiki -- ref <a href="https://github.com/jzohrab/lute/wiki/Bulk-Mapping-Parent-Terms">Bulk Mapping Parent Terms</a>.</p>
+
+{% endblock %}
