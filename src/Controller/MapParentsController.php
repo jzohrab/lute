@@ -6,6 +6,7 @@ use App\Entity\Term;
 use App\Entity\Language;
 use App\Repository\TermRepository;
 use App\Repository\LanguageRepository;
+use App\Repository\BookRepository;
 use App\Domain\TermMappingService;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,10 +21,14 @@ class MapParentsController extends AbstractController
 {
 
     #[Route('/index', name: 'app_mapparents_index', methods: ['GET'])]
-    public function lemma_index(LanguageRepository $languageRepository): Response
+    public function lemma_index(
+        LanguageRepository $languageRepository,
+        BookRepository $bookrepo
+    ): Response
     {
         return $this->render('mapparents/index.html.twig', [
             'languages' => $languageRepository->findAll(),
+            'books' => $bookrepo->findBy([ 'Archived' => false ])
         ]);
     }
 
