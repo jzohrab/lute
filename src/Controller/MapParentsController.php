@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Term;
 use App\Entity\Language;
+use App\Entity\Book;
 use App\Repository\TermRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\BookRepository;
@@ -33,7 +34,7 @@ class MapParentsController extends AbstractController
     }
 
     #[Route('/export_language/{LgID}', name: 'app_mapparents_language_export', methods: ['GET'])]
-    public function lemma_export(Request $request, Language $language, TermRepository $term_repo): Response
+    public function lemma_export_language(Request $request, Language $language, TermRepository $term_repo): Response
     {
         $svc = new TermMappingService($term_repo);
         $outputdir = __DIR__ . '/../../data/parents';
@@ -42,9 +43,27 @@ class MapParentsController extends AbstractController
             mkdir($outputdir);
         $lgid = $language->getLgID();
         $outfile = "{$outputdir}/terms_{$lgid}.txt";
-        $svc->lemma_export($language, $outfile);
+        $svc->lemma_export_language($language, $outfile);
         return $this->render('mapparents/export.html.twig', [
             'language' => $language->getLgName(),
+            'outfile' => $outfile
+        ]);
+    }
+
+    #[Route('/export_book/{BkID}', name: 'app_mapparents_book_export', methods: ['GET'])]
+    public function lemma_export_book(Request $request, Book $book, TermRepository $term_repo): Response
+    {
+        $svc = new TermMappingService($term_repo);
+        $outputdir = __DIR__ . '/../../data/parents';
+        $outputdir = Path::canonicalize($outputdir);
+        if (!is_dir($outputdir))
+            mkdir($outputdir);
+        $lgid = $book->getLanguage()->getLgID();
+        $outfile = "{$outputdir}/terms_{$lgid}.txt";
+        $svc->lemma_export_book($book, $outfile);
+        return $this->render('mapparents/export.html.twig', [
+            'book' => $book->getTitle(),
+            'language' => $book->getLanguage()->getLgName(),
             'outfile' => $outfile
         ]);
     }

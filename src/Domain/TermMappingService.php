@@ -4,6 +4,7 @@ namespace App\Domain;
 
 use App\Entity\Term;
 use App\Entity\Language;
+use App\Entity\Book;
 use App\Repository\LanguageRepository;
 use App\Entity\Status;
 use App\DTO\TermReferenceDTO;
@@ -251,7 +252,7 @@ where parentWoID is null"
      * Include: new TextTokens, terms without parents.
      * Return name of created file.
      */
-    public function lemma_export(
+    public function lemma_export_language(
         Language $language,
         string $outfile
     ): string {
@@ -286,6 +287,40 @@ where WoLgID = $lgid
         $recs = $getArr($conn, $sql);
         $writeArr($recs, $handle);
 
+        fclose($handle);
+
+        return $outfile;
+    }
+
+    /**
+     * Export a file to be used for lemmatization process.
+     * Include: new TextTokens
+     * Return name of created file.
+     */
+    public function lemma_export_book(
+        Book $book,
+        string $outfile
+    ): string {
+
+        $lgid = $book->getLanguage()->getLgID();
+        $bkid = $book->getID();
+
+        $getArr = function($conn, $sql) {
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
+        };
+
+        $writeArr = function($arr, $handle) {
+            foreach ($arr as $row) {
+                $t = trim($row);
+                fwrite($handle, $t . PHP_EOL);
+            }
+        };
+
+        $conn = Connection::getFromEnvironment();
+        $handle = fopen($outfile, 'w');
+
         // All new TextTokens.
 
         // Dev note: originally, I had written the query below to find
@@ -315,7 +350,7 @@ inner join texts on TxID = TokTxID
 inner join books on TxBkID = BkID
 where
   TokIsWord = 1
-  and BkLgID = $lgid";
+  and BkID = $bkid";
         $alltoks = $getArr($conn, $sql);
 
         $sql = "select WoTextLC
