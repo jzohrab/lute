@@ -74,7 +74,7 @@ class TermMappingService {
 
     /** Load temp table of mappings. */
     private function loadTempTable($tempTableName, $mappings, $conn) {
-        $stmt = $conn->prepare("INSERT INTO $tempTableName (child, parent) VALUES (?, ?)");
+        $stmt = $conn->prepare("INSERT INTO $tempTableName (parent, child) VALUES (?, ?)");
         foreach (array_chunk($mappings, 100) as $batch) {
             $conn->beginTransaction();
             foreach ($batch as $row) {
@@ -118,7 +118,7 @@ where parentWoID is null"
         $conn = Connection::getFromEnvironment();
         $tempTableName = 'zz_load_mappings_' . uniqid();
         $sql = "CREATE TABLE $tempTableName
-          (child TEXT, parent TEXT, childWoID integer null, parentWoID integer null)";
+          (parent TEXT, child TEXT, parentWoID integer null, childWoID integer null)";
         $conn->exec($sql);
 
         $lgid = $lang->getLgID();

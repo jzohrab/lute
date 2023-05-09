@@ -80,6 +80,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
         $this->tempfile = tempnam(sys_get_temp_dir(), "lute");
         $f = $this->tempfile;
         $c = "
+parent\tchild
 good\tline
 badnotabs
 
@@ -96,6 +97,7 @@ parentmissingchild\t
         $mappings = TermMappingService::loadMappingFile($f);
         // Only good lines are included, the rest are ignored.
         $expected = [
+            [ 'parent', 'child' ],
             [ 'good', 'line' ],
             [ 'another', 'goodline' ]
         ];

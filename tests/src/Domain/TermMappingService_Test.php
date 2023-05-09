@@ -78,7 +78,7 @@ where cw.WoTextLC = '{$t}'";
         $sp = $this->spanish;
         DbHelpers::assertRecordcountEquals('words', 0, 'no terms');
         $mappings = [
-            [ 'gatos', 'gato' ]
+            [ 'gato', 'gatos' ]
         ];
         $stats = $this->doMappings($mappings);
         DbHelpers::assertRecordcountEquals('words', 0, 'still no terms');
@@ -89,7 +89,7 @@ where cw.WoTextLC = '{$t}'";
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['gato', 'gatos']);
         $mappings = [
-            [ 'gatos', 'gato' ]
+            [ 'gato', 'gatos' ]
         ];
         $stats = $this->doMappings($mappings);
         $this->assertParentEquals('gatos', 'gato', 'was mapped');
@@ -114,7 +114,7 @@ where cw.WoTextLC = '{$t}'";
         $p = $this->addTerms($sp, 'gatos');
         $this->assertParentEquals('gatos', null);
         $mappings = [
-            [ 'gatos', 'gato' ]
+            [ 'gato', 'gatos' ]
         ];
         $stats = $this->doMappings($mappings);
         $this->assertParentEquals('gatos', 'gato');
@@ -132,8 +132,8 @@ where cw.WoTextLC = '{$t}'";
         $p = $this->addTerms($sp, ['gatos', 'gatoz']);
         $this->assertParentEquals('gatos', null);
         $mappings = [
-            [ 'gatos', 'gato' ],
-            [ 'gatoz', 'gato' ]
+            [ 'gato', 'gatos' ],
+            [ 'gato', 'gatoz' ]
         ];
         $stats = $this->doMappings($mappings);
         $this->assertParentEquals('gatos', 'gato');
@@ -150,8 +150,8 @@ where cw.WoTextLC = '{$t}'";
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['gatos', 'gatitas']);
         $mappings = [
-            [ 'gatos', 'gato' ],
-            [ 'gatitas', 'gato' ]
+            [ 'gato', 'gatos' ],
+            [ 'gato', 'gatitas' ]
         ];
         $stats = $this->doMappings($mappings);
         $this->assertParentEquals('gatos', 'gato');
@@ -167,14 +167,14 @@ where cw.WoTextLC = '{$t}'";
         $term = $svc->find('gatos', $sp);
         $this->assertParentEquals('gatos', null);
         $mappings = [
-            [ 'gatos', 'gato' ]
+            [ 'gato', 'gatos' ]
         ];
         $stats = $this->doMappings($mappings);
         $this->assertParentEquals('gatos', 'gato');
         $this->assertFlashMessageEquals('gatos', null, 'No flash message');
 
         $mappings = [
-            [ 'gatos', 'perro' ]
+            [ 'perro', 'gatos' ]
         ];
         $stats = $this->doMappings($mappings);
         $this->assertParentEquals('gatos', 'gato');
@@ -187,8 +187,8 @@ where cw.WoTextLC = '{$t}'";
         $p = $this->addTerms($sp, 'gato');
         DbHelpers::assertRecordcountEquals('words', 1, 'just gato');
         $mappings = [
-            [ 'gatos', 'gato' ],
-            [ 'blancos', 'blanco' ]  // stray, not used, skipped.
+            [ 'gato', 'gatos' ],
+            [ 'blanco', 'blancos' ]  // stray, not used, skipped.
         ];
         $stats = $this->doMappings($mappings);
         DbHelpers::assertRecordcountEquals('select wotext from words', 2);
@@ -205,7 +205,7 @@ where cw.WoTextLC = '{$t}'";
         $p = $this->addTerms($sp, 'gato');
         $this->assertTermsEquals(['gato']);
         $mappings = [
-            [ 'gatos', 'gato' ]
+            [ 'gato', 'gatos' ]
         ];
         $stats = $this->doMappings($mappings);
         DbHelpers::assertRecordcountEquals('select wotext from words', 2, 'gatos created');
@@ -219,7 +219,7 @@ where cw.WoTextLC = '{$t}'";
     public function test_new_term__new_parent_not_created_if_not_otherwise_used() {
         $sp = $this->spanish;
         $mappings = [
-            [ 'gatos', 'gato' ]
+            [ 'gato', 'gatos' ]
         ];
         $stats = $this->doMappings($mappings);
         DbHelpers::assertRecordcountEquals('select wotext from words', 0, 'nothing created');
@@ -231,8 +231,8 @@ where cw.WoTextLC = '{$t}'";
         $p = $this->addTerms($sp, 'gatito');
         DbHelpers::assertTableContains('select wotext from words order by wotext', ['gatito']);
         $mappings = [
-            [ 'gatos', 'gato' ],
-            [ 'gatito', 'gato' ]
+            [ 'gato', 'gatos' ],
+            [ 'gato', 'gatito' ]
         ];
         $stats = $this->doMappings($mappings);
         $this->assertParentEquals('gatos', 'gato');
@@ -253,8 +253,8 @@ where cw.WoTextLC = '{$t}'";
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['aladas', 'alado']);
         $mappings = [
-            [ 'aladas', 'alada' ],  // alada will get created here, because it's needed.
-            [ 'alada', 'alado' ]  // alada potentially also created here, child of alado.a
+            [ 'alada', 'aladas' ],  // alada will get created here, because it's needed.
+            [ 'alado', 'alada' ]  // alada potentially also created here, child of alado.a
         ];
         $stats = $this->doMappings($mappings);
         $this->assertTermsEquals(['alada', 'aladas', 'alado']);
