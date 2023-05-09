@@ -46,6 +46,7 @@ class MapParentsController extends AbstractController
         $svc->lemma_export_language($language, $outfile);
         return $this->render('mapparents/export.html.twig', [
             'language' => $language->getLgName(),
+            'book' => null,
             'outfile' => $outfile
         ]);
     }
@@ -63,7 +64,7 @@ class MapParentsController extends AbstractController
         $svc->lemma_export_book($book, $outfile);
         return $this->render('mapparents/export.html.twig', [
             'book' => $book->getTitle(),
-            'language' => $book->getLanguage()->getLgName(),
+            'language' => null,
             'outfile' => $outfile
         ]);
     }
