@@ -26,7 +26,29 @@ final class TermMappingService_File_Test extends DatabaseTestBase
             unlink($this->tempfile);
     }
     
-    public function test_smoke_file_created() {
+    public function test_smoke_language_file_created() {
+        $this->addTerms($this->spanish, [ 'gato', 'lista', 'tiene una', 'listo' ]);
+        $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
+        $t = $this->make_text('Hola', $content, $this->spanish);
+
+        $expected = [
+            '',  // Don't know why this is there, don't care.
+            'gato',
+            'lista',
+            'listo'
+        ];
+        sort($expected);
+
+        $this->tempfile = tempnam(sys_get_temp_dir(), "lute");
+        $f = $this->tempfile;
+        $this->svc->lemma_export_language($this->spanish, $f);
+        $c = file_get_contents($f);
+        $actual = explode("\n", $c);
+        sort($actual);
+        $this->assertEquals($expected, $actual, "contents");
+    }
+
+    public function test_smoke_book_file_created() {
         $this->addTerms($this->spanish, [ 'gato', 'lista', 'tiene una', 'listo' ]);
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
         $t = $this->make_text('Hola', $content, $this->spanish);
@@ -36,11 +58,8 @@ final class TermMappingService_File_Test extends DatabaseTestBase
             'hola',
             'tengo',
             'un',
-            'gato',
             'no',
             'una',
-            'lista',
-            'listo',
             'ella',
             'tiene',
             'bebida'
@@ -49,7 +68,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
 
         $this->tempfile = tempnam(sys_get_temp_dir(), "lute");
         $f = $this->tempfile;
-        $this->svc->lemma_export($this->spanish, $f);
+        $this->svc->lemma_export_book($t->getBook(), $f);
         $c = file_get_contents($f);
         $actual = explode("\n", $c);
         sort($actual);
@@ -61,6 +80,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
         $this->tempfile = tempnam(sys_get_temp_dir(), "lute");
         $f = $this->tempfile;
         $c = "
+parent\tchild
 good\tline
 badnotabs
 
@@ -77,6 +97,7 @@ parentmissingchild\t
         $mappings = TermMappingService::loadMappingFile($f);
         // Only good lines are included, the rest are ignored.
         $expected = [
+            [ 'parent', 'child' ],
             [ 'good', 'line' ],
             [ 'another', 'goodline' ]
         ];

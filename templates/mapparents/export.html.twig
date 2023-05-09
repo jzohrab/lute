@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}File exported{% endblock %}
+
+{% block body %}
+
+<h1>File exported</h1>
+
+<div style="width: 50%;">
+  <p>File: {{ outfile }}</p>
+  <br />
+  <p>
+    Content: 
+
+    {% if language is not empty %}
+    all {{ language }} Terms that don't have an assigned Parent Term.
+    {% endif %}
+
+    {% if book is not empty %}
+    all unknown words in &quot;{{ book }}&quot;.
+    {% endif %}
+  </p>
+
+  <br />
+  <p>You can use this file to generate an import file, as described in the wiki -- ref <a href="https://github.com/jzohrab/lute/wiki/Bulk-Mapping-Parent-Terms">Bulk Mapping Parent Terms</a>.</p>
+
+</div>
+
+{% endblock %}
