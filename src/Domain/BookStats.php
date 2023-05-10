@@ -3,6 +3,7 @@
 namespace App\Domain;
 
 use App\Entity\Book;
+use App\Entity\Language;
 use App\Utils\Connection;
 
 class BookStats {
@@ -36,7 +37,15 @@ class BookStats {
         $sql = "delete from bookstats where BkID = $bkid";
         $conn->query($sql);
     }
-    
+
+    public static function recalcLanguage(Language $lang) {
+        $conn = Connection::getFromEnvironment();
+        $lgid = $lang->getLgId();
+        $sql = "delete from bookstats
+          where BkID in (select BkID from books where BkLgID = $lgid)";
+        $conn->query($sql);
+    }
+
     private static function booksToUpdate($conn, $book_repo): array {
         $sql = "select bkid from books
           where bkid not in (select bkid from bookstats)";

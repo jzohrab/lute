@@ -9,6 +9,7 @@ use App\Repository\TermRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\BookRepository;
 use App\Domain\TermMappingService;
+use App\Domain\BookStats;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,6 +91,10 @@ class MapParentsController extends AbstractController
         $svc = null;
         // dump('got stats, returning');
         // dump('lg name = ' . $language->getLgName());
+
+        if ($stats['created'] > 0) {
+            BookStats::recalcLanguage($language);
+        }
 
         return $this->render('mapparents/import.html.twig', [
             'error' => false,
