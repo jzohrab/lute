@@ -9,29 +9,23 @@
 {% else %}
 
 <div style="width: 50%; margin-bottom: 20px;">
+
   <p><i>You can semi-automatically create parent and child Terms, creating and importing an external "mapping" file that you create. See the wiki, <a href="https://github.com/jzohrab/lute/wiki/Bulk-Mapping-Parent-Terms">Bulk Mapping Parent Terms</a>, for information.</i></p>
-</div>
 
 
 <h2>Export</h2>
-<p><i>Use these export files to help you make the appropriate import file for your language.</i></p>
-<p>Export all Terms without Parent Terms in a language:
-  <ul>
-    {% for language in languages %}
-    <li>
-      <a href="/mapparents/export_language/{{ language.LgID }}">{{ language.LgName }}</a>
-    </li>
-    {% endfor %}
-  </ul>
-</p>
+<p>Use these export files to help you make the appropriate import file for your language.  Book exports include only unknown terms, while Language exports include all existing Terms without Parent Terms.</p>
 
-<p>Export unknown Terms in a book:
+<p>
   <ul>
     {% for book in books %}
     <li>
-      <a href="/mapparents/export_book/{{ book.ID }}">
-        {{ book.Title }}
-      </a>
+      <a href="/mapparents/export_book/{{ book.ID }}">{{ book.Title }}</a>
+    </li>
+    {% endfor %}
+    {% for language in languages %}
+    <li>
+      <a href="/mapparents/export_language/{{ language.LgID }}">{{ language.LgName }} (Language)</a>
     </li>
     {% endfor %}
   </ul>
@@ -55,16 +49,16 @@
 </table>
 
 {% if app.environment == 'dev' %}
-<div style="width: 50%">
-  <p><i>
-      * Note: Importing in APP_ENV=dev fails because Doctrine
-      collects data on all of the queries that have been run, and
-      mapping can run thousands of queries.  If you want to run this
-      on your dev data, first change the APP_ENV to "prod" in the .env
-      file.
-  </i></p>
-</div>
+<p><i>
+    * Note: Importing in APP_ENV=dev fails because Doctrine
+    collects data on all of the queries that have been run, and
+    mapping can run thousands of queries.  If you want to run this
+    on your dev data, first change the APP_ENV to "prod" in the .env
+    file.
+</i></p>
 {% endif %}
+
+</div>
 
 {% endif %}
 
