@@ -27,3 +27,6 @@ composer.phar
 
 # Manifest, generated when creating a release.
 manifest.json
+
+# drivers for panther
+/drivers/
