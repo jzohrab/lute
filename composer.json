@@ -123,6 +123,10 @@
       "composer db:create:test",
       "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist"
     ],
+    "test:accept": [
+      "composer db:create:test",
+      "PANTHER_NO_HEADLESS=true SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist tests/acceptance/"
+    ],
     "test:nofail": [
       "composer db:create:test",
       "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure"
@@ -187,6 +191,7 @@
     "dev:start": "Start dev server on port 9999",
     "dev:stop": "Stop dev server on port 9999 (nix/mac only)",
     "test": "Run tests",
+    "test:accept": "Run only acceptance tests with visible browser",
     "test:nofail": "Run tests and stop on first fail/error",
     "test:group": "Run tests with a given '@group xxxx' annotation",
     "test:full": "Create the test db, check orm mappings, and run all tests",

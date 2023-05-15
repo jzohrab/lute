@@ -57,16 +57,19 @@ class Reading_Test extends AcceptanceTestBase
     private function clickReadingWord($word) {
         $n = $this->getReadingNodesByText($word);
         $nid = $n->attr('id');
-        $this->client->executeScript("document.querySelector('#{$nid}').click()");
+        $this->client->getMouse()->clickTo("#{$nid}");
+        usleep(300 * 1000);
     }
 
     private function assertWordDataEquals($word, $exStatus, $exAttrs = []) {
         $n = $this->getReadingNodesByText($word);
         foreach (array_keys($exAttrs) as $k) {
-            $this->assertEquals($n->attr($k), $exAttrs[$k], $k);
+            $this->assertEquals($n->attr($k), $exAttrs[$k], $word . ' ' . $k);
         }
-        $termclasses = explode(' ', $n->attr('class'));
-        $this->assertTrue(in_array($exStatus, $termclasses), 'status');
+        $class = $n->attr('class');
+        $termclasses = explode(' ', $class);
+        $statusMsg = '"' . $class . '" does not contain ' . $exStatus;
+        $this->assertTrue(in_array($exStatus, $termclasses), $word . ' ' . $statusMsg);
     }
 
     private function updateTermForm($expected_Text, $updates) {
@@ -136,6 +139,52 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertWordDataEquals(
             'Adios amigo', 'status1',
             [ 'data_trans' => 'goodbye friend' ]);
+    }
+
+    /**
+     * @group hotkeys
+     */
+    public function test_hotkeys(): void
+    {
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Hola');
+        $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
+        $this->assertWordDataEquals('Hola', 'status0');
+
+        // Blah hacky.
+        $wait = function() { usleep(500 * 1000); };
+
+        $this->clickReadingWord('Hola');
+        $wait();
+        $this->client->getKeyboard()->sendKeys('1');
+        $wait();
+        $this->assertWordDataEquals('Hola', 'status1');
+
+        $this->clickReadingWord('Adios');
+        $wait();
+        $this->client->getKeyboard()->sendKeys('2');
+        $wait();
+        $this->assertWordDataEquals('Adios', 'status2');
+
+        /*
+        // VERY INTERESTING ... I can't 'sendkeys' using
+        // strings (e.g., "w") because I use Dvorak layout,
+        // and when I sendKeys('w'), the driver sends the
+        // QWERTY-LAYOUT W, which is "," on Dvorak.
+        // So, sendKeys('w') ACTUALLY ends up sending a
+        // ',' (verified by javascript "console.log(e.which)").
+        //
+        // Software is fun.
+        $this->clickReadingWord('Adios');
+        $this->client->getKeyboard()->sendKeys('w');
+        $this->assertWordDataEquals('Adios', 'status99');
+
+        $this->clickReadingWord('amigo');
+        $this->client->getKeyboard()->sendKeys('I');
+        $this->assertWordDataEquals('amigo', 'status98');
+        */
     }
 
 }
