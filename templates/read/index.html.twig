@@ -71,7 +71,8 @@
             action="/read/{{ text.ID }}/allknown"
             method="post">
       </form>
-      <a style="text-decoration: none;"
+      <a id="markRestAsKnown"
+         style="text-decoration: none;"
          onclick="document.getElementById('setknown').submit(); return false;"
          title="Mark rest as known." tabindex="-1">
         <img src="/icn/tick.png" />

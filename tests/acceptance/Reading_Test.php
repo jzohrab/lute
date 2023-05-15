@@ -187,4 +187,60 @@ class Reading_Test extends AcceptanceTestBase
         */
     }
 
+    /**
+     * @group wellknown
+     */
+    public function test_well_known(): void
+    {
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Hola');
+        $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
+        $this->assertWordDataEquals('Hola', 'status0');
+
+        // Blah hacky.
+        $wait = function() { usleep(500 * 1000); };
+
+        $this->clickReadingWord('Hola');
+        $wait();
+        $this->client->getKeyboard()->sendKeys('1');
+        $wait();
+        $this->assertWordDataEquals('Hola', 'status1');
+
+        $crawler = $this->client->refreshCrawler();
+        $link = $crawler->filter('#markRestAsKnown')->link(); 
+        $this->client->click($link);
+
+        $this->assertWordDataEquals('Adios', 'status99');
+        $this->assertWordDataEquals('amigo', 'status99');
+    }
+
+    /**
+     * @group othertext
+     */
+    public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void
+    {
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Otro", "Tengo otro amigo.", $this->spanish);
+
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Hola');
+        $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
+        $crawler = $this->client->refreshCrawler();
+        $link = $crawler->filter('#markRestAsKnown')->link(); 
+        $this->client->click($link);
+
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Otro');
+        $this->client->clickLink('Otro');
+        $this->client->waitForElementToContain('body', 'amigo');
+        $this->assertDisplayedTextEquals('Tengo/ /otro/ /amigo/.', 'other text');
+        $this->assertWordDataEquals('Tengo', 'status0');
+        $this->assertWordDataEquals('otro', 'status0');
+        $this->assertWordDataEquals('amigo', 'status99');
+
+    }
+
 }
