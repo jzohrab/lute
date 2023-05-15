@@ -1,5 +1,19 @@
 # Changelog
 
+## 2023-05-15 v2.0.2
+
+Feature changes:
+
+* Add manual bulk mapping of parents to child terms.  Useful when importing new books.  See [the wiki](https://github.com/jzohrab/lute/wiki/Bulk-Mapping-Parent-Terms) for notes
+
+Back end:
+
+* Add browser-level acceptance tests using Panther.  Currently somewhat flaky due to timing issues.
+* Remove dead code
+* Add test coverage
+* Fix license
+* Fix classical chinese parse error.
+
 ## 2023-04-24 v2.0.1
 
 Feature changes:
