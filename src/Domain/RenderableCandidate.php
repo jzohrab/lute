@@ -69,6 +69,7 @@ class RenderableCandidate {
         $t->WoTranslation = $term->getTranslation();
         $t->WoRomanization = $term->getRomanization();
         $t->ImageSource = $term->getCurrentImage();
+        $t->FlashMessage = $term->getFlashMessage();
         // $logmsg('done basic term');
 
         $t->Tags = null;

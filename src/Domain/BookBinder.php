@@ -20,7 +20,7 @@ class BookBinder {
     {
         $p = $lang->getParser();
         $tokens = $p->getParsedTokens($fulltext, $lang);
-        $groups = LongTextSplit::groups($tokens, $maxWordTokensPerText);
+        $it = new SentenceGroupIterator($tokens, $maxWordTokensPerText);
 
         $tokstring = function($tokens) {
             $a = array_map(fn($t) => $t->token, $tokens);
@@ -29,14 +29,17 @@ class BookBinder {
             $ret = str_replace("¶", "\n", $ret);
             return trim($ret);
         };
-        $textstrings = array_map(fn($g) => $tokstring($g), $groups);
 
         $b = new Book();
         $b->setLanguage($lang);
         $b->setTitle($title);
 
-        $count = count($textstrings);
-        for ($i = 1; $i <= $count; $i++) {
+        $count = $it->count();
+        $i = 0;
+        while ($toks = $it->next()) {
+            $i++;
+            $txt = $tokstring($toks);
+
             $t = new Text();
             $t->setLanguage($lang);
             $pagenum = " ({$i}/{$count})";
@@ -44,7 +47,7 @@ class BookBinder {
                 $pagenum = "";
             $t->setTitle("{$title}{$pagenum}");
             $t->setOrder($i);
-            $t->setText($textstrings[$i - 1]);
+            $t->setText($txt);
 
             $b->addText($t);
         }

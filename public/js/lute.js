@@ -101,6 +101,9 @@ let tooltip_textitem_hover_content = function (el) {
   }
 
   let content = `<p><b style="font-size:120%">${tooltip_title()}</b>${status_span()}</p>`;
+  const flash = get_attr('data_flashmessage');
+  if (flash != '')
+    content += `<p class="small-flash-notice">${flash}</p>`;
   const rom = get_attr('data_rom');
   if (rom != '')
     content += `<p><i>${rom}</i></p>`;

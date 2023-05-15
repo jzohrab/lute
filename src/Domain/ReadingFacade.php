@@ -65,6 +65,7 @@ class ReadingFacade {
 
         $sentences = $this->repo->getSentences($text);
         $terms = $this->repo->getTermsInText($text);
+        // echo '<pre>' . count($terms) . '</pre>';
         $tokens_by_senum = array();
         foreach ($tokens as $tok) {
             $tokens_by_senum[$tok->TokSentenceNumber][] = $tok;
@@ -77,11 +78,14 @@ class ReadingFacade {
         $renderableSentences = [];
         foreach ($usenums as $senum) {
             $setokens = $tokens_by_senum[$senum];
+            // echo '<pre>' . var_export($setokens, true) . '</pre>';
             $renderable = $this->getRenderable($terms, $setokens);
+            // echo '<pre>' . var_export($renderable, true) . '</pre>';
             $textitems = array_map(
                 fn($i) => $i->makeTextItem($senum, $tid, $lid),
                 $renderable
             );
+            // echo '<pre>' . var_export($textitems, true) . '</pre>';
             $rs = new RenderableSentence($senum, $textitems);
             $renderableSentences[] = $rs;
         }
@@ -198,7 +202,23 @@ class ReadingFacade {
      */
     public function loadDTO(int $lid, string $text): TermDTO {
         $term = $this->repo->load($lid, $text);
-        return $term->createTermDTO();
+        $dto = $term->createTermDTO();
+        if ($term->getFlashMessage() != null) {
+            //// $term->popFlashMessage();
+            //// $this->term_service->add($term, true);
+            //// $this->term_service->flush();
+            //
+            // Annoying ... I wanted any flash messages to be deleted
+            // when the DTO was loaded.  Popping the flash message and
+            // then saving it via the term service should have worked,
+            // but it never did.  Term service tests showed that
+            // popping the message and saving the term did in fact
+            // remove the message, but whenever I tried to use that
+            // here it never worked!  Using the blunt instrument
+            // "killFlashMessageFor" to just kill it in the database.
+            $this->term_service->killFlashMessageFor($term);
+        }
+        return $dto;
     }
 
 

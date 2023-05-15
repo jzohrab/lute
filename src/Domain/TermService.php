@@ -4,6 +4,8 @@ namespace App\Domain;
 
 use App\Entity\Term;
 use App\Entity\Language;
+use App\Repository\LanguageRepository;
+use App\Entity\Status;
 use App\DTO\TermReferenceDTO;
 use App\Utils\Connection;
 use App\Repository\TermRepository;
@@ -29,7 +31,16 @@ class TermService {
     }
 
     public function flush() {
-        // dump('flushing ' . count($this->pendingTerms) . ' terms.');
+        /* * /
+        $msg = 'flushing ' . count($this->pendingTerms) . ' terms: ';
+        foreach ($this->pendingTerms as $t) {
+            $msg .= $t->getText();
+            if ($t->getParent() != null)
+                $msg .= " (parent " . $t->getParent()->getText() . ")";
+            $msg .= ', ';
+        }
+        // dump($msg);
+        /* */
         $this->term_repo->flush();
         $this->pendingTerms = array();
     }
@@ -38,6 +49,19 @@ class TermService {
     {
         $this->term_repo->remove($term, false);
         $this->term_repo->flush();
+    }
+
+    /** Force delete of FlashMessage.
+     *
+     * I couldn't get the messages to actually get removed from the db
+     * without directly hitting the db like this (see the comments in
+     * ReadingFacade) ... I suspect something is getting cached but
+     * can't sort it out.  This works fine, so it will do for now!
+    */
+    public function killFlashMessageFor(Term $term): void {
+        $conn = Connection::getFromEnvironment();
+        $sql = 'delete from wordflashmessages where WfWoID = ' . $term->getID();
+        $conn->query($sql);
     }
 
     /**

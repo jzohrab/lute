@@ -120,13 +120,16 @@ class SpaceDelimitedParser extends AbstractParser {
         ]);
 
         $tokens = [];
-        foreach (explode("\n", $text) as $para) {
+        $paras = explode("\n", $text);
+        $pcount = count($paras);
+        for ($i = 0; $i < $pcount; $i++) {
+            $para = $paras[$i];
             $this->parse_para($para, $lang, $tokens);
-            $tokens[] = new ParsedToken('¶', false, true);
+            if ($i != ($pcount - 1))
+                $tokens[] = new ParsedToken('¶', false, true);
         }
 
-        // Remove superfluous last para mark.
-        return array_slice($tokens, 0, count($tokens) - 1);
+        return $tokens;
     }
 
     private function parse_para(string $text, Language $lang, &$tokens) {

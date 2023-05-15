@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Import Parent Terms{% endblock %}
+
+{% block body %}
+
+{% if languages|length == 0 %}
+  <p>No languages defined.</p>
+{% else %}
+
+<div style="width: 50%; margin-bottom: 20px;">
+
+  <p><i>You can semi-automatically create parent and child Terms, creating and importing an external "mapping" file that you create. See the wiki, <a href="https://github.com/jzohrab/lute/wiki/Bulk-Mapping-Parent-Terms">Bulk Mapping Parent Terms</a>, for information.</i></p>
+
+
+<h2>Export</h2>
+<p>Use these export files to help you make the appropriate import file for your language.  Book exports include only unknown terms, while Language exports include all existing Terms without Parent Terms.</p>
+
+<p>
+  <ul>
+    {% for book in books %}
+    <li>
+      <a href="/mapparents/export_book/{{ book.ID }}">{{ book.Title }}</a>
+    </li>
+    {% endfor %}
+    {% for language in languages %}
+    <li>
+      <a href="/mapparents/export_language/{{ language.LgID }}">{{ language.LgName }} (Language)</a>
+    </li>
+    {% endfor %}
+  </ul>
+</p>
+
+<h2>Import</h2>
+<p>Creates and adds notes to terms as needed.</p>
+
+<table class="table no-footer" style="width: 50%; margin: 0;">
+  <tbody>
+    {% for language in languages %}
+    <tr>
+      <td>{{ language.LgName }}</td>
+      <td>
+        <a href="/mapparents/import/{{ language.LgID }}">import data/parents/import_{{ language.LgID }}.txt</a>
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if app.environment == 'dev' %}
+<p><i>
+    * Note: Importing in APP_ENV=dev fails because Doctrine
+    collects data on all of the queries that have been run, and
+    mapping can run thousands of queries.  If you want to run this
+    on your dev data, first change the APP_ENV to "prod" in the .env
+    file.
+</i></p>
+{% endif %}
+
+</div>
+
+{% endif %}
+
+{% endblock %}
+

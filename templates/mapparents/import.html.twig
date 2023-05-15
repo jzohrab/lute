@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}File exported{% endblock %}
+
+{% block body %}
+
+{% if error %}
+<h1>Import error</h1>
+<div style="width: 50%">
+  <p><b>{{ error }}</b></p>
+  <p>Please ensure you have created the input file as specified in the wiki -- ref <a href="https://github.com/jzohrab/lute/wiki/Bulk-Mapping-Parent-Terms">Bulk Mapping Parent Terms</a>.</p>
+</div>
+{% else %}
+
+<h1>File imported</h1>
+
+<p>Completed importing {{ infile }} of {{ language }} term mappings.</p>
+
+<p>Results:
+  <ul>
+    <li>Created terms: {{ created }}</li>
+    <li>Updated terms: {{ updated }}</li>
+  </ul>
+</p>
+
+{% endif %}
+
+{% endblock %}

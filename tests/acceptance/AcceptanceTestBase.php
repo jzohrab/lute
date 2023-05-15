@@ -5,9 +5,17 @@
 // for some notes about the kernel and entity manager.
 // Note that tests must be run with the phpunit.xml.dist config file.
 
-require_once __DIR__ . '/db_helpers.php';
+// This is a copy of ../DatabaseTestBase.php, pretty much ...
+// it extends PantherTestCase to allow for all of the client
+// asserts.
+//
+// There's probably a better way to do this, but this is fine.
+
+require_once __DIR__ . '/../db_helpers.php';
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Panther\PantherTestCase;
+
 use App\Entity\Language;
 use App\Entity\Text;
 use App\Entity\Term;
@@ -28,7 +36,7 @@ use App\Domain\ReadingFacade;
 
 use Doctrine\ORM\EntityManagerInterface;
 
-abstract class DatabaseTestBase extends WebTestCase
+abstract class AcceptanceTestBase extends PantherTestCase
 {
 
     public EntityManagerInterface $entity_manager;
@@ -49,7 +57,9 @@ abstract class DatabaseTestBase extends WebTestCase
     public Language $classicalchinese;
 
     public Text $spanish_hola_text;
-    
+
+    public $client;
+
     public function setUp(): void
     {
         // Set up db.
@@ -71,6 +81,8 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
         $this->childSetUp();
+
+        $this->client = static::createPantherClient(); // App auto-started using the built-in web server
     }
 
     public function childSetUp() {
