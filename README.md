@@ -3,9 +3,7 @@
 [![CI master](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml/badge.svg?branch=master)](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml?query=branch%3Amaster)
 [![Discord Server](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/CzFUQP5m8u)
 
-This is a fork and ground-up rewrite of [Hugo Fara's fork](https://github.com/hugofara) of the original Learning with Texts project on [Sourceforge](https://sourceforge.net/projects/learning-with-texts).
-
-> Lute would never have existed without the original Learning With Texts and Hugo Fara's subsequent efforts, so **a big thanks to both of these projects.**
+This is a fork and ground-up rewrite of Learning with Texts.
 
 ## Demo
 
@@ -17,16 +15,13 @@ A _very_ brief demo, showing the core feature: reading a doc, and creating a ter
 
 _(fyi - The screenshot was edited for time and file size, so it looks like Lute is automatically filling in the term form -- it's not.)_
 
-Features not shown:
+Lute contains the core features you need for reading:
 
-* creating/editing texts
-* searching texts in the listing page
-* creating multi-word terms (clicking and dragging in the reading pane)
-* defining languages
+* defining languages and dictionaries
+* creating and editing texts
+* creating terms and multi-word terms
 
-The feature set of Lute is currently small, but it contains the core features for it to be a minimally viable product (MVP).  As I, or others, feel the need, new features can be implemented.
-
-Also see the [YouTube introduction video](https://youtu.be/cjSqQTwUFCY).
+... and others. See the [YouTube introduction video](https://youtu.be/cjSqQTwUFCY) and check out the [Wiki](https://github.com/jzohrab/lute/wiki).
 
 # Docs
 
@@ -56,5 +51,6 @@ If you're a user: Lute is free :-) ... but if it makes your life better and you 
 
 Under unlicense, view [UNLICENSE.md](UNLICENSE.md), and check out [http://unlicense.org/].
 
+# Acknowledgements
 
-
+Lute would never have existed without the original [Learning With Texts](https://sourceforge.net/projects/learning-with-texts) and [Hugo Fara's fork](https://github.com/hugofara), so **a big thanks to both of these projects.**
