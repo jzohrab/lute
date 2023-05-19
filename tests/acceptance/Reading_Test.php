@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
 require_once __DIR__ . '/AcceptanceTestBase.php';
+require_once __DIR__ . '/../db_helpers.php';
 
+use App\Utils\DemoDataLoader;
+use App\Domain\TermService;
 
 class Reading_Test extends AcceptanceTestBase
 {
@@ -253,4 +256,27 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertWordDataEquals('amigo', 'status99');
     }
 
+    /**
+     * @group setreaddate
+     */
+    public function test_set_read_date() {
+        DbHelpers::clean_db();
+        $term_svc = new TermService($this->term_repo);
+        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
+
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Tutorial');
+        $this->client->clickLink('Tutorial');
+        $this->client->waitForElementToContain('body', 'Welcome');
+
+        $b = $this->book_repo->find(1); // hardcoded ID :-(
+        $this->assertEquals('Tutorial', $b->getTitle());
+        $txtid = $b->getTexts()[0]->getID();
+        $txt = $this->text_repo->find($txtid);
+        $this->assertEquals($txt->getReadDate(), null, 'not marked read');
+
+        $this->clickMarkRestAsKnown();
+        $txt = $this->text_repo->find($txtid);
+        $this->assertTrue($txt->getReadDate() != null, 'was marked read');
+    }
 }

@@ -183,4 +183,13 @@ class Text
         return $this;
     }
 
+    public function getReadDate(): ?DateTime
+    {
+        return null;
+    }
+
+    public function setReadDate(?DateTime $dt): self
+    {
+        return $this;
+    }
 }
