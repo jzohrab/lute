@@ -40,7 +40,6 @@ final class TermDTO_Test extends DatabaseTestBase
             'tc' => $t->getTokenCount(),
             'tr' => $t->getTranslation(),
             'r' => $t->getRomanization(),
-            's' => $t->getSentence(),
             'i' => $t->getCurrentImage(),
             'tt' => implode(', ', $tt),
             'pt' => $pt

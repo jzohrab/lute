@@ -22,8 +22,6 @@ class TermDTO
 
     public ?string $Romanization = null;
 
-    public ?string $Sentence = null;
-
     public ?int $TokenCount = null;
 
     public array $termTags;
@@ -63,7 +61,6 @@ class TermDTO
         $t->setStatus($dto->Status);
         $t->setTranslation($dto->Translation);
         $t->setRomanization($dto->Romanization);
-        $t->setSentence($dto->Sentence);
         $t->setCurrentImage($dto->CurrentImage);
 
         $termtags = array();
@@ -106,7 +103,7 @@ class TermDTO
         $p->setStatus($dto->Status);
         $p->setTranslation($dto->Translation);
         $p->setCurrentImage($dto->CurrentImage);
-        $p->setSentence($dto->Romanization);
+        $p->setRomanization($dto->Romanization);
         foreach ($termtags as $tt)
             $p->addTermTag($tt);
 

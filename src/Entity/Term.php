@@ -37,9 +37,6 @@ class Term
     #[ORM\Column(name: 'WoRomanization', length: 100, nullable: true)]
     private ?string $WoRomanization = null;
 
-    #[ORM\Column(name: 'WoSentence', length: 1000, nullable: true)]
-    private ?string $WoSentence = null;
-
     #[ORM\Column(name: 'WoTokenCount', type: Types::SMALLINT)]
     private ?int $WoTokenCount = null;
 
@@ -199,18 +196,6 @@ class Term
         return $this->WoRomanization;
     }
 
-    public function setSentence(?string $s): self
-    {
-        $this->WoSentence = $s;
-        return $this;
-    }
-
-    public function getSentence(): ?string
-    {
-        return $this->WoSentence;
-    }
-
-
     /**
      * @return Collection<int, TextTag>
      */
@@ -326,7 +311,6 @@ class Term
         $f->Status = $this->getStatus();
         $f->Translation = $this->getTranslation();
         $f->Romanization = $this->getRomanization();
-        $f->Sentence = $this->getSentence();
         $f->TokenCount = $this->getTokenCount();
         $f->CurrentImage = $this->getCurrentImage();
         $f->FlashMessage = $this->getFlashMessage();
