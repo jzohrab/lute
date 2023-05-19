@@ -75,13 +75,6 @@ class TermDTOType extends AbstractType
                     'required' => true
                   ]
             )
-            ->add('Sentence',
-                  $options['hide_sentences'] ? HiddenType::class : TextType::class,
-                  [ 'label' => 'Sentence',
-                    'attr' => [ 'class' => 'form-text' ],
-                    'required' => false
-                  ]
-            )
             ->add('termTags',
                    CollectionType::class,
                   [ 'label' => 'Term tags',

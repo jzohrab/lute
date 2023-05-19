@@ -47,7 +47,6 @@ final class TermRepository_Test extends DatabaseTestBase
     {
         $t = new Term($this->spanish, 'HOLA');
         $t->setStatus(1);
-        $t->setWordCount(1);
         $t->setTranslation('hi');
         $t->setRomanization('ho-la');
         $this->term_repo->save($t, true);

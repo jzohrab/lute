@@ -37,12 +37,6 @@ class Term
     #[ORM\Column(name: 'WoRomanization', length: 100, nullable: true)]
     private ?string $WoRomanization = null;
 
-    #[ORM\Column(name: 'WoSentence', length: 1000, nullable: true)]
-    private ?string $WoSentence = null;
-
-    #[ORM\Column(name: 'WoWordCount', type: Types::SMALLINT)]
-    private ?int $WoWordCount = null;
-
     #[ORM\Column(name: 'WoTokenCount', type: Types::SMALLINT)]
     private ?int $WoTokenCount = null;
 
@@ -103,7 +97,6 @@ class Term
     public function setLanguage(Language $language): self
     {
         $this->language = $language;
-        $this->calcWordCount();
         return $this;
     }
 
@@ -135,21 +128,8 @@ class Term
         $this->WoText = $t;
         $this->WoTextLC = mb_strtolower($t);
 
-        $this->calcWordCount();
         $this->calcTokenCount();
         return $this;
-    }
-
-    private function calcWordCount() {
-        $wc = 0;
-        if ($this->WoText != null && $this->language != null) {
-            $termchars = $this->getLanguage()->getLgRegexpWordCharacters();
-            $re = '/([' . $termchars . ']+)/u';
-            preg_match_all($re, $this->WoText, $matches);
-            if (count($matches) > 0)
-                $wc = count($matches[0]);
-        }
-        $this->setWordCount($wc);
     }
 
     private function calcTokenCount() {
@@ -181,17 +161,6 @@ class Term
     public function getStatus(): ?int
     {
         return $this->WoStatus;
-    }
-
-    public function setWordCount(?int $n): self
-    {
-        $this->WoWordCount = $n;
-        return $this;
-    }
-
-    public function getWordCount(): ?int
-    {
-        return $this->WoWordCount;
     }
 
     public function setTokenCount(?int $n): self
@@ -226,18 +195,6 @@ class Term
     {
         return $this->WoRomanization;
     }
-
-    public function setSentence(?string $s): self
-    {
-        $this->WoSentence = $s;
-        return $this;
-    }
-
-    public function getSentence(): ?string
-    {
-        return $this->WoSentence;
-    }
-
 
     /**
      * @return Collection<int, TextTag>
@@ -354,8 +311,7 @@ class Term
         $f->Status = $this->getStatus();
         $f->Translation = $this->getTranslation();
         $f->Romanization = $this->getRomanization();
-        $f->Sentence = $this->getSentence();
-        $f->WordCount = $this->getWordCount();
+        $f->TokenCount = $this->getTokenCount();
         $f->CurrentImage = $this->getCurrentImage();
         $f->FlashMessage = $this->getFlashMessage();
 

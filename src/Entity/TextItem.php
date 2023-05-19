@@ -9,7 +9,6 @@ class TextItem
     
     public int $Order;
     public string $Text;
-    public int $WordCount;
     public int $TokenCount;
 
     public string $TextLC;
@@ -88,7 +87,7 @@ class TextItem
         $parts = [
             'ID',
             $this->Order,
-            max(1, $this->WordCount)
+            max(1, $this->TokenCount)
         ];
         return implode('-', $parts);
     }

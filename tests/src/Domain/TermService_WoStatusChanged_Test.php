@@ -22,7 +22,6 @@ final class TermService_WoStatusChanged_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $t->setText("PARENT");
         $t->setStatus(1);
-        $t->setWordCount(1);
         $this->term_service->add($t, true);
         $this->term = $t;
     }
