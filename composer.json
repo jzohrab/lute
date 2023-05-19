@@ -145,7 +145,8 @@
       "composer dev:finddump",
       "composer db:create:test",
       "bin/console doctrine:schema:validate --skip-sync  # <-- hash suppresses any arguments",
-      "composer test"
+      "composer test:src",
+      "composer test:accept"
     ],
     "dev:find": "./utils/findstring.sh",
     "dev:finddump": "./utils/finddump.sh",
