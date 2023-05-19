@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS "new_words" (
 	"WoStatus" TINYINT NOT NULL  ,
 	"WoTranslation" VARCHAR(500) NULL  ,
 	"WoRomanization" VARCHAR(100) NULL  ,
-	"WoSentence" VARCHAR(1000) NULL  ,
 	"WoTokenCount" TINYINT NOT NULL DEFAULT '0' ,
 	"WoCreated" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 	"WoStatusChanged" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -33,7 +32,6 @@ INSERT INTO new_words(
 	"WoStatus",
 	"WoTranslation",
 	"WoRomanization",
-	"WoSentence",
 	"WoTokenCount",
 	"WoCreated",
 	"WoStatusChanged"
@@ -46,7 +44,6 @@ SELECT
 	"WoStatus",
 	"WoTranslation",
 	"WoRomanization",
-	"WoSentence",
 	"WoTokenCount",
 	"WoCreated",
 	"WoStatusChanged"
