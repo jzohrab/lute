@@ -138,7 +138,7 @@
     ],
     "test:group": [
       "composer db:create:test",
-      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
+      "PANTHER_NO_HEADLESS=true SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
     ],
     "test:full": [
       "composer dev:psalm",
