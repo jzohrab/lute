@@ -81,7 +81,7 @@ class Reading_Test extends AcceptanceTestBase
 
     private function updateTermForm($expected_Text, $updates) {
         $crawler = $this->client->refreshCrawler();
-        $frames = $crawler->filter('#reading-frames-right iframe');
+        $frames = $crawler->filter("#reading-frames-right iframe");
         $this->client->switchTo()->frame($frames);
         $crawler = $this->client->refreshCrawler();
 
@@ -97,6 +97,15 @@ class Reading_Test extends AcceptanceTestBase
         $crawler = $this->client->submit($form);
         usleep(300 * 1000);
     }
+
+    private function clickMarkRestAsKnown() {
+        $crawler = $this->client->refreshCrawler();
+        $link = $crawler->filter('#footerMarkRestAsKnown')->link();
+        $this->client->click($link);
+    }
+
+    ///////////////////////////////////////////
+    // Tests.
 
     public function test_reading_with_term_updates(): void
     {
@@ -215,10 +224,7 @@ class Reading_Test extends AcceptanceTestBase
         $wid = $this->getWordCssID('Hola');
         $this->client->waitForAttributeToContain($wid, 'class', 'status1');
 
-        $crawler = $this->client->refreshCrawler();
-        $link = $crawler->filter('#markRestAsKnown')->link(); 
-        $this->client->click($link);
-
+        $this->clickMarkRestAsKnown();
         $this->assertWordDataEquals('Adios', 'status99');
         $this->assertWordDataEquals('amigo', 'status99');
     }
@@ -235,9 +241,7 @@ class Reading_Test extends AcceptanceTestBase
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
         $this->client->waitForElementToContain('body', 'Adios');
-        $crawler = $this->client->refreshCrawler();
-        $link = $crawler->filter('#markRestAsKnown')->link(); 
-        $this->client->click($link);
+        $this->clickMarkRestAsKnown();
 
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Otro');
@@ -247,7 +251,6 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertWordDataEquals('Tengo', 'status0');
         $this->assertWordDataEquals('otro', 'status0');
         $this->assertWordDataEquals('amigo', 'status99');
-
     }
 
 }

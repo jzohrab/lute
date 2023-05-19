@@ -71,7 +71,7 @@
             action="/read/{{ text.ID }}/allknown"
             method="post">
       </form>
-      <a id="markRestAsKnown"
+      <a id="footerMarkRestAsKnown"
          style="text-decoration: none;"
          onclick="document.getElementById('setknown').submit(); return false;"
          title="Mark rest as known." tabindex="-1">
@@ -85,7 +85,8 @@
             action="/read/{{ text.ID }}/allknown/{{ nexttext.ID }}"
             method="post">
       </form>
-      <a style="text-decoration: none;"
+      <a id="footerMarkRestAsKnownNextPage"
+         style="text-decoration: none;"
          onclick="document.getElementById('knowntonext').submit(); return false;"
          title="Mark rest as known, then go to next page"
          tabindex="-1">
@@ -93,7 +94,8 @@
       </a>
       &nbsp;
 
-      <a style="text-decoration: none;"
+      <a id="footerNextPage"
+         style="text-decoration: none;"
          href="/read/{{ nexttext.ID }}"
          title="Go to next page"
          tabindex="-1">&#8250;</a>
