@@ -123,9 +123,14 @@
       "composer db:create:test",
       "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist"
     ],
+    "test:src": [
+      "composer test tests/src"
+    ],
     "test:accept": [
-      "composer db:create:test",
-      "PANTHER_NO_HEADLESS=true SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist tests/acceptance/"
+      "composer test tests/acceptance/"
+    ],
+    "test:accept:visible": [
+      "PANTHER_NO_HEADLESS=true composer test:accept"
     ],
     "test:nofail": [
       "composer db:create:test",
