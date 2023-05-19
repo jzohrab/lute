@@ -68,8 +68,15 @@ class Reading_Test extends AcceptanceTestBase
         }
         $class = $n->attr('class');
         $termclasses = explode(' ', $class);
-        $statusMsg = '"' . $class . '" does not contain ' . $exStatus;
+        $statusMsg = $class . ' does not contain ' . $exStatus;
         $this->assertTrue(in_array($exStatus, $termclasses), $word . ' ' . $statusMsg);
+    }
+
+    private function getWordCssID($word) {
+        $n = $this->getReadingNodesByText($word);
+        if (count($n) != 1)
+            throw new \Exception('0 or multiple ' . $word);
+        return '#' . $n->attr('id');
     }
 
     private function updateTermForm($expected_Text, $updates) {
@@ -159,14 +166,14 @@ class Reading_Test extends AcceptanceTestBase
         $this->clickReadingWord('Hola');
         $wait();
         $this->client->getKeyboard()->sendKeys('1');
-        $wait();
-        $this->assertWordDataEquals('Hola', 'status1');
+        $wid = $this->getWordCssID('Hola');
+        $this->client->waitForAttributeToContain($wid, 'class', 'status1');
 
         $this->clickReadingWord('Adios');
         $wait();
         $this->client->getKeyboard()->sendKeys('2');
-        $wait();
-        $this->assertWordDataEquals('Adios', 'status2');
+        $wid = $this->getWordCssID('Adios');
+        $this->client->waitForAttributeToContain($wid, 'class', 'status2');
 
         /*
         // VERY INTERESTING ... I can't 'sendkeys' using
@@ -205,8 +212,8 @@ class Reading_Test extends AcceptanceTestBase
         $this->clickReadingWord('Hola');
         $wait();
         $this->client->getKeyboard()->sendKeys('1');
-        $wait();
-        $this->assertWordDataEquals('Hola', 'status1');
+        $wid = $this->getWordCssID('Hola');
+        $this->client->waitForAttributeToContain($wid, 'class', 'status1');
 
         $crawler = $this->client->refreshCrawler();
         $link = $crawler->filter('#markRestAsKnown')->link(); 
