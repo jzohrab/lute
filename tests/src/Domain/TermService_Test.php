@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../../src/Domain/ReadingFacade.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
+use DateTime;
 use App\Domain\TermService;
 use App\Entity\Term;
 use App\Entity\Text;
@@ -301,6 +302,8 @@ final class TermService_Test extends DatabaseTestBase
     public function test_get_references_smoke_test()
     {
         $text = $this->make_text('hola', 'Tengo un gato.  No tengo un perro.', $this->spanish);
+        $text->setReadDate(new DateTime("now"));
+        $this->text_repo->save($text, true);
 
         $tengo = $this->addTerms($this->spanish, 'tengo')[0];
         $refs = $this->term_service->findReferences($tengo);
@@ -321,12 +324,36 @@ final class TermService_Test extends DatabaseTestBase
     }
 
     /**
+     * @group dictrefsunread
+     */
+    public function test_get_references_only_includes_read_texts()
+    {
+        $text = $this->make_text('hola', 'Tengo un gato.  No tengo un perro.', $this->spanish);
+        $tengo = $this->addTerms($this->spanish, 'tengo')[0];
+
+        $refs = $this->term_service->findReferences($tengo);
+        $keys = array_keys($refs);
+        foreach ($keys as $k) {
+            $this->assertEquals(0, count($refs[$k]), $k . ', no matches for unread texts');
+        }
+
+        $text->setReadDate(new DateTime("now"));
+        $this->text_repo->save($text, true);
+        $refs = $this->term_service->findReferences($tengo);
+        $this->assertEquals(2, count($refs['term']), 'have refs once text is read');
+    }
+
+    /**
      * @group dictrefs
      */
     public function test_get_all_references()
     {
         $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
         $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
+        foreach ([$text, $archtext] as $t) {
+            $t->setReadDate(new DateTime("now"));
+            $this->text_repo->save($t, true);
+        }
 
         [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
         $tengo->setParent($tener);
@@ -371,6 +398,10 @@ final class TermService_Test extends DatabaseTestBase
     {
         $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
         $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
+        foreach ([$text, $archtext] as $t) {
+            $t->setReadDate(new DateTime("now"));
+            $this->text_repo->save($t, true);
+        }
 
         [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
         $tengo->setParent($tener);
