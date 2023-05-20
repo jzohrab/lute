@@ -132,6 +132,16 @@ class ReadingController extends AbstractController
         );
     }
 
+    #[Route('/{TxID}/goto/{nexttextid}', name: 'app_read_done_goto', methods: ['POST'])]
+    public function done_goto(Request $request, int $nexttextid, Text $text, ReadingFacade $facade): Response
+    {
+        $facade->mark_read($text);
+        return $this->redirectToRoute(
+            'app_read', [ 'TxID' => $nexttextid ],
+            Response::HTTP_SEE_OTHER
+        );
+    }
+
     #[Route('/update_status', name: 'app_read_update_status', methods: ['POST'])]
     public function update_status(
         Request $request,

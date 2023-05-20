@@ -74,7 +74,7 @@
       <a id="footerMarkRestAsKnown"
          style="text-decoration: none;"
          onclick="document.getElementById('setknown').submit(); return false;"
-         title="Mark rest as known." tabindex="-1">
+         title="Mark rest as known, mark page as read" tabindex="-1">
         <img src="/icn/tick.png" />
       </a>
 
@@ -88,16 +88,21 @@
       <a id="footerMarkRestAsKnownNextPage"
          style="text-decoration: none;"
          onclick="document.getElementById('knowntonext').submit(); return false;"
-         title="Mark rest as known, then go to next page"
+         title="Mark rest as known, mark page as read, then go to next page"
          tabindex="-1">
         <img src="/icn/tick.png" />&#8250;
       </a>
       &nbsp;
 
+      <form style="display:none"
+            id="gotonext"
+            action="/read/{{ text.ID }}/goto/{{ nexttext.ID }}"
+            method="post">
+      </form>
       <a id="footerNextPage"
          style="text-decoration: none;"
-         href="/read/{{ nexttext.ID }}"
-         title="Go to next page"
+         onclick="document.getElementById('gotonext').submit(); return false;"
+         title="Mark page as read, then go to next page"
          tabindex="-1">&#8250;</a>
       {% endif %}
     </h2>
