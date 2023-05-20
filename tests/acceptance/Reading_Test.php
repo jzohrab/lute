@@ -297,6 +297,16 @@ class Reading_Test extends AcceptanceTestBase
             DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post ' . $linkid);
         }
 
+        DbHelpers::exec_sql("update texts set TxReadDate = null");
+        DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
+        $this->goToTutorialFirstPage();
+        $this->clickLinkID("#navNext");
+        $this->clickLinkID("#navNext");
+        $this->clickLinkID("#navPrev");
+        $this->clickLinkID("#navNext");
+        $this->clickLinkID("#navPrev10");
+        $sql = "select * from texts where TxReadDate is not null";
+        DbHelpers::assertRecordcountEquals($sql, 0, "not set for navigation");
     }
 
 }
