@@ -269,14 +269,19 @@ class Reading_Test extends AcceptanceTestBase
         $this->client->clickLink('Tutorial');
         $this->client->waitForElementToContain('body', 'Welcome');
 
+        // Hitting the db directly, because if I check the objects,
+        // Doctrine caches objects and the behind-the-scenes change
+        // isn't shown.
         $b = $this->book_repo->find(1); // hardcoded ID :-(
-        $this->assertEquals('Tutorial', $b->getTitle());
+        $this->assertEquals('Tutorial', $b->getTitle(), 'sanity check');
         $txtid = $b->getTexts()[0]->getID();
-        $txt = $this->text_repo->find($txtid);
-        $this->assertEquals($txt->getReadDate(), null, 'not marked read');
+        $sql = "select txtitle,
+          case when txreaddate is null then 'no' else 'yes' end
+          from texts
+          where txid = {$txtid}";
+        DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); no" ], 'pre');
 
         $this->clickMarkRestAsKnown();
-        $txt = $this->text_repo->find($txtid);
-        $this->assertTrue($txt->getReadDate() != null, 'was marked read');
+        DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post');
     }
 }

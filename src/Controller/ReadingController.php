@@ -123,6 +123,7 @@ class ReadingController extends AbstractController
     public function allknown(Request $request, ?int $nexttextid, Text $text, ReadingFacade $facade): Response
     {
         $facade->mark_unknowns_as_known($text);
+        $facade->mark_read($text);
         $showid = $nexttextid ?? $text->getID();
         return $this->redirectToRoute(
             'app_read',

@@ -2,6 +2,7 @@
 
 namespace App\Domain;
 
+use DateTime;
 use App\Entity\Text;
 use App\Entity\Term;
 use App\Entity\Language;
@@ -93,6 +94,10 @@ class ReadingFacade {
         return $renderableSentences;
     }
 
+    public function mark_read(Text $text) {
+        $text->setReadDate(new DateTime("now"));
+        $this->textrepo->save($text, true);
+    }
 
     public function mark_unknowns_as_known(Text $text) {
         $sentences = $this->getSentences($text);
