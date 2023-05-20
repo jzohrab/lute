@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
 require_once __DIR__ . '/AcceptanceTestBase.php';
+require_once __DIR__ . '/../db_helpers.php';
 
+use App\Utils\DemoDataLoader;
+use App\Domain\TermService;
 
 class Reading_Test extends AcceptanceTestBase
 {
@@ -81,7 +84,7 @@ class Reading_Test extends AcceptanceTestBase
 
     private function updateTermForm($expected_Text, $updates) {
         $crawler = $this->client->refreshCrawler();
-        $frames = $crawler->filter('#reading-frames-right iframe');
+        $frames = $crawler->filter("#reading-frames-right iframe");
         $this->client->switchTo()->frame($frames);
         $crawler = $this->client->refreshCrawler();
 
@@ -97,6 +100,15 @@ class Reading_Test extends AcceptanceTestBase
         $crawler = $this->client->submit($form);
         usleep(300 * 1000);
     }
+
+    private function clickLinkID($linkid) {
+        $crawler = $this->client->refreshCrawler();
+        $link = $crawler->filter($linkid)->link();
+        $this->client->click($link);
+    }
+
+    ///////////////////////////////////////////
+    // Tests.
 
     public function test_reading_with_term_updates(): void
     {
@@ -215,10 +227,7 @@ class Reading_Test extends AcceptanceTestBase
         $wid = $this->getWordCssID('Hola');
         $this->client->waitForAttributeToContain($wid, 'class', 'status1');
 
-        $crawler = $this->client->refreshCrawler();
-        $link = $crawler->filter('#markRestAsKnown')->link(); 
-        $this->client->click($link);
-
+        $this->clickLinkID('#footerMarkRestAsKnown');
         $this->assertWordDataEquals('Adios', 'status99');
         $this->assertWordDataEquals('amigo', 'status99');
     }
@@ -235,9 +244,7 @@ class Reading_Test extends AcceptanceTestBase
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
         $this->client->waitForElementToContain('body', 'Adios');
-        $crawler = $this->client->refreshCrawler();
-        $link = $crawler->filter('#markRestAsKnown')->link(); 
-        $this->client->click($link);
+        $this->clickLinkID('#footerMarkRestAsKnown');
 
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Otro');
@@ -247,7 +254,59 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertWordDataEquals('Tengo', 'status0');
         $this->assertWordDataEquals('otro', 'status0');
         $this->assertWordDataEquals('amigo', 'status99');
+    }
 
+    private function goToTutorialFirstPage() {
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Tutorial');
+        $this->client->clickLink('Tutorial');
+        $this->client->waitForElementToContain('body', 'Welcome');
+    }
+
+    /**
+     * @group setreaddate
+     */
+    public function test_set_read_date() {
+        DbHelpers::clean_db();
+        $term_svc = new TermService($this->term_repo);
+        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
+
+        // Hitting the db directly, because if I check the objects,
+        // Doctrine caches objects and the behind-the-scenes change
+        // isn't shown.
+        $b = $this->book_repo->find(1); // hardcoded ID :-(
+        $this->assertEquals('Tutorial', $b->getTitle(), 'sanity check');
+        $txtid = $b->getTexts()[0]->getID();
+        $sql = "select txtitle,
+          case when txreaddate is null then 'no' else 'yes' end
+          from texts
+          where txid = {$txtid}";
+
+        $links_that_set_ReadDate = [
+            "#footerMarkRestAsKnown",
+            "#footerMarkRestAsKnownNextPage",
+            "#footerNextPage"
+        ];
+        foreach ($links_that_set_ReadDate as $linkid) {
+            DbHelpers::exec_sql("update texts set TxReadDate = null");
+            DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
+
+            $this->goToTutorialFirstPage();
+            DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); no" ], 'pre ' . $linkid);
+            $this->clickLinkID($linkid);
+            DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post ' . $linkid);
+        }
+
+        DbHelpers::exec_sql("update texts set TxReadDate = null");
+        DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
+        $this->goToTutorialFirstPage();
+        $this->clickLinkID("#navNext");
+        $this->clickLinkID("#navNext");
+        $this->clickLinkID("#navPrev");
+        $this->clickLinkID("#navNext");
+        $this->clickLinkID("#navPrev10");
+        $sql = "select * from texts where TxReadDate is not null";
+        DbHelpers::assertRecordcountEquals($sql, 0, "not set for navigation");
     }
 
 }

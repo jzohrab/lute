@@ -13,13 +13,13 @@
         <td align="left">
     <h2 style="margin: 0px;">
       {% if prevtext10 %}
-      <a href="/read/{{ prevtext10.ID }}" title="{{ prevtext10.Title }}" tabindex="-1">&#171;</a>
+      <a id="navPrev10" href="/read/{{ prevtext10.ID }}" title="{{ prevtext10.Title }}" tabindex="-1">&#171;</a>
       {% else %}
       <span style="color: lightgrey;">&#171;</span>
       {% endif %}
 
       {% if prevtext %}
-      <a href="/read/{{ prevtext.ID }}" title="{{ prevtext.Title }}" tabindex="-1">&#8249;</a>
+      <a id="navPrev" href="/read/{{ prevtext.ID }}" title="{{ prevtext.Title }}" tabindex="-1">&#8249;</a>
       {% else %}
       <span style="color: lightgrey;">&#8249;</span>
       {% endif %}
@@ -27,13 +27,13 @@
       {{ pagenum }}/{{ pagecount }}
 
       {% if nexttext %}
-      <a href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
+      <a id="navNext" href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
       {% else %}
       <span style="color: lightgrey;">&#8250;</span>
       {% endif %}
 
       {% if nexttext10 %}
-      <a href="/read/{{ nexttext10.ID }}" title="{{ nexttext10.Title }}" tabindex="-1">&#187;</a>
+      <a id="navNext10" href="/read/{{ nexttext10.ID }}" title="{{ nexttext10.Title }}" tabindex="-1">&#187;</a>
       {% else %}
       <span style="color: lightgrey;">&#187;</span>
       {% endif %}
@@ -71,10 +71,10 @@
             action="/read/{{ text.ID }}/allknown"
             method="post">
       </form>
-      <a id="markRestAsKnown"
+      <a id="footerMarkRestAsKnown"
          style="text-decoration: none;"
          onclick="document.getElementById('setknown').submit(); return false;"
-         title="Mark rest as known." tabindex="-1">
+         title="Mark rest as known, mark page as read" tabindex="-1">
         <img src="/icn/tick.png" />
       </a>
 
@@ -85,17 +85,24 @@
             action="/read/{{ text.ID }}/allknown/{{ nexttext.ID }}"
             method="post">
       </form>
-      <a style="text-decoration: none;"
+      <a id="footerMarkRestAsKnownNextPage"
+         style="text-decoration: none;"
          onclick="document.getElementById('knowntonext').submit(); return false;"
-         title="Mark rest as known, then go to next page"
+         title="Mark rest as known, mark page as read, then go to next page"
          tabindex="-1">
         <img src="/icn/tick.png" />&#8250;
       </a>
       &nbsp;
 
-      <a style="text-decoration: none;"
-         href="/read/{{ nexttext.ID }}"
-         title="Go to next page"
+      <form style="display:none"
+            id="gotonext"
+            action="/read/{{ text.ID }}/goto/{{ nexttext.ID }}"
+            method="post">
+      </form>
+      <a id="footerNextPage"
+         style="text-decoration: none;"
+         onclick="document.getElementById('gotonext').submit(); return false;"
+         title="Mark page as read, then go to next page"
          tabindex="-1">&#8250;</a>
       {% endif %}
     </h2>

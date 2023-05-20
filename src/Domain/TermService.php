@@ -120,6 +120,7 @@ class TermService {
         $sql = "select distinct TxID, TxTitle, SeText
           from sentences
           inner join texts on TxID = SeTxID
+          WHERE TxReadDate is not null
           AND lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%'
           LIMIT 20";
         $stmt = $conn->prepare($sql);
