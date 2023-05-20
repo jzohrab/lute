@@ -101,9 +101,9 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000);
     }
 
-    private function clickMarkRestAsKnown() {
+    private function clickLinkID($linkid) {
         $crawler = $this->client->refreshCrawler();
-        $link = $crawler->filter('#footerMarkRestAsKnown')->link();
+        $link = $crawler->filter($linkid)->link();
         $this->client->click($link);
     }
 
@@ -227,7 +227,7 @@ class Reading_Test extends AcceptanceTestBase
         $wid = $this->getWordCssID('Hola');
         $this->client->waitForAttributeToContain($wid, 'class', 'status1');
 
-        $this->clickMarkRestAsKnown();
+        $this->clickLinkID('#footerMarkRestAsKnown');
         $this->assertWordDataEquals('Adios', 'status99');
         $this->assertWordDataEquals('amigo', 'status99');
     }
@@ -244,7 +244,7 @@ class Reading_Test extends AcceptanceTestBase
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
         $this->client->waitForElementToContain('body', 'Adios');
-        $this->clickMarkRestAsKnown();
+        $this->clickLinkID('#footerMarkRestAsKnown');
 
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Otro');
@@ -256,6 +256,13 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertWordDataEquals('amigo', 'status99');
     }
 
+    private function goToTutorialFirstPage() {
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Tutorial');
+        $this->client->clickLink('Tutorial');
+        $this->client->waitForElementToContain('body', 'Welcome');
+    }
+
     /**
      * @group setreaddate
      */
@@ -263,11 +270,6 @@ class Reading_Test extends AcceptanceTestBase
         DbHelpers::clean_db();
         $term_svc = new TermService($this->term_repo);
         DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
-
-        $this->client->request('GET', '/');
-        $this->client->waitForElementToContain('body', 'Tutorial');
-        $this->client->clickLink('Tutorial');
-        $this->client->waitForElementToContain('body', 'Welcome');
 
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
@@ -279,9 +281,22 @@ class Reading_Test extends AcceptanceTestBase
           case when txreaddate is null then 'no' else 'yes' end
           from texts
           where txid = {$txtid}";
-        DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); no" ], 'pre');
 
-        $this->clickMarkRestAsKnown();
-        DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post');
+        $links_that_set_ReadDate = [
+            "#footerMarkRestAsKnown",
+            "#footerMarkRestAsKnownNextPage",
+            "#footerNextPage"
+        ];
+        foreach ($links_that_set_ReadDate as $linkid) {
+            DbHelpers::exec_sql("update texts set TxReadDate = null");
+            DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
+
+            $this->goToTutorialFirstPage();
+            DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); no" ], 'pre ' . $linkid);
+            $this->clickLinkID($linkid);
+            DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post ' . $linkid);
+        }
+
     }
+
 }
