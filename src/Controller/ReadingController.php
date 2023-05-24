@@ -48,6 +48,7 @@ class ReadingController extends AbstractController
         [ $prev10, $next10 ] = $facade->get_prev_next_by_10($text);
         return $this->render('read/index.html.twig', [
             'text' => $text,
+            'htmltitle' => $text->getTitle(),
             'book' => $book,
             'pagenum' => $text->getOrder(),
             'pagecount' => $book->getPageCount(),
