@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Term;
+use App\Entity\Language;
 use App\DTO\TermDTO;
 use App\Form\TermDTOType;
 use App\Repository\TermRepository;
@@ -159,9 +160,12 @@ class TermController extends AbstractController
     }
 
 
-    #[Route('/sentences/{id}', name: 'app_term_sentences', methods: ['GET'])]
-    public function show_sentences(Term $term, TermService $term_svc): Response
+    #[Route('/sentences/{LgID}/{text}', name: 'app_term_sentences', methods: ['GET'])]
+    public function show_sentences(Language $lang, string $text, TermService $term_svc): Response
     {
+        $term = $term_svc->find($text, $lang);
+        if ($term == null)
+            $term = new Term($lang, $text);
         $refs = $term_svc->findReferences($term);
 
         // Ref https://stackoverflow.com/questions/2517947/
