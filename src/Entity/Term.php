@@ -105,9 +105,13 @@ class Term
         if ($this->language == null)
             throw new \Exception("Must do Term->setLanguage() before setText()");
 
+        // Clean up encoding cruft.
         $t = trim($WoText);
         $zws = mb_chr(0x200B); // zero-width space.
         $t = str_replace($zws, '', $t);
+        $nbsp = mb_chr(0x00A0); // non-breaking space
+        $t = str_replace($nbsp, ' ', $t);
+
         $tokens = $this->getLanguage()->getParsedTokens($t);
 
         // Terms can't contain paragraph markers.

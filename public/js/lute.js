@@ -423,7 +423,10 @@ function update_status_for_marked_elements(new_status) {
   if (els.length == 0)
     return;
   const textid = $('span.kwordmarked').first().attr('tid');
-  // console.log('To update to ' + newStatus + ': ' + els.join(', '));
+
+  // const zeroWidthSpace = '\u200b';
+  // const zels = els.map(el => el.replaceAll(zeroWidthSpace, '/'));
+  // console.log('To update to ' + new_status + ': ' + zels.join(', '));
 
   $.ajax({
     url: '/read/update_status',

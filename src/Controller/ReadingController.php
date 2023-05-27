@@ -152,6 +152,7 @@ class ReadingController extends AbstractController
     {
         $prms = $request->request->all();
         $words = $prms['terms'];
+        // dump('in /update_status, updating words = ' . implode(', ', $words));
         $textid = intval($prms['textid']);
         $newstatus = intval($prms['new_status']);
         $text = $textRepository->find($textid);
