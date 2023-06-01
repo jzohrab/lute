@@ -94,13 +94,13 @@ class ReadingController extends AbstractController
         // database.  Without the below fix to the space characters, a
         // Term with text "hello there" will not match a database
         // sentence "she said hello there".
-        $zws = mb_chr(0x200B); // zero-width space.
-        $parts = explode($zws, $text);
-        $cleanspaces = function($s) { return preg_replace('/\s/u', ' ', $s); };
-        $cleanedparts = array_map($cleanspaces, $parts);
-        $text = implode($zws, $cleanedparts);
+        $usetext = preg_replace('/\s/u', ' ', $text);
 
-        $termdto = $facade->loadDTO($lid, $text);
+        // Undo the "annoying hack" sent by lute.js to handle '.'
+        // character.
+        $usetext = preg_replace('/__LUTE_PERIOD__/u', '.', $text);
+
+        $termdto = $facade->loadDTO($lid, $usetext);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
