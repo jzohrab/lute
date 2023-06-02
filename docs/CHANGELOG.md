@@ -1,5 +1,23 @@
 # Changelog
 
+## 2023-06-02 v2.0.3
+
+This release adds a few small features, and gets rid of some old code and database fields.  Per the notes on the wiki about [upgrading Lute](https://github.com/jzohrab/lute/wiki/Upgrading-Lute), don't forget to backup your database prior to upgrading, _just in case_.  (I've run the upgrade several times on my machine.)
+
+Feature changes:
+
+* Allow period in terms (ref [issue 28](https://github.com/jzohrab/lute/issues/28))
+* Only show sentences for texts I've actually read (ref [issue 34](https://github.com/jzohrab/lute/issues/34)).  The navigation buttons on text page footers set the "read date" for texts
+* Show "Sentences" link even when defining new term, so that users can see where a new term has been used in the past.  Useful when defining new multi-word terms that they may have encountered already.
+
+Back end:
+
+* Add stack traces to error screens
+* Add initial set of browser-level acceptance tests using Panther
+* Add page number to page title
+* Remove obsolete words table fields
+
+
 ## 2023-05-15 v2.0.2
 
 Feature changes:
