@@ -184,6 +184,22 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertWordDataEquals(
             'cap.', 'status1',
             [ 'data_trans' => 'chapter' ]);
+
+        $cap = $this->getReadingNodesByText('cap.');
+        $uno = $this->getReadingNodesByText('uno');
+        $cap_id = $cap->attr('id');
+        $uno_id = $uno->attr('id');
+        $this->client->getMouse()->mouseDownTo("#{$cap_id}");
+        $this->client->getMouse()->mouseUpTo("#{$uno_id}");
+        usleep(300 * 1000); // 300k microseconds - should really wait ...
+
+        $updates = [ 'Translation' => 'chap 1' ];
+        $this->updateTermForm('cap. uno', $updates);
+
+        $this->assertDisplayedTextEquals('He/ /escrito/ /cap. uno/.', 're-updated');
+        $this->assertWordDataEquals(
+            'cap. uno', 'status1',
+            [ 'data_trans' => 'chap 1' ]);
     }
 
 
