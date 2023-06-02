@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTime;
 use App\Repository\TextRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -36,6 +37,9 @@ class Text
 
     #[ORM\Column(name: 'TxSourceURI', length: 1000, nullable: true)]
     private ?string $TxSourceURI = null;
+
+    #[ORM\Column(name: 'TxReadDate', type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?DateTime $TxReadDate = null;
 
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
@@ -183,4 +187,14 @@ class Text
         return $this;
     }
 
+    public function getReadDate(): ?DateTime
+    {
+        return $this->TxReadDate;
+    }
+
+    public function setReadDate(?DateTime $dt): self
+    {
+        $this->TxReadDate = $dt;
+        return $this;
+    }
 }

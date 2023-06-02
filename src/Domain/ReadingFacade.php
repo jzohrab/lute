@@ -2,6 +2,7 @@
 
 namespace App\Domain;
 
+use DateTime;
 use App\Entity\Text;
 use App\Entity\Term;
 use App\Entity\Language;
@@ -93,6 +94,10 @@ class ReadingFacade {
         return $renderableSentences;
     }
 
+    public function mark_read(Text $text) {
+        $text->setReadDate(new DateTime("now"));
+        $this->textrepo->save($text, true);
+    }
 
     public function mark_unknowns_as_known(Text $text) {
         $sentences = $this->getSentences($text);
@@ -106,7 +111,7 @@ class ReadingFacade {
         // dump($tis);
 
         $is_unknown = function($ti) {
-            return $ti->IsWord == 1 && ($ti->WoID == 0 || $ti->WoID == null) && $ti->WordCount == 1;
+            return $ti->IsWord == 1 && ($ti->WoID == 0 || $ti->WoID == null) && $ti->TokenCount == 1;
         };
         $unknowns = array_filter($tis, $is_unknown);
         $words_lc = array_map(fn($ti) => $ti->TextLC, $unknowns);

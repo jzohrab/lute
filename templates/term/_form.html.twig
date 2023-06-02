@@ -48,7 +48,6 @@
 
   {{ form_row(form.Status) }}
   {{ form_row(form.CurrentImage) }}
-  {{ form_row(form.Sentence) }}
 
   {% do form.termTags.setRendered %}
   {# manually write list so it can be managed by tagit. #}
@@ -68,9 +67,7 @@
   <tr>
     <td />
     <td align="right">
-      {% if termdto.id %}
-      <a href="#" onclick="show_term_sentences({{ termdto.id }}); return false;">Sentences</a>
-      {% endif %}
+      <a href="" onclick="show_term_sentences(); return false;">Sentences</a>
       <button class="btn">{{ button_label|default('Save') }}</button>
     </td>
   </tr>
@@ -309,8 +306,13 @@
   }
 
 
-  function show_term_sentences(termid) {
-    const url = `/term/sentences/${termid}`;
+  function show_term_sentences() {
+    const langid = $('#term_dto_language').val();
+    const txt = $('#term_dto_Text').val();
+    // %E2%80%8B is the zero-width string.  The term is reparsed
+    // on the server, so this doesn't need to be sent.
+    const t = encodeURIComponent(txt).replaceAll('%E2%80%8B', '');
+    const url = `/term/sentences/${langid}/${t}`;
     top.frames.dictframe.location.href = url;
   }
 

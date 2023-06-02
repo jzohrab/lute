@@ -127,9 +127,9 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         $this->assert_rendered_text_equals($t, "Tengo/ /un/ /gato/. /Una/ /lista(1)/./¶/Ella/.");
 
-        $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
+        $wordssql = "select wotext, wostatus from words order by woid";
         $expected = [
-            "lista; 1; 1",
+            "lista; 1",
         ];
         DbHelpers::assertTableContains($wordssql, $expected, "initial words");
 

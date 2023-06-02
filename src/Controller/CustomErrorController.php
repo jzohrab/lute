@@ -52,6 +52,7 @@ class CustomErrorController extends AbstractController
 
         $data = [
             'Error message' => $exception->getMessage(),
+            'stack trace' => $exception->getTraceAsString(),
             'status code' => $exception->getStatusCode(),
             'status text' => $exception->getStatusText(),
 

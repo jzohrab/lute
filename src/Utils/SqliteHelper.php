@@ -115,7 +115,8 @@ class SqliteHelper {
             }
         }
         catch (\Exception $e) {
-            $args = ['errors' => [ $e->getMessage() ]];
+            $msg = [ $e->getMessage(), 'Stack trace: ' . $e->getTraceAsString() ];
+            $args = ['errors' => [ implode("\n", $msg) ]];
             $error = SqliteHelper::renderError('fatal_error.html.twig', $args);
         }
 
