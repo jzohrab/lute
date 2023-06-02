@@ -161,6 +161,49 @@ class Reading_Test extends AcceptanceTestBase
     }
 
     /**
+     * @group abbrev
+     */
+    public function test_create_term_with_period(): void
+    {
+        $this->spanish->setLgExceptionsSplitSentences('cap.');
+        $this->language_repo->save($this->spanish, true);
+
+        $this->make_text("Hola", "He escrito cap. uno.", $this->spanish);
+        $this->client->request('GET', '/');
+        usleep(300 * 1000); // 300k microseconds - should really wait instead ...
+        $this->client->clickLink('Hola');
+
+        $this->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'initial text');
+
+        $this->clickReadingWord('cap.');
+
+        $updates = [ 'Translation' => 'chapter' ];
+        $this->updateTermForm('cap.', $updates);
+
+        $this->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'updated');
+        $this->assertWordDataEquals(
+            'cap.', 'status1',
+            [ 'data_trans' => 'chapter' ]);
+
+        $cap = $this->getReadingNodesByText('cap.');
+        $uno = $this->getReadingNodesByText('uno');
+        $cap_id = $cap->attr('id');
+        $uno_id = $uno->attr('id');
+        $this->client->getMouse()->mouseDownTo("#{$cap_id}");
+        $this->client->getMouse()->mouseUpTo("#{$uno_id}");
+        usleep(300 * 1000); // 300k microseconds - should really wait ...
+
+        $updates = [ 'Translation' => 'chap 1' ];
+        $this->updateTermForm('cap. uno', $updates);
+
+        $this->assertDisplayedTextEquals('He/ /escrito/ /cap. uno/.', 're-updated');
+        $this->assertWordDataEquals(
+            'cap. uno', 'status1',
+            [ 'data_trans' => 'chap 1' ]);
+    }
+
+
+    /**
      * @group hotkeys
      */
     public function test_hotkeys(): void

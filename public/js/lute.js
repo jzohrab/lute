@@ -116,20 +116,28 @@ let tooltip_textitem_hover_content = function (el) {
 function showEditFrame(el, extra_args = {}) {
   const lid = parseInt(el.attr('lid'));
 
-  // Join the words together so they can be sent in the URL
-  // string, but in such a way that the string can be "safely"
-  // disassembled on the server back into the component words.
-  const zeroWidthSpace = '\u200b';
   let text = extra_args.textparts ?? [ el.text() ];
-  const sendtext = text.join(zeroWidthSpace);
+  const sendtext = text.join('');
 
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
 
-  const url = `/read/termform/${lid}/${sendtext}?${extras}`;
+  // Annoying hack.  I wanted to send a period '.' in the term, but
+  // Symfony didn't handle that well (per issue
+  // https://github.com/jzohrab/lute/issues/28), and replacing the '.'
+  // with the encoded value ('\u2e' or '%2E') didn't work, as it kept
+  // getting changed back to '.' on send, or it said that it couldn't
+  // find the controller route.  There is probably something very
+  // simple I'm missing, but for now, replacing the '.' with a hacky
+  // string which I'll replace on server side as well.
+  const periodhack = '__LUTE_PERIOD__';
+  const url = `/read/termform/${lid}/${sendtext}?${extras}`.replaceAll('.', periodhack);
+  // console.log('go to url = ' + url);
+
   top.frames.wordframe.location.href = url;
 }
+
 
 function show_help() {
   const url = `/read/shortcuts`;
@@ -193,12 +201,6 @@ function select_ended(e) {
   }
   
   if (selection_start_el.attr('id') == $(this).attr('id')) {
-    clear_newmultiterm_elements();
-    return;
-  }
-
-  if (selection_start_el.attr('seid') != $(this).attr('seid')) {
-    alert("Selections cannot span sentences.");
     clear_newmultiterm_elements();
     return;
   }

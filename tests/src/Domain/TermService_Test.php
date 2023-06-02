@@ -3,7 +3,6 @@
 require_once __DIR__ . '/../../../src/Domain/ReadingFacade.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use DateTime;
 use App\Domain\TermService;
 use App\Entity\Term;
 use App\Entity\Text;
