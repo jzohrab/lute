@@ -16,6 +16,14 @@ class BingImageSearchController extends AbstractController
     #[Route('/search/{langid}/{text}/{searchstring?-}', name: 'app_bing_search', methods: ['GET'])]
     public function bing_search(int $langid, string $text, string $searchstring): Response
     {
+        if (array_key_exists('NO_BING_IMAGES', $_ENV)) {
+            return $this->render('imagesearch/index.html.twig', [
+                'langid' => $langid,
+                'text' => $text,
+                'images' => []
+            ]);
+        }
+
         // dump("searching for " . $text . " in " . $language->getLgName());
         $search = rawurlencode($text);
         $searchparams = str_replace("###", $search, $searchstring);
