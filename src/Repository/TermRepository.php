@@ -194,7 +194,9 @@ class TermRepository extends ServiceEntityRepository
         $base_sql = "SELECT
 0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, w.WoText as WoText, p.WoText as ParentText, w.WoTranslation,
 replace(wi.WiSource, '.jpeg', '') as WiSource,
-ifnull(tags.taglist, '') as TagList, StText
+ifnull(tags.taglist, '') as TagList,
+StText,
+StID
 FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
@@ -215,9 +217,45 @@ LEFT OUTER JOIN (
 LEFT OUTER JOIN wordimages wi on wi.WiWoID = w.WoID
 ";
 
+        // Extra search filters passed in as data from term/index.html.twig.
+        $filtParentsOnly = $parameters['filtParentsOnly'];
+        $filtAgeMin = trim($parameters['filtAgeMin']);
+        $filtAgeMax = trim($parameters['filtAgeMax']);
+        $filtStatusMin = intval($parameters['filtStatusMin']);
+        $filtStatusMax = intval($parameters['filtStatusMax']);
+        $filtIncludeIgnored = $parameters['filtIncludeIgnored'];
+
+        $wheres = [ "1 = 1" ];
+        if ($filtParentsOnly == 'true')
+            $wheres[] = "WpWoID IS NULL";
+        if ($filtAgeMin != "") {
+            $filtAgeMin = intval('0' . $filtAgeMin);
+            $wheres[] = "cast(julianday('now') - julianday(w.wocreated) as int) >= $filtAgeMin";
+        }
+        if ($filtAgeMax != "") {
+            $filtAgeMax = intval('0' . $filtAgeMax);
+            $wheres[] = "cast(julianday('now') - julianday(w.wocreated) as int) <= $filtAgeMax";
+        }
+
+        $statuswheres = [ "StID <> 98" ];  // Exclude "ignored" terms at first.
+        if ($filtStatusMin > 0) {
+            $statuswheres[] = "StID >= $filtStatusMin";
+        }
+        if ($filtStatusMax > 0) {
+            $statuswheres[] = "StID <= $filtStatusMax";
+        }
+        $statuswheres = implode(' AND ', $statuswheres);
+        if ($filtIncludeIgnored == 'true') {
+            $statuswheres = "(({$statuswheres}) OR StID = 98)";
+        }
+        $wheres[] = $statuswheres;
+
+        $where = implode(' AND ', $wheres);
+
+        $full_base_sql = $base_sql . ' WHERE ' . $where;
+
         $conn = $this->getEntityManager()->getConnection();
-        
-        return DataTablesSqliteQuery::getData($base_sql, $parameters, $conn);
+        return DataTablesSqliteQuery::getData($full_base_sql, $parameters, $conn);
     }
 
 }

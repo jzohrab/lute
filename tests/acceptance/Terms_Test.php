@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/AcceptanceTestBase.php';
 
+use App\Entity\Status;
 
 class Terms_Test extends AcceptanceTestBase
 {
@@ -47,6 +48,15 @@ class Terms_Test extends AcceptanceTestBase
         usleep(300 * 1000);
     }
 
+    private function assertFilterVisibilityIs($expected_visibility, $msg = '') {
+        $crawler = $this->client->refreshCrawler();
+        $actual = $crawler->filter("#filtParentsOnly")->isDisplayed();
+        $this->assertEquals($actual, $expected_visibility, 'visibility ' . $msg);
+    }
+
+    private function listingShouldContain($msg, $expected) {
+        $this->assertEquals($expected, $this->getTermTableContent(), $msg);
+    }
 
     ///////////////////////
     // Tests
@@ -115,5 +125,107 @@ class Terms_Test extends AcceptanceTestBase
         $this->assertEquals($form['term_dto[ParentText]']->getValue(), 'gato', 'parent set');
     }
 
+    /**
+     * @group termlistfilters
+     */
+    public function test_term_list_filters(): void
+    {
+        $this->client->request('GET', '/');
+        $this->client->clickLink('Terms');
+        $this->assertFilterVisibilityIs(false, 'Initially not visible');
 
+        $this->client->clickLink('Create new');
+        $updates = [
+            'language' => $this->spanish->getLgID(),
+            'Text' => 'gatos',
+            'ParentText' => 'gato',
+            'Translation' => 'cat'
+        ];
+        $this->updateTermForm($updates);
+
+        $this->listingShouldContain('Initial data',
+            [
+                '; gato; ; cat; Spanish; ; New (1)',
+                '; gatos; gato; cat; Spanish; ; New (1)',
+            ]
+        );
+
+        $this->assertFilterVisibilityIs(false, "Filter not shown");
+
+        $this->client->getMouse()->clickTo("#showHideFilters");
+        $this->assertFilterVisibilityIs(true, "Filter shown");
+
+        $this->client->getMouse()->clickTo("#filtParentsOnly");
+        usleep(300 * 1000);
+        $this->listingShouldContain(
+            'Only parent shown',
+            [
+                '; gato; ; cat; Spanish; ; New (1)'
+            ]
+        );
+
+        $this->client->getMouse()->clickTo("#showHideFilters");
+        $this->assertFilterVisibilityIs(false, "Filter not shown after hide");
+        $this->listingShouldContain(
+            'All data shown again',
+            [
+                '; gato; ; cat; Spanish; ; New (1)',
+                '; gatos; gato; cat; Spanish; ; New (1)',
+            ]
+        );
+
+        $this->client->clickLink('gatos');
+        $this->updateTermForm(['Status' => Status::IGNORED]);
+        usleep(300 * 1000);
+        $this->listingShouldContain(
+            'Ignored term not included',
+            [
+                '; gato; ; cat; Spanish; ; New (1)'
+            ]
+        );
+
+        $this->client->getMouse()->clickTo("#showHideFilters");
+        $this->assertFilterVisibilityIs(true, "Filter now shown");
+        $this->client->getMouse()->clickTo("#filtIncludeIgnored");
+        usleep(300 * 1000);
+        $this->listingShouldContain(
+            'Ignored term now included',
+            [
+                '; gato; ; cat; Spanish; ; New (1)',
+                '; gatos; gato; cat; Spanish; ; Ignored'
+            ]
+        );
+
+        $this->client->clickLink('gatos');
+        $this->updateTermForm([ 'Status' => 2 ]);
+        usleep(300 * 1000);
+        $this->assertFilterVisibilityIs(true, "Filter is still shown, was never hidden");
+        $this->listingShouldContain(
+            'Previously ignored term still shown',
+            [
+                '; gato; ; cat; Spanish; ; New (1)',
+                '; gatos; gato; cat; Spanish; ; New (2)'
+            ]
+        );
+
+        $crawler = $this->client->refreshCrawler();
+        $myInput = $crawler->filterXPath(".//select[@id='filtStatusMin']//option[@value='2']");
+        $myInput->click();
+        usleep(300 * 1000);
+        $this->listingShouldContain(
+            'Min status set for filter',
+            [
+                '; gatos; gato; cat; Spanish; ; New (2)'
+            ]
+        );
+
+        $crawler = $this->client->refreshCrawler();
+        $crawler->filter("#filtAgeMin")->sendKeys('7');
+        usleep(300 * 1000);
+        $this->listingShouldContain(
+            'Age 7 should filter out all items, sanity check only',
+            [ 'No data available in table' ]
+        );
+    }
+    
 }
