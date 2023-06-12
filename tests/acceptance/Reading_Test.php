@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/AcceptanceTestBase.php';
+namespace App\Tests\Acceptance;
+
 require_once __DIR__ . '/../db_helpers.php';
 
 use App\Utils\DemoDataLoader;
@@ -310,7 +311,7 @@ class Reading_Test extends AcceptanceTestBase
      * @group setreaddate
      */
     public function test_set_read_date() {
-        DbHelpers::clean_db();
+        \DbHelpers::clean_db();
         $term_svc = new TermService($this->term_repo);
         DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
 
@@ -331,17 +332,17 @@ class Reading_Test extends AcceptanceTestBase
             "#footerNextPage"
         ];
         foreach ($links_that_set_ReadDate as $linkid) {
-            DbHelpers::exec_sql("update texts set TxReadDate = null");
-            DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
+            \DbHelpers::exec_sql("update texts set TxReadDate = null");
+            \DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
 
             $this->goToTutorialFirstPage();
-            DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); no" ], 'pre ' . $linkid);
+            \DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); no" ], 'pre ' . $linkid);
             $this->clickLinkID($linkid);
-            DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post ' . $linkid);
+            \DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post ' . $linkid);
         }
 
-        DbHelpers::exec_sql("update texts set TxReadDate = null");
-        DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
+        \DbHelpers::exec_sql("update texts set TxReadDate = null");
+        \DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
         $this->goToTutorialFirstPage();
         $this->clickLinkID("#navNext");
         $this->clickLinkID("#navNext");
@@ -349,7 +350,7 @@ class Reading_Test extends AcceptanceTestBase
         $this->clickLinkID("#navNext");
         $this->clickLinkID("#navPrev10");
         $sql = "select * from texts where TxReadDate is not null";
-        DbHelpers::assertRecordcountEquals($sql, 0, "not set for navigation");
+        \DbHelpers::assertRecordcountEquals($sql, 0, "not set for navigation");
     }
 
 }
