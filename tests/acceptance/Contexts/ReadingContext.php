@@ -98,4 +98,12 @@ class ReadingContext
         usleep(300 * 1000);
     }
 
+    public function updateTextBody($new_text) {
+        $crawler = $this->client->refreshCrawler();
+        $form = $crawler->selectButton('Update')->form();
+        $form["text[Text]"] = $new_text;
+        $crawler = $this->client->submit($form);
+        usleep(300 * 1000);
+    }
+
 }

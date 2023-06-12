@@ -189,6 +189,29 @@ class Reading_Test extends AcceptanceTestBase
     }
 
     /**
+     * @group updatetext
+     */
+    public function test_can_update_text(): void
+    {
+        $this->make_text("Hola", "HOLA tengo un gato.", $this->spanish);
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Hola');
+        $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'HOLA');
+
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('HOLA/ /tengo/ /un/ /gato/.', 'loaded');
+
+        // Blah hacky.
+        $wait = function() { usleep(500 * 1000); };
+
+        $this->clickLinkID('#editText');
+        $ctx->updateTextBody('ADIOS y ahora no tengo nada.');
+        $wait();
+        $ctx->assertDisplayedTextEquals('ADIOS/ /y/ /ahora/ /no/ /tengo/ /nada/.', 'updated');
+    }
+
+    /**
      * @group othertext
      */
     public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void
