@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/AcceptanceTestBase.php';
+namespace App\Tests\acceptance;
 
 use App\Entity\Status;
 
