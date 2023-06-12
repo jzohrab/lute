@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Tests\Acceptance;
+namespace App\Tests\acceptance;
 
 use App\Entity\Status;
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Tests\Acceptance;
+namespace App\Tests\acceptance;
 
 require_once __DIR__ . '/../db_helpers.php';
 
@@ -15,102 +15,6 @@ class Reading_Test extends AcceptanceTestBase
         $this->load_languages();
     }
 
-    private function getTextitems() {
-        $this->client->switchTo()->defaultContent();
-        $crawler = $this->client->refreshCrawler();
-        $nodes = $crawler->filterXPath('//span[contains(@class, "textitem")]');
-        $tis = [];
-        for ($i = 0; $i < count($nodes); $i++) {
-            $n = $nodes->eq($i);
-            $tis[] = $n;
-        }
-        return $tis;
-    }
-
-    private function getReadingNodesByText($word) {
-        $tis = $this->getTextitems();
-
-        // Load all text nodes into a map, keyed by text.
-        // Note that if multiple items have the same text, they're included in an array.
-        $tempmap = [];
-        foreach ($tis as $n) {
-            $k = $n->text();
-            if (! array_key_exists($k, $tempmap)) {
-                // dump('not found key = "' . $k . '", adding');
-                $tempmap[$k] = [];
-            }
-            $tempmap[$k][] = $n;
-        }
-        $mapbytext = [];
-        foreach (array_keys($tempmap) as $k) {
-            $v = $tempmap[$k];
-            if (count($v) == 1)
-                $v = $v[0];
-            $mapbytext[$k] = $v;
-        }
-        // dump($mapbytext);
-        return $mapbytext[$word];
-    }
-
-    private function assertDisplayedTextEquals($expected, $msg = 'displayed text') {
-        $titext = array_map(fn($n) => $n->text(), $this->getTextitems());
-        $actual = implode('/', $titext);
-        $this->assertEquals($expected, $actual, $msg);
-    }
-
-    private function clickReadingWord($word) {
-        $n = $this->getReadingNodesByText($word);
-        $nid = $n->attr('id');
-        $this->client->getMouse()->clickTo("#{$nid}");
-        usleep(300 * 1000);
-    }
-
-    private function assertWordDataEquals($word, $exStatus, $exAttrs = []) {
-        $n = $this->getReadingNodesByText($word);
-        foreach (array_keys($exAttrs) as $k) {
-            $this->assertEquals($n->attr($k), $exAttrs[$k], $word . ' ' . $k);
-        }
-        $class = $n->attr('class');
-        $termclasses = explode(' ', $class);
-        $statusMsg = $class . ' does not contain ' . $exStatus;
-        $this->assertTrue(in_array($exStatus, $termclasses), $word . ' ' . $statusMsg);
-    }
-
-    private function getWordCssID($word) {
-        $n = $this->getReadingNodesByText($word);
-        if (count($n) != 1)
-            throw new \Exception('0 or multiple ' . $word);
-        return '#' . $n->attr('id');
-    }
-
-    private function updateTermForm($expected_Text, $updates) {
-        $crawler = $this->client->refreshCrawler();
-        $frames = $crawler->filter("#reading-frames-right iframe");
-        $this->client->switchTo()->frame($frames);
-        $crawler = $this->client->refreshCrawler();
-
-        $form = $crawler->selectButton('Save')->form();
-        $loaded = $form['term_dto[Text]']->getValue();
-        $zws = mb_chr(0x200B);
-        $actual = str_replace($zws, '', $loaded);
-        $this->assertEquals($actual, $expected_Text, 'text pre-loaded');
-
-        foreach (array_keys($updates) as $f) {
-            $form["term_dto[{$f}]"] = $updates[$f];
-        }
-        $crawler = $this->client->submit($form);
-        usleep(300 * 1000);
-    }
-
-    private function clickLinkID($linkid) {
-        $crawler = $this->client->refreshCrawler();
-        $link = $crawler->filter($linkid)->link();
-        $this->client->click($link);
-    }
-
-    ///////////////////////////////////////////
-    // Tests.
-
     public function test_reading_with_term_updates(): void
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
@@ -120,17 +24,19 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Hola');
         $this->assertPageTitleContains('Reading "Hola"');
-        $this->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
-        $this->clickReadingWord('Hola');
+
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
+        $ctx->clickReadingWord('Hola');
 
         $updates = [ 'Translation' => 'hello', 'ParentText' => 'adios' ];
-        $this->updateTermForm('hola', $updates);
+        $ctx->updateTermForm('hola', $updates);
 
-        $this->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
-        $this->assertWordDataEquals(
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
+        $ctx->assertWordDataEquals(
             'Hola', 'status1',
             [ 'data_trans' => 'hello', 'parent_text' => 'adios' ]);
-        $this->assertWordDataEquals(
+        $ctx->assertWordDataEquals(
             'Adios', 'status1',
             [ 'data_trans' => 'hello', 'parent_text' => null ]);
     }
@@ -142,10 +48,11 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000); // 300k microseconds - should really wait instead ...
         $this->client->clickLink('Hola');
 
-        $this->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.', 'initial text');
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.', 'initial text');
 
-        $adios = $this->getReadingNodesByText('Adios');
-        $amigo = $this->getReadingNodesByText('amigo');
+        $adios = $ctx->getReadingNodesByText('Adios');
+        $amigo = $ctx->getReadingNodesByText('amigo');
         $adios_id = $adios->attr('id');
         $amigo_id = $amigo->attr('id');
         $this->client->getMouse()->mouseDownTo("#{$adios_id}");
@@ -153,10 +60,10 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000); // 300k microseconds - should really wait ...
 
         $updates = [ 'Translation' => 'goodbye friend' ];
-        $this->updateTermForm('adios amigo', $updates);
+        $ctx->updateTermForm('adios amigo', $updates);
 
-        $this->assertDisplayedTextEquals('Hola/. /Adios amigo/.', 'adios amigo grouped');
-        $this->assertWordDataEquals(
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios amigo/.', 'adios amigo grouped');
+        $ctx->assertWordDataEquals(
             'Adios amigo', 'status1',
             [ 'data_trans' => 'goodbye friend' ]);
     }
@@ -174,20 +81,21 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000); // 300k microseconds - should really wait instead ...
         $this->client->clickLink('Hola');
 
-        $this->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'initial text');
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'initial text');
 
-        $this->clickReadingWord('cap.');
+        $ctx->clickReadingWord('cap.');
 
         $updates = [ 'Translation' => 'chapter' ];
-        $this->updateTermForm('cap.', $updates);
+        $ctx->updateTermForm('cap.', $updates);
 
-        $this->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'updated');
-        $this->assertWordDataEquals(
+        $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'updated');
+        $ctx->assertWordDataEquals(
             'cap.', 'status1',
             [ 'data_trans' => 'chapter' ]);
 
-        $cap = $this->getReadingNodesByText('cap.');
-        $uno = $this->getReadingNodesByText('uno');
+        $cap = $ctx->getReadingNodesByText('cap.');
+        $uno = $ctx->getReadingNodesByText('uno');
         $cap_id = $cap->attr('id');
         $uno_id = $uno->attr('id');
         $this->client->getMouse()->mouseDownTo("#{$cap_id}");
@@ -195,10 +103,10 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000); // 300k microseconds - should really wait ...
 
         $updates = [ 'Translation' => 'chap 1' ];
-        $this->updateTermForm('cap. uno', $updates);
+        $ctx->updateTermForm('cap. uno', $updates);
 
-        $this->assertDisplayedTextEquals('He/ /escrito/ /cap. uno/.', 're-updated');
-        $this->assertWordDataEquals(
+        $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap. uno/.', 're-updated');
+        $ctx->assertWordDataEquals(
             'cap. uno', 'status1',
             [ 'data_trans' => 'chap 1' ]);
     }
@@ -214,21 +122,23 @@ class Reading_Test extends AcceptanceTestBase
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
         $this->client->waitForElementToContain('body', 'Adios');
-        $this->assertWordDataEquals('Hola', 'status0');
+
+        $ctx = $this->getReadingContext();
+        $ctx->assertWordDataEquals('Hola', 'status0');
 
         // Blah hacky.
         $wait = function() { usleep(500 * 1000); };
 
-        $this->clickReadingWord('Hola');
+        $ctx->clickReadingWord('Hola');
         $wait();
         $this->client->getKeyboard()->sendKeys('1');
-        $wid = $this->getWordCssID('Hola');
+        $wid = $ctx->getWordCssID('Hola');
         $this->client->waitForAttributeToContain($wid, 'class', 'status1');
 
-        $this->clickReadingWord('Adios');
+        $ctx->clickReadingWord('Adios');
         $wait();
         $this->client->getKeyboard()->sendKeys('2');
-        $wid = $this->getWordCssID('Adios');
+        $wid = $ctx->getWordCssID('Adios');
         $this->client->waitForAttributeToContain($wid, 'class', 'status2');
 
         /*
@@ -260,20 +170,22 @@ class Reading_Test extends AcceptanceTestBase
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
         $this->client->waitForElementToContain('body', 'Adios');
-        $this->assertWordDataEquals('Hola', 'status0');
+
+        $ctx = $this->getReadingContext();
+        $ctx->assertWordDataEquals('Hola', 'status0');
 
         // Blah hacky.
         $wait = function() { usleep(500 * 1000); };
 
-        $this->clickReadingWord('Hola');
+        $ctx->clickReadingWord('Hola');
         $wait();
         $this->client->getKeyboard()->sendKeys('1');
-        $wid = $this->getWordCssID('Hola');
+        $wid = $ctx->getWordCssID('Hola');
         $this->client->waitForAttributeToContain($wid, 'class', 'status1');
 
         $this->clickLinkID('#footerMarkRestAsKnown');
-        $this->assertWordDataEquals('Adios', 'status99');
-        $this->assertWordDataEquals('amigo', 'status99');
+        $ctx->assertWordDataEquals('Adios', 'status99');
+        $ctx->assertWordDataEquals('amigo', 'status99');
     }
 
     /**
@@ -294,10 +206,12 @@ class Reading_Test extends AcceptanceTestBase
         $this->client->waitForElementToContain('body', 'Otro');
         $this->client->clickLink('Otro');
         $this->client->waitForElementToContain('body', 'amigo');
-        $this->assertDisplayedTextEquals('Tengo/ /otro/ /amigo/.', 'other text');
-        $this->assertWordDataEquals('Tengo', 'status0');
-        $this->assertWordDataEquals('otro', 'status0');
-        $this->assertWordDataEquals('amigo', 'status99');
+
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('Tengo/ /otro/ /amigo/.', 'other text');
+        $ctx->assertWordDataEquals('Tengo', 'status0');
+        $ctx->assertWordDataEquals('otro', 'status0');
+        $ctx->assertWordDataEquals('amigo', 'status99');
     }
 
     private function goToTutorialFirstPage() {

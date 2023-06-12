@@ -11,7 +11,7 @@
 //
 // There's probably a better way to do this, but this is fine.
 
-namespace App\Tests\Acceptance;
+namespace App\Tests\acceptance;
 
 require_once __DIR__ . '/../db_helpers.php';
 
@@ -36,6 +36,8 @@ use App\Repository\SettingsRepository;
 use App\Domain\TermService;
 use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
+
+use App\Tests\acceptance\Contexts\ReadingContext;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -228,4 +230,13 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $this->assertEquals($s, $expected);
     }
 
+    public function clickLinkID($linkid) {
+        $crawler = $this->client->refreshCrawler();
+        $link = $crawler->filter($linkid)->link();
+        $this->client->click($link);
+    }
+
+    public function getReadingContext() {
+        return new ReadingContext($this->client);
+    }
 }
