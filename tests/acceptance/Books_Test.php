@@ -79,9 +79,11 @@ class Books_Test extends AcceptanceTestBase
         ];
         $this->updateBookForm($updates);
 
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('Hola/. /Tengo/ /un/ /gato/.', 'book content shown');
+
         $this->client->request('GET', '/');
-        $expected = [ 'Hola; Spanish; ; 4 (0%);  ' ];
-        $this->assertEquals($expected, $this->getBookTableContent());
+        $this->listingShouldContain('Book shown', [ 'Hola; Spanish; ; 4 (0%);  ' ]);
     }
     
 }
