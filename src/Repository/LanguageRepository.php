@@ -32,9 +32,27 @@ class LanguageRepository extends ServiceEntityRepository
 
     public function remove(Language $entity, bool $flush = false): void
     {
+        $lgid = $entity->getLgID();
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
+            $conn = $this->getEntityManager()->getConnection();
+
+            // TODO: fix_db_fk_cascade_delete
+            // This is _extremely_ clumsy.  The sqlite db should have foreign key
+            // cascade delete for entities, prevents bad db data.
+            $sqls = [
+                "delete from texttokens where TokTxID in (select TxID from texts inner join books on TxBkID = BkID where BkLgID = $lgid)",
+                "delete from texts where TxBkID in (select BkID from books where BkLgID = $lgid)",
+                "delete from books where BkLgID = $lgid",
+                "delete from wordimages where WiWoID in (select WoID from words where WoLgID = $lgid)",
+                "delete from wordparents where WpWoID in (select WoID from words where WoLgID = $lgid)",
+                "delete from words where WoLgID = $lgid"
+            ];
+            foreach ($sqls as $sql) {
+                $conn->executeQuery($sql);
+            }
+
             $this->getEntityManager()->flush();
         }
     }
