@@ -45,10 +45,14 @@ class TermTag
         return $this->comment;
     }
 
-    public function setComment(string $comment): self
+    public function setComment(?string $comment): self
     {
-        $this->comment = $comment;
-
+        // TODO:fix_tags_table_schema
+        // The current schema has the TgComment NOT NULL default '',
+        // which was a legacy copy over from LWT.  Really, this should
+        // be a nullable column, and all blanks should be NULL.
+        // Minor change, a nice-to-have.
+        $this->comment = $comment ?? '';
         return $this;
     }
 

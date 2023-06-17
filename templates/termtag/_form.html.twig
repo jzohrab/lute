@@ -1,0 +1,11 @@
+{% form_theme form 'form_table_layout.html.twig' %}
+
+{{ form_start(form) }}
+
+<table id="termtag">
+  {{ form_row(form.Text) }}
+  {{ form_row(form.Comment) }}
+</table>
+
+<button id="btnSubmit" class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

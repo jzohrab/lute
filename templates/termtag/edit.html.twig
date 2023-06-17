@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Term Tag{% endblock %}
+
+{% block body %}
+    <h1>Edit Term Tag</h1>
+
+    {{ include('termtag/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <button onclick="history.back()">Cancel</button>
+{% endblock %}

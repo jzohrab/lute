@@ -30,6 +30,25 @@ class TermTagRepository extends ServiceEntityRepository
         }
     }
 
+    /** Returns data for ajax paging. */
+    public function getDataTablesList($parameters) {
+        $base_sql = "SELECT
+          TgID,
+          TgText,
+          TgComment,
+          ifnull(TermCount, 0) as TermCount
+          FROM tags
+          left join (
+            select WtTgID,
+            count(*) as TermCount
+            from wordtags
+            group by WtTgID
+          ) src on src.WtTgID = TgID
+        ";
+        $conn = $this->getEntityManager()->getConnection();
+        return DataTablesSqliteQuery::getData($base_sql, $parameters, $conn);
+    }
+
     public function remove(TermTag $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
