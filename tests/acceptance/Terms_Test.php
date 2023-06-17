@@ -165,6 +165,7 @@ class Terms_Test extends AcceptanceTestBase
         );
 
         $this->client->getMouse()->clickTo("#showHideFilters");
+        usleep(300 * 1000);
         $this->assertFilterVisibilityIs(false, "Filter not shown after hide");
         $this->listingShouldContain(
             'All data shown again',
