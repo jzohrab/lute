@@ -38,6 +38,7 @@ use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
 
 use App\Tests\acceptance\Contexts\ReadingContext;
+use App\Tests\acceptance\Contexts\TermContext;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -239,4 +240,9 @@ abstract class AcceptanceTestBase extends PantherTestCase
     public function getReadingContext() {
         return new ReadingContext($this->client);
     }
+
+    public function getTermContext() {
+        return new TermContext($this->client);
+    }
+
 }
