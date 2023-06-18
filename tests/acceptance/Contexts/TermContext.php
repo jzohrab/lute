@@ -37,12 +37,21 @@ class TermContext
         return $ret;
     }
 
-    public function updateTermForm($updates) {
+    public function updateTermForm($updates, $tags = []) {
         $crawler = $this->client->refreshCrawler();
         $form = $crawler->selectButton('Update')->form();
         foreach (array_keys($updates) as $f) {
             $form["term_dto[{$f}]"] = $updates[$f];
         }
+
+        if (count($tags) > 0) {
+            $fs = 'li.tagit-new > input.ui-autocomplete-input';
+            $tt = $crawler->filter($fs);
+            \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'single tag input');
+            $input = $tt->eq(0);
+            $input->sendkeys(implode(' ', $tags));
+        }
+
         $crawler = $this->client->submit($form);
         usleep(300 * 1000);
     }

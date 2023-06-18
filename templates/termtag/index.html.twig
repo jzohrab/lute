@@ -64,7 +64,7 @@
             // TODO:security - add CSRF token
             const ret = [];
             const tgid = row[3];
-            ret.push(`<img src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${tgid})" />`);
+            ret.push(`<img id="deltermtag${row[3]}" src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${tgid})" />`);
             return ret.join('&nbsp;');
           }
         },
