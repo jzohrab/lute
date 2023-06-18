@@ -62,10 +62,8 @@
           "orderable": false,
           "render": function ( data, type, row, meta ) {
             // TODO:security - add CSRF token
-            const ret = [];
             const tgid = row[3];
-            ret.push(`<img id="deltermtag${row[3]}" src="/icn/minus-button.png" title="Delete" onclick="confirm_delete(${tgid})" />`);
-            return ret.join('&nbsp;');
+            return `<span id="deltermtag${tgid}" onclick="confirm_delete(${tgid})"><img src="/icn/minus-button.png" title="Delete" /></span>`;
           }
         },
         /* Extra data that is returned in the row for rendering, but not shown. */
