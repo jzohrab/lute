@@ -1,5 +1,18 @@
 # Changelog
 
+## 2023-06-18 v2.0.4
+
+Feature changes:
+
+* Add term filtering, which lets you do things like "show me terms in the past 3 days".  See the [wiki](https://github.com/jzohrab/lute/wiki/Term-Listing).  I find this useful after reading to quickly review new things I've added.
+* Add a "Term Tag" listing page, to see tags and the jump to Terms assigned to them.
+* Add Language deletion.
+
+Back end changes:
+
+* More acceptance/browser-level tests for project stability (book creation, tag listing)
+
+
 ## 2023-06-02 v2.0.3
 
 This release adds a few small features, and gets rid of some old code and database fields.  Per the notes on the wiki about [upgrading Lute](https://github.com/jzohrab/lute/wiki/Upgrading-Lute), don't forget to backup your database prior to upgrading, _just in case_.  (I've run the upgrade several times on my machine.)
