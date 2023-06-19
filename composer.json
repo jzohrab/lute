@@ -127,18 +127,18 @@
       "composer test tests/src"
     ],
     "test:accept": [
-      "composer test tests/acceptance/"
+      "NO_BING_IMAGES=true composer test tests/acceptance/"
     ],
     "test:accept:visible": [
-      "PANTHER_NO_HEADLESS=true composer test:accept"
+      "PANTHER_NO_HEADLESS=true PANTHER_DEVTOOLS=0 NO_BING_IMAGES=true composer test:accept"
     ],
     "test:nofail": [
       "composer db:create:test",
-      "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure"
+      "NO_BING_IMAGES=true SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --stop-on-error --stop-on-failure"
     ],
     "test:group": [
       "composer db:create:test",
-      "PANTHER_NO_HEADLESS=true SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
+      "NO_BING_IMAGES=true PANTHER_NO_HEADLESS=true PANTHER_DEVTOOLS=0 SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
     ],
     "test:full": [
       "composer dev:psalm",

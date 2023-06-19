@@ -4,6 +4,58 @@
 
 {% block body %}
 
+<p><img id="showHideFilters" src="/icn/plus-button.png" style="cursor: pointer"> Filters</p>
+<div id="filterControls" style="display: none; margin-left: 20px;">
+  <table>
+    <tr>
+      <td>Parent terms only</td>
+      <td>
+        <input id="filtParentsOnly" type="checkbox" />
+      </td>
+    </tr>
+    <tr>
+      <td>Age (days since created)</td>
+      <td>
+        <input id="filtAgeMin" style="width: 50px;" type="text" placeholder="min" />
+        to
+        <input id="filtAgeMax" style="width: 50px;" type="text" placeholder="max" />
+      </td>
+    </tr>
+    <tr>
+      <td>Status range</td>
+      <td>
+        <select id="filtStatusMin">
+          <option value=0></option>
+          <option value=1>New (1)</option>
+          <option value=2>New (2)</option>
+          <option value=3>Learn (3)</option>
+          <option value=4>Learn (4)</option>
+          <option value=5>Learned</option>
+          <option value=99>Well Known</option>
+        </select>
+        to
+        <select id="filtStatusMax">
+          <option value=0></option>
+          <option value=1>New (1)</option>
+          <option value=2>New (2)</option>
+          <option value=3>Learn (3)</option>
+          <option value=4>Learn (4)</option>
+          <option value=5>Learned</option>
+          <option value=99>Well Known</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>Include Ignored</td>
+      <td>
+        <input id="filtIncludeIgnored" type="checkbox" />
+      </td>
+    </tr>
+  </table>
+  <button id="clearFilters">Clear all</button>
+  <br />
+</div>
+
 <div style="margin-top: 10px; margin-bottom: 10px;">
   <a href="{{ path('app_term_new') }}">Create new</a>
   &nbsp;|&nbsp;
@@ -81,6 +133,20 @@
       ajax: {
         url: '/term/datatables',
         type: "POST",
+
+        // Additional filters.  func calls are required to get the
+        // current filter field values.  These are included in the
+        // data sent to the controller, and are used by the
+        // TermRepository.
+        data: {
+          filtParentsOnly: () => $('#filtParentsOnly').prop('checked'),
+          filtAgeMin: () => $('#filtAgeMin').val(),
+          filtAgeMax: () => $('#filtAgeMax').val(),
+          filtStatusMin: () => $('#filtStatusMin').val(),
+          filtStatusMax: () => $('#filtStatusMax').val(),
+          filtIncludeIgnored: () => $('#filtIncludeIgnored').prop('checked')
+        },
+
         dataType: "json"
       },
 
@@ -191,11 +257,83 @@
   };
 
 
+  let handle_filter_update = function() {
+    const store = {
+      filtDisplay: $('#filterControls').css('display'),
+      filtParentsOnly: $('#filtParentsOnly').prop('checked'),
+      filtAgeMin: $('#filtAgeMin').val(),
+      filtAgeMax: $('#filtAgeMax').val(),
+      filtStatusMin: $('#filtStatusMin').val(),
+      filtStatusMax: $('#filtStatusMax').val(),
+      filtIncludeIgnored: $('#filtIncludeIgnored').prop('checked')
+    };
+    // console.log('saving: ' + JSON.stringify(store));
+    sessionStorage.setItem('termtable_filters', JSON.stringify(store));
+    $('#termtable').DataTable().draw();
+  };
+
+
+  let load_filters_from_storage = function() {
+    fs = sessionStorage.getItem('termtable_filters');
+    console.log(fs);
+    if (fs == null)
+      return;
+    store = JSON.parse(fs);
+    $('#filterControls').css('display', store.filtDisplay);
+
+    if (store.filtDisplay == 'none')
+      return;
+
+    $('#showHideFilters').prop('src', '/icn/minus-button.png');
+    $('#filtParentsOnly').prop('checked', store.filtParentsOnly);
+    if (store.filtAgeMin != '')
+      $('#filtAgeMin').val(parseInt(store.filtAgeMin));
+    if (store.filtAgeMax != '')
+    $('#filtAgeMax').val(parseInt(store.filtAgeMax));
+    $('#filtStatusMin').val(parseInt(store.filtStatusMin));
+    $('#filtStatusMax').val(parseInt(store.filtStatusMax));
+    $('#filtIncludeIgnored').prop('checked', store.filtIncludeIgnored);
+
+    // Have to re-load the data table, now that the filters have changed.
+    $('#termtable').DataTable().draw();
+  };
+  
+  let handle_show_hide_filter_click = function() {
+    const fc = $('#filterControls');
+    const is_hidden = (fc.css('display') == 'none');
+    const new_src = is_hidden ? '/icn/minus-button.png' : '/icn/plus-button.png';
+    $('#showHideFilters').prop('src', new_src);
+    if (! is_hidden)
+      handle_clear_filters();
+    fc.css('display', is_hidden ? 'block' : 'none');
+    handle_filter_update();
+  };
+
+  let handle_clear_filters = function() {
+    $('#filtParentsOnly').prop('checked', false);
+    $('#filtAgeMin').val('');
+    $('#filtAgeMax').val('');
+    $('#filtStatusMin').val(0);
+    $('#filtStatusMax').val(0);
+    $('#filtIncludeIgnored').prop('checked', false);
+    handle_filter_update();
+  };
+
   $(document).ready(function () {
     setup_term_datatable("{{ initial_search ?? '' }}");
-
     set_up_parent_autocomplete();
     $('#btnSetParent').click(handle_set_parent_click);
+    $('#showHideFilters').click(handle_show_hide_filter_click);
+    
+    $('#filtParentsOnly').change(handle_filter_update);
+    $('#filtAgeMin').keyup(handle_filter_update);
+    $('#filtAgeMax').keyup(handle_filter_update);
+    $('#filtStatusMin').change(handle_filter_update);
+    $('#filtStatusMax').change(handle_filter_update);
+    $('#filtIncludeIgnored').change(handle_filter_update);
+    $('#clearFilters').click(handle_clear_filters);
+
+    load_filters_from_storage();
   });
 
 

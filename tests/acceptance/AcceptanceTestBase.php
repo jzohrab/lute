@@ -11,7 +11,10 @@
 //
 // There's probably a better way to do this, but this is fine.
 
+namespace App\Tests\acceptance;
+
 require_once __DIR__ . '/../db_helpers.php';
+
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Panther\PantherTestCase;
@@ -33,6 +36,10 @@ use App\Repository\SettingsRepository;
 use App\Domain\TermService;
 use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
+
+use App\Tests\acceptance\Contexts\ReadingContext;
+use App\Tests\acceptance\Contexts\TermContext;
+use App\Tests\acceptance\Contexts\TermTagContext;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -63,19 +70,19 @@ abstract class AcceptanceTestBase extends PantherTestCase
     public function setUp(): void
     {
         // Set up db.
-        DbHelpers::ensure_using_test_db();
-        DbHelpers::clean_db();
+        \DbHelpers::ensure_using_test_db();
+        \DbHelpers::clean_db();
 
         $kernel = static::createKernel();
         $kernel->boot();
         $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
 
-        $this->text_repo = $this->entity_manager->getRepository(App\Entity\Text::class);
-        $this->language_repo = $this->entity_manager->getRepository(App\Entity\Language::class);
-        $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
-        $this->termtag_repo = $this->entity_manager->getRepository(App\Entity\TermTag::class);
-        $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
-        $this->book_repo = $this->entity_manager->getRepository(App\Entity\Book::class);
+        $this->text_repo = $this->entity_manager->getRepository(\App\Entity\Text::class);
+        $this->language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
+        $this->texttag_repo = $this->entity_manager->getRepository(\App\Entity\TextTag::class);
+        $this->termtag_repo = $this->entity_manager->getRepository(\App\Entity\TermTag::class);
+        $this->term_repo = $this->entity_manager->getRepository(\App\Entity\Term::class);
+        $this->book_repo = $this->entity_manager->getRepository(\App\Entity\Book::class);
 
         $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo, $this->language_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
@@ -223,6 +230,24 @@ abstract class AcceptanceTestBase extends PantherTestCase
     public function assert_rendered_text_equals($text, $expected) {
         $s = $this->get_rendered_string($text);
         $this->assertEquals($s, $expected);
+    }
+
+    public function clickLinkID($linkid) {
+        $crawler = $this->client->refreshCrawler();
+        $link = $crawler->filter($linkid)->link();
+        $this->client->click($link);
+    }
+
+    public function getReadingContext() {
+        return new ReadingContext($this->client);
+    }
+
+    public function getTermContext() {
+        return new TermContext($this->client);
+    }
+
+    public function getTermTagContext() {
+        return new TermTagContext($this->client);
     }
 
 }

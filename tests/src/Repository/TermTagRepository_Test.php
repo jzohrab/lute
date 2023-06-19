@@ -46,4 +46,43 @@ final class TermTagRepository_Test extends DatabaseTestBase
         $this->assertNull($retrieved, 'not exact text = no match');
     }
 
+    /**
+     * @group ttdt
+     */
+    public function test_smoke_datatables_query()
+    {
+        $columns = [
+            0 => [
+                "data" => "0",
+                "name" => "TgID",
+                "searchable" => "false",
+                "orderable" => "false"
+            ],
+            1 => [
+                "data" => "1",
+                "name" => "TgText",
+                "searchable" => "true",
+                "orderable" => "true"
+            ],
+        ];
+        $params = [
+            "draw" => "1",
+            "columns" => $columns,
+            "order" => [
+                0 => [
+                    "column" => "1",
+                    "dir" => "asc"
+                ]
+            ],
+            "start" => "10",
+            "length" => "50",
+            "search" => [
+                "value" => "",
+                "regex" => "false"
+            ]
+        ];
+
+        $this->termtag_repo->getDataTablesList($params);
+        $this->assertEquals(1, 1, 'smoke');
+    }
 }

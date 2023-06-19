@@ -20,12 +20,11 @@ class BookStats {
         $langids = array_unique($langids);
 
         foreach ($langids as $langid) {
-            $allwords = BookStats::getAllWords($langid, $conn);
             $langbooks = array_filter(
                 $books,
                 fn($b) => $b->getLanguage()->getLgID() == $langid);
             foreach ($langbooks as $b) {
-                $stats = BookStats::getStats($b, $conn, $allwords);
+                $stats = BookStats::getStats($b, $conn);
                 BookStats::updateStats($b, $stats, $conn);
             }
         }
@@ -64,22 +63,9 @@ class BookStats {
         return $books;
     }
 
-
-    private static function getAllWords($langid, $conn) {
-        $sql = "select WoTextLC from words
-          where WoTokenCount = 1 and WoLgID = {$langid}";
-        $allwords = [];
-        $res = $conn->query($sql);
-        while (($row = $res->fetch(\PDO::FETCH_NUM))) {
-            $allwords[] = $row[0];
-        }
-        return $allwords;
-    }
-    
     private static function getStats(
         Book $b,
-        $conn,
-        array $allwords
+        $conn
     )
     {
         $count = function($sql) use ($conn) {
