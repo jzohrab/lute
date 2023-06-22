@@ -18,7 +18,6 @@ class ImportCSV {
             "tags",
             "tags2",
             "texts",
-            "texttags",
             "wordimages",
             "wordparents",
             "words",

@@ -142,7 +142,6 @@ class SqliteHelper {
             "booktags",
             "bookstats",
 
-            "texttags",
             "wordtags",
             "wordparents",
             "wordimages",

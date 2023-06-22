@@ -96,7 +96,6 @@ DB_FILENAME=%kernel.project_dir%/test_lute.db
             "booktags",
             "bookstats",
 
-            "texttags",
             "wordtags",
             "wordparents",
             "wordimages",
