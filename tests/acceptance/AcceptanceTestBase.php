@@ -38,6 +38,7 @@ use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
 
 use App\Tests\acceptance\Contexts\ReadingContext;
+use App\Tests\acceptance\Contexts\BookContext;
 use App\Tests\acceptance\Contexts\TermContext;
 use App\Tests\acceptance\Contexts\TermTagContext;
 
@@ -240,6 +241,10 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public function getReadingContext() {
         return new ReadingContext($this->client);
+    }
+
+    public function getBookContext() {
+        return new BookContext($this->client);
     }
 
     public function getTermContext() {
