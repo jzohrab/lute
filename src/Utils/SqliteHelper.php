@@ -133,22 +133,11 @@ class SqliteHelper {
 
 
     public static function clearDb() {
-        // Clean out tables in ref-integrity order.
+        // Clean out tables.  Cascade delete clears out supporting tables.
         $tables = [
-            "sentences",
-            "texttokens",
             "settings",
-
-            "booktags",
-            "bookstats",
-
-            "wordtags",
-            "wordparents",
-            "wordimages",
-
             "tags",
             "tags2",
-            "texts",
             "books",
             "words",
             "languages"

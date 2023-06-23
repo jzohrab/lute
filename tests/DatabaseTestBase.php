@@ -10,6 +10,7 @@ require_once __DIR__ . '/db_helpers.php';
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Language;
 use App\Entity\Text;
+use App\Entity\Book;
 use App\Entity\Term;
 use App\Entity\TextTag;
 use App\Entity\TermTag;
@@ -150,10 +151,15 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->text_repo->save($frt, true);
     }
 
-    public function make_text(string $title, string $text, Language $lang): Text {
+    public function make_book(string $title, string $text, Language $lang): Book {
         $b = BookBinder::makeBook($title, $lang, $text);
         $this->book_repo->save($b, true);
         $b->fullParse();  // Most tests require full parsing.
+        return $b;
+    }
+
+    public function make_text(string $title, string $text, Language $lang): Text {
+        $b = $this->make_book($title, $text, $lang);
         return $b->getTexts()[0];
     }
 

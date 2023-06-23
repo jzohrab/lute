@@ -23,6 +23,12 @@ class TextTag
     #[ORM\Column(name: 'T2Comment', length: 200)]
     private ?string $comment = '';
 
+    #[ORM\JoinTable(name: 'booktags')]
+    #[ORM\JoinColumn(name: 'BtT2ID', referencedColumnName: 'T2ID')]
+    #[ORM\InverseJoinColumn(name: 'BtBkID', referencedColumnName: 'BkID')]
+    #[ORM\ManyToMany(targetEntity: Book::class, cascade: ['persist'])]
+    private Collection $Books;
+
     public function getId(): ?int
     {
         return $this->id;
