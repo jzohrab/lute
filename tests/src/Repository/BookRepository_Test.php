@@ -21,7 +21,6 @@ final class BookRepository_Test extends DatabaseTestBase
         $b->setLanguage($this->english);
 
         $t = new Text();
-        $t->setTitle("page1");
         $t->setLanguage($this->english);
         $t->setText("some text");
         $b->addText($t);
@@ -36,8 +35,8 @@ final class BookRepository_Test extends DatabaseTestBase
         $expected = [ "{$b->getId()}; hi; {$this->english->getLgId()}" ];
         DbHelpers::assertTableContains($sql, $expected);
 
-        $sql = "select TxBkID, TxTitle, TxText from texts";
-        $expected = [ "{$b->getId()}; page1; some text" ];
+        $sql = "select TxBkID, TxOrder, TxText from texts";
+        $expected = [ "{$b->getId()}; 1; some text" ];
         DbHelpers::assertTableContains($sql, $expected);
     }
 
@@ -48,13 +47,11 @@ final class BookRepository_Test extends DatabaseTestBase
         $b->setLanguage($this->english);
 
         $t = new Text();
-        $t->setTitle("page1");
         $t->setLanguage($this->english);
         $t->setText("some text");
         $b->addText($t);
 
         $t = new Text();
-        $t->setTitle("page2");
         $t->setLanguage($this->english);
         $t->setText("some more text");
         $b->addText($t);
@@ -72,14 +69,12 @@ final class BookRepository_Test extends DatabaseTestBase
         // doesn't work ... I think that the subsequent find() is
         // using the cached entity.
         $t = new Text();
-        $t->setTitle("page 1");
         $t->setLanguage($this->english);
         $t->setText("some more text.");
         $t->setOrder(1);  // PAGE 1
         $b->addText($t);
 
         $t = new Text();
-        $t->setTitle("page 2");
         $t->setOrder(2);
         $t->setLanguage($this->english);
         $t->setText("some text.");

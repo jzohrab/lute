@@ -23,9 +23,6 @@ class Text
     #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $language = null;
 
-    #[ORM\Column(name: 'TxTitle', length: 200)]
-    private string $TxTitle = '';
-
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
     private string $TxText = '';
 
@@ -60,14 +57,10 @@ class Text
 
     public function getTitle(): string
     {
-        return $this->TxTitle;
-    }
-
-    public function setTitle(string $TxTitle): self
-    {
-        $this->TxTitle = $TxTitle;
-
-        return $this;
+        $b = $this->getBook();
+        $s = "({$this->getOrder()}/{$b->getPageCount()})";
+        $t = "{$b->getTitle()} {$s}";
+        return $t;
     }
 
     public function getText(): string

@@ -117,9 +117,18 @@ class TermService {
         if ($term == null)
             return [];
         $s = $term->getTextLC();
-        $sql = "select distinct TxID, TxTitle, SeText
+        $sql = "select distinct
+            TxID,
+            BkTitle || ' (' || TxOrder || '/' || pc.c || ')' as TxTitle,
+            SeText
           from sentences
           inner join texts on TxID = SeTxID
+          inner join books on BkID = texts.TxBkID
+          inner join (
+            select TxBkID, count(*) as c
+            from texts
+            group by TxBkID
+          ) pc on pc.TxBkID = texts.TxBkID
           WHERE TxReadDate is not null
           AND lower(SeText) like '%' || char(0x200B) || ? || char(0x200B) || '%'
           LIMIT 20";
