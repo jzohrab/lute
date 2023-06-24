@@ -30,7 +30,7 @@ class BookContext
             $rowtext = [];
             $tds = $rows[$r]->filter('td');
             for ($i = 0; $i < count($tds); $i++) {
-                $rowtext[] = $tds->eq($i)->text();
+                $rowtext[] = trim($tds->eq($i)->text());
             }
             $ret[] = implode('; ', $rowtext);
         }
