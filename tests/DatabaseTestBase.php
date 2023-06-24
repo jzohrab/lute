@@ -24,7 +24,6 @@ use App\Repository\BookRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\TermService;
-use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -141,7 +140,7 @@ abstract class DatabaseTestBase extends WebTestCase
     }
 
     public function make_book(string $title, string $text, Language $lang): Book {
-        $b = BookBinder::makeBook($title, $lang, $text);
+        $b = Book::makeBook($title, $lang, $text);
         $this->book_repo->save($b, true);
         $b->fullParse();  // Most tests require full parsing.
         return $b;

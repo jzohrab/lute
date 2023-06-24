@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BookRepository;
+use App\DTO\BookDTO;
+use App\Domain\SentenceGroupIterator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -50,6 +52,14 @@ class Book
         $this->Tags = new ArrayCollection();
     }
 
+    public static function makeBook(string $title, Language $lang, string $text, int $maxWordTokensPerText = 250) {
+        $b = new Book();
+        $b->setTitle($title);
+        $b->setLanguage($lang);
+        $b->setFullText($text, $maxWordTokensPerText);
+        return $b;
+    }
+    
     public function getId(): ?int
     {
         return $this->BkID;
@@ -80,6 +90,44 @@ class Book
     }
 
     /**
+     * Sets the book text, replacing existing text.
+     */
+    public function setFullText(
+        string $fulltext,
+        int $maxWordTokensPerText = 250
+    )
+    {
+        // Remove existing texts.
+        foreach ($this->Texts as $text) {
+            $this->removeText($text);
+        }
+
+        $lang = $this->Language;
+        $p = $lang->getParser();
+        $tokens = $p->getParsedTokens($fulltext, $lang);
+        $it = new SentenceGroupIterator($tokens, $maxWordTokensPerText);
+
+        $tokstring = function($tokens) {
+            $a = array_map(fn($t) => $t->token, $tokens);
+            $ret = implode('', $a);
+            $ret = str_replace("\r", '', $ret);
+            $ret = str_replace("¶", "\n", $ret);
+            return trim($ret);
+        };
+
+        $count = $it->count();
+        $i = 0;
+        while ($toks = $it->next()) {
+            $i++;
+            $t = new Text();
+            $t->setLanguage($lang);
+            $t->setOrder($i);
+            $t->setText($tokstring($toks));
+            $this->addText($t);
+        }
+    }
+
+    /**
      * @return Collection<int, Text>
      */
     public function getTexts(): Collection
@@ -92,25 +140,20 @@ class Book
         return count($this->Texts);
     }
 
-    public function addText(Text $text): self
+    private function addText(Text $text): self
     {
         if (!$this->Texts->contains($text)) {
             $this->Texts->add($text);
             $text->setBook($this);
         }
-
         return $this;
     }
 
-    public function removeText(Text $text): self
+    private function removeText(Text $text): self
     {
         if ($this->Texts->removeElement($text)) {
-            // set the owning side to null (unless already changed)
-            if ($text->getBook() === $this) {
-                $text->setBook(null);
-            }
+            $text->setBook(null);
         }
-
         return $this;
     }
 

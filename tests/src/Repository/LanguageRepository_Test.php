@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\Language;
 use App\Entity\Term;
 use App\Entity\Book;
-use App\Domain\BookBinder;
 use App\Domain\TermService;
 
 final class LanguageRepository_Test extends DatabaseTestBase
@@ -17,7 +16,7 @@ final class LanguageRepository_Test extends DatabaseTestBase
         $english = Language::makeEnglish();
         $this->language_repo->save($english, true);
 
-        $b = BookBinder::makeBook('test', $english, 'Here is some text.');
+        $b = Book::makeBook('test', $english, 'Here is some text.');
         $this->book_repo->save($b, true);
 
         $term_service = new TermService($this->term_repo);

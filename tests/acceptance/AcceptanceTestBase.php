@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Panther\PantherTestCase;
 
 use App\Entity\Language;
+use App\Entity\Book;
 use App\Entity\Text;
 use App\Entity\Term;
 use App\Entity\TextTag;
@@ -34,7 +35,6 @@ use App\Repository\BookRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\TermService;
-use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
 
 use App\Tests\acceptance\Contexts\ReadingContext;
@@ -160,7 +160,7 @@ abstract class AcceptanceTestBase extends PantherTestCase
     }
 
     public function make_text(string $title, string $text, Language $lang): Text {
-        $b = BookBinder::makeBook($title, $lang, $text);
+        $b = Book::makeBook($title, $lang, $text);
         $this->book_repo->save($b, true);
         $b->fullParse();  // Most tests require full parsing.
         return $b->getTexts()[0];

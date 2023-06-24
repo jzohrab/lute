@@ -5,7 +5,6 @@ namespace App\DTO;
 use App\Entity\Book;
 use App\Entity\Language;
 use App\Repository\TextTagRepository;
-use App\Domain\BookBinder;
 
 class BookDTO
 {
@@ -43,7 +42,7 @@ class BookDTO
             throw new \Exception('Text not set');
         }
 
-        $b = BookBinder::makeBook($dto->Title, $dto->language, $dto->Text);
+        $b = Book::makeBook($dto->Title, $dto->language, $dto->Text);
         $b->setSourceURI($dto->SourceURI);
         $b->removeAllTags();
         foreach ($dto->bookTags as $t) {

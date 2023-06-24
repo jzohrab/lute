@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Book;
 use App\DTO\BookDTO;
 use App\Form\BookDTOType;
-use App\Domain\BookBinder;
 use App\Domain\BookStats;
 use App\Repository\BookRepository;
 use App\Repository\TextTagRepository;
@@ -244,7 +243,7 @@ class BookController extends AbstractController
         // }
         if (count($book->getTexts()) != 1)
             throw new \Exception("Can only rebind books with one page.");
-        $rebound = BookBinder::makeBook($book->getTitle(), $book->getLanguage(), $book->getTexts()[0]->getText());
+        $rebound = Book::makeBook($book->getTitle(), $book->getLanguage(), $book->getTexts()[0]->getText());
         $rebound->setSourceURI($book->getSourceURI());
         foreach ($book->getTags() as $t) {
             $rebound->addTag($t);
