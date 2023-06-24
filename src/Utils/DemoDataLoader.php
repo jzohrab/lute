@@ -4,12 +4,12 @@ namespace App\Utils;
 
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
+use App\Entity\Book;
 use App\Entity\Text;
 use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Entity\Term;
 use App\Domain\TermService;
-use App\Domain\BookBinder;
 use App\Domain\JapaneseParser;
 
 class DemoDataLoader {
@@ -60,7 +60,7 @@ class DemoDataLoader {
             preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
             $title = $matches[1];
 
-            $b = BookBinder::makeBook($title, $lang, $content);
+            $b = Book::makeBook($title, $lang, $content);
             $book_repo->save($b, true);
         }
 

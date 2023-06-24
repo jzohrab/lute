@@ -4,8 +4,8 @@ require_once __DIR__ . '/../../../src/Domain/ReadingFacade.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\ReadingFacade;
-use App\Domain\BookBinder;
 use App\Entity\Text;
+use App\Entity\Book;
 use App\Entity\Language;
 use App\Domain\TermService;
 use App\DTO\TermDTO;
@@ -502,7 +502,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      */
     public function test_get_prev_next_stays_in_current_book() {
         $text = "Here is some text.  And some more. And some more now.";
-        $b = BookBinder::makeBook('test', $this->english, $text, 3);
+        $b = Book::makeBook('test', $this->english, $text, 3);
         $this->book_repo->save($b, true);
         $texts = $b->getTexts();
         $this->assertEquals(count($texts), 3, '3 pages');

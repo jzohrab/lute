@@ -52,6 +52,14 @@ class Book
         $this->Tags = new ArrayCollection();
     }
 
+    public static function makeBook(string $title, Language $lang, string $text) {
+        $b = new Book();
+        $b->setTitle($title);
+        $b->setLanguage($lang);
+        $b->setFullText($text);
+        return $b;
+    }
+    
     public function getId(): ?int
     {
         return $this->BkID;
