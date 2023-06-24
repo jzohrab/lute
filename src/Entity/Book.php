@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BookRepository;
+use App\DTO\BookDTO;
+use App\Domain\SentenceGroupIterator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -77,6 +79,44 @@ class Book
         $this->Language = $Language;
 
         return $this;
+    }
+
+    /**
+     * Sets the book text, replacing existing text.
+     */
+    public function setFullText(
+        string $fulltext,
+        int $maxWordTokensPerText = 250
+    )
+    {
+        // Remove existing texts.
+        foreach ($this->Texts as $text) {
+            $this->removeText($text);
+        }
+
+        $lang = $this->Language;
+        $p = $lang->getParser();
+        $tokens = $p->getParsedTokens($fulltext, $lang);
+        $it = new SentenceGroupIterator($tokens, $maxWordTokensPerText);
+
+        $tokstring = function($tokens) {
+            $a = array_map(fn($t) => $t->token, $tokens);
+            $ret = implode('', $a);
+            $ret = str_replace("\r", '', $ret);
+            $ret = str_replace("¶", "\n", $ret);
+            return trim($ret);
+        };
+
+        $count = $it->count();
+        $i = 0;
+        while ($toks = $it->next()) {
+            $i++;
+            $t = new Text();
+            $t->setLanguage($lang);
+            $t->setOrder($i);
+            $t->setText($tokstring($toks));
+            $this->addText($t);
+        }
     }
 
     /**
