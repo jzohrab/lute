@@ -52,11 +52,11 @@ class Book
         $this->Tags = new ArrayCollection();
     }
 
-    public static function makeBook(string $title, Language $lang, string $text) {
+    public static function makeBook(string $title, Language $lang, string $text, int $maxWordTokensPerText = 250) {
         $b = new Book();
         $b->setTitle($title);
         $b->setLanguage($lang);
-        $b->setFullText($text);
+        $b->setFullText($text, $maxWordTokensPerText);
         return $b;
     }
     

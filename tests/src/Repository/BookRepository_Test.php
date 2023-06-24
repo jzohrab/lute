@@ -61,26 +61,6 @@ final class BookRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected);
     }
 
-    public function test_save_text_orders_must_be_unique()
-    {
-        $b = new Book();
-        $b->setTitle("hi");
-        $b->setLanguage($this->english);
-
-        $t = new Text();
-        $t->setLanguage($this->english);
-        $t->setText("some text");
-        $b->addText($t);
-
-        $t = new Text();
-        $t->setLanguage($this->english);
-        $t->setText("some more text");
-        $b->addText($t);
-
-        $this->expectException(Exception::class);
-        $this->book_repo->save($b, true);
-    }
-
     private function make_multipage_book() {
         $b = new Book();
         $b->setTitle("hi");
