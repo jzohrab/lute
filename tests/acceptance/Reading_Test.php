@@ -23,7 +23,7 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertPageTitleContains('LUTE');
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Hola');
-        $this->assertPageTitleContains('Reading "Hola"');
+        $this->assertPageTitleContains('Reading "Hola (1/1)"');
 
         $ctx = $this->getReadingContext();
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
@@ -258,7 +258,7 @@ class Reading_Test extends AcceptanceTestBase
         $b = $this->book_repo->find(1); // hardcoded ID :-(
         $this->assertEquals('Tutorial', $b->getTitle(), 'sanity check');
         $txtid = $b->getTexts()[0]->getID();
-        $sql = "select txtitle,
+        $sql = "select txorder,
           case when txreaddate is null then 'no' else 'yes' end
           from texts
           where txid = {$txtid}";
@@ -273,9 +273,9 @@ class Reading_Test extends AcceptanceTestBase
             \DbHelpers::exec_sql("update books set BkCurrentTxID = 0"); // Hack!
 
             $this->goToTutorialFirstPage();
-            \DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); no" ], 'pre ' . $linkid);
+            \DbHelpers::assertTableContains($sql, [ "1; no" ], 'pre ' . $linkid);
             $this->clickLinkID($linkid);
-            \DbHelpers::assertTableContains($sql, [ "Tutorial (1/4); yes" ], 'post ' . $linkid);
+            \DbHelpers::assertTableContains($sql, [ "1; yes" ], 'post ' . $linkid);
         }
 
         \DbHelpers::exec_sql("update texts set TxReadDate = null");
