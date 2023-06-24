@@ -159,17 +159,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
         return $ret;
     }
 
-    public function load_french_data(): void
-    {
-        $this->addTerms($this->french, ['lista']);
-        $frid = $this->french->getLgID();
-        $frt = new Text();
-        $frt->setTitle("Bonjour.");
-        $frt->setText("Bonjour je suis lista.");
-        $frt->setLanguage($this->french);
-        $this->text_repo->save($frt, true);
-    }
-
     public function make_text(string $title, string $text, Language $lang): Text {
         $b = BookBinder::makeBook($title, $lang, $text);
         $this->book_repo->save($b, true);
