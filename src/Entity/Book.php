@@ -145,12 +145,8 @@ class Book
     public function removeText(Text $text): self
     {
         if ($this->Texts->removeElement($text)) {
-            // set the owning side to null (unless already changed)
-            if ($text->getBook() === $this) {
-                $text->setBook(null);
-            }
+            $text->setBook(null);
         }
-
         return $this;
     }
 

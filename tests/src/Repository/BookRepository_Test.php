@@ -40,6 +40,27 @@ final class BookRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected);
     }
 
+    /**
+     * @group booksavefulltext
+     */
+    public function test_setFullText_replaces_existing_text_entities() {
+        $b = new Book();
+        $b->setTitle("hi");
+        $b->setLanguage($this->english);
+        $b->setFullText("some text");
+        $this->book_repo->save($b, true);
+
+        $sql = "select TxBkID, TxID, TxOrder, TxText from texts";
+        $expected = [ "{$b->getId()}; 1; 1; some text" ];
+        DbHelpers::assertTableContains($sql, $expected);
+
+        $b->setFullText("other text");
+        $this->book_repo->save($b, true);
+
+        $expected = [ "{$b->getId()}; 2; 1; other text" ];
+        DbHelpers::assertTableContains($sql, $expected);
+    }
+
     public function test_save_text_orders_must_be_unique()
     {
         $b = new Book();
