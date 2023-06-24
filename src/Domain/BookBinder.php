@@ -42,10 +42,6 @@ class BookBinder {
 
             $t = new Text();
             $t->setLanguage($lang);
-            $pagenum = " ({$i}/{$count})";
-            if ($count == 1)
-                $pagenum = "";
-            $t->setTitle("{$title}{$pagenum}");
             $t->setOrder($i);
             $t->setText($txt);
 

@@ -72,7 +72,10 @@ class BookRepository extends ServiceEntityRepository
         $base_sql = "SELECT
           b.BkID As BkID,
           LgName,
-          COALESCE(currtext.TxTitle, BkTitle) as BkTitle,
+          BkTitle || case
+            when currtext.TxID is null then ''
+            else ' (' || currtext.TxOrder || '/' || pagecnt.c || ')'
+          end as BkTitle,
           pagecnt.c as PageCount,
           BkArchived,
           tags.taglist AS TagList,
