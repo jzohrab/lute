@@ -19,11 +19,7 @@ final class BookRepository_Test extends DatabaseTestBase
         $b = new Book();
         $b->setTitle("hi");
         $b->setLanguage($this->english);
-
-        $t = new Text();
-        $t->setLanguage($this->english);
-        $t->setText("some text");
-        $b->addText($t);
+        $b->setFullText("some text");
         
         $tt = new TextTag();
         $tt->setText("Hola");
@@ -62,25 +58,7 @@ final class BookRepository_Test extends DatabaseTestBase
     }
 
     private function make_multipage_book() {
-        $b = new Book();
-        $b->setTitle("hi");
-        $b->setLanguage($this->english);
-
-        // Note that switching the order of these Text() creations
-        // doesn't work ... I think that the subsequent find() is
-        // using the cached entity.
-        $t = new Text();
-        $t->setLanguage($this->english);
-        $t->setText("some more text.");
-        $t->setOrder(1);  // PAGE 1
-        $b->addText($t);
-
-        $t = new Text();
-        $t->setOrder(2);
-        $t->setLanguage($this->english);
-        $t->setText("some text.");
-        $b->addText($t);
-
+        $b = Book::makeBook("hi", $this->english, "some more text. some text.", 3);
         $this->book_repo->save($b, true);
         $b->fullParse();
 

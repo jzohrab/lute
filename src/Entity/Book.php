@@ -140,17 +140,16 @@ class Book
         return count($this->Texts);
     }
 
-    public function addText(Text $text): self
+    private function addText(Text $text): self
     {
         if (!$this->Texts->contains($text)) {
             $this->Texts->add($text);
             $text->setBook($this);
         }
-
         return $this;
     }
 
-    public function removeText(Text $text): self
+    private function removeText(Text $text): self
     {
         if ($this->Texts->removeElement($text)) {
             $text->setBook(null);
