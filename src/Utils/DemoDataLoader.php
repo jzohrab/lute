@@ -23,15 +23,17 @@ class DemoDataLoader {
         $f = Language::makeFrench();
         $s = Language::makeSpanish();
         $g = Language::makeGerman();
+        $gr = Language::makeGreek();
         $cc = Language::makeClassicalChinese();
 
-        $langs = [ $e, $f, $s, $g, $cc ];
+        $langs = [ $e, $f, $s, $g, $gr, $cc ];
         $files = [
             'tutorial.txt',
             'tutorial_follow_up.txt',
             'es_aladino.txt',
             'fr_goldilocks.txt',
             'de_Stadtmusikanten.txt',
+            'gr_demo.txt',
             'cc_demo.txt',
         ];
 
