@@ -40,7 +40,8 @@ class BookDTOType extends AbstractType
                   EntityType::class,
                   [ 'class' => Language::class,
                     'placeholder' => $options['lang_count'] == 1 ? false : '(Select language)',
-                    'choice_label' => 'lgName'
+                    'choice_label' => 'lgName',
+                    'required' => true
                   ]
             )
             ->add('Title',

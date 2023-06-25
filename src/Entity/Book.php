@@ -235,4 +235,14 @@ class Book
         return $this;
     }
 
+    public function createBookDTO(): BookDTO
+    {
+        $dto = new BookDTO();
+        $dto->id = $this->BkID;
+        $dto->language = $this->Language;
+        $dto->Title = $this->Title;
+        $dto->SourceURI = $this->BkSourceURI;
+        $dto->bookTags = $this->Tags;
+        return $dto;
+    }
 }
