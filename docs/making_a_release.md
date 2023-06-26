@@ -1,62 +1,97 @@
-# Making a release
+> This is the process I currently run on my Mac.  Maybe in the future it can be a GitHub action or similar.
 
-This is the process I currently run on my Mac.  Maybe in the future it can be a GitHub action or similar.
+Releases follow the "git flow" method.  Summary of creating a release:
+
+* create a release branch
+* in a dedicated build environment (see creation notes at bottom of this page), build the release, launch it, and test it
+* if all is good, tag and rebuild the release
+* merge the release branch and tag, and create the GitHub release
 
 If any step fails, or things look bad, sort that stuff out.
 
-## Part 0: merge passing `develop` branch into `master`
+## 1. DEV environment: Create release branch, initial sanity checks
 
-* New code should be merged into `develop`
-* Run `composer test` for `develop`
-* Push `develop` to GitHub
-* Wait for GitHub CI to pass
-* Merge code into `master`
+```
+git checkout develop             # or whatever good commit
+git checkout -b release_xxx
+git fetch
+git merge --no-ff origin/master  # To get any master hotfixes
+composer test:full               # All must pass
+composer dev:data:load           # For sanity checks:
+```
 
-If `master` contained code (hotfixes) that were not in `develop` (`git log develop..master --oneline` has commits):
+Then run some sanity checks:
 
-* Run `composer test` for `master`
-* Push `master` to GitHub
-* Potentially wait for GitHub CI to pass
-
-
-**All following steps should be done off of `master`, unless there's a special fix release going out.**
-
-
-## Part 1: catch the obvious - checking `master` in the `dev` environment.
-
-This is time-consuming and should be automated!
-
-* run `composer dev:data:load` to load the demo data.
-* go through some steps in the tutorial:
-  * read tutorial text
-  * create and save term
-    * check multiple dictionaries
-    * check sentence translation
-    * set parent term
-    * hover over term
-  * keyboard nav and change statuses, 1-5, W, I, on known and unknown terms
-  * keyboard nav check translation
-  * mark rest as known
-  * read other tutorial text, ensure mostly known
+* read tutorial text
+* create and save term
+  * check multiple dictionaries
+  * check sentence translation
+  * set parent term
+  * hover over term
+* keyboard nav and change statuses, 1-5, W, I, on known and unknown terms
+* keyboard nav check translation
+* mark rest as known
+* read other tutorial text, ensure mostly known
 * create a new text
 * create a new language
 
-## Part 2: create provisional changelog, tag and test release
+If all good:
 
-* `composer app:changelog` : generate some raw changelog notes.  Edit this and commit it.
-* Create a _provisional local_ tag (`git tag <new_tag_name>`) following the proper tag naming (`vX.Y.Z`) but **don't push it to origin**
-* `composer app:release` : generate a `lute_release.zip` and `lute_debug.zip`, and open local testing environments (pre-configured in my virtual hosts).
-* Check the tag version in the index page and on the Server page.
-* In the demo environment, run through a few tutorial steps:
-  * create terms
-  * multi-words
-  * browse
-  * etc.  (This should really be automated, too much work.)
+```
+# Generate Changelog
+composer app:changelog vPREVVERSION
+# ... edit change log ...
+git add docs/CHANGELOG.md
+git commit -m "Changelog."
+```
 
-If there were problems, delete the provisional tag (`git tag -d <new_tag_name>`), and repeat parts 1 and 2 until resolved.
+## 2. BUILD environment: build and check
 
-## Part 3: release
+```
+cd ../lute_build
+git fetch origin
+git checkout release_xxx
+composer app:release:check
+# OR:
+# MODE=offline composer app:release:check
+```
 
-* Push master to GitHub.
-* Push the tag to GitHub: `git push origin <new_tag_name>`
-* Attach the lute_release.zip and lute_debug.zip to the github release.  Maybe update the release notes in the GitHub release.
+Run through some steps again.  If anything fails, fix the release branch in the dev environment, and retry.
+
+### 3. BUILD environment: finalize
+
+```
+git tag vNEWVERSION
+composer app:release:final
+git push origin vNEWVERSION
+```
+
+### 4. DEV env: finish up
+
+```
+cd ../lute_dev
+git push origin vNEWVERSION   # to github
+git checkout master
+git merge vNEWVERSION
+git push origin master
+git checkout develop
+git merge master
+git push origin develop
+```
+
+Go to GitHub and make the release, including the generated .zip files, and the changelog notes.
+
+
+# Creating the build environment
+
+I currently create Lute releases in a separate `lute_build` folder, created as follows:
+
+```
+cd /parent/of/lute_dev
+mkdir lute_build
+cd lute_build
+git remote add origin /path/to/lute_dev
+git fetch origin
+```
+
+Branches and tags can be fetched and pushed as usual to `origin`.
