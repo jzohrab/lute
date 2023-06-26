@@ -65,8 +65,8 @@
             const bkid = row[3];
             if (row[4] == 0) {
               // not archived
-              ret.push(`<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`);
               ret.push(`<img src="/icn/document--pencil.png" title="Edit" onclick="edit_book(${bkid})" />`);
+              ret.push(`<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`);
             }
             else {
               ret.push(`<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${bkid})" />`);
