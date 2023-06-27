@@ -1,5 +1,20 @@
 # Changelog
 
+## 2023-06-26 v2.0.5
+
+Feature changes:
+
+* Allow editing of book title and tags (issue [37](https://github.com/jzohrab/lute/issues/37))
+* Handle parent mapping duplicates (issue [40](https://github.com/jzohrab/lute/issues/40))
+* Add Greek language and sample text
+
+Back end changes:
+
+* Update release scripts and process
+* Back end changes for supporting book edits (Remove BookBinder, texts.TxTitle)
+* Fix FK integrity and cascade deletes (issue [38](https://github.com/jzohrab/lute/issues/38))
+
+
 ## 2023-06-18 v2.0.4
 
 Feature changes:

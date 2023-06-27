@@ -16,6 +16,7 @@ class DbHelpers {
     private static function get_connection() {
         $d = str_replace('%kernel.project_dir%', __DIR__ . '/..', $_ENV['DATABASE_URL']);
         $dbh = new PDO($d);
+        $dbh->exec('pragma foreign_keys = ON');
         return $dbh;
     }
 
@@ -96,7 +97,6 @@ DB_FILENAME=%kernel.project_dir%/test_lute.db
             "booktags",
             "bookstats",
 
-            "texttags",
             "wordtags",
             "wordparents",
             "wordimages",

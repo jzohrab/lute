@@ -92,8 +92,8 @@ class ParsedTokenSaver {
             // char(0x200B) (the zero-width space) is added between each
             // token, and at the start and end of each sentence, to
             // standardize the string search when looking for terms.
-            "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
-              SELECT TxLgID, TxID, TokSentenceNumber, min(TokOrder),
+            "INSERT INTO sentences (SeTxID, SeOrder, SeText)
+              SELECT TxID, TokSentenceNumber,
               char(0x200B) || TRIM(GROUP_CONCAT(TokText, char(0x200B))) || char(0x200B)
               FROM (
                 select TxLgID, TxID, TokSentenceNumber, TokOrder, TokText

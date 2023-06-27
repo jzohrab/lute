@@ -43,7 +43,7 @@ class Term
     #[ORM\JoinTable(name: 'wordtags')]
     #[ORM\JoinColumn(name: 'WtWoID', referencedColumnName: 'WoID')]
     #[ORM\InverseJoinColumn(name: 'WtTgID', referencedColumnName: 'TgID')]
-    #[ORM\ManyToMany(targetEntity: TermTag::class, cascade: ['persist'], fetch: 'EAGER')]
+    #[ORM\ManyToMany(targetEntity: TermTag::class, inversedBy:'Terms', cascade: ['persist'], fetch: 'EAGER')]
     private Collection $termTags;
 
     #[ORM\JoinTable(name: 'wordparents')]

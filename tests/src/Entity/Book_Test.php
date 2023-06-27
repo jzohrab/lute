@@ -1,18 +1,19 @@
 <?php
 
-namespace tests\App\Domain;
-
-use App\Domain\BookBinder;
+namespace tests\App\Entity;
+ 
 use App\Entity\Book;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
  
-class BookBinder_Test extends TestCase
+class Book_Test extends TestCase
 {
 
     private function scenario($fulltext, $maxwords, $expected) {
         $eng = Language::makeEnglish();
-        $b = BookBinder::makeBook("title", $eng, $fulltext, $maxwords);
+        $b = new Book();
+        $b->setLanguage($eng);
+        $b->setFullText($fulltext, $maxwords);
 
         $texts = $b->getTexts();
         $actuals = [];
@@ -21,7 +22,8 @@ class BookBinder_Test extends TestCase
         }
         $this->assertEquals(
             implode('/', $actuals),
-            implode('/', $expected)
+            implode('/', $expected),
+            "scen {$maxwords}"
         );
     }
 
@@ -29,7 +31,9 @@ class BookBinder_Test extends TestCase
     public function test_create_book_creates_texts()
     {
         $eng = Language::makeEnglish();
-        $b = BookBinder::makeBook("title", $eng, "Here is a dog. And a cat.", 5);
+        $b = new Book();
+        $b->setLanguage($eng);
+        $b->setFullText("Here is a dog. And a cat.", 5);
 
         $texts = $b->getTexts();
         $this->assertEquals(count($texts), 2, "2 texts");

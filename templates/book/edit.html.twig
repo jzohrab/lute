@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Book{% endblock %}
+
+{% block body %}
+
+<h1>Edit Book</h1>
+
+{% form_theme form 'form_table_layout.html.twig' %}
+
+<p style="width: 50%; margin-bottom: 20px;">Note: you can't change the language or text of a book after it has been created.  Please create a new book instead, and delete the old one.</p>
+
+{{ form_start(form) }}
+
+<table id="book">
+  {{ form_row(form.Title) }}
+  {{ form_row(form.SourceURI) }}
+
+  {# cannot change language or text of existing book. #}
+  {% do form.language.setRendered %}
+  {% do form.Text.setRendered %}
+  {% do form.TextFile.setRendered %}
+  
+  {# manually write list so it can be managed by tagit. #}
+  {% do form.bookTags.setRendered %}
+  <tr>
+    <td>Tags</td>
+    <td>
+      <ul id="texttagslist" class="tags nomarginblock">
+        {% for bookTag in form.bookTags %}
+        <li>
+          {{ bookTag.vars.value.text }}
+        </li>
+        {% endfor %}
+      </ul>
+    </td>
+  </tr>
+
+</table>
+
+<button id="btnSubmit" class="btn">Save</button>
+<button onclick="history.back()">Cancel</button>
+
+{{ form_end(form) }}
+
+<script>
+
+  let setupTagit = function() {
+    var prototypeFieldName = 'book_dto[bookTags][__name__][text]';
+    var fieldIndex = 0;
+    
+    let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
+
+    $('#texttagslist').tagit(
+      {
+        beforeTagAdded: function (_event, ui) {
+          if (invalidChar(ui.tag.text())) {
+            return;
+          }
+          fieldIndex++;
+          $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
+        },
+        availableTags: TEXTTAGS,
+        fieldName: 'book_dto[bookTags][0][text]'
+      });
+  };
+
+  $(document).ready(function () {
+    setupTagit();
+    $('#btnSubmit').click(function() {
+      const f = $("form");
+      $('#btnSubmit').prop( "disabled", true);
+      $("body").css("cursor", "progress");
+      f.submit();
+      return true;
+    });
+  });
+
+</script>
+
+{% endblock %}

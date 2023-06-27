@@ -10,6 +10,7 @@ require_once __DIR__ . '/db_helpers.php';
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Language;
 use App\Entity\Text;
+use App\Entity\Book;
 use App\Entity\Term;
 use App\Entity\TextTag;
 use App\Entity\TermTag;
@@ -23,7 +24,6 @@ use App\Repository\BookRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\TermService;
-use App\Domain\BookBinder;
 use App\Domain\ReadingFacade;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -139,21 +139,15 @@ abstract class DatabaseTestBase extends WebTestCase
         return $ret;
     }
 
-    public function load_french_data(): void
-    {
-        $this->addTerms($this->french, ['lista']);
-        $frid = $this->french->getLgID();
-        $frt = new Text();
-        $frt->setTitle("Bonjour.");
-        $frt->setText("Bonjour je suis lista.");
-        $frt->setLanguage($this->french);
-        $this->text_repo->save($frt, true);
+    public function make_book(string $title, string $text, Language $lang): Book {
+        $b = Book::makeBook($title, $lang, $text);
+        $this->book_repo->save($b, true);
+        $b->fullParse();  // Most tests require full parsing.
+        return $b;
     }
 
     public function make_text(string $title, string $text, Language $lang): Text {
-        $b = BookBinder::makeBook($title, $lang, $text);
-        $this->book_repo->save($b, true);
-        $b->fullParse();  // Most tests require full parsing.
+        $b = $this->make_book($title, $text, $lang);
         return $b->getTexts()[0];
     }
 

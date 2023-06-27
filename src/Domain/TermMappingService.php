@@ -70,11 +70,29 @@ class TermMappingService {
 
     /**
      * Mappings.
+     *
+     * All mappings are loaded into a temp table,
+     * zz_load_parent_mappings, with fields:
+     * - parent TEXT
+     * - child TEXT
+     * - parentWoID integer null
+     * - childWoID integer null
+     *
+     * The parent and child text fields are loaded from the supplied
+     * mapping file, and the parentWoID and childWoID fields are
+     * updated as new Term entities are created.  The WoID fields are
+     * then loaded into the wordparents table.
      */
 
-    /** Load temp table of mappings. */
-    private function loadTempTable($tempTableName, $mappings, $conn) {
-        $stmt = $conn->prepare("INSERT INTO $tempTableName (parent, child) VALUES (?, ?)");
+    /** Load temp table of distinct mappings. */
+    private function loadTempTable($mappings, $conn) {
+        $pre = "pre_zz_load_parent_mappings";
+        $sql = "drop table if exists $pre";
+        $conn->exec($sql);
+        $sql = "CREATE TABLE $pre (parent TEXT, child TEXT)";
+        $conn->exec($sql);
+
+        $stmt = $conn->prepare("INSERT INTO $pre (parent, child) VALUES (?, ?)");
         foreach (array_chunk($mappings, 100) as $batch) {
             $conn->beginTransaction();
             foreach ($batch as $row) {
@@ -82,19 +100,34 @@ class TermMappingService {
             }
             $conn->commit();
         }
+
+        $sql = "insert into zz_load_parent_mappings (parent, child)
+          select parent, child from $pre
+          group by parent, child";
+        $conn->exec($sql);
+
+        $sql = "drop table if exists $pre";
+        $conn->exec($sql);
     }
 
-    private function setExistingIDs($tempTableName, $lgid, $conn) {
+    /** Set the childWoID and parentWoID in zz_load_parent_mappings, matching
+     * to existing word.WoIDs via straight text match.
+     */
+    private function setExistingIDs($lgid, $conn) {
         $queries = [
-            "update $tempTableName
-set childWoID = (select words.WoID from words where words.WoLgID = $lgid and words.WoTextLC = $tempTableName.child)
-where childWoID is null",
-            "update $tempTableName
-set parentWoID = (select words.WoID from words where words.WoLgID = $lgid and words.WoTextLC = $tempTableName.parent)
-where parentWoID is null"
+            "update zz_load_parent_mappings
+            set childWoID = (select words.WoID from words
+              where words.WoLgID = $lgid and words.WoTextLC = zz_load_parent_mappings.child)
+            where childWoID is null",
+            "update zz_load_parent_mappings
+            set parentWoID = (select words.WoID from words
+              where words.WoLgID = $lgid and words.WoTextLC = zz_load_parent_mappings.parent)
+            where parentWoID is null"
         ];
-        foreach ($queries as $sql)
+        foreach ($queries as $sql) {
+            // dump($sql);
             $conn->query($sql);
+        }
     }
 
     /**
@@ -107,43 +140,53 @@ where parentWoID is null"
     public function mapParents(Language $lang, LanguageRepository $langrepo, $mappings) {
 
         $mappings = array_filter($mappings, fn($a) => $a[0][0] != '#');
-        $mappings = array_filter($mappings, fn($a) => $a[0] != $a[1]);
-        $nullorblank = function($s) { return trim($s ?? '') == ''; };
-        $badmaps = array_filter($mappings, fn($a) => $nullorblank($a[0]) || $nullorblank($a[1]));
+        $blank = function($s) { return trim($s ?? '') == ''; };
+        $badmaps = array_filter($mappings, fn($a) => $blank($a[0]) || $blank($a[1]));
         if (count($badmaps) > 0)
             throw new \Exception('Blank or null in mapping');
 
+        $mappings = array_filter($mappings, fn($a) => $a[0] != $a[1]);
+        $mappings = array_filter($mappings, fn($a) => $a[0] != null && $a[1] != null);
+        $mappings = array_map(fn($a) => [ mb_strtolower($a[0]), mb_strtolower($a[1]) ], $mappings);
+
+        // dump($mappings);
         $this->term_repo->stopSqlLog();
 
         $conn = Connection::getFromEnvironment();
-        $tempTableName = 'zz_load_mappings_' . uniqid();
-        $sql = "CREATE TABLE $tempTableName
+        $conn->exec("drop table if exists zz_load_parent_mappings");
+        $sql = "CREATE TABLE zz_load_parent_mappings
           (parent TEXT, child TEXT, parentWoID integer null, childWoID integer null)";
         $conn->exec($sql);
 
+        $this->loadTempTable($mappings, $conn);
+
+        // Map existing ids.
         $lgid = $lang->getLgID();
-        $haveTemp = false;
-
-        $this->loadTempTable($tempTableName, $mappings, $conn);
-        $haveTemp = true;
-
-        $this->setExistingIDs($tempTableName, $lgid, $conn);
+        $this->setExistingIDs($lgid, $conn);
 
         $created = 0;
         $updated = 0;
 
-        // dump('PART I');
+        // PART I
+        //
         // First, create any necessary parents, if there are existing
-        // children that need parents.  Note that if there are any new
+        // children present in the mapping file that refer to
+        // non-existent parents.
+        //
+        // For example, if the mapping file contains "cat cats", and
+        // the term "cats" (the child) exists, but the term "cat" (the
+        // parent) does NOT, this section would create the new parent
+        // term "cat".
+        //
+        // Note that if there are any new
         // _children_ that should be mapped to those parents, those
         // will be created later.  This isn't _great_ because it
         // implies net new term creation (both parent and child), but
         // it's not terrible.
-
-        // Missing parents with at least one existing child
+        //
         $arr = [];
         $sql = "select parent, GROUP_CONCAT(child, '|') as children
-          from $tempTableName
+          from zz_load_parent_mappings
           where parentWoID is null and childWoID is not null
           group by parent";
         $stmt = $conn->prepare($sql);
@@ -176,19 +219,24 @@ where parentWoID is null"
         $this->flushClear();
         // dump('END PART I');
 
-        // Reset to account for new parents.
-        $this->setExistingIDs($tempTableName, $lgid, $conn);
+        // Update the mapping table to account for any new parent IDs.
+        $this->setExistingIDs($lgid, $conn);
 
-        // All necessary parents have been saved.  Now go through all
-        // parents in the mapping file again, and map children,
-        // creating new children if necessary.
-
-        // dump('PART II');
-        // Missing children with existing parent
-        // The parent-child relationship will be added in the next step.
+        // PART II
+        //
+        // Now create any necessary children, if there are existing
+        // parents present in the mapping file that refer to
+        // non-existent children.
+        //
+        // For example, if the mapping file contains "cat cats", and
+        // the term "cat" (the parent) exists, but the term "cats" (the
+        // child) does NOT, this section would create the new child
+        // term "cats".
+        //
+        // The parent-child relationship will be added in part III.
         $arr = [];
         $sql = "select child, parent, parentWoID
-          from $tempTableName
+          from zz_load_parent_mappings
           where childWoID is null and parentWoID is not null
           group by child, parentWoID";
         $stmt = $conn->prepare($sql);
@@ -215,16 +263,27 @@ where parentWoID is null"
         $this->flushClear();
         // dump('END PART II');
 
-        // Reset to account for new children.
-        $this->setExistingIDs($tempTableName, $lgid, $conn);
+        // Update the mapping table to account for any new child IDs.
+        $this->setExistingIDs($lgid, $conn);
 
-        // dump('PART III');
-        // Existing terms with no parent now, but have mapping to
-        // existing parent
+        // PART III
+        //
+        // Add any required parent-child relationships.
+        // - don't replace existing relationships
+        // - don't try to assign one child to multiple parents
         $sql = "select childWoID, parentWoID
-          from $tempTableName
+          from zz_load_parent_mappings
           where childWoID is not null and parentWoID is not null
+
           and childWoID not in (select WpWoID from wordparents)
+
+          and childWoID not in (
+            select childWoID from zz_load_parent_mappings
+            where childWoID is not null
+            group by childWoID
+            having count(*) > 1
+          )
+
           group by childWoID, parentWoID";
         $countsql = "select count(*) from ({$sql}) src";
         $stmt = $conn->prepare($countsql);
@@ -237,9 +296,7 @@ where parentWoID is null"
         $stmt->execute();
         // dump('END PART III');
 
-        if ($haveTemp) {
-            $conn->exec("DROP TABLE $tempTableName");
-        }
+        $conn->exec("DROP TABLE if exists zz_load_parent_mappings");
 
         return [
             'created' => $created,

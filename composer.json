@@ -97,13 +97,14 @@
     "squizlabs/php_codesniffer": "Following code style standards is a good thing"
   },
   "scripts": {
-    "app:release": [
-      "./utils/create_release.sh",
-      "./utils/open_release.sh"
+    "app:release:check": [
+      "./utils/release/create_build_env.sh",
+      "./utils/release/create_zip.sh",
+      "./utils/release/deploy_zip.sh",
+      "./utils/release/open_release.sh"
     ],
-    "app:changelog": [
-      "./utils/dump_changelog.sh"
-    ],
+    "app:release:final": "./utils/release/create_zip.sh",
+    "app:changelog": "./utils/dump_changelog.sh",
     "dev:class": "./utils/entityInterface.sh",
     "todo:list": "composer dev:find TODO | grep -v docs/",
     "todo:types": "composer dev:find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
@@ -139,6 +140,9 @@
     "test:group": [
       "composer db:create:test",
       "NO_BING_IMAGES=true PANTHER_NO_HEADLESS=true PANTHER_DEVTOOLS=0 SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
+    ],
+    "test:validateschema": [
+      "bin/console doctrine:schema:validate --skip-sync"
     ],
     "test:full": [
       "composer dev:psalm",
@@ -179,7 +183,8 @@
   },
   "scripts-descriptions": {
     "app:changelog": "Dump commits into changelog for refining.",
-    "app:release": "Make release package ../lute_release.zip, and open to verify.",
+    "app:release:check": "Make temp package ../lute_release.zip, and open to verify.  Use MODE=offline to test using prod vendor",
+    "app:release:final": "Make final package ../lute_release.zip, once tagged (regen manifest)",
     "dev:class": "Show public interface methods of class",
     "todo:list": "Show code todos",
     "todo:types": "Show types of todos",

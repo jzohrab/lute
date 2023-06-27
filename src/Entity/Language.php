@@ -319,6 +319,18 @@ class Language
         return $spanish;
     }
 
+    public static function makeGreek() {
+        $greek = new Language();
+        $greek
+            ->setLgName('Greek')
+            ->setLgRegexpWordCharacters('a-zA-ZÀ-ÖØ-öø-ȳͰ-Ͽἀ-ῼ')
+            ->setLgShowRomanization(true)
+            ->setLgDict1URI('https://www.wordreference.com/gren/###')
+            ->setLgDict2URI('https://en.wiktionary.org/wiki/###')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#el/en/###');
+        return $greek;
+    }
+
     public static function makeFrench() {
         $french = new Language();
         $french
@@ -386,6 +398,7 @@ class Language
             Language::makeEnglish(),
             Language::makeFrench(),
             Language::makeGerman(),
+            Language::makeGreek(),
             Language::makeSpanish(),
             Language::makeClassicalChinese(),
         ];

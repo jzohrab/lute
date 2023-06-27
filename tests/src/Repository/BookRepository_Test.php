@@ -19,12 +19,7 @@ final class BookRepository_Test extends DatabaseTestBase
         $b = new Book();
         $b->setTitle("hi");
         $b->setLanguage($this->english);
-
-        $t = new Text();
-        $t->setTitle("page1");
-        $t->setLanguage($this->english);
-        $t->setText("some text");
-        $b->addText($t);
+        $b->setFullText("some text");
         
         $tt = new TextTag();
         $tt->setText("Hola");
@@ -36,55 +31,34 @@ final class BookRepository_Test extends DatabaseTestBase
         $expected = [ "{$b->getId()}; hi; {$this->english->getLgId()}" ];
         DbHelpers::assertTableContains($sql, $expected);
 
-        $sql = "select TxBkID, TxTitle, TxText from texts";
-        $expected = [ "{$b->getId()}; page1; some text" ];
+        $sql = "select TxBkID, TxOrder, TxText from texts";
+        $expected = [ "{$b->getId()}; 1; some text" ];
         DbHelpers::assertTableContains($sql, $expected);
     }
 
-    public function test_save_text_orders_must_be_unique()
-    {
+    /**
+     * @group booksavefulltext
+     */
+    public function test_setFullText_replaces_existing_text_entities() {
         $b = new Book();
         $b->setTitle("hi");
         $b->setLanguage($this->english);
-
-        $t = new Text();
-        $t->setTitle("page1");
-        $t->setLanguage($this->english);
-        $t->setText("some text");
-        $b->addText($t);
-
-        $t = new Text();
-        $t->setTitle("page2");
-        $t->setLanguage($this->english);
-        $t->setText("some more text");
-        $b->addText($t);
-
-        $this->expectException(Exception::class);
+        $b->setFullText("some text");
         $this->book_repo->save($b, true);
+
+        $sql = "select TxBkID, TxID, TxOrder, TxText from texts";
+        $expected = [ "{$b->getId()}; 1; 1; some text" ];
+        DbHelpers::assertTableContains($sql, $expected);
+
+        $b->setFullText("other text");
+        $this->book_repo->save($b, true);
+
+        $expected = [ "{$b->getId()}; 2; 1; other text" ];
+        DbHelpers::assertTableContains($sql, $expected);
     }
 
     private function make_multipage_book() {
-        $b = new Book();
-        $b->setTitle("hi");
-        $b->setLanguage($this->english);
-
-        // Note that switching the order of these Text() creations
-        // doesn't work ... I think that the subsequent find() is
-        // using the cached entity.
-        $t = new Text();
-        $t->setTitle("page 1");
-        $t->setLanguage($this->english);
-        $t->setText("some more text.");
-        $t->setOrder(1);  // PAGE 1
-        $b->addText($t);
-
-        $t = new Text();
-        $t->setTitle("page 2");
-        $t->setOrder(2);
-        $t->setLanguage($this->english);
-        $t->setText("some text.");
-        $b->addText($t);
-
+        $b = Book::makeBook("hi", $this->english, "some more text. some text.", 3);
         $this->book_repo->save($b, true);
         $b->fullParse();
 

@@ -31,12 +31,6 @@ class TextRepository extends ServiceEntityRepository
         $stmt->executeQuery();
     }
 
-    private function removeParsedData(int $textid): void
-    {
-        $this->exec_sql("delete from sentences where SeTxID = $textid");
-        $this->exec_sql("delete from texttokens where TokTxID = $textid");
-    }
-
     public function save(Text $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
@@ -51,9 +45,18 @@ class TextRepository extends ServiceEntityRepository
 
     public function remove(Text $entity, bool $flush = false): void
     {
+        // THIS IS REQUIRED.  Without the pragma, the deletes don't
+        // propagate throughout the database foreign key cascade
+        // deletes.
+        //
+        // NOTE it may be better to generalize this, per
+        // https://stackoverflow.com/questions/22924444/,
+        //   foreign-key-constraints-does-not-work-with-doctrine-symfony-and-sqlite
+        //   (famas23's answer).
+        $this->getEntityManager()->getConnection()->exec('PRAGMA foreign_keys = ON');
+
         $textid = $entity->getID();
         $this->getEntityManager()->remove($entity);
-        $this->removeParsedData($textid);
 
         if ($flush) {
             $this->getEntityManager()->flush();

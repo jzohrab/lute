@@ -4,12 +4,12 @@ namespace App\Utils;
 
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
+use App\Entity\Book;
 use App\Entity\Text;
 use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Entity\Term;
 use App\Domain\TermService;
-use App\Domain\BookBinder;
 use App\Domain\JapaneseParser;
 
 class DemoDataLoader {
@@ -23,15 +23,17 @@ class DemoDataLoader {
         $f = Language::makeFrench();
         $s = Language::makeSpanish();
         $g = Language::makeGerman();
+        $gr = Language::makeGreek();
         $cc = Language::makeClassicalChinese();
 
-        $langs = [ $e, $f, $s, $g, $cc ];
+        $langs = [ $e, $f, $s, $g, $gr, $cc ];
         $files = [
             'tutorial.txt',
             'tutorial_follow_up.txt',
             'es_aladino.txt',
             'fr_goldilocks.txt',
             'de_Stadtmusikanten.txt',
+            'gr_demo.txt',
             'cc_demo.txt',
         ];
 
@@ -60,7 +62,7 @@ class DemoDataLoader {
             preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
             $title = $matches[1];
 
-            $b = BookBinder::makeBook($title, $lang, $content);
+            $b = Book::makeBook($title, $lang, $content);
             $book_repo->save($b, true);
         }
 

@@ -5,7 +5,6 @@ namespace App\DTO;
 use App\Entity\Book;
 use App\Entity\Language;
 use App\Repository\TextTagRepository;
-use App\Domain\BookBinder;
 
 class BookDTO
 {
@@ -31,22 +30,41 @@ class BookDTO
     /**
      * Convert the given BookDTO to a new Book.
      */
-    public static function buildBook(BookDTO $dto, TextTagRepository $ttr): Book
+    public function createBook(): Book
     {
-        if (is_null($dto->language)) {
+        if (is_null($this->language)) {
             throw new \Exception('Language not set');
         }
-        if (is_null($dto->Title)) {
+        if (is_null($this->Title)) {
             throw new \Exception('Title not set');
         }
-        if (is_null($dto->Text)) {
+        if (is_null($this->Text)) {
             throw new \Exception('Text not set');
         }
 
-        $b = BookBinder::makeBook($dto->Title, $dto->language, $dto->Text);
-        $b->setSourceURI($dto->SourceURI);
+        $b = Book::makeBook($this->Title, $this->language, $this->Text);
+        $b->setSourceURI($this->SourceURI);
         $b->removeAllTags();
-        foreach ($dto->bookTags as $t) {
+        foreach ($this->bookTags as $t) {
+            $b->addTag($t);
+        }
+
+        return $b;
+    }
+
+    /**
+     * Load existing book with DTO data.
+     */
+    public function loadBook(Book $b): Book
+    {
+        if (is_null($this->Title)) {
+            throw new \Exception('Title not set');
+        }
+
+        $b->setTitle($this->Title);
+        $b->setSourceURI($this->SourceURI);
+        $b->removeAllTags();
+        foreach ($this->bookTags as $t) {
             $b->addTag($t);
         }
 

@@ -65,6 +65,7 @@
             const bkid = row[3];
             if (row[4] == 0) {
               // not archived
+              ret.push(`<img src="/icn/document--pencil.png" title="Edit" onclick="edit_book(${bkid})" />`);
               ret.push(`<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${bkid})" />`);
             }
             else {
@@ -125,6 +126,10 @@
 
   function confirm_rebind(bookid) {
     do_action_post('rebind', bookid);
+  }
+
+  function edit_book(bookid) {
+    document.location = `/book/${bookid}/edit`;
   }
 
   function confirm_delete(bookid) {

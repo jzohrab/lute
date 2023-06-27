@@ -23,9 +23,6 @@ class Text
     #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $language = null;
 
-    #[ORM\Column(name: 'TxTitle', length: 200)]
-    private string $TxTitle = '';
-
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
     private string $TxText = '';
 
@@ -44,19 +41,12 @@ class Text
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
 
-    #[ORM\JoinTable(name: 'texttags')]
-    #[ORM\JoinColumn(name: 'TtTxID', referencedColumnName: 'TxID')]
-    #[ORM\InverseJoinColumn(name: 'TtT2ID', referencedColumnName: 'T2ID')]
-    #[ORM\ManyToMany(targetEntity: TextTag::class, cascade: ['persist'])]
-    private Collection $textTags;
-
     #[ORM\ManyToOne(inversedBy: 'Texts')]
     #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
     private ?Book $book = null;
 
     public function __construct()
     {
-        $this->textTags = new ArrayCollection();
     }
 
 
@@ -67,14 +57,10 @@ class Text
 
     public function getTitle(): string
     {
-        return $this->TxTitle;
-    }
-
-    public function setTitle(string $TxTitle): self
-    {
-        $this->TxTitle = $TxTitle;
-
-        return $this;
+        $b = $this->getBook();
+        $s = "({$this->getOrder()}/{$b->getPageCount()})";
+        $t = "{$b->getTitle()} {$s}";
+        return $t;
     }
 
     public function getText(): string
@@ -145,28 +131,6 @@ class Text
     {
         $this->language = $language;
 
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, TextTag>
-     */
-    public function getTextTags(): Collection
-    {
-        return $this->textTags;
-    }
-
-    public function addTextTag(TextTag $textTag): self
-    {
-        if (!$this->textTags->contains($textTag)) {
-            $this->textTags->add($textTag);
-        }
-        return $this;
-    }
-
-    public function removeTextTag(TextTag $textTag): self
-    {
-        $this->textTags->removeElement($textTag);
         return $this;
     }
 

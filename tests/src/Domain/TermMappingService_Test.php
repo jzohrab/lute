@@ -22,14 +22,17 @@ final class TermMappingService_Test extends DatabaseTestBase
     }
 
     private function assertParentEquals($t, $p, $msg = '') {
+        $tlc = mb_strtolower($t);
+        $p = $p ?? 'null';
+        $plc = mb_strtolower($p);
         $sp = $this->spanish;
-        $sql = "select cw.WoTextLC, ifnull(pw.WoTextLC, 'NULL')
+        $sql = "select cw.WoTextLC, ifnull(pw.WoTextLC, 'null')
 from words cw
 left outer join wordparents on WpWoID = cw.WoID
 left outer join words pw on WpParentWoID = pw.WoID
-where cw.WoTextLC = '{$t}'";
-        $p = $p ?? 'NULL';
-        DbHelpers::assertTableContains($sql, [ "{$t}; {$p}" ], "check");
+where cw.WoTextLC = '{$tlc}'";
+        // dump($sql);
+        DbHelpers::assertTableContains($sql, [ "{$t}; {$plc}" ], "check " . $msg);
     }
 
     private function assertFlashMessageEquals($t, $m, $msg = '') {
@@ -53,7 +56,8 @@ where cw.WoTextLC = '{$t}'";
         $sp = $this->spanish;
         $threw = false;
         try {
-            $this->svc->mapParents($sp, $this->language_repo, $mappings);
+            $stats = $this->svc->mapParents($sp, $this->language_repo, $mappings);
+            dump($stats);
         }
         catch (\Exception $e) {
             $threw = true;
@@ -214,6 +218,55 @@ where cw.WoTextLC = '{$t}'";
         $this->assertFlashMessageEquals('gatos', 'Auto-created and mapped to parent "gato"', 'Has flash message');
         $this->assertStatsEquals($stats, 1,1);
         $this->assertTermsEquals(['gato', 'gatos']);
+    }
+
+    /**
+     * @group issue40
+     * https://github.com/jzohrab/lute/issues/40
+     */
+    public function test_issue_40_multiple_parents_not_mapped() {
+        $sp = $this->spanish;
+        $p = $this->addTerms($sp, ['pA', 'pB', 'c']);
+        $this->assertTermsEquals(['c', 'pA', 'pB']);
+        $mappings = [
+            [ 'pA', 'c' ],
+            [ 'pB', 'c' ]
+        ];
+        $stats = $this->doMappings($mappings);
+        DbHelpers::assertRecordcountEquals('wordparents', 0, 'no mappings');
+    }
+
+    /**
+     * @group issue40
+     * https://github.com/jzohrab/lute/issues/40
+     */
+    public function test_issue_40_dup_mapping_ok() {
+        $sp = $this->spanish;
+        $p = $this->addTerms($sp, ['pA', 'c']);
+        $this->assertTermsEquals(['c', 'pA']);
+        $mappings = [
+            [ 'pA', 'c' ],
+            [ 'pA', 'c' ]
+        ];
+        $stats = $this->doMappings($mappings);
+        $this->assertParentEquals('c', 'pa', 'parent mapped');
+        DbHelpers::assertRecordcountEquals('select * from wordparents', 1, 'one mapping');
+    }
+
+    /**
+     * @group issue40
+     * https://github.com/jzohrab/lute/issues/40
+     */
+    public function test_issue_40_case_ignored_for_mapping() {
+        $sp = $this->spanish;
+        $p = $this->addTerms($sp, ['pA', 'Á']);
+        $this->assertTermsEquals(['pA', 'Á'], 'initial settings');
+        $mappings = [
+            [ 'pA', 'á' ]
+        ];
+        $stats = $this->doMappings($mappings);
+        $this->assertParentEquals('á', 'pa', 'mapped ok');
+        DbHelpers::assertRecordcountEquals('select * from wordparents', 1, 'one mapping');
     }
 
     public function test_new_term__new_parent_not_created_if_not_otherwise_used() {

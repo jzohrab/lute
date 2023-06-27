@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Book;
 use App\DTO\BookDTO;
 use App\Form\BookDTOType;
-use App\Domain\BookBinder;
 use App\Domain\BookStats;
 use App\Repository\BookRepository;
 use App\Repository\TextTagRepository;
@@ -71,7 +70,7 @@ class BookController extends AbstractController
     }
 
 
-    private function processForm(
+    private function processNewForm(
         \Symfony\Component\Form\Form $form,
         Request $request,
         BookDTO $bookdto,
@@ -96,23 +95,14 @@ class BookController extends AbstractController
         }
 
         try {
-            $book = BookDTO::buildBook($bookdto, $texttag_repo);
+            $book = $bookdto->createBook();
             $book_repo->save($book, true);
             return $this->redirectToRoute('app_book_read', [ 'BkID' => $book->getId() ], Response::HTTP_SEE_OTHER);
         }
         catch (\Exception $e) {
-            /*
-            $errcode = intval($e->getCode());
-            $INTEGRITY_CONSTRAINT_VIOLATION = 1062;
-            if ($errcode != $INTEGRITY_CONSTRAINT_VIOLATION) {
-                // Some different error, throw b/c I'm not sure what's
-                // happening.
-                throw $e;
-            }
-            */
             $msg = "Error on save: " . $e->getMessage();
             $this->addFlash('notice', $msg);
-            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
         }
     }
 
@@ -122,7 +112,7 @@ class BookController extends AbstractController
     {
         $dto = new BookDTO();
         $form = $this->createForm(BookDTOType::class, $dto);
-        $resp = $this->processForm($form, $request, $dto, $book_repo, $texttag_repo);
+        $resp = $this->processNewForm($form, $request, $dto, $book_repo, $texttag_repo);
         if ($resp != null)
             return $resp;
 
@@ -244,7 +234,7 @@ class BookController extends AbstractController
         // }
         if (count($book->getTexts()) != 1)
             throw new \Exception("Can only rebind books with one page.");
-        $rebound = BookBinder::makeBook($book->getTitle(), $book->getLanguage(), $book->getTexts()[0]->getText());
+        $rebound = Book::makeBook($book->getTitle(), $book->getLanguage(), $book->getTexts()[0]->getText());
         $rebound->setSourceURI($book->getSourceURI());
         foreach ($book->getTags() as $t) {
             $rebound->addTag($t);
@@ -255,31 +245,51 @@ class BookController extends AbstractController
         return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    /*
-    #[Route('/{TxID}/edit', name: 'app_text_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Text $text, TextRepository $textRepository, SettingsRepository $settingsRepository): Response
+
+    private function processEditForm(
+        \Symfony\Component\Form\Form $form,
+        Request $request,
+        BookDTO $bookdto,
+        Book $book,
+        BookRepository $book_repo,
+        TextTagRepository $texttag_repo
+    ): ?Response
     {
-        $form = $this->createForm(TextType::class, $text);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $textRepository->save($text, true);
-
-            $currtext = $settingsRepository->getCurrentTextID();
-            if ($currtext == $text->getID()) {
-                return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
-            }
-            else {
-                return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
-            }
+        if (! $form->isSubmitted())
+            return null;
+        if (! $form->isValid()) {
+            $msg = "Error on submit: " . $form->getErrors(true, false);
+            $this->addFlash('notice', $msg);
+            return null;
         }
 
-        return $this->renderForm('text/edit.html.twig', [
-            'text' => $text,
-            'form' => $form,
-        ]);
+        try {
+            $bookdto->loadBook($book);
+            $book_repo->save($book, true);
+            return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
+        }
+        catch (\Exception $e) {
+            $msg = "Error on save: " . $e->getMessage();
+            $this->addFlash('notice', $msg);
+            return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
+        }
     }
 
-    */
+    #[Route('/{BkID}/edit', name: 'app_book_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Book $book, BookRepository $book_repo, TextTagRepository $texttag_repo): Response
+    {
+        $dto = $book->createBookDTO();
+        $form = $this->createForm(BookDTOType::class, $dto);
+        $resp = $this->processEditForm($form, $request, $dto, $book, $book_repo, $texttag_repo);
+        if ($resp != null)
+            return $resp;
+
+        $form = $this->createForm(BookDTOType::class, $dto);
+        return $this->renderForm('book/edit.html.twig', [
+            'bookdto' => $dto,
+            'form' => $form
+        ]);
+    }
 
 }
