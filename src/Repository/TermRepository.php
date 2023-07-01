@@ -61,7 +61,10 @@ class TermRepository extends ServiceEntityRepository
 
     public function stopSqlLog(): void
     {
-        $this->getEntityManager()->getConnection()->getConfiguration()->setSQLLogger(null);
+        $this->getEntityManager()->
+            getConnection()->
+            getConfiguration()->
+            setSQLLogger(null);
     }
 
     /**

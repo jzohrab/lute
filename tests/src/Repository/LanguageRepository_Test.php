@@ -37,4 +37,19 @@ final class LanguageRepository_Test extends DatabaseTestBase
         }
     }
 
+    /**
+     * @group lgfind
+     */
+    public function test_get_by_name()
+    {
+        $english = Language::makeEnglish();
+        $this->language_repo->save($english, true);
+
+        $f = $this->language_repo->findOneByName('English');
+        $this->assertEquals($f->getLgId(), $english->getLgID());
+
+        $notfound = $this->language_repo->findOneByName('english');
+        $this->assertTrue($notfound == null, 'case-sensitive');
+    }
+
 }

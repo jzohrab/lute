@@ -21,6 +21,16 @@ class LanguageRepository extends ServiceEntityRepository
         parent::__construct($registry, Language::class);
     }
 
+    public function findOneByName($value): ?Language
+    {
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.LgName = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     public function save(Language $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
