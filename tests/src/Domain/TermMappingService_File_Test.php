@@ -97,9 +97,9 @@ parentmissingchild\t
         $mappings = TermMappingService::loadMappingFile($f);
         // Only good lines are included, the rest are ignored.
         $expected = [
-            [ 'parent', 'child' ],
-            [ 'good', 'line' ],
-            [ 'another', 'goodline' ]
+            [ 'parent'=>'parent', 'child'=>'child' ],
+            [ 'parent'=>'good', 'child'=>'line' ],
+            [ 'parent'=>'another', 'child'=>'goodline' ]
         ];
         $this->assertEquals($mappings, $expected);
     }

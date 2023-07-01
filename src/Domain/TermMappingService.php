@@ -11,6 +11,15 @@ use App\DTO\TermReferenceDTO;
 use App\Utils\Connection;
 use App\Repository\TermRepository;
 
+/**
+ * Bulk-map child terms to parent terms, creating things as needed.
+ *
+ * The mapping file contains parent - child term pairs, tab-delimited, eg:
+ *
+ *    gato	gatos
+ *    blanco	blancos
+ *
+ */
 class TermMappingService {
 
     private TermRepository $term_repo;
@@ -27,7 +36,8 @@ class TermMappingService {
         $mappings = array_filter($mappings, fn($arr) => count($arr) == 2);
         // No blank parent/child
         $mappings = array_filter($mappings, fn($m) => ($m[0] ?? '') != '' && ($m[1] ?? '') != '');
-        return array_values($mappings);
+        $mappings = array_map(fn($arr) => [ 'parent' => $arr[0], 'child' => $arr[1] ], array_values($mappings));
+        return $mappings;
     }
 
     public function __construct(
@@ -95,7 +105,8 @@ class TermMappingService {
         $stmt = $conn->prepare("INSERT INTO $pre (parent, child) VALUES (?, ?)");
         foreach (array_chunk($mappings, 100) as $batch) {
             $conn->beginTransaction();
-            foreach ($batch as $row) {
+            $batchvals = array_map(fn($h) => [ $h['parent'], $h['child' ] ], $batch);
+            foreach ($batchvals as $row) {
                 $stmt->execute($row);
             }
             $conn->commit();
@@ -135,19 +146,19 @@ class TermMappingService {
      * uses the model, which is probably much less efficient than
      * straight sql inserts, but I don't care at the moment.
      *
-     * @param mappings   array of mappings, eg [ [ 'gatos', 'gato' ], [ 'blancos', 'blanco' ], ... ]
+     * @param mappings   array of mappings, eg
+     * [ [ 'parent' => 'gato', 'child' => 'gatos' ], [ 'parent' => 'blanco', 'child' => 'blancos' ], ... ]
      */
     public function mapParents(Language $lang, LanguageRepository $langrepo, $mappings) {
 
-        $mappings = array_filter($mappings, fn($a) => $a[0][0] != '#');
         $blank = function($s) { return trim($s ?? '') == ''; };
-        $badmaps = array_filter($mappings, fn($a) => $blank($a[0]) || $blank($a[1]));
+        $badmaps = array_filter($mappings, fn($a) => $blank($a['parent']) || $blank($a['child']));
         if (count($badmaps) > 0)
             throw new \Exception('Blank or null in mapping');
 
-        $mappings = array_filter($mappings, fn($a) => $a[0] != $a[1]);
-        $mappings = array_filter($mappings, fn($a) => $a[0] != null && $a[1] != null);
-        $mappings = array_map(fn($a) => [ mb_strtolower($a[0]), mb_strtolower($a[1]) ], $mappings);
+        $mappings = array_filter($mappings, fn($a) => $a['parent'] != $a['child']);
+        $mappings = array_filter($mappings, fn($a) => $a['parent'] != null && $a['child'] != null);
+        $mappings = array_map(fn($a) => [ 'parent' => mb_strtolower($a['parent']), 'child' => mb_strtolower($a['child']) ], $mappings);
 
         // dump($mappings);
         $this->term_repo->stopSqlLog();
