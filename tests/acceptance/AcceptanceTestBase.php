@@ -41,6 +41,7 @@ use App\Tests\acceptance\Contexts\ReadingContext;
 use App\Tests\acceptance\Contexts\BookContext;
 use App\Tests\acceptance\Contexts\TermContext;
 use App\Tests\acceptance\Contexts\TermTagContext;
+use App\Tests\acceptance\Contexts\TermUploadContext;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -242,6 +243,10 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public function getTermTagContext() {
         return new TermTagContext($this->client);
+    }
+
+    public function getTermUploadContext() {
+        return new TermUploadContext($this->client);
     }
 
 }

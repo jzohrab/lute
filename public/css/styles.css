@@ -90,6 +90,19 @@
      word-break: break-all;
  }
 
+ table#termimport
+ {
+     width: 70%;
+ }
+
+ table#termimport thead, table#termimport tr, table#termimport th:first-child, table#termimport tbody, table#termimport tr, table#termimport td:first-child {
+     width: 10%;
+     min-width: 10%;
+     max-width: 10%;
+     vertical-align: top;
+     word-break: break-all;
+ }
+ 
  table#language
  {
      width: 80%;

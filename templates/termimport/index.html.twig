@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Term Import{% endblock %}
+
+{% block body %}
+
+<h1>Import Terms from CSV</h1>
+
+<p>See <a href="https://github.com/jzohrab/lute/wiki/Bulk-Term-Import" target="_blank">"Bulk Term Import"</a> on the Lute wiki for notes about the CSV file format and data.</p>
+<br />
+
+{% form_theme form 'form_table_layout.html.twig' %}
+
+{{ form_start(form) }}
+
+<table id="termimport">
+  {{ form_row(form.TextFile) }}
+</table>
+
+<button id="btnSubmit" class="btn">Import</button>
+{{ form_end(form) }}
+
+{% endblock %}
