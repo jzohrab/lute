@@ -49,6 +49,11 @@
    padding: 3px;
  }
 
+ ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+   color: #D8D8D8;
+   opacity: 1; /* Firefox */
+ }
+
  div#thetext {
      margin-left: 20px;
      margin-right: 20px;
