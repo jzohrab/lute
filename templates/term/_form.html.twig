@@ -131,6 +131,7 @@
 
     $('#termtagslist').tagit(
       {
+        placeholderText: 'Tags',
         beforeTagAdded: function (_event, ui) {
           if (invalidChar(ui.tag.text())) {
             return;

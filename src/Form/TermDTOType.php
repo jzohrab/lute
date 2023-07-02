@@ -34,7 +34,7 @@ class TermDTOType extends AbstractType
             ->add('Text',
                   TextType::class,
                   [ 'label' => 'Text',
-                    'attr' => [ 'class' => 'form-text' ],
+                    'attr' => [ 'class' => 'form-text', 'placeholder' => 'Term' ],
                     'required' => true
                   ]
             )
@@ -47,14 +47,14 @@ class TermDTOType extends AbstractType
             ->add('ParentText',
                   TextType::class,
                   [ 'label' => 'Parent',
-                    'attr' => [ 'class' => 'form-text' ],
+                    'attr' => [ 'class' => 'form-text', 'placeholder' => 'Parent' ],
                     'required' => false
                   ]
             )
             ->add('Translation',
                   TextareaType::class,
                   [ 'label' => 'Translation',
-                    'attr' => [ 'class' => 'textarea' ],
+                    'attr' => [ 'class' => 'textarea', 'placeholder' => 'Translation' ],
                     'required' => false
                   ]
             )
@@ -103,7 +103,10 @@ class TermDTOType extends AbstractType
             $form->add(
                 'Romanization', $romanization_field_type,
                 [ 'label' => 'Roman.',
-                  'attr' => [ 'class' => 'form-text' ],
+                  'attr' => [
+                      'class' => 'form-text',
+                      'placeholder' => 'Pronunciation'
+                  ],
                   'required' => false ]
             );
         });
