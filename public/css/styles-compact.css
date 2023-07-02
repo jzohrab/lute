@@ -15,24 +15,16 @@
  {
    font: 85% "Lucida Grande",Arial,sans-serif,STHeiti,"Arial Unicode MS",MingLiu;
    border: 1px solid #C6C6C6;
-   padding: 3px;
+   padding: 1px;
  }
 
  th, td {
-     padding: 1px;
+     padding: 0px;
  }
  
  table#term
  {
-     width: 80%;
- }
-
- #text > thead tr th:first-child, tbody tr td:first-child {
-     width: 30%;
-     min-width: 30%;
-     max-width: 30%;
-     vertical-align: top;
-     word-break: break-all;
+     width: 70%;
  }
 
  input[type=text].form-text

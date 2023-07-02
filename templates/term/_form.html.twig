@@ -9,50 +9,60 @@
       style="display:none;"
     {% endif %}
   >
-    <td>Language</td>
     <td>{{ form_widget(form.language) }}</td>
   </tr>
 
   <tr>
-    <td>Term</td>
-    <td>{{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}</td>
     <td>
-      <img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" />
+      {{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}
     </td>
-    <td>
+    <td style="white-space: nowrap;">
+      <img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" />
       <img src="/icn/eye.png" title="Images" onclick="do_image_lookup()" />
     </td>
   </tr>
 
   <tr>
-    <td>Parent</td>
-    <td>{{ form_widget(form.ParentText) }}</td>
-    {% if not form.ParentID.vars.value is empty %}
     <td>
+      {{ form_widget(form.ParentText) }}
+      {{ form_widget(form.ParentID, {'label':false}) }}
+    </td>
+    <td>
+      {% if not form.ParentID.vars.value is empty %}
       {% if parent_link_to_frame ?? false %}
       <a href="/read/termform/{{form.language.vars.value}}/{{form.ParentText.vars.value}}">&gt;</a>
       {% else %}
       <a href="/term/{{form.ParentID.vars.value}}/edit">&gt;</a>
       {% endif %}
+      {% endif %}
     </td>
-    {% endif %}
   </tr>
-
-  {{ form_row(form.ParentID) }}
-  {{ form_row(form.Romanization) }}
 
   <tr>
-    <td>Translation<br /><img class="zoomableTermImage" id="term_image" src="{{ form.CurrentImage.vars.value }}" width="50px"/></td>
-    <td>{{ form_widget(form.Translation) }}</td>
+    <td>
+      {{ form_widget(form.Romanization, {'label':false}) }}
+    </td>
   </tr>
 
-  {{ form_row(form.Status) }}
-  {{ form_row(form.CurrentImage) }}
+  <tr>
+    <td>{{ form_widget(form.Translation) }}</td>
+    <td><img class="zoomableTermImage" id="term_image" src="{{ form.CurrentImage.vars.value }}" width="50px"/></td>
+  </tr>
+
+  <tr>
+    <td>
+      {{ form_widget(form.Status, {'label':false}) }}
+    </td>
+  </tr>
+  <tr>
+    <td>
+      {{ form_row(form.CurrentImage, {'label':false}) }}
+    </td>
+  </tr>
 
   {% do form.termTags.setRendered %}
   {# manually write list so it can be managed by tagit. #}
   <tr>
-    <td>Tags</td>
     <td>
       <ul id="termtagslist" class="tags nomarginblock">
         {% for termTag in form.termTags %}
@@ -65,7 +75,6 @@
   </tr>
 
   <tr>
-    <td />
     <td align="right">
       <a href="" onclick="show_term_sentences(); return false;">Sentences</a>
       <button class="btn">{{ button_label|default('Save') }}</button>
@@ -131,6 +140,7 @@
 
     $('#termtagslist').tagit(
       {
+        placeholderText: 'Tags',
         beforeTagAdded: function (_event, ui) {
           if (invalidChar(ui.tag.text())) {
             return;
@@ -163,11 +173,7 @@
     set_up_parent_autocomplete();
 
     // Approx good size for the text area:
-    const w = $('#term_dto_Text').css('width');
-    // Textareas seem to have their own dimensional quirks.
-    const hackTextareaWidth = parseInt(parseInt(w) * 1.10);
-    // console.log(`got term_dto_Text width = ${w} giving hack width ${hackTextareaWidth}`);
-    $('#term_dto_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
+    $('#term_dto_Translation').css({'width': '600px', 'height': '43px'});
 
     if (($('#term_dto_Text').val() ?? '') != '') {
       do_term_lookup(false);
