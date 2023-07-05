@@ -1,5 +1,13 @@
 # Changelog
 
+## 2023-07-04
+
+Feature changes:
+
+* Use suggestions/placeholders for term form, not labels
+* add bulk term import (issue [46](https://github.com/jzohrab/lute/issues/46))
+
+
 ## 2023-06-26 v2.0.5
 
 Feature changes:
