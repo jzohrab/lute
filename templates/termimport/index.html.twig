@@ -20,4 +20,15 @@
 <button id="btnSubmit" class="btn">Import</button>
 {{ form_end(form) }}
 
+{% if app.environment == 'dev' %}
+<br />
+<p style="width: 50%"><i>
+    Note: Importing in APP_ENV=dev fails because Doctrine
+    collects data on all of the queries that have been run, and
+    mapping can run thousands of queries.  If you want to run this
+    on your dev data, first change the APP_ENV to "prod" in the .env
+    file.
+</i></p>
+{% endif %}
+
 {% endblock %}
