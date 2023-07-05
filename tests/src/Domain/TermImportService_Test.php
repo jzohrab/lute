@@ -67,7 +67,7 @@ final class TermImportService_Test extends DatabaseTestBase
                 $this->assertEquals($expected_message, $e->getMessage());
             }
         }
-        $this->assertTrue($threw);
+        $this->assertTrue($threw, "Should have thrown message " . $expected_message);
     }
 
     public function test_language_must_exist() {
@@ -350,6 +350,131 @@ Spanish,third,,,W,?,';
 1. blah
 2. \"you know\"";
         $this->assertEquals($tx->getTranslation(), $t2xl, "check");
+    }
+
+    /**
+     * @group importfile
+     */
+    public function test_fields_can_be_in_different_order() {
+        $content = 'language,translation,term,parent,status,tags,pronunciation
+Spanish,t1 trans,term,,1,"a, b",
+Spanish,o1 trans,other,,3,,TEE-2
+Spanish,3 trans,third,,W,?,';
+        $this->save_import_content($content);
+
+        $stats = $this->svc->importFile($this->importfile);
+        $this->assertStatsEquals($stats, 3, 0);
+        $this->assertTermsEquals(['other', 'term', 'third']);
+
+        $ts = new TermService($this->term_repo);
+        $tx = $ts->find('other', $this->spanish);
+        $t2xl = 'o1 trans';
+        $this->assertEquals($tx->getTranslation(), $t2xl, "check");
+    }
+
+    /**
+     * @group importcols
+     */
+    public function test_partial_columns_are_allowd() {
+        $this->record = [
+            'language' => 'Spanish',
+            'term' => 'gato',
+            'translation' => 'cat'
+        ];
+        $import = [ $this->record ];
+        $stats = $this->doImport($import);
+        $this->assertTermsEquals(['gato'], 'created');
+        $this->assertStatsEquals($stats, 1, 0, '2 created');
+
+        $ts = new TermService($this->term_repo);
+        $gato = $ts->find('gato', $this->spanish);
+
+        $this->assertEquals($gato->getTranslation(), 'cat', 'translation set');
+        $this->assertEquals($gato->getStatus(), 1, 'default = 1');
+    }
+
+    /**
+     * @group importcols
+     */
+    public function test_language_and_term_required() {
+        $this->record = [
+            'language' => 'Spanish',
+            'termx' => 'gato',
+        ];
+
+        $import = [ $this->record ];
+        $this->assertImportThrows($import, 'Missing required field "term"');
+    }
+
+    /**
+     * @group importcols
+     */
+    public function test_only_language_and_term_is_ok() {
+        $this->record = [
+            'language' => 'Spanish',
+            'term' => 'gato',
+        ];
+        $import = [ $this->record ];
+        $stats = $this->doImport($import);
+        $this->assertTermsEquals(['gato'], 'created');
+        $this->assertStatsEquals($stats, 1, 0, '2 created');
+
+        $ts = new TermService($this->term_repo);
+        $gato = $ts->find('gato', $this->spanish);
+
+        $this->assertEquals($gato->getTranslation(), '', 'empty translation set');
+        $this->assertEquals($gato->getStatus(), 1, 'default = 1');
+    }
+
+    /**
+     * @group importcols
+     */
+    public function test_bad_headings_throws() {
+        $this->record = [
+            'language' => 'Spanish',
+            'term' => 'gato',
+            'badfield' => 'junk'
+        ];
+        $import = [ $this->record ];
+        $this->assertImportThrows($import, 'Unknown field "badfield"');
+    }
+
+    /**
+     * @group importcols
+     */
+    public function test_import_file_must_contain_language_and_heading() {
+        $content = 'language,xterm
+Spanish,term';
+        $this->save_import_content($content);
+
+        $threw = false;
+        try {
+            $stats = $this->svc->importFile($this->importfile);
+        }
+        catch (\Exception $e) {
+            $threw = true;
+            $this->assertEquals('Missing required field "term"', $e->getMessage());
+        }
+        $this->assertTrue($threw);
+    }
+
+    /**
+     * @group importcols_1
+     */
+    public function test_bad_headings_in_file_throws() {
+        $content = 'language,term,badfield
+Spanish,term,junk';
+        $this->save_import_content($content);
+
+        $threw = false;
+        try {
+            $stats = $this->svc->importFile($this->importfile);
+        }
+        catch (\Exception $e) {
+            $threw = true;
+            $this->assertEquals('Unknown field "badfield"', $e->getMessage());
+        }
+        $this->assertTrue($threw);
     }
 
 }

@@ -21,28 +21,38 @@ class TermImportService {
     private TermService $termsvc;
 
 
+    private static function validateDataFields($field_list) {
+        $required_keys = [ 'language', 'term' ];
+        foreach ($required_keys as $k) {
+            if (! in_array($k, $field_list))
+                throw new \Exception("Missing required field \"$k\"");
+        }
+
+        $allowed_fields = [
+            'language',
+            'term',
+            'translation',
+            'parent',
+            'status',
+            'tags',
+            'pronunciation'
+        ];
+        foreach ($field_list as $k) {
+            if (! in_array($k, $allowed_fields))
+                throw new \Exception("Unknown field \"$k\"");
+        }
+    }
+
+
     /**
      * Convert a csv file to array of hashes.
      */
     public static function loadImportFile($filename): array {
 
-        $makeHsh = function($arr) {
+        $makeHsh = function($headings, $arr) {
             $tarr = array_map(fn($s) => trim($s), $arr);
-            return [
-                'language' => $tarr[0],
-                'term' => $tarr[1],
-                'translation' => $tarr[2],
-                'parent' => $tarr[3],
-                'status' => $tarr[4],
-                'tags' => $tarr[5],
-                'pronunciation' => $tarr[6]
-            ];
+            return array_combine($headings, $arr);
         };
-
-        // First row must have specific headings, ensures good data.
-        $temp = $makeHsh([1,2,3,4,5,6,7]);
-        $colcount = count($temp);
-        $required_headings = implode(', ', array_keys($temp));
 
         $importdata = [];
         $handle = fopen($filename, "r");
@@ -51,18 +61,17 @@ class TermImportService {
 
         $headings = fgetcsv($handle, 0);
         $headings = array_map(fn($s) => trim($s), $headings);
-        $actual_headings = implode(', ', $headings);
-        if ("{$actual_headings}" != "{$required_headings}") {
-            fclose($handle);
-            throw new \Exception('first row must have headings:' . $required_headings . '; got ' . $actual_headings);
-        }
+        $colcount = count($headings);
+        TermImportService::validateDataFields($headings);
             
         while (($rec = fgetcsv($handle, 0)) !== false) {
-            if (count($rec) != $colcount) {
+            $c = count($rec);
+            $recstring = implode(',', $rec);
+            if ($c != $colcount) {
                 fclose($handle);
-                throw new \Exception("Each row must have {$colcount} columns.");
+                throw new \Exception("Each row must have {$colcount} columns, got {$c} for record {$recstring}.");
             }
-            $importdata[] = $makeHsh($rec);
+            $importdata[] = $makeHsh($headings, $rec);
         }
         fclose($handle);
 
@@ -94,17 +103,23 @@ class TermImportService {
         return array_unique($langs);
     }
 
+    private function validateFields($import) {
+        foreach ($import as $hsh)
+            TermImportService::validateDataFields(array_keys($hsh));
+    }
+
     private function validateLanguages($import) {
         $langs = $this->getUniqueLanguageNames($import);
         foreach ($langs as $s) {
             $ltest = $this->lang_repo->findOneByName($s);
             if ($ltest == null)
-                throw new \Exception('Unknown language "' . $s . '"');
+                throw new \Exception("Unknown language \"{$s}\"");
         }
     }
 
     private function validateStatuses($import) {
-        $statuses = array_map(fn($hsh) => $hsh['status'], $import);
+        $status_imports = array_filter($import, fn($hsh) => array_key_exists('status', $hsh));
+        $statuses = array_map(fn($hsh) => $hsh['status'], $status_imports);
         $statuses = array_map(fn($s) => trim($s), $statuses);
         $statuses = array_unique($statuses);
         foreach ($statuses as $s) {
@@ -150,7 +165,8 @@ class TermImportService {
     // Get all necessary TermTags.
     private function createTermTagsDict($import) {
         $dict = [];
-        $tags = array_map(fn($hsh) => $hsh['tags'], $import);
+        $import_tags = array_filter($import, fn($hsh) => array_key_exists('tags', $hsh));
+        $tags = array_map(fn($hsh) => $hsh['tags'], $import_tags);
         $tags = array_filter($tags, fn($s) => trim($s) != '');
         $tags = array_map(fn($s) => explode(',', $s), $tags);
         $tags = array_merge([], ...$tags);
@@ -172,9 +188,13 @@ class TermImportService {
     /** Import a data record. */
     private function importRow($rec, $lang, $tagsdict) {
         $t = new Term($lang, $rec['term']);
-        $t->setTranslation($rec['translation']);
-        $t->setStatus($this->getStatus($rec['status']));
-        $t->setRomanization($rec['pronunciation']);
+
+        if (array_key_exists('translation', $rec))
+            $t->setTranslation($rec['translation']);
+        if (array_key_exists('status', $rec))
+            $t->setStatus($this->getStatus($rec['status']));
+        if (array_key_exists('pronunciation', $rec))
+            $t->setRomanization($rec['pronunciation']);
 
         $addTags = function() use ($t, $rec, $tagsdict) {
             $tags = explode(',', $rec['tags']);
@@ -183,7 +203,7 @@ class TermImportService {
                 $t->addTermTag($tagsdict[$tag]);
             }
         };
-        if ($rec['tags'] != '')
+        if (array_key_exists('tags', $rec) && $rec['tags'] != '')
             $addTags();
 
         $this->term_repo->save($t, false);
@@ -192,6 +212,7 @@ class TermImportService {
 
     /** NOTE: this fails for large import files when APP_ENV = TEST. */
     public function doImport($import) {
+        $this->validateFields($import);
         $this->validateLanguages($import);
         $this->validateTermsExist($import);
         $this->validateStatuses($import);
@@ -219,8 +240,9 @@ class TermImportService {
         }
 
         $langs = $this->getUniqueLanguageNames($import);
+        $import_parents = array_filter($import, fn($hsh) => array_key_exists('parent', $hsh));
         foreach ($langs as $s) {
-            $import_for_lang = array_filter($import, fn($h) => $h['language'] == $s && $h['parent'] != '');
+            $import_for_lang = array_filter($import_parents, fn($h) => $h['language'] == $s && $h['parent'] != '');
             $mappings = array_map(
                 fn($h) => [ 'parent' => $h['parent' ], 'child' => $h['term'] ],
                 $import_for_lang

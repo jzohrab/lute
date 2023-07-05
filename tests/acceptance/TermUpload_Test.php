@@ -41,6 +41,27 @@ class TermUpload_Test extends AcceptanceTestBase
     }
 
     /**
+     * @group acc_uploadterms
+     */
+    public function test_upload_terms_valid_file_variable_columns(): void
+    {
+        $this->client->request('GET', '/');
+        $this->client->clickLink('Import Terms');
+        $ctx = $this->getTermUploadContext();
+
+        $test_file = __DIR__ . '/Fixtures/term_import_variable_columns.csv';
+        $ctx->uploadFile($test_file);
+
+        $this->client->request('GET', '/');
+        $this->client->clickLink('Terms');
+        $ctx = $this->getTermContext();
+        $ctx->listingShouldContain(
+            'two terms',
+            [ '; gato; ; cat; Spanish; ; New (1)',
+              '; gatos; gato; ; Spanish; ; New (1)' ]);
+    }
+
+    /**
      * @group acc_uploadterms_badfile
      */
     public function test_upload_terms_invalid_file(): void
