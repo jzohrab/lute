@@ -59,8 +59,17 @@ class TermImportService {
         if ($handle === false)
             throw new \Exception("Failure opening file {$filename}");
 
+        // Some language exports may add a byte order marker (BOM) to
+        // the start of the file, which should be skipped.
+        $bom = "\xef\xbb\xbf";
+        if (fgets($handle, 4) !== $bom) {
+            // BOM not found - rewind pointer to start of file.
+            rewind($handle);
+        }
+
         $headings = fgetcsv($handle, 0);
         $headings = array_map(fn($s) => trim($s), $headings);
+
         $colcount = count($headings);
         TermImportService::validateDataFields($headings);
             
