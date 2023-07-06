@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Term;
+use App\Entity\Language;
 use App\Domain\Dictionary;
 use App\Domain\TermImportService;
 use App\Domain\TermService;
@@ -78,7 +79,7 @@ final class TermImportService_Test extends DatabaseTestBase
 
     public function test_dup_term_throws() {
         $import = [ $this->record, $this->record ];
-        $this->assertImportThrows($import, 'Duplicate terms in import');
+        $this->assertImportThrows($import, 'Duplicate terms in import: Spanish: gato');
         $import = [
             $this->record,
             [ 'language' => 'Spanish',
@@ -90,7 +91,7 @@ final class TermImportService_Test extends DatabaseTestBase
               'pronunciation' => ''
             ]
         ];
-        $this->assertImportThrows($import, 'Duplicate terms in import');
+        $this->assertImportThrows($import, 'Duplicate terms in import: Spanish: gato');
     }
 
     public function test_bad_status_throws() {
@@ -454,6 +455,31 @@ Spanish,term';
         catch (\Exception $e) {
             $threw = true;
             $this->assertEquals('Missing required field "term"', $e->getMessage());
+        }
+        $this->assertTrue($threw);
+    }
+
+    /**
+     * @group issue51
+     */
+    public function test_Mandarin_import_file_with_dups() {
+        $cc = Language::makeClassicalChinese();
+        $cc->setLgName('Mandarin'); // used in the import file.
+        $this->language_repo->save($cc, true);
+
+        $content = "language,term,translation,pronunciation,tags
+Mandarin,啊 ,auxiliary word,a,HSK2
+Mandarin,啊,ah,a,HSK4";
+
+        $this->save_import_content($content);
+
+        $threw = false;
+        try {
+            $stats = $this->svc->importFile($this->importfile);
+        }
+        catch (\Exception $e) {
+            $threw = true;
+            $this->assertEquals('Duplicate terms in import: Mandarin: 啊', $e->getMessage());
         }
         $this->assertTrue($threw);
     }

@@ -144,11 +144,28 @@ class TermImportService {
     }
 
     private function validateNoDuplicateTerms($import) {
-        $langterms = array_map(fn($hsh) => $hsh['language'] . '_' . mb_strtolower($hsh['term']), $import);
-        $c = count($langterms);
-        $cu = count(array_unique($langterms));
-        if ($c != $cu)
-            throw new \Exception('Duplicate terms in import');
+        // Convert hash to "Language: clean term" string, for checking
+        // duplicates.
+        $makeLangTermString = function ($hsh) {
+            $t = trim($hsh['term']);
+            // Have to also clear unicode whitespace.
+            // https://stackoverflow.com/questions/10859098/
+            //  why-is-php-trim-is-not-really-remove-all-whitespace-and-line-breaks
+            $t = preg_replace('/^\p{Z}+|\p{Z}+$/u', '', $t);
+
+            return $hsh['language'] . ': ' . mb_strtolower($t);
+        };
+
+        $langterms = array_map($makeLangTermString, $import);
+        $term_to_count = array_count_values($langterms);
+        $dups = [];
+        foreach ($term_to_count as $term => $count) {
+            if ($count > 1)
+                $dups[] = $term;
+        }
+
+        if (count($dups) != 0)
+            throw new \Exception("Duplicate terms in import: " . implode(', ', $dups));
     }
 
 
