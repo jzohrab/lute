@@ -2,6 +2,8 @@
 
 namespace App\Tests\acceptance;
 
+use App\Entity\Language;
+
 class TermUpload_Test extends AcceptanceTestBase
 {
 
@@ -75,5 +77,31 @@ class TermUpload_Test extends AcceptanceTestBase
 
         $this->assertSelectorTextContains('body', 'Unknown language "Esperanto"');
     }
-    
+
+    /**
+     * @group issue50
+     * valid file rejected
+     */
+    public function test_issue_50(): void
+    {
+        $cc = Language::makeClassicalChinese();
+        $cc->setLgName('Chinese'); // used in the import file.
+        $this->language_repo->save($cc, true);
+
+        $this->client->request('GET', '/');
+        $this->client->clickLink('Import Terms');
+        $ctx = $this->getTermUploadContext();
+
+        $test_file = __DIR__ . '/Fixtures/term_import_issue_50_hsk.csv';
+        $ctx->uploadFile($test_file);
+
+        $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
+        $this->client->clickLink('Terms');
+        $ctx = $this->getTermContext();
+        $ctx->listingShouldContain(
+            'two terms imported',
+            [ '; 爱; ; love; Chinese; HSK1; New (1)',
+              '; 爱好; ; hobby; Chinese; HSK1; New (1)' ]);
+    }
+
 }
