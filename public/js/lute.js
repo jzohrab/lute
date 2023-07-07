@@ -289,6 +289,33 @@ let next_unknown_word_index = function(currindex) {
 }
 
 
+/** Copy the text of the textitemspans to the clipboard, and add a
+ * color flash. */
+let copy_text_to_clipboard = function(textitemspans) {
+  const copytext = textitemspans.map(s => $(s).text()).join('');
+
+  // console.log('copying ' + copytext);
+  var textArea = document.createElement("textarea");
+  textArea.value = copytext;
+  document.body.appendChild(textArea);
+  textArea.select();
+  document.execCommand("Copy");
+  textArea.remove();
+
+  const removeFlash = function() {
+    // console.log('removing flash');
+    $('span.flashtextcopy').removeClass('flashtextcopy');
+  };
+
+  // Add flash, set timer to remove.
+  removeFlash();
+  textitemspans.forEach(function (t) {
+    $(t).addClass('flashtextcopy');
+  });
+  setTimeout(() => removeFlash(), 1000);
+}
+
+
 function handle_keydown (e) {
   if (words.size() == 0) {
     // console.log('no words, exiting');
@@ -302,12 +329,14 @@ function handle_keydown (e) {
   const kLEFT = 37;
   const kRIGHT = 39;
   const kRETURN = 13;
+  const kC = 67; // C)opy
   const kE = 69; // E)dit
   const kT = 84; // T)ranslate
 
   const currindex = current_word_index();
   let newindex = currindex;
 
+  // console.log('key down: ' + e.which);
   if (e.which == kHOME) {
     newindex = 0;
   }
@@ -349,6 +378,27 @@ function handle_keydown (e) {
   let curr = $('span.kwordmarked');
   if (curr.length == 0)
     return;
+
+  if (e.which == kC) {
+    const selindex = current_word_index();
+    if (selindex == -1)
+      return;
+    const w = words.eq(selindex);
+
+    let textitemspans = null;
+    if (e.shiftKey) {
+      // console.log('copying para');
+      const para = $(w).parent().parent();
+      textitemspans = para.find('span.textitem').toArray();
+    }
+    else {
+      // console.log('copying sentence');
+      const seid = w.attr('seid');
+      textitemspans = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+    }
+    copy_text_to_clipboard(textitemspans);
+    return;
+  }
 
   if (e.which == kE) {
     showEditFrame(curr[0]);

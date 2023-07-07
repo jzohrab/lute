@@ -185,7 +185,11 @@
    margin: 5px 0 10px 0;
    padding: 0;
  }
- 
+
+ span.flashtextcopy {
+   background-color: yellow !important;
+ }
+
  span.status0
  {
    background-color: #D5FFFF;
