@@ -275,20 +275,6 @@ let find_next_non_ignored_non_well_known = function(currindex, shiftby = 1) {
 };
 
 
-let next_unknown_word_index = function(currindex) {
-  let newindex = currindex + 1;
-  while (newindex <= maxindex) {
-    const nextword = words.eq(newindex);
-    const st = nextword.attr('data_status');
-    if (st == 0) {
-      break;
-    }
-    newindex += 1;
-  }
-  return newindex;
-}
-
-
 /** Copy the text of the textitemspans to the clipboard, and add a
  * color flash. */
 let copy_text_to_clipboard = function(textitemspans) {
@@ -328,7 +314,6 @@ function handle_keydown (e) {
   const kEND = 35;
   const kLEFT = 37;
   const kRIGHT = 39;
-  const kRETURN = 13;
   const kC = 67; // C)opy
   const kE = 69; // E)dit
   const kT = 84; // T)ranslate
@@ -354,9 +339,6 @@ function handle_keydown (e) {
   }
   if (e.which == kRIGHT && e.shiftKey) {
     newindex = find_next_non_ignored_non_well_known(currindex, +1);
-  }
-  if (e.which == kRETURN) {
-    newindex = next_unknown_word_index(currindex);
   }
 
   if (e.which == kESC || newindex < 0 || newindex > maxindex) {
