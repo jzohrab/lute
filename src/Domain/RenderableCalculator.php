@@ -32,15 +32,7 @@ namespace App\Domain;
 */
 class RenderableCalculator {
 
-    private function get_all_textitems($words, $texttokens) {
-
-        // Tokens must be contiguous and in order!
-        $cmp = function($a, $b) {
-            if ($a->TokOrder != $b->TokOrder) {
-                return ($a->TokOrder > $b->TokOrder) ? 1 : -1;
-            }
-        };
-        usort($texttokens, $cmp);
+    private function assert_texttokens_are_contiguous($texttokens) {
         $prevtok = null;
         foreach($texttokens as $tok) {
             if ($prevtok != null) {
@@ -55,6 +47,18 @@ class RenderableCalculator {
             }
             $prevtok = $tok;
         }
+    }
+
+    private function get_all_textitems($words, $texttokens) {
+
+        // Tokens must be contiguous and in order!
+        $cmp = function($a, $b) {
+            if ($a->TokOrder != $b->TokOrder) {
+                return ($a->TokOrder > $b->TokOrder) ? 1 : -1;
+            }
+        };
+        usort($texttokens, $cmp);
+        $this->assert_texttokens_are_contiguous($texttokens);
 
         $firstTokOrder = $texttokens[0]->TokOrder;
         $toktext = array_map(fn($t) => $t->TokText, $texttokens);

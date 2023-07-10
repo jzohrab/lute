@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 class RenderableCalculator_Test extends TestCase
 {
 
-    private function assertRenderableEquals($token_data, $word_data, $expected) {
+    private function makeTokens($token_data) {
         $makeToken = function($arr) {
             $t = new TextToken();
             $t->TokOrder = $arr[0];
@@ -20,7 +20,11 @@ class RenderableCalculator_Test extends TestCase
             $t->TokIsWord = 1;
             return $t;
         };
-        $tokens = array_map(fn($t) => $makeToken($t), $token_data);
+        return array_map(fn($t) => $makeToken($t), $token_data);
+    }
+
+    private function assertRenderableEquals($token_data, $word_data, $expected) {
+        $tokens = $this->makeTokens($token_data);
 
         $makeTerm = function($arr) {
             $eng = Language::makeEnglish();
@@ -71,6 +75,24 @@ class RenderableCalculator_Test extends TestCase
         ];
         $expected = '[some-1][ -1][data-1][ -1][here-1][.-1]';
         $this->assertRenderableEquals($data, [], $expected);
+    }
+
+    // Just in case, since contiguity is so important.
+    public function test_tokens_must_be_contiguous()
+    {
+        $data = [
+            [ 1, 'some' ],
+            [ 5, 'here' ],
+            [ 4, ' ' ],
+            [ 3, 'data' ],
+            [ 2, ' ' ],
+            [ 7, '.' ]
+        ];
+        $tokens = $this->makeTokens($data);
+
+        $rc = new RenderableCalculator();
+        $this->expectException(\Exception::class);
+        $rcs = $rc->main([], $tokens);
     }
 
     public function test_multiword_items_cover_other_items()
