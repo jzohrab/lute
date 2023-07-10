@@ -49,7 +49,7 @@ class RenderableCalculator {
         }
     }
 
-    private function get_all_textitems($words, $texttokens) {
+    private function get_all_RenderableCandidates($words, $texttokens) {
 
         // Tokens must be contiguous and in order!
         $cmp = function($a, $b) {
@@ -140,7 +140,7 @@ class RenderableCalculator {
 
 
     public function main($words, $texttokens) {
-        $candidates = $this->get_all_textitems($words, $texttokens);
+        $candidates = $this->get_all_RenderableCandidates($words, $texttokens);
         $candidates = $this->calculate_hides($candidates);
         $renderable = array_filter($candidates, fn($i) => $i->render);
         $items = $this->sort_by_order_and_tokencount($renderable);
