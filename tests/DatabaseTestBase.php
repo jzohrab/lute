@@ -202,9 +202,9 @@ abstract class DatabaseTestBase extends WebTestCase
         return implode($imploder, $ss);
     }
 
-    public function assert_rendered_text_equals($text, $expected) {
+    public function assert_rendered_text_equals($text, $expected, $msg = '') {
         $s = $this->get_rendered_string($text);
-        $this->assertEquals($s, $expected);
+        $this->assertEquals($s, $expected, $msg);
     }
 
 }

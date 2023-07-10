@@ -159,13 +159,69 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($t, "Tengo un(1)/ gato(3)/.");
     }
 
-    // TODO:overlappingterms
-    // Non-overlapping ok 'tengo un', 'un gato', text = "Tengo un un gato" => "Tengo un/ /un gato"
-    // Chain of overlapping: 'tengo un', 'un gato', 'gato bueno', text = "Tengo un gato bueno." => "Tengo un/ /gato/ /bueno/."
-    // 2 overlapping that between them hide a third:
-    //   - terms= 'tengo un gato', 'gato bueno', 'un gato bueno y gordo'
-    //   - text = "tengo un gato bueno y gordo"
-    //   - gives  "tengo un gato/ /bueno y gordo." - because term 2 is completely covered by term 3
+    /**
+     * @group overlappingterms
+     */
+    public function test_NOT_overlapping_terms_displayed_correctly()
+    {
+        [ $t1, $t2 ] = $this->addTerms($this->spanish, [ 'tengo un', 'un gato' ]);
+        $t1->setTranslation('I have');
+        $t1->setStatus(1);
+        $this->term_repo->save($t1, true);
+        $t2->setTranslation('a cat');
+        $t2->setStatus(3);
+        $this->term_repo->save($t2, true);
+
+        $content = "Tengo un un gato.";
+        $t = $this->make_text("Hola", $content, $this->spanish);
+
+        $this->assert_rendered_text_equals($t, "Tengo un(1)/ /un gato(3)/.");
+    }
+
+    /**
+     * @group overlappingterms
+     */
+    public function test_chain_of_overlapping_terms_displayed_correctly()
+    {
+        [ $t1, $t2, $t3 ] = $this->addTerms($this->spanish, [ 'tengo un', 'un gato', 'gato bueno' ]);
+        $t1->setTranslation('I have');
+        $t1->setStatus(1);
+        $this->term_repo->save($t1, true);
+        $t2->setTranslation('a cat');
+        $t2->setStatus(3);
+        $this->term_repo->save($t2, true);
+        $t3->setTranslation('good cat');
+        $t3->setStatus(4);
+        $this->term_repo->save($t3, true);
+
+        $content = "Tengo un gato bueno.";
+        $t = $this->make_text("Hola", $content, $this->spanish);
+
+        $this->assert_rendered_text_equals($t, "Tengo un(1)/ gato(3)/ bueno(4)/.");
+    }
+
+
+    /**
+     * @group overlappingterms
+     */
+    public function test_chain_of_overlapping_terms_and_hidden_one_displayed_correctly()
+    {
+        [ $t1, $t2, $t3 ] = $this->addTerms($this->spanish, [ 'tengo un gato', 'gato bueno', 'un gato bueno y gordo' ]);
+        $t1->setTranslation('I have a cat');
+        $t1->setStatus(1);
+        $this->term_repo->save($t1, true);
+        $t2->setTranslation('good cat');
+        $t2->setStatus(3);
+        $this->term_repo->save($t2, true);
+        $t3->setTranslation('good and fat cat');
+        $t3->setStatus(4);
+        $this->term_repo->save($t3, true);
+
+        $content = "Tengo un gato bueno y gordo.";
+        $t = $this->make_text("Hola", $content, $this->spanish);
+
+        $this->assert_rendered_text_equals($t, "Tengo un gato(1)/ bueno y gordo(4)/.", 'gato bueno term is hidden');
+    }
 
     // Prod bug: a text had a textitem2 that it thought was unknown, but a
     // matching term already existed.  Due to a _prior_ bug, the textitem2
