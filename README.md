@@ -30,16 +30,15 @@ _(fyi - The screenshot was edited for time and file size, so it looks like Lute 
 
 Lute has other features not shown. See the [YouTube introduction video](https://youtu.be/cjSqQTwUFCY) -- it's a bit out-of-date, but gives you an idea -- and check out the [Wiki](https://github.com/jzohrab/lute/wiki).
 
+# Installation
+
+The easiest way to get started with Lute is using Docker.  See [Running Lute using Docker](https://github.com/jzohrab/lute/wiki/Getting-Started) in the Lute Wiki.
+
+If you can't use Docker, you can also [install everything manually](https://github.com/jzohrab/lute/wiki/Getting-started-without-Docker), which is how I run Lute myself on my Mac.
 
 # Docs
 
-Docs are in the [Wiki](https://github.com/jzohrab/lute/wiki).  Some initial links to check out:
-
-* Read about Lute's origin, and why I forked this project from LWT [here](https://github.com/jzohrab/lute/wiki/Project-origin).
-* If you're wondering whether you should use Lute or something else, [here's my take](https://github.com/jzohrab/lute/wiki/Lute-alternatives).
-* [Installation](https://github.com/jzohrab/lute/wiki/Installation)
-
-There are a few more notes in [the docs](./docs/README.md), but the Wiki is the best place to start.
+Docs are in the [Wiki](https://github.com/jzohrab/lute/wiki).
 
 You can also join [the Lute Discord Server](https://discord.gg/CzFUQP5m8u).
 
