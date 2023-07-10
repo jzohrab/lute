@@ -51,10 +51,20 @@ There are other buttons at the bottom of the page.  The green checkmark with the
 
 The small blue question mark in the header shows some keyboard shortcuts.  If you click on a word, it's underlined in red: that's the active term.  You can then hit the Left or Right arrow to move around.  You can also set the status of the word by hitting 1, 2, 3, 4, 5, I, or W.
 
-6. Bulk updates
+5.1 Bulk updates
 
 If you hold down Shift and click a bunch of words, you can bulk update their statuses.
 
+5.2 Copying text
+
+When a word is selected, hit "c" to copy that word's sentence to your clipboard.  Hit "C" to copy the word's full paragraph (multiple sentences).  You can paste that into any other program.
+
+If you need to copy multiple paragraphs, you'll need to copy them individually.
+
+6. Next steps
+
 All done this text!
 
-Lute keeps track of all of this in your database.  There's a tutorial follow-up: go to the Home screen, and click the "Tutorial follow-up" in the table.
+Lute keeps track of all of this in your database, so any time you create or import a new Book, all the info you've created is carried forward.
+
+There's a tutorial follow-up: go to the Home screen, and click the "Tutorial follow-up" in the table.
