@@ -1,5 +1,13 @@
 # Changelog
 
+## 2023-07-10
+
+Feature changes:
+
+* Better handling for overlapping Terms (issue [52](https://github.com/jzohrab/lute/issues/52), and [wiki docs](https://github.com/jzohrab/lute/wiki/Overlapping-Terms))
+* Add hotkeys `c` and `C` to copy selected word sentence and paragraph (issue [49](https://github.com/jzohrab/lute/issues/49))
+* Bug fixes for Term Import: handle unicode spaces and hidden file characters (issues [50](https://github.com/jzohrab/lute/issues/50) and [51](https://github.com/jzohrab/lute/issues/51))
+
 ## 2023-07-04
 
 Feature changes:
