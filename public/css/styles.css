@@ -249,6 +249,11 @@
     color: black;
  }
 
+ span.overlapped:before {
+    content: "\207A";
+    color: black;
+ }
+
  span.textsentence {
      /* The weird "font-size: 0%" prevents excess space between the spans! */
      /* span.textitem then re-sets the font size for the words. */

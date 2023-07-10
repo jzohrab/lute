@@ -8,8 +8,15 @@ class TextItem
     public int $LangID;
     
     public int $Order;
-    public string $DisplayText;
+
+    // The original, un-overlapped text.
     public string $Text;
+
+    // The actual text to display on screen.
+    // If part of the text has been overlapped by a
+    // prior token, this will be different from Text.
+    public string $DisplayText;
+
     public int $TokenCount;
 
     public string $TextLC;
@@ -128,6 +135,10 @@ class TextItem
         if ($this->FlashMessage != null)
             $fm = 'hasflash';
 
-        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$fm} {$tc}";
+        $overlapped = '';
+        if ($this->DisplayText != $this->Text)
+            $overlapped = 'overlapped';
+
+        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$fm} {$tc} {$overlapped}";
     }
 }
