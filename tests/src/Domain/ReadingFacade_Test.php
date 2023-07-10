@@ -140,6 +140,30 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
 
+    /**
+     * @group overlappingterms
+     */
+    public function test_overlapping_terms_displayed_correctly()
+    {
+        $terms = $this->addTerms($this->spanish, [ 'tengo un', 'un gato' ]);
+        $t2 = $terms[1];
+        $t2->setStatus(3);
+        $this->term_repo->save($t2, true);
+
+        $content = "Tengo un gato.";
+        $t = $this->make_text("Hola", $content, $this->spanish);
+
+        $this->assert_rendered_text_equals($t, "Tengo un/ /gato/.");
+    }
+
+    // TODO:overlappingterms
+    // Non-overlapping ok 'tengo un', 'un gato', text = "Tengo un un gato" => "Tengo un/ /un gato"
+    // Chain of overlapping: 'tengo un', 'un gato', 'gato bueno', text = "Tengo un gato bueno." => "Tengo un/ /gato/ /bueno/."
+    // 2 overlapping that between them hide a third:
+    //   - terms= 'tengo un gato', 'gato bueno', 'un gato bueno y gordo'
+    //   - text = "tengo un gato bueno y gordo"
+    //   - gives  "tengo un gato/ /bueno y gordo." - because term 2 is completely covered by term 3
+
     // Prod bug: a text had a textitem2 that it thought was unknown, but a
     // matching term already existed.  Due to a _prior_ bug, the textitem2
     // hadn't been associated to the existing word record, and the
