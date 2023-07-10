@@ -9,11 +9,10 @@ Releases follow the "git flow" method.  Summary of creating a release:
 
 If any step fails, or things look bad, sort that stuff out.
 
-## 1. DEV environment: Create release branch, initial sanity checks
+## 1. DEV environment: initial sanity checks, and create release branch
 
 ```
 git checkout develop             # or whatever good commit
-git checkout -b release_xxx
 git fetch
 git merge --no-ff origin/master  # To get any master hotfixes
 composer test:full               # All must pass
@@ -39,6 +38,7 @@ Then run some sanity checks:
 If all good:
 
 ```
+git checkout -b release_xxx
 # Generate Changelog
 composer app:changelog vPREVVERSION
 # ... edit change log ...
