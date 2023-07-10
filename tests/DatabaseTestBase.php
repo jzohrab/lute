@@ -195,16 +195,16 @@ abstract class DatabaseTestBase extends WebTestCase
             $status = "({$ti->WoStatus})";
             if ($status == '(0)' || $status == '()')
                 $status = '';
-            return str_replace($zws, '', "{$ti->Text}{$status}");
+            return str_replace($zws, '', "{$ti->DisplayText}{$status}");
         };
         $usestringize = $overridestringize ?? $stringize;
         $ss = array_map($usestringize, $tis);
         return implode($imploder, $ss);
     }
 
-    public function assert_rendered_text_equals($text, $expected) {
+    public function assert_rendered_text_equals($text, $expected, $msg = '') {
         $s = $this->get_rendered_string($text);
-        $this->assertEquals($s, $expected);
+        $this->assertEquals($s, $expected, $msg);
     }
 
 }

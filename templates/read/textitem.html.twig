@@ -20,7 +20,7 @@
       parent_trans="{{ item.ParentWoTranslation }}"
       parent_img_src="{{ item.ParentImageSource }}"
 {% endif %}
->{{ item.DisplayText | raw }}</span>
+>{{ item.HtmlDisplayText | raw }}</span>
 
 {# Pre-loading images for faster hover loads. #}
 {% if item.ImageSource is not empty %}

@@ -31,7 +31,7 @@ function prepareTextInteractions(textid) {
 let tooltip_textitem_hover_content = function (el) {
 
   let tooltip_title = function() {
-    let t = el.text();
+    let t = el.attr('data_text');
     const parent_text = el.attr('parent_text') ?? '';
     if (parent_text != '')
       t = `${t} (${parent_text})`;
@@ -116,7 +116,7 @@ let tooltip_textitem_hover_content = function (el) {
 function showEditFrame(el, extra_args = {}) {
   const lid = parseInt(el.attr('lid'));
 
-  let text = extra_args.textparts ?? [ el.text() ];
+  let text = extra_args.textparts ?? [ el.attr('data_text') ];
   const sendtext = text.join('');
 
   let extras = Object.entries(extra_args).

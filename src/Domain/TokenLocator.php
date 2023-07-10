@@ -2,8 +2,14 @@
 
 namespace App\Domain;
 
+/** Helper class for finding tokens and positions in arrays of
+ * tokens. */
 class TokenLocator {
 
+    /**
+     * Create a search string, adding zero-width spaces between each
+     * token as the word boundary (to simplify string matching).
+     */
     public static function make_string($t) {
         $zws = mb_chr(0x200B);
         if (is_array($t))
@@ -27,7 +33,21 @@ class TokenLocator {
         return $n;
     }
 
-
+    /**
+     * Finds a given token (word) in a sentence (an array of tokens),
+     * ignoring case, returning the actual word in the sentence (its
+     * original case), and its index.
+     *
+     * For example, given:
+     *   - $subject "/this/ /CAT/ /is/ /big/"
+     *   - $find_patt = "/cat/"
+     * (where "/" is the zero-width space to indicate word boundaries)
+     * this method would return [ "CAT", 2 ]
+     *   - the token "cat" is actually "CAT" (uppercase) in the sentence
+     *   - it's at index = 2
+     *
+     * See the test cases for more examples.
+     */
     public static function locate($subject, $find_patt) {
         $zws = mb_chr(0x200B);
         $len_zws = mb_strlen($zws);

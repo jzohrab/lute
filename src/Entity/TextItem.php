@@ -8,7 +8,15 @@ class TextItem
     public int $LangID;
     
     public int $Order;
+
+    // The original, un-overlapped text.
     public string $Text;
+
+    // The actual text to display on screen.
+    // If part of the text has been overlapped by a
+    // prior token, this will be different from Text.
+    public string $DisplayText;
+
     public int $TokenCount;
 
     public string $TextLC;
@@ -79,8 +87,8 @@ class TextItem
         return "TERM{$r}";
     }
 
-    public function getDisplayText(): string {
-        return str_replace(' ', '&nbsp;', $this->Text);
+    public function getHtmlDisplayText(): string {
+        return str_replace(' ', '&nbsp;', $this->DisplayText);
     }
 
     public function getSpanID(): string {
@@ -127,6 +135,10 @@ class TextItem
         if ($this->FlashMessage != null)
             $fm = 'hasflash';
 
-        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$fm} {$tc}";
+        $overlapped = '';
+        if ($this->DisplayText != $this->Text)
+            $overlapped = 'overlapped';
+
+        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$fm} {$tc} {$overlapped}";
     }
 }
