@@ -28,8 +28,9 @@ Then run some sanity checks:
   * check sentence translation
   * set parent term
   * hover over term
-* keyboard nav and change statuses, 1-5, W, I, on known and unknown terms
-* keyboard nav check translation
+* keyboard nav: and change statuses, 1-5, W, I, on known and unknown terms
+* keyboard nav: check translation
+* keyboard nav: copy a sentence, copy the paragraph
 * mark rest as known
 * read other tutorial text, ensure mostly known
 * create a new text
