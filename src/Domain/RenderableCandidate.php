@@ -8,7 +8,8 @@ use App\Entity\TextItem;
 class RenderableCandidate {
     public ?Term $term = null;
 
-    public string $text;
+    public string $displaytext; // Text to show, if there is any overlap
+    public string $text; // Actual text of the term
     public int $pos;
     public int $length;
     public int $isword;
@@ -47,6 +48,7 @@ class RenderableCandidate {
         $t->Order = $this->pos;
         $t->TextID = $textid;
         $t->LangID = $langid;
+        $t->DisplayText = $this->displaytext;
         $t->Text = $this->text;
         $t->TokenCount = $this->length;
 

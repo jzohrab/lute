@@ -8,6 +8,7 @@ class TextItem
     public int $LangID;
     
     public int $Order;
+    public string $DisplayText;
     public string $Text;
     public int $TokenCount;
 
@@ -79,8 +80,8 @@ class TextItem
         return "TERM{$r}";
     }
 
-    public function getDisplayText(): string {
-        return str_replace(' ', '&nbsp;', $this->Text);
+    public function getHtmlDisplayText(): string {
+        return str_replace(' ', '&nbsp;', $this->DisplayText);
     }
 
     public function getSpanID(): string {

@@ -195,7 +195,7 @@ abstract class DatabaseTestBase extends WebTestCase
             $status = "({$ti->WoStatus})";
             if ($status == '(0)' || $status == '()')
                 $status = '';
-            return str_replace($zws, '', "{$ti->Text}{$status}");
+            return str_replace($zws, '', "{$ti->DisplayText}{$status}");
         };
         $usestringize = $overridestringize ?? $stringize;
         $ss = array_map($usestringize, $tis);

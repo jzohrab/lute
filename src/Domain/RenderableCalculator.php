@@ -77,6 +77,7 @@ class RenderableCalculator {
                 $index = $loc[1];
                 $result = new RenderableCandidate();
                 $result->term = $w;
+                $result->displaytext = $matchtext;
                 $result->text = $matchtext;
                 $result->pos = $firstTokOrder + $index;
                 $result->length = $wtokencount;
@@ -89,6 +90,7 @@ class RenderableCalculator {
         foreach ($texttokens as $tok) {
             $result = new RenderableCandidate();
             $result->term = null;
+            $result->displaytext = $tok->TokText;
             $result->text = $tok->TokText;
             $result->pos = $tok->TokOrder;
             $result->length = 1;  // Each thing parsed is 1 token!
@@ -139,11 +141,36 @@ class RenderableCalculator {
     }
 
 
+    private function calc_overlaps(&$items) {
+        for ($i = 1; $i < count($items); $i++) {
+            // dump('---');
+            $prev = $items[$i - 1];
+            $prevlast = $prev->pos + $prev->length - 1;
+            // dump("prev {$prev->text}; pos = {$prev->pos}, length = {$prev->length}, last = {$prevlast}");
+            $curr = $items[$i];
+            $currlast = $curr->pos + $curr->length - 1;
+            // dump("curr {$curr->text}; pos = {$curr->pos}, length = {$curr->length}, last = {$currlast}");
+            if ($prevlast >= $curr->pos) {
+                $overlap = $prevlast - $curr->pos + 1;
+                // dump("prev overlaps curr by {$overlap} tokens");
+                $zws = mb_chr(0x200B);
+                $curr_tokens = explode($zws, $curr->text);
+                $show = array_slice($curr_tokens, $overlap);
+                $show = implode($zws, $show);
+                // dump('SHOULD ONLY SHOW ' . $show);
+                $curr->displaytext = $show;
+            }
+        }
+        // dump($items);
+        return $items;
+    }
+
     public function main($words, $texttokens) {
         $candidates = $this->get_all_RenderableCandidates($words, $texttokens);
         $candidates = $this->calculate_hides($candidates);
         $renderable = array_filter($candidates, fn($i) => $i->render);
         $items = $this->sort_by_order_and_tokencount($renderable);
+        $items = $this->calc_overlaps($items);
         return $items;
     }
 }

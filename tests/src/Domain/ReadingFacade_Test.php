@@ -145,15 +145,18 @@ final class ReadingFacade_Test extends DatabaseTestBase
      */
     public function test_overlapping_terms_displayed_correctly()
     {
-        $terms = $this->addTerms($this->spanish, [ 'tengo un', 'un gato' ]);
-        $t2 = $terms[1];
+        [ $t1, $t2 ] = $this->addTerms($this->spanish, [ 'tengo un', 'un gato' ]);
+        $t1->setTranslation('I have');
+        $t1->setStatus(1);
+        $this->term_repo->save($t1, true);
+        $t2->setTranslation('a cat');
         $t2->setStatus(3);
         $this->term_repo->save($t2, true);
 
         $content = "Tengo un gato.";
         $t = $this->make_text("Hola", $content, $this->spanish);
 
-        $this->assert_rendered_text_equals($t, "Tengo un/ /gato/.");
+        $this->assert_rendered_text_equals($t, "Tengo un(1)/ gato(3)/.");
     }
 
     // TODO:overlappingterms
