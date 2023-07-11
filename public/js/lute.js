@@ -12,7 +12,9 @@ function prepareTextInteractions(textid) {
   t.on('mousedown', '.word', select_started);
   t.on('mouseover', '.word', select_over);
   t.on('mouseup', '.word', select_ended);
-
+  t.on('mouseover', '.word', hover_over);
+  t.on('mouseout', '.word', hover_out);
+  
   $(document).on('keydown', handle_keydown);
 
   $('#thetext').tooltip({
@@ -165,6 +167,20 @@ function word_clicked(e) {
     showEditFrame($(this));
   }
 }
+
+/* ========================================= */
+/** Hovering */
+
+function hover_over(e) {
+  $(this).addClass('wordhover');
+}
+
+function hover_out(e) {
+  $(this).removeClass('wordhover');
+}
+
+/* ========================================= */
+/** Multiword selection */
 
 let selection_start_el = null;
 
