@@ -258,6 +258,12 @@ function select_ended(e) {
   $('span.kwordmarked').removeClass('kwordmarked');
 
   const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
+  if (e.shiftKey) {
+    clear_newmultiterm_elements();
+    copy_text_to_clipboard(selected.toArray());
+    return;
+  }
+
   const textparts = selected.toArray().map((el) => $(el).text());
 
   const text = textparts.join('').trim();
