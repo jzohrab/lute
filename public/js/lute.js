@@ -327,6 +327,17 @@ let copy_text_to_clipboard = function(textitemspans) {
 }
 
 
+let move_cursor = function(newindex) {
+  // console.log(`Moving from index ${currindex} to ${newindex}`);
+  if (newindex < 0 || newindex >= words.size())
+    return;
+  let curr = words.eq(newindex);
+  mark_active(curr);
+  $(window).scrollTo(curr, { axis: 'y', offset: -150 });
+  showEditFrame(curr, { autofocus: false });
+}
+
+
 function handle_keydown (e) {
   if (words.size() == 0) {
     // console.log('no words, exiting');
@@ -349,38 +360,35 @@ function handle_keydown (e) {
 
   // console.log('key down: ' + e.which);
   if (e.which == kHOME) {
-    newindex = 0;
+    move_cursor(0);
+    return;
   }
   if (e.which == kEND) {
-    newindex = maxindex;
+    move_cursor(maxindex);
+    return;
   }
   if (e.which == kLEFT && !e.shiftKey) {
-    newindex = currindex - 1;
+    move_cursor(currindex - 1);
+    return;
   }
   if (e.which == kRIGHT && !e.shiftKey) {
-    newindex = currindex + 1;
+    move_cursor(currindex + 1);
+    return;
   }
   if (e.which == kLEFT && e.shiftKey) {
-    newindex = find_next_non_ignored_non_well_known(currindex, -1);
+    let newindex = find_next_non_ignored_non_well_known(currindex, -1);
+    move_cursor(newindex);
+    return;
   }
   if (e.which == kRIGHT && e.shiftKey) {
-    newindex = find_next_non_ignored_non_well_known(currindex, +1);
+    let newindex = find_next_non_ignored_non_well_known(currindex, +1);
+    move_cursor(newindex);
+    return;
   }
 
   if (e.which == kESC || e.which == kRETURN || newindex < 0 || newindex > maxindex) {
     $('span.kwordmarked').removeClass('kwordmarked');
     return;
-  }
-
-  // If moved, update UI and exit.
-  if (newindex != currindex) {
-    // console.log(`Moving from index ${currindex} to ${newindex}`);
-    let curr = words.eq(newindex);
-    mark_active(curr);
-    $(window).scrollTo(curr, { axis: 'y', offset: -150 });
-
-    showEditFrame(curr, { autofocus: false });
-    return false;
   }
 
   let curr = $('span.kwordmarked');
