@@ -17,8 +17,6 @@ const LUTE_MODE_MULTISELECT = 2;
 let LUTE_MODE = LUTE_MODE_HOVER;
 
 /**
- * RESET_READING_PANE_MODE_HACK
- *
  * When the reading pane is first loaded, it is set in "hover mode",
  * meaning that when the user hovers over a word, that word becomes
  * the "active word" -- i.e., status update keyboard shortcuts should
@@ -31,16 +29,21 @@ let LUTE_MODE = LUTE_MODE_HOVER;
  * When the user is done editing a the Term form in the Term edit pane
  * and hits "save", the main reading page's text div is updated (see
  * templates/read/updated.twig.html).  This text div reload then has
- * to notify _this_ javascript that the reading pane is no longer in
- * "word clicked" mode.  That's done via a
- * parent.reset_reading_pane_mode() call in that file.
+ * to notify _this_ javascript to start_hover_mode() again.
  * 
  * I _really_ dislike this code but can't find a better way to manage
  * this.
  */
-function reset_reading_pane_mode() {
-  console.log('CALLING RESET');
+function start_hover_mode() {
+  // console.log('CALLING RESET');
   LUTE_MODE = LUTE_MODE_HOVER;
+
+  $('span.kwordmarked').removeClass('kwordmarked');
+  top.frames.dictframe.location.href = '/read/empty';
+  top.frames.wordframe.location.href = '/read/empty';
+
+  // https://stackoverflow.com/questions/35022716/keydown-not-detected-until-window-is-clicked
+  $(window).focus();
 }
 
 /** 
@@ -202,9 +205,10 @@ function word_clicked(e) {
   if ($(this).hasClass('kwordmarked')) {
     $(this).removeClass('kwordmarked');
     const has_marked = $('span.kwordmarked').length > 0;
-    LUTE_MODE = has_marked ? LUTE_MODE_WORD_CLICKED : LUTE_MODE_HOVER;
-    if (LUTE_MODE == LUTE_MODE_HOVER)
+    if (! has_marked) {
       $(this).addClass('wordhover');
+      start_hover_mode();
+    }
     return;
   }
 
@@ -440,12 +444,6 @@ let show_translation = function() {
 }
 
 
-let unset_current = function() {
-  LUTE_MODE = LUTE_MODE_HOVER;
-  $('span.kwordmarked').removeClass('kwordmarked');
-}
-
-
 function handle_keydown (e) {
   if (words.size() == 0) {
     // console.log('no words, exiting');
@@ -471,8 +469,8 @@ function handle_keydown (e) {
   const kI = 73;
   const kW = 87;
 
-  map[kESC] = () => unset_current();
-  map[kRETURN] = () => unset_current();
+  map[kESC] = () => start_hover_mode();
+  map[kRETURN] = () => start_hover_mode();
   map[kHOME] = () => set_cursor(0);
   map[kEND] = () => set_cursor(maxindex);
   map[kLEFT] = () => move_cursor(-1, e);;
@@ -496,9 +494,6 @@ function handle_keydown (e) {
   }
 }
 
-
-function get_hovered_or_marked() {
-}
 
 /**
  * post update ajax call, fix the UI.
