@@ -1,20 +1,12 @@
 /* Lute functions. */
 
 /**
- * Lute has 3 different "modes" when reading:
- *
- * - Hover mode: not selecting (hovering)
- * - Single click: single word clicked for editing
- * - Multi highlight
- * - Shift-click: Shift + click = accumulate words for bulk action
+ * Lute has 2 different "modes" when reading:
+ * - LUTE_MOUSE_DOWN = false: Hover mode, not selecting
+ * - LUTE_MOUSE_DOWN = true: Word clicked, or click-drag
  */ 
+let LUTE_MOUSE_DOWN = false;
 
-
-const LUTE_MODE_HOVER = 0;
-const LUTE_MODE_WORD_CLICKED = 1;
-const LUTE_MODE_MULTIWORDSELECT = 2;
-
-let LUTE_MODE = LUTE_MODE_HOVER;
 
 /**
  * When the reading pane is first loaded, it is set in "hover mode",
@@ -36,7 +28,7 @@ let LUTE_MODE = LUTE_MODE_HOVER;
  */
 function start_hover_mode(clear_frames = true) {
   // console.log('CALLING RESET');
-  LUTE_MODE = LUTE_MODE_HOVER;
+  LUTE_MOUSE_DOWN = false;
 
   $('span.kwordmarked').removeClass('kwordmarked');
 
@@ -200,7 +192,7 @@ function show_help() {
 /** Hovering */
 
 function hover_over(e) {
-  if (LUTE_MODE != LUTE_MODE_HOVER)
+  if (LUTE_MOUSE_DOWN)
     return;
   $('span.wordhover').removeClass('wordhover');
   $(this).addClass('wordhover');
@@ -217,14 +209,17 @@ let clear_newmultiterm_elements = function() {
 }
 
 function select_started(e) {
+  const was_part_of_multiterm = $(this).hasClass('newmultiterm');
   clear_newmultiterm_elements();
+  if (was_part_of_multiterm)
+    return;
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
-  LUTE_MODE = LUTE_MODE_MULTIWORDSELECT;
+  LUTE_MOUSE_DOWN = true;
 }
 
 function select_over(e) {
-  if (selection_start_el == null || LUTE_MODE != LUTE_MODE_MULTIWORDSELECT)
+  if (selection_start_el == null)
     return;  // Not selecting
 
   const startord = parseInt(selection_start_el.attr('data_order'))
@@ -243,6 +238,7 @@ function select_over(e) {
 }
 
 function select_ended(e) {
+  // Handle single word click.
   if (selection_start_el.attr('id') == $(this).attr('id')) {
     word_clicked($(selection_start_el), e);
     clear_newmultiterm_elements();
@@ -293,7 +289,6 @@ let word_clicked = function(el, e) {
   }
 
   el.removeClass('wordhover');
-  LUTE_MODE = LUTE_MODE_WORD_CLICKED;
   if (e.shiftKey) {
     // console.log('shift click, adding to ' + el.text());
     add_active(el);
@@ -390,7 +385,7 @@ let copy_text_to_clipboard = function(textitemspans) {
 
 
 let set_cursor = function(newindex) {
-  LUTE_MODE = LUTE_MODE_WORD_CLICKED;
+  LUTE_MOUSE_DOWN = true;
   clear_newmultiterm_elements();
   $('span.wordhover').removeClass('wordhover');
 
