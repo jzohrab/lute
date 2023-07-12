@@ -42,6 +42,8 @@ function start_hover_mode() {
   top.frames.dictframe.location.href = '/read/empty';
   top.frames.wordframe.location.href = '/read/empty';
 
+  clear_newmultiterm_elements();
+
   // https://stackoverflow.com/questions/35022716/keydown-not-detected-until-window-is-clicked
   $(window).focus();
 }
