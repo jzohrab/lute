@@ -28,6 +28,7 @@ let LUTE_MOUSE_DOWN = false;
  */
 function start_hover_mode(clear_frames = true) {
   // console.log('CALLING RESET');
+  load_reading_pane_globals();
   LUTE_MOUSE_DOWN = false;
 
   $('span.kwordmarked').removeClass('kwordmarked');
@@ -307,10 +308,7 @@ let word_clicked = function(el, e) {
 var words = null;
 var maxindex = null;
 
-// A public function because this is called from
-// read/updated.html.twig, when elements are added/removed.
 function load_reading_pane_globals() {
-  // console.log('loading reading pane globals');
   words = $('span.word').sort(function(a, b) {
     return $(a).attr('data_order') - $(b).attr('data_order');
   });
@@ -389,10 +387,10 @@ let set_cursor = function(newindex) {
   clear_newmultiterm_elements();
   $('span.wordhover').removeClass('wordhover');
 
-  // console.log(`Moving from index ${currindex} to ${newindex}`);
   if (newindex < 0 || newindex >= words.size())
     return;
   let curr = words.eq(newindex);
+
   mark_active(curr);
   $(window).scrollTo(curr, { axis: 'y', offset: -150 });
   showEditFrame(curr, { autofocus: false });
