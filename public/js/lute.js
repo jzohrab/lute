@@ -358,6 +358,32 @@ let move_cursor = function(newindex) {
 }
 
 
+let show_translation = function() {
+  const selindex = current_word_index();
+  if (selindex == -1)
+    return;
+  const w = words.eq(selindex);
+  const seid = w.attr('seid');
+  const tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+  const sentence = tis.map(s => $(s).text()).join('');
+  // console.log(sentence);
+
+  const userdict = $('#translateURL').text();
+  if (userdict == null || userdict == '')
+    console.log('No userdict for lookup.  ???');
+
+  // console.log(userdict);
+  const url = userdict.replace('###', encodeURIComponent(sentence));
+  if (url[0] == '*') {
+    const finalurl = url.substring(1);  // drop first char.
+    const settings = 'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no';
+    window.open(finalurl, 'dictwin', settings);
+  }
+  else {
+    top.frames.dictframe.location.href = url;
+  }
+}
+
 
 function handle_keydown (e) {
   if (words.size() == 0) {
@@ -442,33 +468,9 @@ function handle_keydown (e) {
   }
 
   if (e.which == kT) {
-    const selindex = current_word_index();
-    if (selindex == -1)
-      return;
-    const w = words.eq(selindex);
-    const seid = w.attr('seid');
-    const tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
-    const sentence = tis.map(s => $(s).text()).join('');
-    // console.log(sentence);
-
-    const userdict = $('#translateURL').text();
-    if (userdict == null || userdict == '')
-      console.log('No userdict for lookup.  ???');
-
-    // console.log(userdict);
-    const url = userdict.replace('###', encodeURIComponent(sentence));
-    if (url[0] == '*') {
-      const finalurl = url.substring(1);  // drop first char.
-      const settings = 'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no';
-      window.open(finalurl, 'dictwin', settings);
-    }
-    else {
-      top.frames.dictframe.location.href = url;
-    }
-    return false;
+    show_translation();
+    return;
   }
-
-  return true;
 }
 
 
