@@ -1,6 +1,11 @@
 /* Lute functions. */
 
 /**
+ * The current term index (either clicked or hovered over)
+ */
+let LUTE_CURR_TERM_DATA_ORDER = -1;  // initially not set.
+
+/**
  * Lute has 2 different "modes" when reading:
  * - LUTE_MOUSE_DOWN = false: Hover mode, not selecting
  * - LUTE_MOUSE_DOWN = true: Word clicked, or click-drag
@@ -193,6 +198,10 @@ function show_help() {
 }
 
 
+let save_curr_data_order = function(el) {
+  LUTE_CURR_TERM_DATA_ORDER = parseInt(el.attr('data_order'));
+}
+
 /* ========================================= */
 /** Hovering */
 
@@ -201,6 +210,7 @@ function hover_over(e) {
     return;
   $('span.wordhover').removeClass('wordhover');
   $(this).addClass('wordhover');
+  save_curr_data_order($(this));
 }
 
 /* ========================================= */
@@ -214,6 +224,7 @@ let clear_newmultiterm_elements = function() {
 }
 
 function select_started(e) {
+  save_curr_data_order($(this));
   const was_part_of_multiterm = $(this).hasClass('newmultiterm');
   clear_newmultiterm_elements();
   clear_frames();
@@ -291,9 +302,11 @@ function add_active(e) {
 function mark_active(e) {
   $('span.kwordmarked').removeClass('kwordmarked');
   e.addClass('kwordmarked');
+  save_curr_data_order(e);
 }
 
 let word_clicked = function(el, e) {
+  save_curr_data_order(el);
   if (el.hasClass('kwordmarked')) {
     el.removeClass('kwordmarked');
     const has_marked = $('span.kwordmarked').length > 0;
@@ -334,20 +347,9 @@ function load_reading_pane_globals() {
 $(document).ready(load_reading_pane_globals);
 
 
-/** The current word index is either the current hovered _or_ clicked
- * word.  Clicked word takes precedence. */
 let current_word_index = function() {
-  let curr_word = $('span.kwordmarked');
-  if (curr_word.length == 0)
-    curr_word = $('span.wordhover');
-  if (curr_word.length == 0) {
-    return -1;
-  }
-  curr_word = curr_word.first();
-
-  const ord = curr_word.attr('data_order');
-  const i = words.toArray().findIndex(x => x.getAttribute('data_order') === ord);
-  // console.log(`Current index: ${i}`);
+  const i = words.toArray().findIndex(x => parseInt(x.getAttribute('data_order')) === LUTE_CURR_TERM_DATA_ORDER);
+  // console.log(`found index = ${i}`);
   return i;
 };
 
