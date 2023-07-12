@@ -23,8 +23,9 @@ let LUTE_MOUSE_DOWN = false;
  * templates/read/updated.twig.html).  This text div reload then has
  * to notify _this_ javascript to start_hover_mode() again.
  * 
- * I _really_ dislike this code but can't find a better way to manage
- * this.
+ * I dislike this code (specifically, that the updated.twig.html calls
+ * this javascript function), but can't think of a better way to
+ * manage this.
  */
 function start_hover_mode(should_clear_frames = true) {
   // console.log('CALLING RESET');
