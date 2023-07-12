@@ -302,6 +302,26 @@ let find_next_non_ignored_non_well_known = function(currindex, shiftby = 1) {
 
 /** Copy the text of the textitemspans to the clipboard, and add a
  * color flash. */
+let handle_copy = function(e) {
+  const selindex = current_word_index();
+  if (selindex == -1)
+    return;
+  const w = words.eq(selindex);
+
+  let textitemspans = null;
+  if (e.shiftKey) {
+    // console.log('copying para');
+    const para = $(w).parent().parent();
+    textitemspans = para.find('span.textitem').toArray();
+  }
+  else {
+    // console.log('copying sentence');
+    const seid = w.attr('seid');
+    textitemspans = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+  }
+  copy_text_to_clipboard(textitemspans);
+}
+
 let copy_text_to_clipboard = function(textitemspans) {
   const copytext = textitemspans.map(s => $(s).text()).join('');
 
@@ -336,6 +356,7 @@ let move_cursor = function(newindex) {
   $(window).scrollTo(curr, { axis: 'y', offset: -150 });
   showEditFrame(curr, { autofocus: false });
 }
+
 
 
 function handle_keydown (e) {
@@ -396,29 +417,13 @@ function handle_keydown (e) {
     return;
 
   if (e.which == kC) {
-    const selindex = current_word_index();
-    if (selindex == -1)
-      return;
-    const w = words.eq(selindex);
-
-    let textitemspans = null;
-    if (e.shiftKey) {
-      // console.log('copying para');
-      const para = $(w).parent().parent();
-      textitemspans = para.find('span.textitem').toArray();
-    }
-    else {
-      // console.log('copying sentence');
-      const seid = w.attr('seid');
-      textitemspans = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
-    }
-    copy_text_to_clipboard(textitemspans);
+    handle_copy(e);
     return;
   }
 
   if (e.which == kE) {
     showEditFrame(curr[0]);
-    return false;
+    return;
   }
 
   // Statuses.
