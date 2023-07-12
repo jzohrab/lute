@@ -390,7 +390,8 @@ let copy_text_to_clipboard = function(textitemspans) {
 
 
 let set_cursor = function(newindex) {
-  LUTE_MODE != LUTE_MODE_WORD_CLICKED;
+  LUTE_MODE = LUTE_MODE_WORD_CLICKED;
+  clear_newmultiterm_elements();
   $('span.wordhover').removeClass('wordhover');
 
   // console.log(`Moving from index ${currindex} to ${newindex}`);
