@@ -326,6 +326,7 @@ function handle_keydown (e) {
 
   // Keys handled in this routine:
   const kESC = 27;
+  const kRETURN = 13;
   const kHOME = 36;
   const kEND = 35;
   const kLEFT = 37;
@@ -357,7 +358,7 @@ function handle_keydown (e) {
     newindex = find_next_non_ignored_non_well_known(currindex, +1);
   }
 
-  if (e.which == kESC || newindex < 0 || newindex > maxindex) {
+  if (e.which == kESC || e.which == kRETURN || newindex < 0 || newindex > maxindex) {
     $('span.kwordmarked').removeClass('kwordmarked');
     return;
   }
