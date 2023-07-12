@@ -395,13 +395,20 @@ let show_translation = function() {
 }
 
 
+let unset_current = function() {
+  $('span.kwordmarked').removeClass('kwordmarked');
+}
+
+
 function handle_keydown (e) {
   if (words.size() == 0) {
     // console.log('no words, exiting');
     return; // Nothing to do.
   }
 
-  // Keys handled in this routine:
+  // Map of key codes (e.which) to lambdas:
+  let map = {};
+
   const kESC = 27;
   const kRETURN = 13;
   const kHOME = 36;
@@ -410,54 +417,36 @@ function handle_keydown (e) {
   const kRIGHT = 39;
   const kC = 67; // C)opy
   const kT = 84; // T)ranslate
+  const k1 = 49;
+  const k2 = 50;
+  const k3 = 51;
+  const k4 = 52;
+  const k5 = 53;
+  const kI = 73;
+  const kW = 87;
 
-  // console.log('key down: ' + e.which);
-  if (e.which == kHOME) {
-    set_cursor(0);
-    return;
-  }
-  if (e.which == kEND) {
-    set_cursor(maxindex);
-    return;
-  }
-  if (e.which == kLEFT) {
-    move_cursor(-1, e);
-    return;
-  }
-  if (e.which == kRIGHT) {
-    move_cursor(+1, e);
-    return;
-  }
+  map[kESC] = () => unset_current();
+  map[kRETURN] = () => unset_current();
+  map[kHOME] = () => set_cursor(0);
+  map[kEND] = () => set_cursor(maxindex);
+  map[kLEFT] = () => move_cursor(-1, e);;
+  map[kRIGHT] = () => move_cursor(+1, e);;
+  map[kC] = () => handle_copy(e);
+  map[kT] = () => show_translation();
+  map[k1] = () => update_status_for_marked_elements(1);
+  map[k2] = () => update_status_for_marked_elements(2);
+  map[k3] = () => update_status_for_marked_elements(3);
+  map[k4] = () => update_status_for_marked_elements(4);
+  map[k5] = () => update_status_for_marked_elements(5);
+  map[kI] = () => update_status_for_marked_elements(98);
+  map[kW] = () => update_status_for_marked_elements(99);
 
-  if (e.which == kESC || e.which == kRETURN) {
-    $('span.kwordmarked').removeClass('kwordmarked');
-    return;
+  if (e.which in map) {
+    let a = map[e.which];
+    a();
   }
-
-  if (e.which == kC) {
-    handle_copy(e);
-    return;
-  }
-
-  // Statuses.
-  const status_key_map = {
-    49: 1,  // key 1
-    50: 2,  // key 2
-    51: 3,
-    52: 4,
-    53: 5,
-    73: 98, // key I)gnore
-    87: 99  // key W)ell known
-  };
-  var newstatus = status_key_map[e.which] ?? 0;
-  if (newstatus != 0) {
-    update_status_for_marked_elements(newstatus);
-    return;
-  }
-
-  if (e.which == kT) {
-    show_translation();
-    return;
+  else {
+    // console.log('unhandled key ' + e.which);
   }
 }
 
