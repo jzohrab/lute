@@ -328,16 +328,18 @@ function load_reading_pane_globals() {
 $(document).ready(load_reading_pane_globals);
 
 
+/** The current word index is either the current hovered _or_ clicked
+ * word.  Clicked word takes precedence. */
 let current_word_index = function() {
-  var currmarked = $('span.kwordmarked');
-  if (currmarked.length == 0) {
+  let curr_word = $('span.kwordmarked');
+  if (curr_word.length == 0)
+    curr_word = $('span.wordhover');
+  if (curr_word.length == 0) {
     return -1;
   }
-  if (currmarked.length > 1) {
-    // console.log('multiple marked, using the first one.');
-    currmarked = currmarked.first();
-  }
-  const ord = currmarked.attr('data_order');
+  curr_word = curr_word.first();
+
+  const ord = curr_word.attr('data_order');
   const i = words.toArray().findIndex(x => x.getAttribute('data_order') === ord);
   // console.log(`Current index: ${i}`);
   return i;
