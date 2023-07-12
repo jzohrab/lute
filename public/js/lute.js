@@ -196,39 +196,6 @@ function show_help() {
 }
 
 
-function add_active(e) {
-  e.addClass('kwordmarked');
-}
-
-
-function mark_active(e) {
-  $('span.kwordmarked').removeClass('kwordmarked');
-  e.addClass('kwordmarked');
-}
-
-let word_clicked = function(el, e) {
-  if (el.hasClass('kwordmarked')) {
-    el.removeClass('kwordmarked');
-    const has_marked = $('span.kwordmarked').length > 0;
-    if (! has_marked) {
-      el.addClass('wordhover');
-      start_hover_mode();
-    }
-    return;
-  }
-
-  el.removeClass('wordhover');
-  LUTE_MODE = LUTE_MODE_WORD_CLICKED;
-  if (e.shiftKey) {
-    // console.log('shift click, adding to ' + el.text());
-    add_active(el);
-  }
-  else {
-    mark_active(el);
-    showEditFrame(el);
-  }
-}
-
 /* ========================================= */
 /** Hovering */
 
@@ -303,6 +270,40 @@ function select_ended(e) {
   showEditFrame(selection_start_el, { textparts: textparts });
   selection_start_el = null;
 }
+
+function add_active(e) {
+  e.addClass('kwordmarked');
+}
+
+
+function mark_active(e) {
+  $('span.kwordmarked').removeClass('kwordmarked');
+  e.addClass('kwordmarked');
+}
+
+let word_clicked = function(el, e) {
+  if (el.hasClass('kwordmarked')) {
+    el.removeClass('kwordmarked');
+    const has_marked = $('span.kwordmarked').length > 0;
+    if (! has_marked) {
+      el.addClass('wordhover');
+      start_hover_mode();
+    }
+    return;
+  }
+
+  el.removeClass('wordhover');
+  LUTE_MODE = LUTE_MODE_WORD_CLICKED;
+  if (e.shiftKey) {
+    // console.log('shift click, adding to ' + el.text());
+    add_active(el);
+  }
+  else {
+    mark_active(el);
+    showEditFrame(el);
+  }
+}
+
 
 /********************************************/
 // Keyboard navigation.
