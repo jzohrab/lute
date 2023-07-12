@@ -10,8 +10,11 @@
  */ 
 
 
-// Set to "true" when a word is clicked
-let IN_WORD_CLICKED = false;
+const LUTE_MODE_HOVER = 0;
+const LUTE_MODE_WORD_CLICKED = 1;
+const LUTE_MODE_MULTISELECT = 2;
+
+let LUTE_MODE = LUTE_MODE_HOVER;
 
 /**
  * RESET_READING_PANE_MODE_HACK
@@ -37,7 +40,7 @@ let IN_WORD_CLICKED = false;
  */
 function reset_reading_pane_mode() {
   console.log('CALLING RESET');
-  IN_WORD_CLICKED = false;
+  LUTE_MODE = LUTE_MODE_HOVER;
 }
 
 /** 
@@ -53,7 +56,6 @@ function prepareTextInteractions(textid) {
   t.on('mouseover', '.word', select_over);
   t.on('mouseup', '.word', select_ended);
   t.on('mouseover', '.word', hover_over);
-  t.on('mouseout', '.word', hover_out);
   
   $(document).on('keydown', handle_keydown);
 
@@ -197,7 +199,17 @@ function mark_active(e) {
 }
 
 function word_clicked(e) {
-  IN_WORD_CLICKED = true;
+  if ($(this).hasClass('kwordmarked')) {
+    $(this).removeClass('kwordmarked');
+    const has_marked = $('span.kwordmarked').length > 0;
+    LUTE_MODE = has_marked ? LUTE_MODE_WORD_CLICKED : LUTE_MODE_HOVER;
+    if (LUTE_MODE == LUTE_MODE_HOVER)
+      $(this).addClass('wordhover');
+    return;
+  }
+
+  $(this).removeClass('wordhover');
+  LUTE_MODE = LUTE_MODE_WORD_CLICKED;
   if (e.shiftKey) {
     // console.log('shift click, adding to ' + $(this).text());
     add_active($(this));
@@ -212,14 +224,10 @@ function word_clicked(e) {
 /** Hovering */
 
 function hover_over(e) {
-  console.log('in_word_clicked = ' + IN_WORD_CLICKED);
-  if (IN_WORD_CLICKED)
+  if (LUTE_MODE != LUTE_MODE_HOVER)
     return;
+  $('span.wordhover').removeClass('wordhover');
   $(this).addClass('wordhover');
-}
-
-function hover_out(e) {
-  $(this).removeClass('wordhover');
 }
 
 /* ========================================= */
@@ -368,6 +376,9 @@ let copy_text_to_clipboard = function(textitemspans) {
 
 
 let set_cursor = function(newindex) {
+  LUTE_MODE != LUTE_MODE_WORD_CLICKED;
+  $('span.wordhover').removeClass('wordhover');
+
   // console.log(`Moving from index ${currindex} to ${newindex}`);
   if (newindex < 0 || newindex >= words.size())
     return;
@@ -430,7 +441,7 @@ let show_translation = function() {
 
 
 let unset_current = function() {
-  IN_WORD_CLICKED = false;
+  LUTE_MODE = LUTE_MODE_HOVER;
   $('span.kwordmarked').removeClass('kwordmarked');
 }
 
