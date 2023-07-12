@@ -262,15 +262,15 @@ function select_ended(e) {
   $('span.kwordmarked').removeClass('kwordmarked');
 
   const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
-  copy_text_to_clipboard(selected.toArray());
   if (e.shiftKey) {
+    copy_text_to_clipboard(selected.toArray());
     clear_newmultiterm_elements();
     LUTE_MOUSE_DOWN = false;
     return;
   }
 
+  copy_text_to_clipboard(selected.toArray(), false);
   const textparts = selected.toArray().map((el) => $(el).text());
-
   const text = textparts.join('').trim();
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
@@ -373,7 +373,7 @@ let handle_copy = function(e) {
   copy_text_to_clipboard(textitemspans);
 }
 
-let copy_text_to_clipboard = function(textitemspans) {
+let copy_text_to_clipboard = function(textitemspans, show_flash = true) {
   const copytext = textitemspans.map(s => $(s).text()).join('');
 
   // console.log('copying ' + copytext);
@@ -395,6 +395,8 @@ let copy_text_to_clipboard = function(textitemspans) {
     $(t).addClass('flashtextcopy');
   });
   setTimeout(() => removeFlash(), 1000);
+
+  $('#wordframeid').attr('src', '/read/flashcopied');
 }
 
 
