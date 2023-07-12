@@ -26,22 +26,25 @@ let LUTE_MOUSE_DOWN = false;
  * I _really_ dislike this code but can't find a better way to manage
  * this.
  */
-function start_hover_mode(clear_frames = true) {
+function start_hover_mode(should_clear_frames = true) {
   // console.log('CALLING RESET');
   load_reading_pane_globals();
   LUTE_MOUSE_DOWN = false;
 
   $('span.kwordmarked').removeClass('kwordmarked');
 
-  if (clear_frames) {
-    $('#wordframeid').attr('src', '/read/empty');
-    $('#dictframeid').attr('src', '/read/empty');
-  }
+  if (should_clear_frames)
+    clear_frames();
 
   clear_newmultiterm_elements();
 
   // https://stackoverflow.com/questions/35022716/keydown-not-detected-until-window-is-clicked
   $(window).focus();
+}
+
+let clear_frames = function() {
+  $('#wordframeid').attr('src', '/read/empty');
+  $('#dictframeid').attr('src', '/read/empty');
 }
 
 /** 
@@ -212,6 +215,7 @@ let clear_newmultiterm_elements = function() {
 function select_started(e) {
   const was_part_of_multiterm = $(this).hasClass('newmultiterm');
   clear_newmultiterm_elements();
+  clear_frames();
   if (was_part_of_multiterm)
     start_hover_mode();
   $(this).addClass('newmultiterm');
@@ -258,9 +262,10 @@ function select_ended(e) {
   $('span.kwordmarked').removeClass('kwordmarked');
 
   const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
+  copy_text_to_clipboard(selected.toArray());
   if (e.shiftKey) {
     clear_newmultiterm_elements();
-    copy_text_to_clipboard(selected.toArray());
+    LUTE_MOUSE_DOWN = false;
     return;
   }
 
