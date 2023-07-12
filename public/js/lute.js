@@ -348,6 +348,16 @@ let copy_text_to_clipboard = function(textitemspans) {
 }
 
 
+let set_cursor = function(newindex) {
+  // console.log(`Moving from index ${currindex} to ${newindex}`);
+  if (newindex < 0 || newindex >= words.size())
+    return;
+  let curr = words.eq(newindex);
+  mark_active(curr);
+  $(window).scrollTo(curr, { axis: 'y', offset: -150 });
+  showEditFrame(curr, { autofocus: false });
+}
+
 let move_cursor = function(newindex) {
   // console.log(`Moving from index ${currindex} to ${newindex}`);
   if (newindex < 0 || newindex >= words.size())
@@ -406,11 +416,11 @@ function handle_keydown (e) {
 
   // console.log('key down: ' + e.which);
   if (e.which == kHOME) {
-    move_cursor(0);
+    set_cursor(0);
     return;
   }
   if (e.which == kEND) {
-    move_cursor(maxindex);
+    set_cursor(maxindex);
     return;
   }
   if (e.which == kLEFT && !e.shiftKey) {
