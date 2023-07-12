@@ -497,12 +497,15 @@ function handle_keydown (e) {
 }
 
 
+function get_hovered_or_marked() {
+}
+
 /**
  * post update ajax call, fix the UI.
  */
 function update_selected_statuses(newStatus) {
   const newClass = `status${newStatus}`;
-  $('span.kwordmarked').each(function (e) {
+  let update_status = function (e) {
     const curr = $(this);
     ltext = curr.text().toLowerCase();
     matches = $('span.word').toArray().filter(el => $(el).text().toLowerCase() == ltext);
@@ -511,19 +514,20 @@ function update_selected_statuses(newStatus) {
         .addClass(newClass)
         .attr('data_status',`${newStatus}`);
     });
-  });
+  };
+  $('span.kwordmarked').each(update_status);
+  $('span.wordhover').each(update_status);
 }
 
 
 function update_status_for_marked_elements(new_status) {
-  const els = $('span.kwordmarked').toArray().map(el => $(el).text());
+  let els = $('span.kwordmarked').toArray().concat($('span.wordhover').toArray());
   if (els.length == 0)
     return;
-  const textid = $('span.kwordmarked').first().attr('tid');
+  const firstel = $(els[0]);
+  const textid = firstel.attr('tid');
 
-  // const zeroWidthSpace = '\u200b';
-  // const zels = els.map(el => el.replaceAll(zeroWidthSpace, '/'));
-  // console.log('To update to ' + new_status + ': ' + zels.join(', '));
+  els = els.map(el => $(el).text());
 
   $.ajax({
     url: '/read/update_status',
