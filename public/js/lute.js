@@ -12,7 +12,7 @@
 
 const LUTE_MODE_HOVER = 0;
 const LUTE_MODE_WORD_CLICKED = 1;
-const LUTE_MODE_MULTISELECT = 2;
+const LUTE_MODE_MULTIWORDSELECT = 2;
 
 let LUTE_MODE = LUTE_MODE_HOVER;
 
@@ -34,13 +34,16 @@ let LUTE_MODE = LUTE_MODE_HOVER;
  * I _really_ dislike this code but can't find a better way to manage
  * this.
  */
-function start_hover_mode() {
+function start_hover_mode(clear_frames = true) {
   // console.log('CALLING RESET');
   LUTE_MODE = LUTE_MODE_HOVER;
 
   $('span.kwordmarked').removeClass('kwordmarked');
-  top.frames.dictframe.location.href = '/read/empty';
-  top.frames.wordframe.location.href = '/read/empty';
+
+  if (clear_frames) {
+    $('#wordframeid').attr('src', '/read/empty');
+    $('#dictframeid').attr('src', '/read/empty');
+  }
 
   clear_newmultiterm_elements();
 
@@ -250,10 +253,11 @@ function select_started(e) {
   clear_newmultiterm_elements();
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
+  LUTE_MODE = LUTE_MODE_MULTIWORDSELECT;
 }
 
 function select_over(e) {
-  if (selection_start_el == null)
+  if (selection_start_el == null || LUTE_MODE != LUTE_MODE_MULTIWORDSELECT)
     return;  // Not selecting
 
   const startord = parseInt(selection_start_el.attr('data_order'))
@@ -276,6 +280,9 @@ function select_ended(e) {
     clear_newmultiterm_elements();
     return;
   }
+
+  $('span.wordhover').removeClass('wordhover');
+  $('span.kwordmarked').removeClass('kwordmarked');
 
   const startord = parseInt(selection_start_el.attr('data_order'));
   const endord = parseInt($(this).attr('data_order'));
