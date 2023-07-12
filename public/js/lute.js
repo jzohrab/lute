@@ -5,10 +5,41 @@
  *
  * - Hover mode: not selecting (hovering)
  * - Single click: single word clicked for editing
+ * - Multi highlight
  * - Shift-click: Shift + click = accumulate words for bulk action
- *
  */ 
- 
+
+
+// Set to "true" when a word is clicked
+let IN_WORD_CLICKED = false;
+
+/**
+ * RESET_READING_PANE_MODE_HACK
+ *
+ * When the reading pane is first loaded, it is set in "hover mode",
+ * meaning that when the user hovers over a word, that word becomes
+ * the "active word" -- i.e., status update keyboard shortcuts should
+ * operate on that hovered word, and as the user moves the mouse
+ * around, the "active word" changes.  When a word is clicked, though,
+ * there can't be any "hover changes", because the user should be
+ * editing the word in the Term edit pane, and has to consciously
+ * disable the "clicked word" mode by hitting ESC or RETURN.
+ *
+ * When the user is done editing a the Term form in the Term edit pane
+ * and hits "save", the main reading page's text div is updated (see
+ * templates/read/updated.twig.html).  This text div reload then has
+ * to notify _this_ javascript that the reading pane is no longer in
+ * "word clicked" mode.  That's done via a
+ * parent.reset_reading_pane_mode() call in that file.
+ * 
+ * I _really_ dislike this code but can't find a better way to manage
+ * this.
+ */
+function reset_reading_pane_mode() {
+  console.log('CALLING RESET');
+  IN_WORD_CLICKED = false;
+}
+
 /** 
  * Prepare the interaction events with the text.
  */
@@ -32,7 +63,6 @@ function prepareTextInteractions(textid) {
     show: { easing: 'easeOutCirc' },
     content: function () { return tooltip_textitem_hover_content($(this)); }
   });
-
 }
 
 
@@ -167,6 +197,7 @@ function mark_active(e) {
 }
 
 function word_clicked(e) {
+  IN_WORD_CLICKED = true;
   if (e.shiftKey) {
     // console.log('shift click, adding to ' + $(this).text());
     add_active($(this));
@@ -181,6 +212,9 @@ function word_clicked(e) {
 /** Hovering */
 
 function hover_over(e) {
+  console.log('in_word_clicked = ' + IN_WORD_CLICKED);
+  if (IN_WORD_CLICKED)
+    return;
   $(this).addClass('wordhover');
 }
 
@@ -396,6 +430,7 @@ let show_translation = function() {
 
 
 let unset_current = function() {
+  IN_WORD_CLICKED = false;
   $('span.kwordmarked').removeClass('kwordmarked');
 }
 
