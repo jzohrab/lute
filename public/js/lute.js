@@ -377,7 +377,6 @@ function handle_keydown (e) {
   const kT = 84; // T)ranslate
 
   const currindex = current_word_index();
-  let newindex = currindex;
 
   // console.log('key down: ' + e.which);
   if (e.which == kHOME) {
@@ -407,7 +406,7 @@ function handle_keydown (e) {
     return;
   }
 
-  if (e.which == kESC || e.which == kRETURN || newindex < 0 || newindex > maxindex) {
+  if (e.which == kESC || e.which == kRETURN) {
     $('span.kwordmarked').removeClass('kwordmarked');
     return;
   }
