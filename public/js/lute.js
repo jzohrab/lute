@@ -213,7 +213,7 @@ function select_started(e) {
   const was_part_of_multiterm = $(this).hasClass('newmultiterm');
   clear_newmultiterm_elements();
   if (was_part_of_multiterm)
-    return;
+    start_hover_mode();
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
   LUTE_MOUSE_DOWN = true;
