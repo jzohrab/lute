@@ -59,10 +59,10 @@ function prepareTextInteractions(textid) {
   // Using "t.on" here because .word elements
   // are added and removed dynamically, and "t.on"
   // ensures that events remain for each element.
-  t.on('click', '.word', word_clicked);
   t.on('mousedown', '.word', select_started);
   t.on('mouseover', '.word', select_over);
   t.on('mouseup', '.word', select_ended);
+
   t.on('mouseover', '.word', hover_over);
   
   $(document).on('keydown', handle_keydown);
@@ -206,26 +206,26 @@ function mark_active(e) {
   e.addClass('kwordmarked');
 }
 
-function word_clicked(e) {
-  if ($(this).hasClass('kwordmarked')) {
-    $(this).removeClass('kwordmarked');
+let word_clicked = function(el, e) {
+  if (el.hasClass('kwordmarked')) {
+    el.removeClass('kwordmarked');
     const has_marked = $('span.kwordmarked').length > 0;
     if (! has_marked) {
-      $(this).addClass('wordhover');
+      el.addClass('wordhover');
       start_hover_mode();
     }
     return;
   }
 
-  $(this).removeClass('wordhover');
+  el.removeClass('wordhover');
   LUTE_MODE = LUTE_MODE_WORD_CLICKED;
   if (e.shiftKey) {
-    // console.log('shift click, adding to ' + $(this).text());
-    add_active($(this));
+    // console.log('shift click, adding to ' + el.text());
+    add_active(el);
   }
   else {
-    mark_active($(this));
-    showEditFrame($(this));
+    mark_active(el);
+    showEditFrame(el);
   }
 }
 
@@ -277,6 +277,7 @@ function select_over(e) {
 
 function select_ended(e) {
   if (selection_start_el.attr('id') == $(this).attr('id')) {
+    word_clicked($(selection_start_el), e);
     clear_newmultiterm_elements();
     return;
   }
