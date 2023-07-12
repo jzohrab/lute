@@ -239,8 +239,13 @@ function hover_over(e) {
 
 let selection_start_el = null;
 
+let clear_newmultiterm_elements = function() {
+  $('.newmultiterm').removeClass('newmultiterm');
+  selection_start_el = null;
+}
+
 function select_started(e) {
-  // mark_active($(this));
+  clear_newmultiterm_elements();
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
 }
@@ -265,12 +270,6 @@ function select_over(e) {
 }
 
 function select_ended(e) {
-
-  const clear_newmultiterm_elements = function() {
-    $('.newmultiterm').removeClass('newmultiterm');
-    selection_start_el = null;
-  }
-  
   if (selection_start_el.attr('id') == $(this).attr('id')) {
     clear_newmultiterm_elements();
     return;
@@ -292,7 +291,7 @@ function select_ended(e) {
   }
 
   showEditFrame(selection_start_el, { textparts: textparts });
-  clear_newmultiterm_elements();
+  selection_start_el = null;
 }
 
 /********************************************/
