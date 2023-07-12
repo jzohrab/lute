@@ -242,7 +242,7 @@ function select_over(e) {
   if (selection_start_el == null)
     return;  // Not selecting
   $('.newmultiterm').removeClass('newmultiterm');
-  const selected = get_selected_in_range(selection_start_el, $(this), 'span.word');
+  const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
   selected.addClass('newmultiterm');
 }
 
