@@ -286,21 +286,6 @@ let current_word_index = function() {
 };
 
 
-let find_non_Ign_or_Wkn = function(shiftby = 1) {
-  currindex = current_word_index();
-  let newindex = currindex + shiftby;
-  while (newindex >= 0 && newindex <= maxindex) {
-    const nextword = words.eq(newindex);
-    const st = nextword.attr('data_status');
-    if (st != 99 && st != 98) {
-      break;
-    }
-    newindex += shiftby;
-  }
-  return newindex;
-};
-
-
 /** Copy the text of the textitemspans to the clipboard, and add a
  * color flash. */
 let handle_copy = function(e) {
@@ -358,14 +343,28 @@ let set_cursor = function(newindex) {
   showEditFrame(curr, { autofocus: false });
 }
 
-let move_cursor = function(newindex) {
-  // console.log(`Moving from index ${currindex} to ${newindex}`);
-  if (newindex < 0 || newindex >= words.size())
-    return;
-  let curr = words.eq(newindex);
-  mark_active(curr);
-  $(window).scrollTo(curr, { axis: 'y', offset: -150 });
-  showEditFrame(curr, { autofocus: false });
+
+let find_non_Ign_or_Wkn = function(currindex, shiftby) {
+  let newindex = currindex + shiftby;
+  while (newindex >= 0 && newindex <= maxindex) {
+    const nextword = words.eq(newindex);
+    const st = nextword.attr('data_status');
+    if (st != 99 && st != 98) {
+      break;
+    }
+    newindex += shiftby;
+  }
+  return newindex;
+};
+
+let move_cursor = function(shiftby, e) {
+  const currindex = current_word_index();
+  if (! e.shiftKey) {
+    set_cursor(currindex + shiftby);
+  }
+  else {
+    set_cursor(find_non_Ign_or_Wkn(currindex, shiftby));
+  }
 }
 
 
@@ -412,8 +411,6 @@ function handle_keydown (e) {
   const kC = 67; // C)opy
   const kT = 84; // T)ranslate
 
-  const currindex = current_word_index();
-
   // console.log('key down: ' + e.which);
   if (e.which == kHOME) {
     set_cursor(0);
@@ -423,20 +420,12 @@ function handle_keydown (e) {
     set_cursor(maxindex);
     return;
   }
-  if (e.which == kLEFT && !e.shiftKey) {
-    move_cursor(currindex - 1);
+  if (e.which == kLEFT) {
+    move_cursor(-1, e);
     return;
   }
-  if (e.which == kRIGHT && !e.shiftKey) {
-    move_cursor(currindex + 1);
-    return;
-  }
-  if (e.which == kLEFT && e.shiftKey) {
-    move_cursor(find_non_Ign_or_Wkn(-1));
-    return;
-  }
-  if (e.which == kRIGHT && e.shiftKey) {
-    move_cursor(find_non_Ign_or_Wkn(+1));
+  if (e.which == kRIGHT) {
+    move_cursor(+1, e);
     return;
   }
 
