@@ -219,23 +219,31 @@ function select_started(e) {
   LUTE_MOUSE_DOWN = true;
 }
 
-function select_over(e) {
-  if (selection_start_el == null)
-    return;  // Not selecting
+let get_selected_in_range = function(start_el, end_el, selector) {
+  const first = parseInt(start_el.attr('data_order'))
+  const last = parseInt(end_el.attr('data_order'));
 
-  const startord = parseInt(selection_start_el.attr('data_order'))
-  const endord = parseInt($(this).attr('data_order'));
-  const selected = $("span.word").filter(function() {
+  let startord = first;
+  let endord = last;
+
+  if (startord > endord) {
+    endord = first;
+    startord = last;
+  }
+
+  const selected = $(selector).filter(function() {
     const ord = $(this).attr("data_order");
     return ord >= startord && ord <= endord;
   });
-  selected.addClass('newmultiterm');
+  return selected;
+};
 
-  const notselected = $("span.word").filter(function() {
-    const ord = $(this).attr("data_order");
-    return ord < startord || ord > endord;
-  });
-  notselected.removeClass('newmultiterm');
+function select_over(e) {
+  if (selection_start_el == null)
+    return;  // Not selecting
+  $('.newmultiterm').removeClass('newmultiterm');
+  const selected = get_selected_in_range(selection_start_el, $(this), 'span.word');
+  selected.addClass('newmultiterm');
 }
 
 function select_ended(e) {
@@ -249,12 +257,7 @@ function select_ended(e) {
   $('span.wordhover').removeClass('wordhover');
   $('span.kwordmarked').removeClass('kwordmarked');
 
-  const startord = parseInt(selection_start_el.attr('data_order'));
-  const endord = parseInt($(this).attr('data_order'));
-  const selected = $("span.textitem").filter(function() {
-    const ord = $(this).attr("data_order");
-    return ord >= startord && ord <= endord;
-  });
+  const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
   const textparts = selected.toArray().map((el) => $(el).text());
 
   const text = textparts.join('').trim();
