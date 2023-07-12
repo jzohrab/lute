@@ -286,7 +286,8 @@ let current_word_index = function() {
 };
 
 
-let find_next_non_ignored_non_well_known = function(currindex, shiftby = 1) {
+let find_non_Ign_or_Wkn = function(shiftby = 1) {
+  currindex = current_word_index();
   let newindex = currindex + shiftby;
   while (newindex >= 0 && newindex <= maxindex) {
     const nextword = words.eq(newindex);
@@ -399,7 +400,6 @@ function handle_keydown (e) {
   const kLEFT = 37;
   const kRIGHT = 39;
   const kC = 67; // C)opy
-  const kE = 69; // E)dit
   const kT = 84; // T)ranslate
 
   const currindex = current_word_index();
@@ -422,13 +422,11 @@ function handle_keydown (e) {
     return;
   }
   if (e.which == kLEFT && e.shiftKey) {
-    let newindex = find_next_non_ignored_non_well_known(currindex, -1);
-    move_cursor(newindex);
+    move_cursor(find_non_Ign_or_Wkn(-1));
     return;
   }
   if (e.which == kRIGHT && e.shiftKey) {
-    let newindex = find_next_non_ignored_non_well_known(currindex, +1);
-    move_cursor(newindex);
+    move_cursor(find_non_Ign_or_Wkn(+1));
     return;
   }
 
@@ -437,17 +435,8 @@ function handle_keydown (e) {
     return;
   }
 
-  let curr = $('span.kwordmarked');
-  if (curr.length == 0)
-    return;
-
   if (e.which == kC) {
     handle_copy(e);
-    return;
-  }
-
-  if (e.which == kE) {
-    showEditFrame(curr[0]);
     return;
   }
 
