@@ -1,5 +1,14 @@
-/* Lute js.  Moving things over as needed from existing js files. */
+/* Lute functions. */
 
+/**
+ * Lute has 3 different "modes" when reading:
+ *
+ * - Hover mode: not selecting (hovering)
+ * - Single click: single word clicked for editing
+ * - Shift-click: Shift + click = accumulate words for bulk action
+ *
+ */ 
+ 
 /** 
  * Prepare the interaction events with the text.
  */
