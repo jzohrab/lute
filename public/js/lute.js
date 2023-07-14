@@ -7,10 +7,10 @@ let LUTE_CURR_TERM_DATA_ORDER = -1;  // initially not set.
 
 /**
  * Lute has 2 different "modes" when reading:
- * - LUTE_MOUSE_DOWN = false: Hover mode, not selecting
- * - LUTE_MOUSE_DOWN = true: Word clicked, or click-drag
+ * - LUTE_HOVERING = true: Hover mode, not selecting
+ * - LUTE_HOVERING = false: Word clicked, or click-drag
  */ 
-let LUTE_MOUSE_DOWN = false;
+let LUTE_HOVERING = true;
 
 
 /**
@@ -35,7 +35,7 @@ let LUTE_MOUSE_DOWN = false;
 function start_hover_mode(should_clear_frames = true) {
   // console.log('CALLING RESET');
   load_reading_pane_globals();
-  LUTE_MOUSE_DOWN = false;
+  LUTE_HOVERING = true;
 
   $('span.kwordmarked').removeClass('kwordmarked');
 
@@ -206,7 +206,7 @@ let save_curr_data_order = function(el) {
 /** Hovering */
 
 function hover_over(e) {
-  if (LUTE_MOUSE_DOWN)
+  if (! LUTE_HOVERING)
     return;
   $('span.wordhover').removeClass('wordhover');
   $(this).addClass('wordhover');
@@ -224,6 +224,7 @@ let clear_newmultiterm_elements = function() {
 }
 
 function select_started(e) {
+  LUTE_HOVERING = false;
   save_curr_data_order($(this));
   const was_part_of_multiterm = $(this).hasClass('newmultiterm');
   clear_newmultiterm_elements();
@@ -232,7 +233,6 @@ function select_started(e) {
     start_hover_mode();
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
-  LUTE_MOUSE_DOWN = true;
 }
 
 let get_selected_in_range = function(start_el, end_el, selector) {
@@ -276,8 +276,7 @@ function select_ended(e) {
   const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
   if (e.shiftKey) {
     copy_text_to_clipboard(selected.toArray());
-    clear_newmultiterm_elements();
-    LUTE_MOUSE_DOWN = false;
+    start_hover_mode(false);
     return;
   }
 
@@ -405,7 +404,7 @@ let copy_text_to_clipboard = function(textitemspans, show_flash = true) {
 
 
 let set_cursor = function(newindex) {
-  LUTE_MOUSE_DOWN = true;
+  LUTE_HOVERING = false;
   clear_newmultiterm_elements();
   $('span.wordhover').removeClass('wordhover');
 
