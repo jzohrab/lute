@@ -31,12 +31,11 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         // Note using 'full' and 'ice' here b/c the test setup for
         // english has single-character-then-point as a regex parsing
         // exception!
-        $this->make_text("Test", "a b c d e full. g h ice.
-CheckClipboard", $this->english);
+        $this->make_text("Test", "a b c d e full. g h ice.", $this->english);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Test');
         $this->client->clickLink('Test');
-        $this->client->waitForElementToContain('body', 'CheckClipboard');
+        $this->client->waitForElementToContain('body', 'full');
 
         $this->book_url = $this->client->getCurrentURL();
         $this->ctx = $this->getReadingContext();
@@ -73,7 +72,25 @@ CheckClipboard", $this->english);
         $reset = function() {
             \DbHelpers::exec_sql('delete from words');
             $this->client->request('GET', $this->book_url);
-            $this->client->waitForElementToContain('body', 'CheckClipboard');
+            $this->client->waitForElementToContain('body', 'full');
+
+            // TODO:clipboard_acceptance_check - can't figure out how to get this working yet.
+            return;
+
+            // Add textarea to check the clipboard contents ...
+            // note I haven't gotten clipboard checks to work yet.
+            $script = "var textArea = document.createElement(\"textarea\");
+  textArea.setAttribute(\"id\", \"txtClipboard\");
+  textArea.setAttribute(\"name\", \"nameClipboard\");
+  textArea.value = '.';
+  document.body.appendChild(textArea);";
+            $this->client->executeScript($script);
+
+            // Copy current text content to "reset" the clipboard.
+            $this->client->getMouse()->clickTo("#txtClipboard");
+            $this->client->getKeyboard()->pressKey(WebDriverKeys::COMMAND);
+            $this->client->getKeyboard()->sendKeys('c');
+            $this->client->getKeyboard()->releaseKey(WebDriverKeys::COMMAND);
         };
         $hover = function($word) {
             $wid = $this->ctx->getWordCssID($word);
@@ -93,6 +110,23 @@ CheckClipboard", $this->english);
         };
         $wait = function($millis = 100) {
             usleep($millis * 1000);
+        };
+
+        // TODO:clipboard_acceptance_check - can't figure out how to get this working yet.
+        $checkClipboard = function($expected) {
+            $this->client->getMouse()->clickTo("#txtClipboard");
+            $this->client->getKeyboard()->pressKey(WebDriverKeys::COMMAND);
+            $this->client->getKeyboard()->sendKeys('v');
+            $this->client->getKeyboard()->releaseKey(WebDriverKeys::COMMAND);
+
+            // $crawler = $this->client->refreshCrawler();
+            // $this->assertSelectorTextSame('#txtClipboard', $expected);
+
+            // $cp = $crawler->filter("#txtClipboard");
+            // dump($cp);
+            // $txt = $cp->text();
+            // dump($txt);
+            // \PHPUnit\Framework\Assert::assertEquals($expected, $txt, 'clipboard');
         };
 
         // Fail fast-ish if not qwerty layout.  (I use Dvorak layout,
