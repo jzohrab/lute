@@ -389,6 +389,7 @@ let copy_text_to_clipboard = function(textitemspans, show_flash = true) {
 
   const removeFlash = function() {
     // console.log('removing flash');
+    $('span.flashtextcopy').addClass('wascopied'); // for acceptance testing.
     $('span.flashtextcopy').removeClass('flashtextcopy');
   };
 

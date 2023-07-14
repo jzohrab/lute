@@ -89,9 +89,9 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo, $this->language_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
-        $this->childSetUp();
-
         $this->client = static::createPantherClient(); // App auto-started using the built-in web server
+
+        $this->childSetUp();
     }
 
     public function childSetUp() {
