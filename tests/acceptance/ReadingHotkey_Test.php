@@ -80,6 +80,17 @@ CheckClipboard", $this->english);
             $this->client->getMouse()->mouseMoveTo($wid);
             usleep(100 * 1000);
         };
+        $click = function($word) {
+            $this->ctx->clickReadingWord($word);
+        };
+        $shiftclick = function($word) {
+            $this->client->getKeyboard()->pressKey(WebDriverKeys::SHIFT);
+            $this->ctx->clickReadingWord($word);
+            $this->client->getKeyboard()->releaseKey(WebDriverKeys::SHIFT);
+        };
+        $hotkey = function($key) {
+            $this->client->getKeyboard()->sendKeys($key);
+        };
         $wait = function($millis = 100) {
             usleep($millis * 1000);
         };
@@ -90,7 +101,7 @@ CheckClipboard", $this->english);
         $reset();
         $hover('a');
         $this->assert_classes([ 'wordhover' => 'a']);
-        $this->client->getKeyboard()->sendKeys('w');
+        $hotkey('w');
         $this->assert_classes([ 'status99' => 'a' ], 'well-known');
 
         // Hovered gets the status update.
@@ -99,44 +110,44 @@ CheckClipboard", $this->english);
         $this->assert_classes([ 'wordhover' => 'a' ]);
         $hover('b');
         $this->assert_classes([ 'wordhover' => 'b' ]);
-        $this->client->getKeyboard()->sendKeys('1');
+        $hotkey('1');
         $this->assert_classes([ 'status1' => 'b' ], 'hovered word gets status update');
 
         // Clicked gets the status update.
         $reset();
-        $this->ctx->clickReadingWord('c');
+        $click('c');
         $this->assert_classes([ 'kwordmarked' => 'c', 'wordhover' => '' ]);
         $hover('b');
         $this->assert_classes([ 'kwordmarked' => 'c', 'wordhover' => '' ]);
-        $this->client->getKeyboard()->sendKeys('1');
+        $hotkey('1');
         $this->assert_classes([ 'status1' => 'c' ], 'clicked word gets status update');
 
         // Re-clicking clicked reverts it to hovered.
         $reset();
-        $this->ctx->clickReadingWord('c');
+        $click('c');
         $this->assert_classes([ 'kwordmarked' => 'c', 'wordhover' => '' ]);
-        $this->ctx->clickReadingWord('c');
+        $click('c');
         $this->assert_classes([ 'kwordmarked' => '', 'wordhover' => 'c' ], 'clicking already-clicked word reverts it to hover');
 
         // Hovered gets the copy.
         $reset();
         $hover('b');
-        $this->client->getKeyboard()->sendKeys('c');
+        $hotkey('c');
         $wait(1000); // Wait for flash to end ... :-(
         $this->assert_classes([ 'wascopied' => 'a b c d e full' ], 'hovered word gets the copy');
 
         // Hovered para copy
         $reset();
         $hover('b');
-        $this->client->getKeyboard()->sendKeys('C');
+        $hotkey('C');
         $wait(1000); // Wait for flash to end ... :-(
         $this->assert_classes([ 'wascopied' => 'a b c d e full g h ice' ], 'hovered copy');
 
         // Clicked gets the copy.
         $reset();
-        $this->ctx->clickReadingWord('b');
+        $click('b');
         $hover('ice');
-        $this->client->getKeyboard()->sendKeys('c');
+        $hotkey('c');
         $wait(1000); // Wait for flash to end ... :-(
         $this->assert_classes([ 'wascopied' => 'a b c d e full' ], 'clicked word gets the copy');
 
@@ -151,13 +162,13 @@ CheckClipboard", $this->english);
         $wait(200);
         $this->assert_classes([ 'newmultiterm' => 'b c d', 'kwordmarked' => '', 'wordhover' => '' ]);
         // ... and then clicking elsewhere stops it.
-        $this->ctx->clickReadingWord('e');
+        $click('e');
         $wait(1000);
         $this->assert_classes([ 'newmultiterm' => '', 'kwordmarked' => 'e', 'wordhover' => '' ]);
 
         // Click drag removes all other cursor stuff
         $reset();
-        $this->ctx->clickReadingWord('ice');
+        $click('ice');
         $this->assert_classes([ 'kwordmarked' => 'ice', 'wordhover' => '' ]);
         $this->client->getMouse()->mouseDownTo($this->ctx->getWordCssID('b'));
         $this->client->getMouse()->mouseUpTo($this->ctx->getWordCssID('d'));
@@ -176,6 +187,14 @@ CheckClipboard", $this->english);
         $hover('b');
         $this->client->getKeyboard()->sendKeys(WebDriverKeys::ARROW_RIGHT);
         $this->assert_classes([ 'kwordmarked' => 'c', 'wordhover' => '' ]);
+
+        // Shift-click selects multiple words
+        $reset();
+        $click('c');
+        $shiftclick('d');
+        $shiftclick('e');
+        $this->assert_classes([ 'kwordmarked' => 'c d e', 'wordhover' => '' ]);
+
     }
 
 }
