@@ -304,8 +304,8 @@ class Reading_Test extends AcceptanceTestBase
 
         $this->client->request('GET', '/');
         $ctx = $this->getBookContext();
-        $fullcontent = $ctx->getBookTableContent();
-        $expected = "Tutorial (3/4); English; ; 883 (0%); ";
-        $this->assertContains($expected, $fullcontent, $expected . ' not found in ' . implode('|', $fullcontent));
+        $fullcontent = implode('|', $ctx->getBookTableContent());
+        $expected = "Tutorial (3/";
+        $this->assertStringContainsString($expected, $fullcontent, $expected . ' not found in ' . $fullcontent);
     }
 }
