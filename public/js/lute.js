@@ -225,14 +225,12 @@ let clear_newmultiterm_elements = function() {
 
 function select_started(e) {
   LUTE_HOVERING = false;
-  save_curr_data_order($(this));
-  const was_part_of_multiterm = $(this).hasClass('newmultiterm');
+  $('span.wordhover').removeClass('wordhover');
   clear_newmultiterm_elements();
   clear_frames();
-  if (was_part_of_multiterm)
-    start_hover_mode();
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
+  save_curr_data_order($(this));
 }
 
 let get_selected_in_range = function(start_el, end_el, selector) {
@@ -265,12 +263,11 @@ function select_over(e) {
 function select_ended(e) {
   // Handle single word click.
   if (selection_start_el.attr('id') == $(this).attr('id')) {
-    word_clicked($(selection_start_el), e);
     clear_newmultiterm_elements();
+    word_clicked($(this), e);
     return;
   }
 
-  $('span.wordhover').removeClass('wordhover');
   $('span.kwordmarked').removeClass('kwordmarked');
 
   const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
@@ -280,50 +277,37 @@ function select_ended(e) {
     return;
   }
 
-  copy_text_to_clipboard(selected.toArray(), false);
   const textparts = selected.toArray().map((el) => $(el).text());
   const text = textparts.join('').trim();
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
-    clear_newmultiterm_elements();
+    start_hover_mode();
     return;
   }
 
+  copy_text_to_clipboard(selected.toArray(), false);
   showEditFrame(selection_start_el, { textparts: textparts });
   selection_start_el = null;
 }
 
-function add_active(e) {
-  e.addClass('kwordmarked');
-}
-
-
-function mark_active(e) {
-  $('span.kwordmarked').removeClass('kwordmarked');
-  e.addClass('kwordmarked');
-  save_curr_data_order(e);
-}
 
 let word_clicked = function(el, e) {
+  el.removeClass('wordhover');
   save_curr_data_order(el);
   if (el.hasClass('kwordmarked')) {
     el.removeClass('kwordmarked');
-    const has_marked = $('span.kwordmarked').length > 0;
-    if (! has_marked) {
+    const nothing_marked = $('span.kwordmarked').length == 0;
+    if (nothing_marked) {
       el.addClass('wordhover');
       start_hover_mode();
     }
-    return;
-  }
-
-  el.removeClass('wordhover');
-  if (e.shiftKey) {
-    // console.log('shift click, adding to ' + el.text());
-    add_active(el);
   }
   else {
-    mark_active(el);
-    showEditFrame(el);
+    if (! e.shiftKey) {
+      $('span.kwordmarked').removeClass('kwordmarked');
+      showEditFrame(el);
+    }
+    el.addClass('kwordmarked');
   }
 }
 
@@ -405,14 +389,15 @@ let copy_text_to_clipboard = function(textitemspans, show_flash = true) {
 
 let set_cursor = function(newindex) {
   LUTE_HOVERING = false;
-  clear_newmultiterm_elements();
   $('span.wordhover').removeClass('wordhover');
+  clear_newmultiterm_elements();
 
   if (newindex < 0 || newindex >= words.size())
     return;
   let curr = words.eq(newindex);
-
-  mark_active(curr);
+  save_curr_data_order(curr);
+  $('span.kwordmarked').removeClass('kwordmarked');
+  curr.addClass('kwordmarked');
   $(window).scrollTo(curr, { axis: 'y', offset: -150 });
   showEditFrame(curr, { autofocus: false });
 }
