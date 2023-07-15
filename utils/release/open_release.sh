@@ -3,6 +3,7 @@
 RELTESTDIR="../lute_release"
 TESTPORT=9876
 
+echo
 echo "Starting server for $RELTESTDIR on port $TESTPORT ... hit Ctl-C to stop it"
 
 # Open to non-existent site!

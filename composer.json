@@ -99,6 +99,7 @@
   "scripts": {
     "app:release:check": [
       "./utils/release/create_build_env.sh",
+      "./utils/release/bust_javascript_cache.sh",
       "./utils/release/create_zip.sh",
       "./utils/release/deploy_zip.sh",
       "./utils/release/open_release.sh"

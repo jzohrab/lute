@@ -2,13 +2,12 @@
 
 set -e
 
-clear
-
+echo
 echo "Generating manifest: "
 php utils/write_app_manifest.php
 cat manifest.json
-echo
 
+echo
 echo "Making the release zip file:"
 touch ../lute_release.zip
 rm ../lute_release.zip

@@ -10,8 +10,8 @@ set -e
 
 clear
 echo "Creating build environment."
-echo
 
+echo
 echo "Git reset and env file ..."
 git clean -xdf
 cp .env.example .env
