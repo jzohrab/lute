@@ -49,17 +49,29 @@ There are other buttons at the bottom of the page.  The green checkmark with the
 
 5. Keyboard shortcuts
 
-The small blue question mark in the header shows some keyboard shortcuts.  If you click on a word, it's underlined in red: that's the active term.  You can then hit the Left or Right arrow to move around.  You can also set the status of the word by hitting 1, 2, 3, 4, 5, I, or W.
+The small blue question mark in the header shows some keyboard shortcuts.
+
+5.1 Updating Status
+
+If you've worked through the tutorial, you'll have noted that words are underlined in blue when you move the mouse over them.  You can quickly change the status of the current word by hitting 1, 2, 3, 4, 5, w (for Well-Known), or i (for Ignore).  Try hovering over the following words and hit the status buttons: apple, banana, cranberry, donut.
+
+If you click on a word, it's underlined in red, and the Term edit form is shown.  (Before you switch over to the Term editing form, you can still update its status.)  You can jump over to the edit form by hitting Tab, and then start editing.
+
+When a word has been clicked, it's "active", so it keeps the focus.  Hovering the mouse over other words won't underline them in blue anymore, and hitting status update hotkeys (1 - 5, w, i) will only update the active word.  To "un-click" a word underlined in red, click it again, or hit Escape or Return.  Then you'll be back in "Hover mode".  Try clicking and un-clicking or Escaping any word in this paragraph to get a feel for it.
+
+Note that for the keyboard shortcuts to work, the reading pane (where the text is) must have the "focus".  Click anywhere on the reading pane to re-establish focus.
 
 5.1 Bulk updates
 
 If you hold down Shift and click a bunch of words, you can bulk update their statuses.
 
-5.2 Copying text
+5.2 Arrow keys
 
-When a word is selected, hit "c" to copy that word's sentence to your clipboard.  Hit "C" to copy the word's full paragraph (multiple sentences).  You can paste that into any other program.
+The Right and Left arrow keys click the next and previous words.  Hit Escape or Return to get back to "hover mode".
 
-If you need to copy multiple paragraphs, you'll need to copy them individually.
+5.3 Copying text
+
+When a word is hovered over or clicked, hit "c" to copy that word's sentence to your clipboard.  Hit "C" to copy the word's full paragraph (multiple sentences).  You can also copy arbitrary sections of text by holding down the Shift key while highlighting the text with your mouse.
 
 6. Next steps
 
