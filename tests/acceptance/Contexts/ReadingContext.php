@@ -23,7 +23,7 @@ class ReadingContext
         return $tis;
     }
 
-    public function getReadingNodesByText($word) {
+    public function getTextitemsMapByText() {
         $tis = $this->getTextitems();
 
         // Load all text nodes into a map, keyed by text.
@@ -44,8 +44,11 @@ class ReadingContext
                 $v = $v[0];
             $mapbytext[$k] = $v;
         }
-        // dump($mapbytext);
-        return $mapbytext[$word];
+        return $mapbytext;
+    }
+
+    public function getReadingNodesByText($word) {
+        return $this->getTextitemsMapByText()[$word];
     }
 
     public function assertDisplayedTextEquals($expected, $msg = 'displayed text') {

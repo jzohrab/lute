@@ -1,4 +1,57 @@
-/* Lute js.  Moving things over as needed from existing js files. */
+/* Lute functions. */
+
+/**
+ * The current term index (either clicked or hovered over)
+ */
+let LUTE_CURR_TERM_DATA_ORDER = -1;  // initially not set.
+
+/**
+ * Lute has 2 different "modes" when reading:
+ * - LUTE_HOVERING = true: Hover mode, not selecting
+ * - LUTE_HOVERING = false: Word clicked, or click-drag
+ */ 
+let LUTE_HOVERING = true;
+
+
+/**
+ * When the reading pane is first loaded, it is set in "hover mode",
+ * meaning that when the user hovers over a word, that word becomes
+ * the "active word" -- i.e., status update keyboard shortcuts should
+ * operate on that hovered word, and as the user moves the mouse
+ * around, the "active word" changes.  When a word is clicked, though,
+ * there can't be any "hover changes", because the user should be
+ * editing the word in the Term edit pane, and has to consciously
+ * disable the "clicked word" mode by hitting ESC or RETURN.
+ *
+ * When the user is done editing a the Term form in the Term edit pane
+ * and hits "save", the main reading page's text div is updated (see
+ * templates/read/updated.twig.html).  This text div reload then has
+ * to notify _this_ javascript to start_hover_mode() again.
+ * 
+ * I dislike this code (specifically, that the updated.twig.html calls
+ * this javascript function), but can't think of a better way to
+ * manage this.
+ */
+function start_hover_mode(should_clear_frames = true) {
+  // console.log('CALLING RESET');
+  load_reading_pane_globals();
+  LUTE_HOVERING = true;
+
+  $('span.kwordmarked').removeClass('kwordmarked');
+
+  if (should_clear_frames)
+    clear_frames();
+
+  clear_newmultiterm_elements();
+
+  // https://stackoverflow.com/questions/35022716/keydown-not-detected-until-window-is-clicked
+  $(window).focus();
+}
+
+let clear_frames = function() {
+  $('#wordframeid').attr('src', '/read/empty');
+  $('#dictframeid').attr('src', '/read/empty');
+}
 
 /** 
  * Prepare the interaction events with the text.
@@ -8,11 +61,12 @@ function prepareTextInteractions(textid) {
   // Using "t.on" here because .word elements
   // are added and removed dynamically, and "t.on"
   // ensures that events remain for each element.
-  t.on('click', '.word', word_clicked);
   t.on('mousedown', '.word', select_started);
   t.on('mouseover', '.word', select_over);
   t.on('mouseup', '.word', select_ended);
 
+  t.on('mouseover', '.word', hover_over);
+  
   $(document).on('keydown', handle_keydown);
 
   $('#thetext').tooltip({
@@ -21,7 +75,6 @@ function prepareTextInteractions(textid) {
     show: { easing: 'easeOutCirc' },
     content: function () { return tooltip_textitem_hover_content($(this)); }
   });
-
 }
 
 
@@ -145,84 +198,119 @@ function show_help() {
 }
 
 
-function add_active(e) {
-  e.addClass('kwordmarked');
+let save_curr_data_order = function(el) {
+  LUTE_CURR_TERM_DATA_ORDER = parseInt(el.attr('data_order'));
 }
 
+/* ========================================= */
+/** Hovering */
 
-function mark_active(e) {
-  $('span.kwordmarked').removeClass('kwordmarked');
-  e.addClass('kwordmarked');
+function hover_over(e) {
+  if (! LUTE_HOVERING)
+    return;
+  $('span.wordhover').removeClass('wordhover');
+  $(this).addClass('wordhover');
+  save_curr_data_order($(this));
 }
 
-function word_clicked(e) {
-  if (e.shiftKey) {
-    // console.log('shift click, adding to ' + $(this).text());
-    add_active($(this));
-  }
-  else {
-    mark_active($(this));
-    showEditFrame($(this));
-  }
-}
+/* ========================================= */
+/** Multiword selection */
 
 let selection_start_el = null;
 
+let clear_newmultiterm_elements = function() {
+  $('.newmultiterm').removeClass('newmultiterm');
+  selection_start_el = null;
+}
+
 function select_started(e) {
-  // mark_active($(this));
+  LUTE_HOVERING = false;
+  $('span.wordhover').removeClass('wordhover');
+  clear_newmultiterm_elements();
+  clear_frames();
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
+  save_curr_data_order($(this));
 }
+
+let get_selected_in_range = function(start_el, end_el, selector) {
+  const first = parseInt(start_el.attr('data_order'))
+  const last = parseInt(end_el.attr('data_order'));
+
+  let startord = first;
+  let endord = last;
+
+  if (startord > endord) {
+    endord = first;
+    startord = last;
+  }
+
+  const selected = $(selector).filter(function() {
+    const ord = $(this).attr("data_order");
+    return ord >= startord && ord <= endord;
+  });
+  return selected;
+};
 
 function select_over(e) {
   if (selection_start_el == null)
     return;  // Not selecting
-
-  const startord = parseInt(selection_start_el.attr('data_order'))
-  const endord = parseInt($(this).attr('data_order'));
-  const selected = $("span.word").filter(function() {
-    const ord = $(this).attr("data_order");
-    return ord >= startord && ord <= endord;
-  });
+  $('.newmultiterm').removeClass('newmultiterm');
+  const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
   selected.addClass('newmultiterm');
-
-  const notselected = $("span.word").filter(function() {
-    const ord = $(this).attr("data_order");
-    return ord < startord || ord > endord;
-  });
-  notselected.removeClass('newmultiterm');
 }
 
 function select_ended(e) {
-
-  const clear_newmultiterm_elements = function() {
-    $('.newmultiterm').removeClass('newmultiterm');
-    selection_start_el = null;
-  }
-  
+  // Handle single word click.
   if (selection_start_el.attr('id') == $(this).attr('id')) {
     clear_newmultiterm_elements();
+    word_clicked($(this), e);
     return;
   }
 
-  const startord = parseInt(selection_start_el.attr('data_order'));
-  const endord = parseInt($(this).attr('data_order'));
-  const selected = $("span.textitem").filter(function() {
-    const ord = $(this).attr("data_order");
-    return ord >= startord && ord <= endord;
-  });
-  const textparts = selected.toArray().map((el) => $(el).text());
+  $('span.kwordmarked').removeClass('kwordmarked');
 
+  const selected = get_selected_in_range(selection_start_el, $(this), 'span.textitem');
+  if (e.shiftKey) {
+    copy_text_to_clipboard(selected.toArray());
+    start_hover_mode(false);
+    return;
+  }
+
+  const textparts = selected.toArray().map((el) => $(el).text());
   const text = textparts.join('').trim();
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
-    clear_newmultiterm_elements();
+    start_hover_mode();
     return;
   }
 
+  copy_text_to_clipboard(selected.toArray(), false);
   showEditFrame(selection_start_el, { textparts: textparts });
-  clear_newmultiterm_elements();
+  selection_start_el = null;
 }
+
+
+let word_clicked = function(el, e) {
+  el.removeClass('wordhover');
+  save_curr_data_order(el);
+  if (el.hasClass('kwordmarked')) {
+    el.removeClass('kwordmarked');
+    const nothing_marked = $('span.kwordmarked').length == 0;
+    if (nothing_marked) {
+      el.addClass('wordhover');
+      start_hover_mode();
+    }
+  }
+  else {
+    if (! e.shiftKey) {
+      $('span.kwordmarked').removeClass('kwordmarked');
+      showEditFrame(el);
+    }
+    el.addClass('kwordmarked');
+  }
+}
+
 
 /********************************************/
 // Keyboard navigation.
@@ -231,10 +319,7 @@ function select_ended(e) {
 var words = null;
 var maxindex = null;
 
-// A public function because this is called from
-// read/updated.html.twig, when elements are added/removed.
 function load_reading_pane_globals() {
-  // console.log('loading reading pane globals');
   words = $('span.word').sort(function(a, b) {
     return $(a).attr('data_order') - $(b).attr('data_order');
   });
@@ -246,38 +331,35 @@ $(document).ready(load_reading_pane_globals);
 
 
 let current_word_index = function() {
-  var currmarked = $('span.kwordmarked');
-  if (currmarked.length == 0) {
-    return -1;
-  }
-  if (currmarked.length > 1) {
-    // console.log('multiple marked, using the first one.');
-    currmarked = currmarked.first();
-  }
-  const ord = currmarked.attr('data_order');
-  const i = words.toArray().findIndex(x => x.getAttribute('data_order') === ord);
-  // console.log(`Current index: ${i}`);
+  const i = words.toArray().findIndex(x => parseInt(x.getAttribute('data_order')) === LUTE_CURR_TERM_DATA_ORDER);
+  // console.log(`found index = ${i}`);
   return i;
-};
-
-
-let find_next_non_ignored_non_well_known = function(currindex, shiftby = 1) {
-  let newindex = currindex + shiftby;
-  while (newindex >= 0 && newindex <= maxindex) {
-    const nextword = words.eq(newindex);
-    const st = nextword.attr('data_status');
-    if (st != 99 && st != 98) {
-      break;
-    }
-    newindex += shiftby;
-  }
-  return newindex;
 };
 
 
 /** Copy the text of the textitemspans to the clipboard, and add a
  * color flash. */
-let copy_text_to_clipboard = function(textitemspans) {
+let handle_copy = function(e) {
+  const selindex = current_word_index();
+  if (selindex == -1)
+    return;
+  const w = words.eq(selindex);
+
+  let textitemspans = null;
+  if (e.shiftKey) {
+    // console.log('copying para');
+    const para = $(w).parent().parent();
+    textitemspans = para.find('span.textitem').toArray();
+  }
+  else {
+    // console.log('copying sentence');
+    const seid = w.attr('seid');
+    textitemspans = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+  }
+  copy_text_to_clipboard(textitemspans);
+}
+
+let copy_text_to_clipboard = function(textitemspans, show_flash = true) {
   const copytext = textitemspans.map(s => $(s).text()).join('');
 
   // console.log('copying ' + copytext);
@@ -290,6 +372,7 @@ let copy_text_to_clipboard = function(textitemspans) {
 
   const removeFlash = function() {
     // console.log('removing flash');
+    $('span.flashtextcopy').addClass('wascopied'); // for acceptance testing.
     $('span.flashtextcopy').removeClass('flashtextcopy');
   };
 
@@ -299,6 +382,75 @@ let copy_text_to_clipboard = function(textitemspans) {
     $(t).addClass('flashtextcopy');
   });
   setTimeout(() => removeFlash(), 1000);
+
+  $('#wordframeid').attr('src', '/read/flashcopied');
+}
+
+
+let set_cursor = function(newindex) {
+  LUTE_HOVERING = false;
+  $('span.wordhover').removeClass('wordhover');
+  clear_newmultiterm_elements();
+
+  if (newindex < 0 || newindex >= words.size())
+    return;
+  let curr = words.eq(newindex);
+  save_curr_data_order(curr);
+  $('span.kwordmarked').removeClass('kwordmarked');
+  curr.addClass('kwordmarked');
+  $(window).scrollTo(curr, { axis: 'y', offset: -150 });
+  showEditFrame(curr, { autofocus: false });
+}
+
+
+let find_non_Ign_or_Wkn = function(currindex, shiftby) {
+  let newindex = currindex + shiftby;
+  while (newindex >= 0 && newindex <= maxindex) {
+    const nextword = words.eq(newindex);
+    const st = nextword.attr('data_status');
+    if (st != 99 && st != 98) {
+      break;
+    }
+    newindex += shiftby;
+  }
+  return newindex;
+};
+
+let move_cursor = function(shiftby, e) {
+  const currindex = current_word_index();
+  if (! e.shiftKey) {
+    set_cursor(currindex + shiftby);
+  }
+  else {
+    set_cursor(find_non_Ign_or_Wkn(currindex, shiftby));
+  }
+}
+
+
+let show_translation = function() {
+  const selindex = current_word_index();
+  if (selindex == -1)
+    return;
+  const w = words.eq(selindex);
+  const seid = w.attr('seid');
+  const tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+  const sentence = tis.map(s => $(s).text()).join('');
+  // console.log(sentence);
+
+  const userdict = $('#translateURL').text();
+  if (userdict == null || userdict == '')
+    console.log('No userdict for lookup.  ???');
+
+  // console.log(userdict);
+  const url = userdict.replace('###', encodeURIComponent(sentence));
+  if (url[0] == '*') {
+    const finalurl = url.substring(1);  // drop first char.
+    const settings = 'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no';
+    window.open(finalurl, 'dictwin', settings);
+  }
+  else {
+    top.frames.dictframe.location.href = url;
+  }
 }
 
 
@@ -308,129 +460,48 @@ function handle_keydown (e) {
     return; // Nothing to do.
   }
 
-  // Keys handled in this routine:
+  // Map of key codes (e.which) to lambdas:
+  let map = {};
+
   const kESC = 27;
+  const kRETURN = 13;
   const kHOME = 36;
   const kEND = 35;
   const kLEFT = 37;
   const kRIGHT = 39;
   const kC = 67; // C)opy
-  const kE = 69; // E)dit
   const kT = 84; // T)ranslate
+  const k1 = 49;
+  const k2 = 50;
+  const k3 = 51;
+  const k4 = 52;
+  const k5 = 53;
+  const kI = 73;
+  const kW = 87;
 
-  const currindex = current_word_index();
-  let newindex = currindex;
+  map[kESC] = () => start_hover_mode();
+  map[kRETURN] = () => start_hover_mode();
+  map[kHOME] = () => set_cursor(0);
+  map[kEND] = () => set_cursor(maxindex);
+  map[kLEFT] = () => move_cursor(-1, e);;
+  map[kRIGHT] = () => move_cursor(+1, e);;
+  map[kC] = () => handle_copy(e);
+  map[kT] = () => show_translation();
+  map[k1] = () => update_status_for_marked_elements(1);
+  map[k2] = () => update_status_for_marked_elements(2);
+  map[k3] = () => update_status_for_marked_elements(3);
+  map[k4] = () => update_status_for_marked_elements(4);
+  map[k5] = () => update_status_for_marked_elements(5);
+  map[kI] = () => update_status_for_marked_elements(98);
+  map[kW] = () => update_status_for_marked_elements(99);
 
-  // console.log('key down: ' + e.which);
-  if (e.which == kHOME) {
-    newindex = 0;
+  if (e.which in map) {
+    let a = map[e.which];
+    a();
   }
-  if (e.which == kEND) {
-    newindex = maxindex;
+  else {
+    // console.log('unhandled key ' + e.which);
   }
-  if (e.which == kLEFT && !e.shiftKey) {
-    newindex = currindex - 1;
-  }
-  if (e.which == kRIGHT && !e.shiftKey) {
-    newindex = currindex + 1;
-  }
-  if (e.which == kLEFT && e.shiftKey) {
-    newindex = find_next_non_ignored_non_well_known(currindex, -1);
-  }
-  if (e.which == kRIGHT && e.shiftKey) {
-    newindex = find_next_non_ignored_non_well_known(currindex, +1);
-  }
-
-  if (e.which == kESC || newindex < 0 || newindex > maxindex) {
-    $('span.kwordmarked').removeClass('kwordmarked');
-    return;
-  }
-
-  // If moved, update UI and exit.
-  if (newindex != currindex) {
-    // console.log(`Moving from index ${currindex} to ${newindex}`);
-    let curr = words.eq(newindex);
-    mark_active(curr);
-    $(window).scrollTo(curr, { axis: 'y', offset: -150 });
-
-    showEditFrame(curr, { autofocus: false });
-    return false;
-  }
-
-  let curr = $('span.kwordmarked');
-  if (curr.length == 0)
-    return;
-
-  if (e.which == kC) {
-    const selindex = current_word_index();
-    if (selindex == -1)
-      return;
-    const w = words.eq(selindex);
-
-    let textitemspans = null;
-    if (e.shiftKey) {
-      // console.log('copying para');
-      const para = $(w).parent().parent();
-      textitemspans = para.find('span.textitem').toArray();
-    }
-    else {
-      // console.log('copying sentence');
-      const seid = w.attr('seid');
-      textitemspans = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
-    }
-    copy_text_to_clipboard(textitemspans);
-    return;
-  }
-
-  if (e.which == kE) {
-    showEditFrame(curr[0]);
-    return false;
-  }
-
-  // Statuses.
-  const status_key_map = {
-    49: 1,  // key 1
-    50: 2,  // key 2
-    51: 3,
-    52: 4,
-    53: 5,
-    73: 98, // key I)gnore
-    87: 99  // key W)ell known
-  };
-  var newstatus = status_key_map[e.which] ?? 0;
-  if (newstatus != 0) {
-    update_status_for_marked_elements(newstatus);
-    return;
-  }
-
-  if (e.which == kT) {
-    const selindex = current_word_index();
-    if (selindex == -1)
-      return;
-    const w = words.eq(selindex);
-    const seid = w.attr('seid');
-    const tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
-    const sentence = tis.map(s => $(s).text()).join('');
-    // console.log(sentence);
-
-    const userdict = $('#translateURL').text();
-    if (userdict == null || userdict == '')
-      console.log('No userdict for lookup.  ???');
-
-    // console.log(userdict);
-    const url = userdict.replace('###', encodeURIComponent(sentence));
-    if (url[0] == '*') {
-      const finalurl = url.substring(1);  // drop first char.
-      const settings = 'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no';
-      window.open(finalurl, 'dictwin', settings);
-    }
-    else {
-      top.frames.dictframe.location.href = url;
-    }
-    return false;
-  }
-
-  return true;
 }
 
 
@@ -439,7 +510,7 @@ function handle_keydown (e) {
  */
 function update_selected_statuses(newStatus) {
   const newClass = `status${newStatus}`;
-  $('span.kwordmarked').each(function (e) {
+  let update_status = function (e) {
     const curr = $(this);
     ltext = curr.text().toLowerCase();
     matches = $('span.word').toArray().filter(el => $(el).text().toLowerCase() == ltext);
@@ -448,19 +519,20 @@ function update_selected_statuses(newStatus) {
         .addClass(newClass)
         .attr('data_status',`${newStatus}`);
     });
-  });
+  };
+  $('span.kwordmarked').each(update_status);
+  $('span.wordhover').each(update_status);
 }
 
 
 function update_status_for_marked_elements(new_status) {
-  const els = $('span.kwordmarked').toArray().map(el => $(el).text());
+  let els = $('span.kwordmarked').toArray().concat($('span.wordhover').toArray());
   if (els.length == 0)
     return;
-  const textid = $('span.kwordmarked').first().attr('tid');
+  const firstel = $(els[0]);
+  const textid = firstel.attr('tid');
 
-  // const zeroWidthSpace = '\u200b';
-  // const zels = els.map(el => el.replaceAll(zeroWidthSpace, '/'));
-  // console.log('To update to ' + new_status + ': ' + zels.join(', '));
+  els = els.map(el => $(el).text());
 
   $.ajax({
     url: '/read/update_status',

@@ -506,10 +506,15 @@ a:active {
    border-right: 3px solid red;
    border-left: 3px solid red;
  }
- 
+
+ .wordhover
+ {
+   border-bottom: 1px solid blue !important;
+ }
+
  .kwordmarked
  {
-   border-bottom: 2px solid red !important;
+   border-bottom: 1px solid red !important;
  }
 
  .newmultiterm

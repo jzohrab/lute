@@ -25,7 +25,17 @@ class ReadingController extends AbstractController
     public function empty(Request $request): Response
     {
         // A dummy hack to clear out the dictionary pane.  Annoying!
+        // This is just HTML.  Could likely be moved out of the
+        // controller entirely, but keeping it here for uniformity.
         return $this->render('read/empty.html.twig');
+    }
+
+    #[Route('/flashcopied', name: 'app_read_flashcopied', methods: ['GET'])]
+    public function flashcopied(Request $request): Response
+    {
+        // This is just HTML.  Could likely be moved out of the
+        // controller entirely, but keeping it here for uniformity.
+        return $this->render('read/flashcopied.html.twig');
     }
 
     // Note this route has to appear about "read" because otherwise
