@@ -1,5 +1,19 @@
 # Changelog
 
+## 2023-07-15 v2.0.8
+
+Feature changes:
+
+* Change hotkeys to also work on currently hovered word (issue [46](https://github.com/jzohrab/lute/issues/46))
+* Add "shift-drag" copy-to-clipboard
+* Update tutorial to explain new hotkey handling (included in [the wiki](https://github.com/jzohrab/lute/wiki/Tutorial))
+
+Back end changes:
+
+* Add hacky lute.js cachebusting, so that browsers serve correct Javascript on Lute update!
+* Hotkey acceptance tests
+
+
 ## 2023-07-10 v2.0.7
 
 Feature changes:

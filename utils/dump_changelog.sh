@@ -16,6 +16,8 @@ echo "
 
 Feature changes:
 
+=> don't forget to update the vX.X.X above <=
+
 ---
 
 _(raw info to process)_
