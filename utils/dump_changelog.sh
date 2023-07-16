@@ -12,7 +12,9 @@ if [[ "$SINCE" == "" ]]; then
 fi
 
 echo "
-## `date '+%Y-%m-%d'`
+## `date '+%Y-%m-%d'` vX.X.X
+
+Feature changes:
 
 ---
 
@@ -25,6 +27,8 @@ echo "
 
 _(end raw)_
 ---
+
+Back end changes:
 
 " >> docs/tmp_CHANGELOG.tmp
 
