@@ -66,6 +66,7 @@ function prepareTextInteractions(textid) {
   t.on('mouseup', '.word', select_ended);
 
   t.on('mouseover', '.word', hover_over);
+  t.on('mouseout', '.word', hover_out);
   
   $(document).on('keydown', handle_keydown);
 
@@ -211,6 +212,12 @@ function hover_over(e) {
   $('span.wordhover').removeClass('wordhover');
   $(this).addClass('wordhover');
   save_curr_data_order($(this));
+}
+
+function hover_out(e) {
+  if (! LUTE_HOVERING)
+    return;
+  $('span.wordhover').removeClass('wordhover');
 }
 
 /* ========================================= */
