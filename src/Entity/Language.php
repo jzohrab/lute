@@ -374,7 +374,7 @@ class Language
             ->setLgRegexpWordCharacters('\p{Han}\p{Katakana}\p{Hiragana}')
             ->setLgRemoveSpaces(true)
             ->setLgShowRomanization(true)
-            ->setLgRegexpSplitSentences('.!?。')
+            ->setLgRegexpSplitSentences('.!?。？！')
             ->setLgParserType('japanese');
         return $japanese;
     }

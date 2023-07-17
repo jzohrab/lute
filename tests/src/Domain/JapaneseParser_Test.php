@@ -51,14 +51,14 @@ final class JapaneseParser_Test extends DatabaseTestBase
             [ "?", false, true ],
             [ "元気", true ],
             [ "!", false, true ],
-            [ "¶", false, true ],
+            [ "¶", false, false ],
             [ "元気", true ],
             [ "。", false, true ],
             [ "元気", true ],
             [ "？", false, true ],
             [ "元気", true ],
             [ "！", false, true ],
-            [ "¶", false, true ]
+            [ "¶", false, false ]
         ];
         $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 
@@ -91,13 +91,13 @@ final class JapaneseParser_Test extends DatabaseTestBase
             [ "元気", true ],
             [ "です", true ],
             [ "。", false, true ],
-            [ "¶", false, true ],
+            [ "¶", false, false ],
             [ "私", true ],
             [ "は", true ],
             [ "元気", true ],
             [ "です", true ],
             [ "。", false, true ],
-            [ "¶", false, true ]
+            [ "¶", false, false ]
         ];
         $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 

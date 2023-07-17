@@ -89,26 +89,8 @@ class JapaneseParser extends AbstractParser {
             $tab = mb_chr(9);
             list($term, $node_type, $third) = explode($tab, $line);
 
-            // Determine end of sentence.
-            // data here obtained from JapaneseParser_Test test cases.
-            /*
-              // western-style punct
-              ".\t3\t36"
-              "?\t3\t36"
-              "!\t3\t36"
-              // jp-style punct
-              "。\t3\t7"
-              "？\t3\t4"
-              "！\t3\t4"
-              "EOP\t3\t7"
-            */
-            // Could also hard-code ... not sure what the best
-            // approach is, given current tools.  Probably a much
-            // better way exists.
-            $isEOS = (
-                $node_type == '3' &&
-                in_array($third, [ '36', '4', '7' ])
-            );
+            // Determine end of sentence, using the settings.
+            $isEOS = (str_contains($lang->getLgRegexpSplitSentences(), $term));
 
             $isParagraph = ($term == 'EOP' && $third == '7');
             if ($isParagraph)
