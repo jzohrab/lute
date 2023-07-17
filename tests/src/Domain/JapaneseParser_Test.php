@@ -34,7 +34,49 @@ final class JapaneseParser_Test extends DatabaseTestBase
     }
 
     /**
-     * @group parser_tokens
+     * @group jp_sentence_ends
+     */
+    public function test_getParsedTokens_sentence_ends()
+    {
+        $p = new JapaneseParser();
+        // First, western punctuation, then JP :-)
+        $s = "元気.元気?元気!
+元気。元気？元気！";
+        $actual = $p->getParsedTokens($s, $this->japanese);
+
+        $expected = [
+            [ "元気", true ],
+            [ ".", false, true ],
+            [ "元気", true ],
+            [ "?", false, true ],
+            [ "元気", true ],
+            [ "!", false, true ],
+            [ "¶", false, false ],
+            [ "元気", true ],
+            [ "。", false, true ],
+            [ "元気", true ],
+            [ "？", false, true ],
+            [ "元気", true ],
+            [ "！", false, true ],
+            [ "¶", false, false ]
+        ];
+        $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
+
+        $tostring = function($tokens) {
+            $ret = '';
+            foreach ($tokens as $tok) {
+                $isw = $tok->isWord ? '1' : '0';
+                $iseos = $tok->isEndOfSentence ? '1' : '0';
+                $ret .= "{$tok->token}-{$isw}-{$iseos};";
+            }
+            return $ret;
+        };
+
+        $this->assertEquals($tostring($actual), $tostring($expected));
+    }
+
+    /**
+     * @group jp_parser_tokens
      */
     public function test_getParsedTokens()
     {
@@ -48,14 +90,14 @@ final class JapaneseParser_Test extends DatabaseTestBase
             [ "は", true ],
             [ "元気", true ],
             [ "です", true ],
-            [ "。", false ],
-            [ "¶", false, true ],
+            [ "。", false, true ],
+            [ "¶", false, false ],
             [ "私", true ],
             [ "は", true ],
             [ "元気", true ],
             [ "です", true ],
-            [ "。", false ],
-            [ "¶", false, true ]
+            [ "。", false, true ],
+            [ "¶", false, false ]
         ];
         $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 
