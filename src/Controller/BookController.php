@@ -223,8 +223,8 @@ class BookController extends AbstractController
         return $this->redirectToRoute('app_book_archived', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{BkID}/rebind', name: 'app_book_rebind', methods: ['POST'])]
-    public function rebind(Request $request, Book $book, BookRepository $bookRepository): Response
+    #[Route('/{BkID}/reparse', name: 'app_book_reparse', methods: ['POST'])]
+    public function reparse(Request $request, Book $book): Response
     {
         // TODO:security - CSRF token for datatables actions.
         // $tok = $request->request->get('_token');
@@ -232,17 +232,8 @@ class BookController extends AbstractController
         //     $book->setArchived(true);
         //     $bookRepository->save($book, true);
         // }
-        if (count($book->getTexts()) != 1)
-            throw new \Exception("Can only rebind books with one page.");
-        $rebound = Book::makeBook($book->getTitle(), $book->getLanguage(), $book->getTexts()[0]->getText());
-        $rebound->setSourceURI($book->getSourceURI());
-        foreach ($book->getTags() as $t) {
-            $rebound->addTag($t);
-        }
-
-        $bookRepository->remove($book, true);
-        $bookRepository->save($rebound, true);
-        return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+        $book->fullParse();
+        return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
     }
 
 
