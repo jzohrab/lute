@@ -80,6 +80,7 @@ class JapaneseParser extends AbstractParser {
 
         $tokens = [];
         foreach (explode(PHP_EOL, $mecabed) as $line) {
+            // dump($line);
             // Skip blank lines, or the following line's array
             // assignment fails.
             if (trim($line) == "")
@@ -88,17 +89,36 @@ class JapaneseParser extends AbstractParser {
             $tab = mb_chr(9);
             list($term, $node_type, $third) = explode($tab, $line);
 
+            // Determine end of sentence.
+            // data here obtained from JapaneseParser_Test test cases.
+            /*
+              // western-style punct
+              ".\t3\t36"
+              "?\t3\t36"
+              "!\t3\t36"
+              // jp-style punct
+              "。\t3\t7"
+              "？\t3\t4"
+              "！\t3\t4"
+              "EOP\t3\t7"
+            */
+            // Could also hard-code ... not sure what the best
+            // approach is, given current tools.  Probably a much
+            // better way exists.
+            $isEOS = (
+                $node_type == '3' &&
+                in_array($third, [ '36', '4', '7' ])
+            );
+
             $isParagraph = ($term == 'EOP' && $third == '7');
             if ($isParagraph)
-                $term = "¶\r";
+                $term = "¶";
 
             $count = 0;
             if (str_contains('2678', $node_type))
                 $count = 1;
 
-            $isEOS = str_ends_with($term, "\r");
-            $s = str_replace("\r", "", $term);
-            $tokens[] = new ParsedToken($s, $count > 0, $isEOS);
+            $tokens[] = new ParsedToken($term, $count > 0, $isEOS);
         }
 
         return $tokens;

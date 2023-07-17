@@ -44,7 +44,7 @@ class Language
     private ?string $LgCharacterSubstitutions = "´='|`='|’='|‘='|...=…|..=‥";
 
     #[ORM\Column(name: 'LgRegexpSplitSentences', length: 500)]
-    private ?string $LgRegexpSplitSentences = '.!?:;';
+    private ?string $LgRegexpSplitSentences = '.!?';
 
     #[ORM\Column(name: 'LgExceptionsSplitSentences', length: 500)]
     private ?string $LgExceptionsSplitSentences = 'Mr.|Mrs.|Dr.|[A-Z].|Vd.|Vds.';
@@ -374,6 +374,7 @@ class Language
             ->setLgRegexpWordCharacters('\p{Han}\p{Katakana}\p{Hiragana}')
             ->setLgRemoveSpaces(true)
             ->setLgShowRomanization(true)
+            ->setLgRegexpSplitSentences('.!?。')
             ->setLgParserType('japanese');
         return $japanese;
     }
