@@ -292,7 +292,6 @@ function select_ended(e) {
     return;
   }
 
-  copy_text_to_clipboard(selected.toArray(), false);
   showEditFrame(selection_start_el, { textparts: textparts });
   selection_start_el = null;
 }
