@@ -353,7 +353,9 @@ let handle_copy = function(e) {
 
   let textitemspans = null;
   if (e.shiftKey) {
-    // console.log('copying para');
+    // TODO:brittle_select - this assumes word->sentence->paragraph
+    // will always be true, and at some point it might not be (e.g. to
+    // group word with nearby punctuation).
     const para = $(w).parent().parent();
     textitemspans = para.find('span.textitem').toArray();
   }
@@ -433,13 +435,22 @@ let move_cursor = function(shiftby, e) {
 }
 
 
-let show_translation = function() {
+let show_translation = function(e) {
   const selindex = current_word_index();
   if (selindex == -1)
     return;
   const w = words.eq(selindex);
   const seid = w.attr('seid');
-  const tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+  let tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
+
+  if (e.shiftKey) {
+    // TODO:brittle_select - this assumes word->sentence->paragraph
+    // will always be true, and at some point it might not be (e.g. to
+    // group word with nearby punctuation).
+    const para = $(w).parent().parent();
+    tis = para.find('span.textitem').toArray();
+  }
+
   const sentence = tis.map(s => $(s).text()).join('');
   // console.log(sentence);
 
@@ -492,7 +503,7 @@ function handle_keydown (e) {
   map[kLEFT] = () => move_cursor(-1, e);;
   map[kRIGHT] = () => move_cursor(+1, e);;
   map[kC] = () => handle_copy(e);
-  map[kT] = () => show_translation();
+  map[kT] = () => show_translation(e);
   map[k1] = () => update_status_for_marked_elements(1);
   map[k2] = () => update_status_for_marked_elements(2);
   map[k3] = () => update_status_for_marked_elements(3);
