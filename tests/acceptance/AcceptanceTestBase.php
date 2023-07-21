@@ -174,7 +174,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
             $this->reading_repo,
             $this->text_repo,
             $this->book_repo,
-            $this->settings_repo,
             $term_svc,
             $this->termtag_repo
         );
@@ -190,7 +189,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
             $this->reading_repo,
             $this->text_repo,
             $this->book_repo,
-            $this->settings_repo,
             $term_svc,
             $this->termtag_repo
         );

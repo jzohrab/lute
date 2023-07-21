@@ -12,7 +12,6 @@ use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TextRepository;
 use App\Repository\BookRepository;
-use App\Repository\SettingsRepository;
 use App\Repository\TermTagRepository;
 use App\Domain\TermService;
 
@@ -21,7 +20,6 @@ class ReadingFacade {
     private ReadingRepository $repo;
     private TextRepository $textrepo;
     private BookRepository $bookrepo;
-    private SettingsRepository $settingsrepo;
     private TermService $term_service;
     private TermTagRepository $termtagrepo;
 
@@ -29,7 +27,6 @@ class ReadingFacade {
         ReadingRepository $repo,
         TextRepository $textrepo,
         BookRepository $bookrepo,
-        SettingsRepository $settingsrepo,
         TermService $term_service,
         TermTagRepository $termTagRepository
     ) {
@@ -37,7 +34,6 @@ class ReadingFacade {
         $this->term_service = $term_service;
         $this->textrepo = $textrepo;
         $this->bookrepo = $bookrepo;
-        $this->settingsrepo = $settingsrepo;
         $this->termtagrepo = $termTagRepository;
     }
 
