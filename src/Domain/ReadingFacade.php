@@ -192,11 +192,6 @@ class ReadingFacade {
         return $this->textrepo->get_prev_next_by_10($text);
     }
 
-    public function set_current_text(Text $text) {
-        $this->settingsrepo->saveCurrentTextID($text->getID());
-    }
-
-
     /**
      * Get fully populated Term from database, or create a new one with available data.
      *

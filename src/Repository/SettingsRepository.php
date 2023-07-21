@@ -36,17 +36,6 @@ class SettingsRepository
         return $ret[0];
     }
 
-    public function saveCurrentTextID(int $textid) {
-        $this->saveSetting('currenttext', $textid);
-    }
-
-    public function getCurrentTextID(): ?int {
-        $v = $this->getSetting('currenttext');
-        if ($v == null)
-            return null;
-        return intval($v);;
-    }
-
     public function saveLastBackupDatetime(int $last) {
         $this->saveSetting('lastbackup', $last);
     }
