@@ -60,7 +60,6 @@ class ReadingFacade {
             $tokens = $this->repo->getTextTokens($text);
         }
 
-        $sentences = $this->repo->getSentences($text);
         $terms = $this->repo->getTermsInText($text);
         // echo '<pre>' . count($terms) . '</pre>';
         $tokens_by_senum = array();

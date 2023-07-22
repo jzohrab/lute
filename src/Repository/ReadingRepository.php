@@ -29,37 +29,6 @@ class ReadingRepository
         $this->term_repo = $term_repo;
     }
 
-    public function getSentences(Text $t): array {
-        $textid = $t->getID();
-        if ($textid == null)
-            return [];
-
-        $sql = "select
-          TokSentenceNumber,
-          char(0x200B) || GROUP_CONCAT(TokText, char(0x200B)) || char(0x200B) as SeText
-          FROM (
-            select TokSentenceNumber, TokText
-            from texttokens
-            where TokTxID = $textid
-            order by TokOrder
-          ) src
-          group by TokSentenceNumber";
-
-        // dump($sql);
-        $conn = $this->manager->getConnection();
-        $stmt = $conn->prepare($sql);
-        $res = $stmt->executeQuery();
-        $rows = $res->fetchAllAssociative();
-
-        $ret = [];
-        foreach ($rows as $row) {
-            $s = new TextSentence();
-            $s->SeID = intval($row['TokSentenceNumber']);
-            $s->SeText = $row['SeText'];
-            $ret[] = $s;
-        }
-        return $ret;
-    }
 
     public function getTextTokens(Text $t): array {
         $textid = $t->getID();
