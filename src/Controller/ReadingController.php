@@ -110,7 +110,7 @@ class ReadingController extends AbstractController
         // character.
         $usetext = preg_replace('/__LUTE_PERIOD__/u', '.', $text);
 
-        $termdto = $facade->loadDTO($lang->getLgID(), $usetext);
+        $termdto = $facade->loadDTO($lang, $usetext);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

@@ -161,7 +161,7 @@ class ReadingFacade {
         $batchSize = 100;
         $i = 0;
         foreach ($uniques as $u) {
-            $t = $this->repo->load($lang->getLgId(), $u);
+            $t = $this->term_service->findOrNew($lang, $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
             $this->term_service->add($t, false);
@@ -191,13 +191,13 @@ class ReadingFacade {
     /**
      * Get fully populated Term from database, or create a new one with available data.
      *
-     * @param lid  int    LgID, language ID
+     * @param Language the term lang
      * @param text string
      *
      * @return TermDTO
      */
-    public function loadDTO(int $lid, string $text): TermDTO {
-        $term = $this->repo->load($lid, $text);
+    public function loadDTO(Language $language, string $text): TermDTO {
+        $term = $this->term_service->findOrNew($language, $text);
         $dto = $term->createTermDTO();
         if ($term->getFlashMessage() != null) {
             //// $term->popFlashMessage();

@@ -73,6 +73,23 @@ class TermService {
     }
 
     /**
+     * Get fully populated Term from database, or create a new one.
+     *
+     * @param lid  int    LgID, the language ID
+     * @param text string
+     *
+     * @return Term
+     */
+    public function findOrNew(Language $language, string $text): Term
+    {
+        $textlc = mb_strtolower($text);
+        $t = $this->find($textlc, $language);
+        if (null != $t)
+            return $t;
+        return new Term($language, $textlc);
+    }
+
+    /**
      * Find Terms by matching text.
      */
     public function findMatches(string $value, Language $lang, int $maxResults = 50): array

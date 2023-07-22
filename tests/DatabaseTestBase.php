@@ -161,7 +161,7 @@ abstract class DatabaseTestBase extends WebTestCase
             $term_svc,
             $this->termtag_repo
         );
-        $dto = $facade->loadDTO($text->getLanguage()->getLgID(), $s);
+        $dto = $facade->loadDTO($text->getLanguage(), $s);
         $facade->saveDTO($dto);
     }
 

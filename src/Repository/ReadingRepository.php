@@ -101,26 +101,6 @@ class ReadingRepository
         return $this->term_repo->findTermsInText($text);
     }
 
-
-    /**
-     * Get fully populated Term from database, or create a new one.
-     *
-     * @param lid  int    LgID, the language ID
-     * @param text string
-     *
-     * @return Term
-     */
-    public function load(int $lid, string $text): Term
-    {
-        $language = $this->lang_repo->find($lid);
-        $textlc = mb_strtolower($text);
-        $t = $this->term_service->find($textlc, $language);
-        if (null != $t)
-            return $t;
-        return new Term($language, $textlc);
-    }
-
-
     public function save(Term $term): void {
         $this->term_service->add($term);
     }
@@ -128,5 +108,4 @@ class ReadingRepository
     public function remove(Term $term): void {
         $this->term_service->remove($term);
     }
-
 }
