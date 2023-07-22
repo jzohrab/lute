@@ -18,18 +18,15 @@ class ReadingRepository
     private EntityManagerInterface $manager;
     private TermService $term_service;
     private TermRepository $term_repo;
-    private LanguageRepository $lang_repo;
 
     public function __construct(
         EntityManagerInterface $manager,
-        TermRepository $term_repo,
-        LanguageRepository $lang_repo
+        TermRepository $term_repo
     )
     {
         $this->manager = $manager;
         $this->term_service = new TermService($term_repo);
         $this->term_repo = $term_repo;
-        $this->lang_repo = $lang_repo;
     }
 
     public function getSentences(Text $t): array {
