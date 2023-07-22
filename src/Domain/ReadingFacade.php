@@ -223,7 +223,7 @@ class ReadingFacade {
         $term = TermDTO::buildTerm(
             $termdto, $this->term_service, $this->termtagrepo
         );
-        $this->repo->save($term, true);
+        $this->term_service->add($term);
     }
 
     /** Remove term. */
@@ -231,8 +231,7 @@ class ReadingFacade {
         $term = TermDTO::buildTerm(
             $dto, $this->term_service, $this->termtagrepo
         );
-        $this->repo->remove($term, true);
+        $this->term_service->remove($term);
     }
-
 
 }

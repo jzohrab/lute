@@ -98,11 +98,4 @@ class ReadingRepository
         return $this->term_repo->findTermsInText($text);
     }
 
-    public function save(Term $term): void {
-        $this->term_service->add($term);
-    }
-
-    public function remove(Term $term): void {
-        $this->term_service->remove($term);
-    }
 }
