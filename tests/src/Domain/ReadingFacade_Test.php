@@ -80,7 +80,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->term_repo->save($t, true);
         $sql = 'select WfMessage from wordflashmessages';
         DbHelpers::assertTableContains($sql, ['hello'], 'after save');
-        $ft = $this->facade->loadDTO($this->spanish->getLgID(), 'term');
+        $ft = $this->facade->loadDTO($this->spanish, 'term');
         // dump($ft);
         DbHelpers::assertTableContains($sql, [], 'after load, flash message is gone');
     }
@@ -94,7 +94,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $text = $this->make_text("Hola", $content, $this->spanish);
         $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un/ /gato/.");
 
-        $tengo = $this->facade->loadDTO($this->spid, 'tengo');
+        $tengo = $this->facade->loadDTO($this->spanish, 'tengo');
         $this->facade->saveDTO($tengo);
         $this->assert_rendered_text_equals($text, "Hola/ /tengo(1)/ /un/ /gato/.");
     }
@@ -108,7 +108,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $text = $this->make_text("Hola", $content, $this->spanish);
         $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un/ /gato/.");
 
-        $tengo = $this->facade->loadDTO($this->spid, 'tengo');
+        $tengo = $this->facade->loadDTO($this->spanish, 'tengo');
         $this->facade->saveDTO($tengo);
         $this->assert_rendered_text_equals($text, "Hola/ /tengo(1)/ /un/ /gato/.");
 
@@ -286,7 +286,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertTrue($tiene->WoID > 0, '... and it has a WoID');
 
         $txt = "tiene una bebida";
-        $tiene_una_bebida = $this->facade->loadDTO($this->spid, $txt);
+        $tiene_una_bebida = $this->facade->loadDTO($this->spanish, $txt);
         $zws = mb_chr(0x200B);
         $this->assertEquals(str_replace($zws, '', $tiene_una_bebida->Text), $txt, 'text loaded');
         $this->assertTrue($tiene_una_bebida->id == null, 'should be a new term');
@@ -369,11 +369,11 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->save_term($text, 'hasta');
 
         $tid = $text->getID();
-        $dto = $this->facade->loadDTO($this->spid, 'hasta');
+        $dto = $this->facade->loadDTO($this->spanish, 'hasta');
         $dto->Status = 1;
         $this->facade->saveDTO($dto);
 
-        $dto = $this->facade->loadDTO($this->spid, 'cuando no');
+        $dto = $this->facade->loadDTO($this->spanish, 'cuando no');
         $dto->Status = 2;
         $this->facade->saveDTO($dto);
 
@@ -381,7 +381,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
             'no.'
         ];
         foreach ($others as $s) {
-            $dto = $this->facade->loadDTO($this->spid, $s);
+            $dto = $this->facade->loadDTO($this->spanish, $s);
             $this->facade->saveDTO($dto);
         }
 
@@ -457,14 +457,14 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         // Update "tiene" to have "tener" as parent.
         $tid = $text->getID();
-        $tiene = $this->facade->loadDTO($this->spid, 'tiene');
+        $tiene = $this->facade->loadDTO($this->spanish, 'tiene');
         $tiene->ParentText = 'tener';
         $tiene->Status = 1;
         $this->facade->saveDTO($tiene);
 
         $this->assert_rendered_text_equals($text, "tiene(1)/ /y/ /tener(1)/.");
 
-        $tener = $this->facade->loadDTO($this->spid, 'tener');
+        $tener = $this->facade->loadDTO($this->spanish, 'tener');
         $this->assertTrue($tener->id != 0, 'sanity check, tener also saved.');
     }
 
@@ -477,7 +477,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "tiene/ /y/ /tener/ /uno/.");
 
         // Update "tiene" to have "tener uno" as parent.
-        $tiene = $this->facade->loadDTO($this->spid, 'tiene');
+        $tiene = $this->facade->loadDTO($this->spanish, 'tiene');
         $tiene->ParentText = 'tener uno';
         $tiene->Status = 1;
         $this->facade->saveDTO($tiene);
@@ -505,7 +505,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_multiwords_should_highlight_in_new_text() {
         $text = $this->make_text("AP1", "Tienes un gato.", $this->spanish);
         $tid = $text->getID();
-        $dto = $this->facade->loadDTO($this->spid, 'un gato');
+        $dto = $this->facade->loadDTO($this->spanish, 'un gato');
         $this->facade->saveDTO($dto);
 
         $this->assert_rendered_text_equals($text, "Tienes/ /un gato(1)/.");
@@ -524,7 +524,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $ap2 = $this->make_text("AP2", "Def wrote to the Associated Press about it.", $this->english);
 
         $ap1id = $ap1->getID();
-        $dto = $this->facade->loadDTO($this->english->getLgID(), 'Associated Press');
+        $dto = $this->facade->loadDTO($this->english, 'Associated Press');
         $this->facade->saveDTO($dto);
         $this->facade->mark_unknowns_as_known($ap1);
 
@@ -545,7 +545,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $text = $this->make_text("t1", "關關。", $cc);
         $this->assert_rendered_text_equals($text, "關/關/。");
 
-        $dto = $this->facade->loadDTO($cc->getLgID(), '關');
+        $dto = $this->facade->loadDTO($cc, '關');
         $this->facade->saveDTO($dto);
         $this->assert_rendered_text_equals($text, "關(1)/關(1)/。");
     }
@@ -569,7 +569,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         // Update "tiene" to have "tener uno" as parent.
         $tid = $text->getID();
 
-        $dto = $this->facade->loadDTO($this->spid, 'tengo');
+        $dto = $this->facade->loadDTO($this->spanish, 'tengo');
         $dto->ParentText = 'que';
         $dto->Status = 1;
         $this->facade->saveDTO($dto);

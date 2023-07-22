@@ -67,7 +67,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
         $this->book_repo = $this->entity_manager->getRepository(App\Entity\Book::class);
 
-        $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo, $this->language_repo);
+        $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
         $this->childSetUp();
@@ -161,7 +161,7 @@ abstract class DatabaseTestBase extends WebTestCase
             $term_svc,
             $this->termtag_repo
         );
-        $dto = $facade->loadDTO($text->getLanguage()->getLgID(), $s);
+        $dto = $facade->loadDTO($text->getLanguage(), $s);
         $facade->saveDTO($dto);
     }
 

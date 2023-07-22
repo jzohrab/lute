@@ -9,6 +9,7 @@ use App\Repository\TermRepository;
 use App\Repository\ReadingRepository;
 use App\DTO\TermDTO;
 use App\Entity\Text;
+use App\Entity\Language;
 use App\Entity\Sentence;
 use App\Form\TermDTOType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -89,9 +90,9 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    #[Route('/termform/{lid}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
+    #[Route('/termform/{LgID}/{text}', name: 'app_term_load', methods: ['GET', 'POST'])]
     public function term_form(
-        int $lid,
+        Language $lang,
         string $text,
         Request $request,
         ReadingFacade $facade
@@ -109,7 +110,7 @@ class ReadingController extends AbstractController
         // character.
         $usetext = preg_replace('/__LUTE_PERIOD__/u', '.', $text);
 
-        $termdto = $facade->loadDTO($lid, $usetext);
+        $termdto = $facade->loadDTO($lang, $usetext);
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

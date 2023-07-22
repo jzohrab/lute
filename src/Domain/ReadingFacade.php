@@ -60,7 +60,6 @@ class ReadingFacade {
             $tokens = $this->repo->getTextTokens($text);
         }
 
-        $sentences = $this->repo->getSentences($text);
         $terms = $this->repo->getTermsInText($text);
         // echo '<pre>' . count($terms) . '</pre>';
         $tokens_by_senum = array();
@@ -161,7 +160,7 @@ class ReadingFacade {
         $batchSize = 100;
         $i = 0;
         foreach ($uniques as $u) {
-            $t = $this->repo->load($lang->getLgId(), $u);
+            $t = $this->term_service->findOrNew($lang, $u);
             $t->setLanguage($lang);
             $t->setStatus($newstatus);
             $this->term_service->add($t, false);
@@ -191,13 +190,13 @@ class ReadingFacade {
     /**
      * Get fully populated Term from database, or create a new one with available data.
      *
-     * @param lid  int    LgID, language ID
+     * @param Language the term lang
      * @param text string
      *
      * @return TermDTO
      */
-    public function loadDTO(int $lid, string $text): TermDTO {
-        $term = $this->repo->load($lid, $text);
+    public function loadDTO(Language $language, string $text): TermDTO {
+        $term = $this->term_service->findOrNew($language, $text);
         $dto = $term->createTermDTO();
         if ($term->getFlashMessage() != null) {
             //// $term->popFlashMessage();
@@ -223,7 +222,7 @@ class ReadingFacade {
         $term = TermDTO::buildTerm(
             $termdto, $this->term_service, $this->termtagrepo
         );
-        $this->repo->save($term, true);
+        $this->term_service->add($term);
     }
 
     /** Remove term. */
@@ -231,8 +230,7 @@ class ReadingFacade {
         $term = TermDTO::buildTerm(
             $dto, $this->term_service, $this->termtagrepo
         );
-        $this->repo->remove($term, true);
+        $this->term_service->remove($term);
     }
-
 
 }

@@ -40,10 +40,10 @@ final class ReadingRepository_Test extends DatabaseTestBase
 
     public function test_smoke_tests()
     {
-        $ss = $this->reading_repo->getSentences($this->text);
-        $this->assertEquals(1, count($ss), "1 sentence");
-        $zws = mb_chr(0x200B);
-        $this->assertEquals(str_replace($zws, "/", $ss[0]->SeText), "/Hola/ /tengo/ /un/ /gato/./");
+        // This used to test a valid method but now it doesn't
+        // ... keeping this as a placeholder just in case I want to
+        // add some tests to the existing methods.
+        $this->assertEquals(1, 1, "dummy test");
     }
 
 }
