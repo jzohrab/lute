@@ -7,6 +7,7 @@ use App\Entity\Text;
 use App\Entity\Term;
 use App\Entity\Language;
 use App\DTO\TermDTO;
+use App\DTO\TextToken;
 use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
@@ -14,6 +15,7 @@ use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Repository\TermTagRepository;
 use App\Domain\TermService;
+use App\Utils\Connection;
 
 class ReadingFacade {
 
@@ -54,10 +56,10 @@ class ReadingFacade {
             $this->textrepo->save($text, true);
         }
 
-        $tokens = $this->repo->getTextTokens($text);
+        $tokens = $this->getTextTokens($text);
         if (count($tokens) == 0) {
             $text->getBook()->fullParse();
-            $tokens = $this->repo->getTextTokens($text);
+            $tokens = $this->getTextTokens($text);
         }
 
         $terms = $this->repo->getTermsInText($text);
@@ -87,6 +89,39 @@ class ReadingFacade {
         }
 
         return $renderableSentences;
+    }
+
+    private function getTextTokens(Text $t): array {
+        $textid = $t->getID();
+        if ($textid == null)
+            return [];
+
+        $sql = "select
+          TokSentenceNumber,
+          TokOrder,
+          TokIsWord,
+          TokText,
+          TokTextLC
+          from texttokens
+          where toktxid = $textid
+          order by TokSentenceNumber, TokOrder";
+
+        $conn = Connection::getFromEnvironment();
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $ret = [];
+        foreach ($rows as $row) {
+            $tok = new TextToken();
+            $tok->TokSentenceNumber = intval($row['TokSentenceNumber']);
+            $tok->TokOrder = intval($row['TokOrder']);
+            $tok->TokIsWord = intval($row['TokIsWord']);
+            $tok->TokText = $row['TokText'];
+            $tok->TokTextLC = $row['TokTextLC'];
+            $ret[] = $tok;
+        }
+        return $ret;
     }
 
     public function mark_read(Text $text) {
