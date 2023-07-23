@@ -56,24 +56,18 @@ class ReadingFacade {
             $tokens = $this->getTextTokens($text);
         }
 
-        $usenums = array_map(fn($t) => $t->TokSentenceNumber, $tokens);
-        $usenums = array_unique($usenums);
-
         $terms = $this->term_repo->findTermsInText($text);
 
-        $lang = $text->getLanguage();
-
         $renderableSentences = [];
+        $usenums = array_map(fn($t) => $t->TokSentenceNumber, $tokens);
+        $usenums = array_unique($usenums);
         foreach ($usenums as $senum) {
             $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $senum);
-            // echo '<pre>' . var_export($setokens, true) . '</pre>';
             $renderable = RenderableCalculator::getRenderable($terms, $setokens);
-            // echo '<pre>' . var_export($renderable, true) . '</pre>';
             $textitems = array_map(
-                fn($i) => $i->makeTextItem($senum, $text->getID(), $lang->getLgID()),
+                fn($i) => $i->makeTextItem($senum, $text->getID(), $text->getLanguage()->getLgID()),
                 $renderable
             );
-            // echo '<pre>' . var_export($textitems, true) . '</pre>';
             $rs = new RenderableSentence($senum, $textitems);
             $renderableSentences[] = $rs;
         }
