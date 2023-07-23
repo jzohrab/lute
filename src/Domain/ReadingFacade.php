@@ -45,11 +45,6 @@ class ReadingFacade {
         if ($text->getID() == null)
             return [];
 
-        if ($text->isArchived()) {
-            $text->setArchived(false);
-            $this->textrepo->save($text, true);
-        }
-
         $tokens = $this->getTextTokens($text);
         if (count($tokens) == 0) {
             $text->getBook()->fullParse();
