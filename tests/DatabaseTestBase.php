@@ -155,7 +155,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $textid = $text->getID();
         $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
-            $this->reading_repo,
+            $this->term_repo,
             $this->text_repo,
             $this->book_repo,
             $term_svc,
@@ -170,7 +170,7 @@ abstract class DatabaseTestBase extends WebTestCase
 
         $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
-            $this->reading_repo,
+            $this->term_repo,
             $this->text_repo,
             $this->book_repo,
             $term_svc,

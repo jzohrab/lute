@@ -171,7 +171,7 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $textid = $text->getID();
         $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
-            $this->reading_repo,
+            $this->term_repo,
             $this->text_repo,
             $this->book_repo,
             $term_svc,
@@ -186,7 +186,7 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
         $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
-            $this->reading_repo,
+            $this->term_repo,
             $this->text_repo,
             $this->book_repo,
             $term_svc,

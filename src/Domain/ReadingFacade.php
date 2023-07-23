@@ -10,29 +10,29 @@ use App\DTO\TermDTO;
 use App\DTO\TextToken;
 use App\Entity\Status;
 use App\Entity\Sentence;
-use App\Repository\ReadingRepository;
 use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Repository\TermTagRepository;
+use App\Repository\TermRepository;
 use App\Domain\TermService;
 use App\Utils\Connection;
 
 class ReadingFacade {
 
-    private ReadingRepository $repo;
+    private TermRepository $term_repo;
     private TextRepository $textrepo;
     private BookRepository $bookrepo;
     private TermService $term_service;
     private TermTagRepository $termtagrepo;
 
     public function __construct(
-        ReadingRepository $repo,
+        TermRepository $term_repo,
         TextRepository $textrepo,
         BookRepository $bookrepo,
         TermService $term_service,
         TermTagRepository $termTagRepository
     ) {
-        $this->repo = $repo;
+        $this->term_repo = $term_repo;
         $this->term_service = $term_service;
         $this->textrepo = $textrepo;
         $this->bookrepo = $bookrepo;
@@ -62,7 +62,7 @@ class ReadingFacade {
             $tokens = $this->getTextTokens($text);
         }
 
-        $terms = $this->repo->getTermsInText($text);
+        $terms = $this->term_repo->findTermsInText($text);
         // echo '<pre>' . count($terms) . '</pre>';
         $tokens_by_senum = array();
         foreach ($tokens as $tok) {
