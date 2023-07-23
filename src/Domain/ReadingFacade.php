@@ -58,18 +58,20 @@ class ReadingFacade {
 
         $terms = $this->term_repo->findTermsInText($text);
 
-        $renderableSentences = [];
-        $usenums = array_map(fn($t) => $t->TokSentenceNumber, $tokens);
-        $usenums = array_unique($usenums);
-        foreach ($usenums as $senum) {
-            $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $senum);
+        $makeRenderableSentence = function($sentenceNum, $tokens, $terms, $text) {
+            $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $sentenceNum);
             $renderable = RenderableCalculator::getRenderable($terms, $setokens);
             $textitems = array_map(
-                fn($i) => $i->makeTextItem($senum, $text->getID(), $text->getLanguage()->getLgID()),
+                fn($i) => $i->makeTextItem($sentenceNum, $text->getID(), $text->getLanguage()->getLgID()),
                 $renderable
             );
-            $rs = new RenderableSentence($senum, $textitems);
-            $renderableSentences[] = $rs;
+            return new RenderableSentence($sentenceNum, $textitems);
+        };
+
+        $renderableSentences = [];
+        $usenums = array_map(fn($t) => $t->TokSentenceNumber, $tokens);
+        foreach (array_unique($usenums) as $senum) {
+            $renderableSentences[] = $makeRenderableSentence($senum, $tokens, $terms, $text);
         }
 
         return $renderableSentences;
