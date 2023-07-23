@@ -40,12 +40,6 @@ class ReadingFacade {
     }
 
     
-    private function getRenderable($terms, $tokens) {
-        $rc = new RenderableCalculator();
-        $textitems = $rc->main($terms, $tokens);
-        return $textitems;
-    }
-
     public function getSentences(Text $text)
     {
         if ($text->getID() == null)
@@ -62,25 +56,21 @@ class ReadingFacade {
             $tokens = $this->getTextTokens($text);
         }
 
+        $usenums = array_map(fn($t) => $t->TokSentenceNumber, $tokens);
+        $usenums = array_unique($usenums);
+
         $terms = $this->term_repo->findTermsInText($text);
-        // echo '<pre>' . count($terms) . '</pre>';
-        $tokens_by_senum = array();
-        foreach ($tokens as $tok) {
-            $tokens_by_senum[$tok->TokSentenceNumber][] = $tok;
-        }
 
-        $usenums = array_keys($tokens_by_senum);
+        $lang = $text->getLanguage();
 
-        $lid = $text->getLanguage()->getLgID();
-        $tid = $text->getID();
         $renderableSentences = [];
         foreach ($usenums as $senum) {
-            $setokens = $tokens_by_senum[$senum];
+            $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $senum);
             // echo '<pre>' . var_export($setokens, true) . '</pre>';
-            $renderable = $this->getRenderable($terms, $setokens);
+            $renderable = RenderableCalculator::getRenderable($terms, $setokens);
             // echo '<pre>' . var_export($renderable, true) . '</pre>';
             $textitems = array_map(
-                fn($i) => $i->makeTextItem($senum, $tid, $lid),
+                fn($i) => $i->makeTextItem($senum, $text->getID(), $lang->getLgID()),
                 $renderable
             );
             // echo '<pre>' . var_export($textitems, true) . '</pre>';

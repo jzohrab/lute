@@ -173,4 +173,10 @@ class RenderableCalculator {
         $items = $this->calc_overlaps($items);
         return $items;
     }
+
+    public static function getRenderable($words, $texttokens) {
+        $rc = new RenderableCalculator();
+        return $rc->main($words, $texttokens);
+    }
+
 }
