@@ -7,7 +7,6 @@ use App\Entity\Text;
 use App\Entity\Term;
 use App\Entity\Language;
 use App\DTO\TermDTO;
-use App\DTO\TextToken;
 use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\TextRepository;
@@ -15,7 +14,6 @@ use App\Repository\BookRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\TermRepository;
 use App\Domain\TermService;
-use App\Utils\Connection;
 
 class ReadingFacade {
 
@@ -40,89 +38,11 @@ class ReadingFacade {
     }
 
     
-    private function getRenderable($terms, $tokens) {
-        $rc = new RenderableCalculator();
-        $textitems = $rc->main($terms, $tokens);
-        return $textitems;
-    }
-
     public function getSentences(Text $text)
     {
-        if ($text->getID() == null)
-            return [];
-
-        if ($text->isArchived()) {
-            $text->setArchived(false);
-            $this->textrepo->save($text, true);
-        }
-
-        $tokens = $this->getTextTokens($text);
-        if (count($tokens) == 0) {
-            $text->getBook()->fullParse();
-            $tokens = $this->getTextTokens($text);
-        }
-
-        $terms = $this->term_repo->findTermsInText($text);
-        // echo '<pre>' . count($terms) . '</pre>';
-        $tokens_by_senum = array();
-        foreach ($tokens as $tok) {
-            $tokens_by_senum[$tok->TokSentenceNumber][] = $tok;
-        }
-
-        $usenums = array_keys($tokens_by_senum);
-
-        $lid = $text->getLanguage()->getLgID();
-        $tid = $text->getID();
-        $renderableSentences = [];
-        foreach ($usenums as $senum) {
-            $setokens = $tokens_by_senum[$senum];
-            // echo '<pre>' . var_export($setokens, true) . '</pre>';
-            $renderable = $this->getRenderable($terms, $setokens);
-            // echo '<pre>' . var_export($renderable, true) . '</pre>';
-            $textitems = array_map(
-                fn($i) => $i->makeTextItem($senum, $tid, $lid),
-                $renderable
-            );
-            // echo '<pre>' . var_export($textitems, true) . '</pre>';
-            $rs = new RenderableSentence($senum, $textitems);
-            $renderableSentences[] = $rs;
-        }
-
-        return $renderableSentences;
+        return RenderableSentence::getSentences($text, $this->term_repo);
     }
 
-    private function getTextTokens(Text $t): array {
-        $textid = $t->getID();
-        if ($textid == null)
-            return [];
-
-        $sql = "select
-          TokSentenceNumber,
-          TokOrder,
-          TokIsWord,
-          TokText,
-          TokTextLC
-          from texttokens
-          where toktxid = $textid
-          order by TokSentenceNumber, TokOrder";
-
-        $conn = Connection::getFromEnvironment();
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        $ret = [];
-        foreach ($rows as $row) {
-            $tok = new TextToken();
-            $tok->TokSentenceNumber = intval($row['TokSentenceNumber']);
-            $tok->TokOrder = intval($row['TokOrder']);
-            $tok->TokIsWord = intval($row['TokIsWord']);
-            $tok->TokText = $row['TokText'];
-            $tok->TokTextLC = $row['TokTextLC'];
-            $ret[] = $tok;
-        }
-        return $ret;
-    }
 
     public function mark_read(Text $text) {
         $text->setReadDate(new DateTime("now"));
