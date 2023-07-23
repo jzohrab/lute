@@ -29,40 +29,6 @@ class ReadingRepository
         $this->term_repo = $term_repo;
     }
 
-
-    public function getTextTokens(Text $t): array {
-        $textid = $t->getID();
-        if ($textid == null)
-            return [];
-
-        $sql = "select
-          TokSentenceNumber,
-          TokOrder,
-          TokIsWord,
-          TokText,
-          TokTextLC
-          from texttokens
-          where toktxid = $textid
-          order by TokSentenceNumber, TokOrder";
-
-        $conn = $this->manager->getConnection();
-        $stmt = $conn->prepare($sql);
-        $res = $stmt->executeQuery();
-        $rows = $res->fetchAllAssociative();
-
-        $ret = [];
-        foreach ($rows as $row) {
-            $tok = new TextToken();
-            $tok->TokSentenceNumber = intval($row['TokSentenceNumber']);
-            $tok->TokOrder = intval($row['TokOrder']);
-            $tok->TokIsWord = intval($row['TokIsWord']);
-            $tok->TokText = $row['TokText'];
-            $tok->TokTextLC = $row['TokTextLC'];
-            $ret[] = $tok;
-        }
-        return $ret;
-    }
-
     public function getTermsInText(Text $text) {
         return $this->term_repo->findTermsInText($text);
     }
