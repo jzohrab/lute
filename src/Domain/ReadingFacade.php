@@ -68,11 +68,11 @@ class ReadingFacade {
             return new RenderableSentence($sentenceNum, $textitems);
         };
 
-        $renderableSentences = [];
         $usenums = array_map(fn($t) => $t->TokSentenceNumber, $tokens);
-        foreach (array_unique($usenums) as $senum) {
-            $renderableSentences[] = $makeRenderableSentence($senum, $tokens, $terms, $text);
-        }
+        $renderableSentences = array_map(
+            fn($senum) => $makeRenderableSentence($senum, $tokens, $terms, $text),
+            array_unique($usenums)
+        );
 
         return $renderableSentences;
     }
