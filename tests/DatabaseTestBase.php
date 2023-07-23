@@ -21,7 +21,6 @@ use App\Repository\TextTagRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\TermRepository;
 use App\Repository\BookRepository;
-use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\TermService;
 use App\Domain\ReadingFacade;
@@ -39,7 +38,6 @@ abstract class DatabaseTestBase extends WebTestCase
     public TermTagRepository $termtag_repo;
     public TermRepository $term_repo;
     public BookRepository $book_repo;
-    public ReadingRepository $reading_repo;
     public SettingsRepository $settings_repo;
 
     public Language $spanish;
@@ -67,7 +65,6 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
         $this->book_repo = $this->entity_manager->getRepository(App\Entity\Book::class);
 
-        $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
         $this->childSetUp();

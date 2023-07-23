@@ -6,7 +6,6 @@ use App\Domain\ReadingFacade;
 use App\Domain\BookStats;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
-use App\Repository\ReadingRepository;
 use App\DTO\TermDTO;
 use App\Entity\Text;
 use App\Entity\Language;
