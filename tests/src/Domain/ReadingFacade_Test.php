@@ -24,7 +24,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $term_svc = new TermService($this->term_repo);
         $this->term_service = $term_svc;
         $this->facade = new ReadingFacade(
-            $this->reading_repo,
+            $this->term_repo,
             $this->text_repo,
             $this->book_repo,
             $term_svc,

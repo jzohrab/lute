@@ -32,7 +32,6 @@ use App\Repository\TextTagRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\TermRepository;
 use App\Repository\BookRepository;
-use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 use App\Domain\TermService;
 use App\Domain\ReadingFacade;
@@ -56,7 +55,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
     public TermTagRepository $termtag_repo;
     public TermRepository $term_repo;
     public BookRepository $book_repo;
-    public ReadingRepository $reading_repo;
     public SettingsRepository $settings_repo;
 
     public Language $spanish;
@@ -86,7 +84,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $this->term_repo = $this->entity_manager->getRepository(\App\Entity\Term::class);
         $this->book_repo = $this->entity_manager->getRepository(\App\Entity\Book::class);
 
-        $this->reading_repo = new ReadingRepository($this->entity_manager, $this->term_repo);
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
         $this->client = static::createPantherClient(); // App auto-started using the built-in web server
@@ -171,7 +168,7 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $textid = $text->getID();
         $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
-            $this->reading_repo,
+            $this->term_repo,
             $this->text_repo,
             $this->book_repo,
             $term_svc,
@@ -186,7 +183,7 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
         $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
-            $this->reading_repo,
+            $this->term_repo,
             $this->text_repo,
             $this->book_repo,
             $term_svc,
