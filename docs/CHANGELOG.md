@@ -1,5 +1,19 @@
 # Changelog
 
+## 2023-07-24 v2.0.9
+
+Feature changes:
+
+* Hotkey shift + t = translate full paragraph.
+* Don't copy to clipboard when making multiterm.
+* Add book reparsing (lightning bolt icon) - use this only when changing your Language parse settings
+* Fix Japanese sentence end finding.
+
+Back end changes:
+
+* Simplifying and removing code where possible!
+
+
 ## 2023-07-15 v2.0.8
 
 Feature changes:
