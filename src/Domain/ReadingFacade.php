@@ -50,7 +50,7 @@ class ReadingFacade {
     }
 
     public function mark_unknowns_as_known(Text $text) {
-        $sentences = $this->getParagraphs($text);
+        $sentences = array_merge([], ...$this->getParagraphs($text));
         // dump($sentences);
         $tis = [];
         foreach ($sentences as $s) {
