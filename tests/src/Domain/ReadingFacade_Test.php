@@ -34,16 +34,20 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     // TESTS -----------------
 
+    private function getSentences($t) {
+        return array_merge([], ...$this->facade->getSentences($t));
+    }
+
     public function test_get_sentences_no_sentences() {
         $t = new Text();
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(0, count($sentences), "nothing for new text");
     }
 
     public function test_get_sentences_with_text()
     {
         $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(2, count($sentences));
     }
 
@@ -53,7 +57,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_get_sentences_reparses_text_if_no_sentences()
     {
         $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(2, count($sentences), "reparsed");
     }
 
@@ -66,7 +70,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
         $t = $this->make_text("Hola", $content, $this->spanish);
 
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(4, count($sentences));
     }
 
@@ -276,7 +280,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $t = $this->make_text("Hola", "Ella tiene una bebida.", $this->spanish);
         $this->facade->mark_unknowns_as_known($t);
 
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(count($sentences), 1, "sanity check");
         $sentence = $sentences[0];
         $terms = array_filter($sentence->renderable(), fn($ti) => $ti->TextLC == 'tiene');

@@ -25,7 +25,14 @@ class RenderableSentence
 
     /** Static "factory" ... may belong in its own class, good enough here for now. */
 
-    public static function getSentences(Text $text, TermRepository $repo)
+    /**
+     * Get arrays of arrays of TextItems to be rendered.
+     * e.g.
+     * [
+     *   [ renderable sentence 1, sentence 2, etc ]  // first paragraph
+     * ]
+     */
+    public static function getParagraphs(Text $text, TermRepository $repo)
     {
         if ($text->getID() == null)
             return [];

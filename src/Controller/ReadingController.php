@@ -72,20 +72,20 @@ class ReadingController extends AbstractController
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
     public function text(Request $request, Text $text, ReadingFacade $facade): Response
     {
-        $sentences = $facade->getSentences($text);
+        $paragraphs = $facade->getParagraphs($text);
         return $this->render('read/text.html.twig', [
             'textid' => $text->getId(),
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
-            'sentences' => $sentences
+            'paragraphs' => $paragraphs
         ]);
     }
 
     #[Route('/sentences/{TxID}', name: 'app_read_sentences', methods: ['GET'])]
     public function sentences(Request $request, Text $text, ReadingFacade $facade): Response
     {
-        $sentences = $facade->getSentences($text);
+        $paragraphs = $facade->getParagraphs($text);
         return $this->render('read/sentences.html.twig', [
-            'sentences' => $sentences
+            'paragraphs' => $paragraphs
         ]);
     }
 
