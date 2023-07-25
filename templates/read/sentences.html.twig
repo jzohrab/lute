@@ -1,5 +1,4 @@
-
-  {% for para in sentences %}
+{% for para in sentences %}
 
 <p>
 
@@ -8,15 +7,14 @@
   <span class="textsentence" id="sent_{{ sentence.SeID }}">
     {% for item in sentence.renderable %}
     {% include '/read/textitem.html.twig' %}
-      {% endfor %}
-    </span>
+    {% endfor %}
+  </span>
 
-{% endfor %}
+  {% endfor %}
 
 </p>
 
-   {% endfor %}
-
+{% endfor %}
 
 <script>
   // Defined in lute.js
