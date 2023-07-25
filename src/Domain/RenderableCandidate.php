@@ -32,7 +32,7 @@ class RenderableCandidate {
         return "{$id}; {$this->text}; {$this->pos}; {$this->length}; render = {$ren}";
     }
 
-    public function makeTextItem(int $seid, int $textid, int $langid): TextItem {
+    public function makeTextItem(int $pnum, int $seid, int $textid, int $langid): TextItem {
         /*
         $time_start = microtime(true);
         $msgs = [];
@@ -53,6 +53,7 @@ class RenderableCandidate {
         $t->TokenCount = $this->length;
 
         $t->TextLC = mb_strtolower($this->text);
+        $t->ParaID = $pnum;
         $t->SeID = $seid;
         $t->IsWord = $this->isword;
         $t->TextLength = mb_strlen($this->text);

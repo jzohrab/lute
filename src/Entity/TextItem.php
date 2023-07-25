@@ -20,6 +20,7 @@ class TextItem
     public int $TokenCount;
 
     public string $TextLC;
+    public int $ParaID;
     public int $SeID;
     public int $IsWord;
     public int $TextLength;
