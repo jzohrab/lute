@@ -343,28 +343,33 @@ let current_word_index = function() {
 };
 
 
+/** Get the rest of the textitems in the current active/hovered word's
+ * sentence or paragraph, or null if no selection. */
+let get_textitems_spans = function(e) {
+  const selindex = current_word_index();
+  if (selindex == -1)
+    return null;
+
+  const w = words.eq(selindex);
+
+  let attr_name = 'seid';
+  let attr_value = w.attr('seid');
+
+  if (e.shiftKey) {
+    attr_name = 'paraid';
+    attr_value = w.attr('paraid');
+  }
+
+  return $('span.textitem').toArray().filter(x => x.getAttribute(attr_name) === attr_value);
+};
+
 /** Copy the text of the textitemspans to the clipboard, and add a
  * color flash. */
 let handle_copy = function(e) {
-  const selindex = current_word_index();
-  if (selindex == -1)
+  tis = get_textitems_spans(e);
+  if (tis == null)
     return;
-  const w = words.eq(selindex);
-
-  let textitemspans = null;
-  if (e.shiftKey) {
-    // TODO:brittle_select - this assumes word->sentence->paragraph
-    // will always be true, and at some point it might not be (e.g. to
-    // group word with nearby punctuation).
-    const para = $(w).parent().parent();
-    textitemspans = para.find('span.textitem').toArray();
-  }
-  else {
-    // console.log('copying sentence');
-    const seid = w.attr('seid');
-    textitemspans = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
-  }
-  copy_text_to_clipboard(textitemspans);
+  copy_text_to_clipboard(tis);
 }
 
 let copy_text_to_clipboard = function(textitemspans, show_flash = true) {
@@ -436,21 +441,9 @@ let move_cursor = function(shiftby, e) {
 
 
 let show_translation = function(e) {
-  const selindex = current_word_index();
-  if (selindex == -1)
+  tis = get_textitems_spans(e);
+  if (tis == null)
     return;
-  const w = words.eq(selindex);
-  const seid = w.attr('seid');
-  let tis = $('span.textitem').toArray().filter(x => x.getAttribute('seid') === seid);
-
-  if (e.shiftKey) {
-    // TODO:brittle_select - this assumes word->sentence->paragraph
-    // will always be true, and at some point it might not be (e.g. to
-    // group word with nearby punctuation).
-    const para = $(w).parent().parent();
-    tis = para.find('span.textitem').toArray();
-  }
-
   const sentence = tis.map(s => $(s).text()).join('');
   // console.log(sentence);
 
