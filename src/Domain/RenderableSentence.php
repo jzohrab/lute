@@ -35,7 +35,7 @@ class RenderableSentence
             $text->getBook()->fullParse();
             $tokens = RenderableSentence::getTextTokens($text);
         }
-
+        $tokens = array_filter($tokens, fn($t) => $t->TokText != '¶');
         $terms = $repo->findTermsInText($text);
 
         $makeRenderableSentence = function($pnum, $sentenceNum, $tokens, $terms, $text) {
