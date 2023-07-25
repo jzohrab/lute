@@ -14,6 +14,7 @@ echo "Creating build environment."
 echo
 echo "Git reset and env file ..."
 git clean -xdf
+git reset --hard
 cp .env.example .env
 
 echo
