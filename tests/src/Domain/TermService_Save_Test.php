@@ -129,12 +129,12 @@ final class TermService_Save_Test extends DatabaseTestBase
         $this->language_repo->save($japanese, true);
 
         $text = $this->make_text("Hi", "私は元気です.", $japanese);
-        $this->assert_rendered_text_equals($text, "私/は/元気/です/./¶");
+        $this->assert_rendered_text_equals($text, "私/は/元気/です/.");
         
         $term = new Term($japanese, "元気です");
         $this->term_service->add($term, true);
 
-        $this->assert_rendered_text_equals($text, "私/は/元気です(1)/./¶");
+        $this->assert_rendered_text_equals($text, "私/は/元気です(1)/.");
     }
 
     /**

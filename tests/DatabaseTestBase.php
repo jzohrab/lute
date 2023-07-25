@@ -162,9 +162,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $facade->saveDTO($dto);
     }
 
-    private function get_renderable_textitems($text) {
-        $ret = [];
-
+    private function get_renderable_paras($text) {
         $term_svc = new TermService($this->term_repo);
         $facade = new ReadingFacade(
             $this->term_repo,
@@ -173,20 +171,11 @@ abstract class DatabaseTestBase extends WebTestCase
             $term_svc,
             $this->termtag_repo
         );
-
-        $pps = $facade->getParagraphs($text);
-        foreach ($pps as $p) {
-            foreach ($p as $s) {
-                foreach ($s->renderable() as $ti) {
-                    $ret[] = $ti;
-                }
-            }
-        }
-        return $ret;
+        return $facade->getParagraphs($text);
     }
 
     public function get_rendered_string($text, $imploder = '/', $overridestringize = null) {
-        $tis = $this->get_renderable_textitems($text);
+        $paras = $this->get_renderable_paras($text);
         $stringize = function($ti) {
             $zws = mb_chr(0x200B);
             $status = "({$ti->WoStatus})";
@@ -195,8 +184,13 @@ abstract class DatabaseTestBase extends WebTestCase
             return str_replace($zws, '', "{$ti->DisplayText}{$status}");
         };
         $usestringize = $overridestringize ?? $stringize;
-        $ss = array_map($usestringize, $tis);
-        return implode($imploder, $ss);
+        $ret = [];
+        foreach ($paras as $p) {
+            $tis = array_merge([], ...array_map(fn($s) => $s->renderable(), $p));
+            $ss = array_map($usestringize, $tis);
+            $ret[] = implode($imploder, $ss);
+        }
+        return implode('/¶/', $ret);
     }
 
     public function assert_rendered_text_equals($text, $expected, $msg = '') {
