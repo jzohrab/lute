@@ -100,7 +100,7 @@ class JapaneseParser extends AbstractParser {
             if (str_contains('2678', $node_type))
                 $count = 1;
 
-            $tokens[] = new ParsedToken($term, $count > 0, $isEOS);
+            $tokens[] = new ParsedToken($term, $count > 0, $isEOS || $isParagraph);
         }
 
         return $tokens;

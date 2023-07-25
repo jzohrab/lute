@@ -190,10 +190,12 @@ abstract class AcceptanceTestBase extends PantherTestCase
             $this->termtag_repo
         );
 
-        $ss = $facade->getSentences($text);
-        foreach ($ss as $s) {
-            foreach ($s->renderable() as $ti) {
-                $ret[] = $ti;
+        $pps = $facade->getParagraphs($text);
+        foreach ($pps as $p) {
+            foreach ($p as $s) {
+                foreach ($s->renderable() as $ti) {
+                    $ret[] = $ti;
+                }
             }
         }
         return $ret;

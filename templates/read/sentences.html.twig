@@ -1,20 +1,20 @@
+{% for para in paragraphs %}
+
 <p>
 
-  {% for sentence in sentences %}
+  {% for sentence in para %}
 
   <span class="textsentence" id="sent_{{ sentence.SeID }}">
     {% for item in sentence.renderable %}
-    {% if item.Text == '¶' %}
-      </p><p>
-    {% else %}
     {% include '/read/textitem.html.twig' %}
-      {% endif %}
-      {% endfor %}
-    </span>
+    {% endfor %}
+  </span>
 
   {% endfor %}
 
 </p>
+
+{% endfor %}
 
 <script>
   // Defined in lute.js

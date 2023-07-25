@@ -34,16 +34,20 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     // TESTS -----------------
 
+    private function getSentences($t) {
+        return array_merge([], ...$this->facade->getParagraphs($t));
+    }
+
     public function test_get_sentences_no_sentences() {
         $t = new Text();
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(0, count($sentences), "nothing for new text");
     }
 
     public function test_get_sentences_with_text()
     {
         $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(2, count($sentences));
     }
 
@@ -53,7 +57,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     public function test_get_sentences_reparses_text_if_no_sentences()
     {
         $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(2, count($sentences), "reparsed");
     }
 
@@ -66,8 +70,8 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
         $t = $this->make_text("Hola", $content, $this->spanish);
 
-        $sentences = $this->facade->getSentences($t);
-        $this->assertEquals(4, count($sentences));
+        $sentences = $this->getSentences($t);
+        $this->assertEquals(3, count($sentences));
     }
 
     /**
@@ -276,7 +280,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $t = $this->make_text("Hola", "Ella tiene una bebida.", $this->spanish);
         $this->facade->mark_unknowns_as_known($t);
 
-        $sentences = $this->facade->getSentences($t);
+        $sentences = $this->getSentences($t);
         $this->assertEquals(count($sentences), 1, "sanity check");
         $sentence = $sentences[0];
         $terms = array_filter($sentence->renderable(), fn($ti) => $ti->TextLC == 'tiene');
@@ -402,10 +406,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->language_repo->save($japanese, true);
         $text = $this->make_text("Hola", "2後ヲウメニ能問アラ費理セイ北多国び持困寿ながち。", $japanese);
 
-        $this->assert_rendered_text_equals($text, "2/後/ヲ/ウメニ/能/問/アラ/費/理/セイ/北/多国/び/持/困/寿/な/がち/。/¶");
+        $this->assert_rendered_text_equals($text, "2/後/ヲ/ウメニ/能/問/アラ/費/理/セイ/北/多国/び/持/困/寿/な/がち/。");
 
         $this->save_term($text, 'ながち');
-        $this->assert_rendered_text_equals($text, "2/後/ヲ/ウメニ/能/問/アラ/費/理/セイ/北/多国/び/持/困/寿/ながち(1)/。/¶");
+        $this->assert_rendered_text_equals($text, "2/後/ヲ/ウメニ/能/問/アラ/費/理/セイ/北/多国/び/持/困/寿/ながち(1)/。");
     }
 
 
@@ -421,13 +425,13 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
         $text = $this->make_text("Hola", "「おれの方が強い。」「いいや、ぼくの方が強い。」", $japanese);
-        $this->assert_rendered_text_equals($text, "「/おれ/の/方/が/強い/。/」/「/いい/や/、/ぼく/の/方/が/強い/。/」/¶");
+        $this->assert_rendered_text_equals($text, "「/おれ/の/方/が/強い/。/」/「/いい/や/、/ぼく/の/方/が/強い/。/」");
 
         $this->save_term($text, 'ぼくの方');
-        $this->assert_rendered_text_equals($text, "「/おれ/の/方/が/強い/。/」/「/いい/や/、/ぼくの方(1)/が/強い/。/」/¶");
+        $this->assert_rendered_text_equals($text, "「/おれ/の/方/が/強い/。/」/「/いい/や/、/ぼくの方(1)/が/強い/。/」");
 
         $this->save_term($text, 'おれの方');
-        $this->assert_rendered_text_equals($text, "「/おれの方(1)/が/強い/。/」/「/いい/や/、/ぼくの方(1)/が/強い/。/」/¶");
+        $this->assert_rendered_text_equals($text, "「/おれの方(1)/が/強い/。/」/「/いい/や/、/ぼくの方(1)/が/強い/。/」");
     }
 
 
@@ -442,9 +446,9 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $japanese = App\Entity\Language::makeJapanese();
         $this->language_repo->save($japanese, true);
         $text = $this->make_text("Hola", "1234おれの方が強い。", $japanese);
-        $this->assert_rendered_text_equals($text, "1234/おれ/の/方/が/強い/。/¶");
+        $this->assert_rendered_text_equals($text, "1234/おれ/の/方/が/強い/。");
         $this->save_term($text, 'おれの方');
-        $this->assert_rendered_text_equals($text, "1234/おれの方(1)/が/強い/。/¶");
+        $this->assert_rendered_text_equals($text, "1234/おれの方(1)/が/強い/。");
     }
 
 
@@ -517,7 +521,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
     /**
-     * @group issue10
+     * @group issue10_new
      */
     public function test_associated_press_multiwords_should_highlight_in_new_text() {
         $ap1 = $this->make_text("AP1", "Abc wrote to the Associated Press about it.", $this->english);

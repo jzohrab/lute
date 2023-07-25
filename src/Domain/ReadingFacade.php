@@ -38,9 +38,9 @@ class ReadingFacade {
     }
 
     
-    public function getSentences(Text $text)
+    public function getParagraphs(Text $text)
     {
-        return RenderableSentence::getSentences($text, $this->term_repo);
+        return RenderableSentence::getParagraphs($text, $this->term_repo);
     }
 
 
@@ -50,7 +50,7 @@ class ReadingFacade {
     }
 
     public function mark_unknowns_as_known(Text $text) {
-        $sentences = $this->getSentences($text);
+        $sentences = array_merge([], ...$this->getParagraphs($text));
         // dump($sentences);
         $tis = [];
         foreach ($sentences as $s) {

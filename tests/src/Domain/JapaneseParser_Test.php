@@ -30,7 +30,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     public function test_parse_no_words_defined()
     {
         $t = $this->make_text("Test", "私は元気です.", $this->japanese);
-        $this->assert_rendered_text_equals($t, "私/は/元気/です/./¶");
+        $this->assert_rendered_text_equals($t, "私/は/元気/です/.");
     }
 
     /**
@@ -51,14 +51,14 @@ final class JapaneseParser_Test extends DatabaseTestBase
             [ "?", false, true ],
             [ "元気", true ],
             [ "!", false, true ],
-            [ "¶", false, false ],
+            [ "¶", false, true ],
             [ "元気", true ],
             [ "。", false, true ],
             [ "元気", true ],
             [ "？", false, true ],
             [ "元気", true ],
             [ "！", false, true ],
-            [ "¶", false, false ]
+            [ "¶", false, true ]
         ];
         $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 
@@ -91,13 +91,13 @@ final class JapaneseParser_Test extends DatabaseTestBase
             [ "元気", true ],
             [ "です", true ],
             [ "。", false, true ],
-            [ "¶", false, false ],
+            [ "¶", false, true ],
             [ "私", true ],
             [ "は", true ],
             [ "元気", true ],
             [ "です", true ],
             [ "。", false, true ],
-            [ "¶", false, false ]
+            [ "¶", false, true ]
         ];
         $expected = array_map(fn($a) => new ParsedToken(...$a), $expected);
 
@@ -121,7 +121,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     {
         $this->addTerms($this->japanese, [ '私', '元気', 'です' ]);
         $t = $this->make_text("Test", "私は元気です.", $this->japanese);
-        $this->assert_rendered_text_equals($t, "私(1)/は/元気(1)/です(1)/./¶");
+        $this->assert_rendered_text_equals($t, "私(1)/は/元気(1)/です(1)/.");
     }
 
     // futari wasn't getting parsed correctly.
@@ -131,7 +131,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     public function test_futari()
     {
         $t = $this->make_text("Test", "二人はどちらの力が強いか.", $this->japanese);
-        $this->assert_rendered_text_equals($t, "二/人/は/どちら/の/力/が/強い/か/./¶");
+        $this->assert_rendered_text_equals($t, "二/人/は/どちら/の/力/が/強い/か/.");
     }
 
 
