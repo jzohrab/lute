@@ -39,6 +39,11 @@ function start_hover_mode(should_clear_frames = true) {
 
   $('span.kwordmarked').removeClass('kwordmarked');
 
+  const w = get_current_word();
+  if (w != null) {
+    $(w).addClass('wordhover');
+  }
+
   if (should_clear_frames)
     clear_frames();
 
@@ -335,22 +340,25 @@ function load_reading_pane_globals() {
 
 $(document).ready(load_reading_pane_globals);
 
-
 let current_word_index = function() {
   const i = words.toArray().findIndex(x => parseInt(x.getAttribute('data_order')) === LUTE_CURR_TERM_DATA_ORDER);
   // console.log(`found index = ${i}`);
   return i;
 };
 
+let get_current_word = function() {
+  const selindex = current_word_index();
+  if (selindex == -1)
+    return null;
+  return words.eq(selindex);
+}
 
 /** Get the rest of the textitems in the current active/hovered word's
  * sentence or paragraph, or null if no selection. */
 let get_textitems_spans = function(e) {
-  const selindex = current_word_index();
-  if (selindex == -1)
+  const w = get_current_word();
+  if (w == null)
     return null;
-
-  const w = words.eq(selindex);
 
   let attr_name = 'seid';
   let attr_value = w.attr('seid');
