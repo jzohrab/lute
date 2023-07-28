@@ -319,6 +319,7 @@ let word_clicked = function(el, e) {
       showEditFrame(el);
     }
     el.addClass('kwordmarked');
+    el.removeClass('hasflash');
   }
 }
 
