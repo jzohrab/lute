@@ -43,14 +43,39 @@
           "searchable": false,
           "orderable": false,
           "render": function ( data, type, row, meta ) {
-            let ret = row[5];
+            let ret = `<span>${row[5]}`;
             const pct = row[7];
             const unkcount = row[6];
             if (pct != null) {
               const termcount = row[9];
               const knownpct = 100 - parseInt(pct);
-              ret += `&nbsp;<span title="${termcount} unique terms, ${unkcount} unique unknowns">(${knownpct}%)</span>`;
+              // ret += `&nbsp;<span title="${termcount} unique terms, ${unkcount} unique unknowns">(${knownpct}%)</span>`;
             }
+
+            
+            ret += `&nbsp;<svg style="vertical-align: middle;" class="chart" width="100" height="19" aria-labelledby="title desc" role="img">
+  <title id="title">Stats</title>
+  <desc id="desc">todo write summary here</desc>
+  <g class="bar">
+    <rect width="40" height="15" style="fill:cyan;stroke-width:1;stroke:rgb(0,0,0)"></rect>
+  </g>
+  <g class="bar">
+    <rect width="0" height="15" x="40" y="0" style="fill:red;stroke-width:1;stroke:rgb(0,0,0)">
+<title>14</title>
+    </rect>
+  </g>
+  <g class="bar">
+    <rect width="10" height="15" x="40" y="0" style="fill:yellow;stroke-width:1;stroke:rgb(0,0,0)"></rect>
+  </g>
+  <g class="bar">
+    <rect width="10" height="15" x="50" y="0" style="fill:green;stroke-width:1;stroke:rgb(0,0,0)"></rect>
+  </g>
+  <g class="bar">
+    <rect width="40" height="15" x="60" y="0" style="fill:white;stroke-width:1;stroke:rgb(0,0,0)"></rect>
+  </g>
+</svg>`;
+
+            ret += `</span>`;
             return ret;
           }
         },
