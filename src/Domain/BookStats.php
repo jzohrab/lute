@@ -3,12 +3,14 @@
 namespace App\Domain;
 
 use App\Entity\Book;
+use App\Repository\BookRepository;
+use App\Domain\TokenCoverage;
 use App\Entity\Language;
 use App\Utils\Connection;
 
 class BookStats {
 
-    public static function refresh($book_repo) {
+    public static function refresh(BookRepository $book_repo) {
         $conn = Connection::getFromEnvironment();
         $books = BookStats::booksToUpdate($conn, $book_repo);
         if (count($books) == 0)
@@ -79,28 +81,10 @@ class BookStats {
         $lgid = $b->getLanguage()->getLgID();
         $bkid = $b->getID();
 
-        $sql = "select count(distinct toktextlc)
-from texttokens
-inner join texts on txid = toktxid
-inner join books on bkid = txbkid
-where toktextlc not in (select wotextlc from words where wolgid = {$lgid})
-and tokisword = 1
-and txbkid = {$bkid}
-group by txbkid";
-        $unknowns = $count($sql);
-        // dump($sql);
-        // dump($unknowns);
-
-        $sql = "select count(distinct toktextlc)
-from texttokens
-inner join texts on txid = toktxid
-inner join books on bkid = txbkid
-where tokisword = 1
-and txbkid = {$bkid}
-group by txbkid";
-        $allunique = $count($sql);
-        // dump($sql);
-        // dump($allunique);
+        $tc = new TokenCoverage();
+        $covstats = $tc->getStats($b);
+        $unknowns = $covstats[0];
+        $allunique = array_sum(array_values($covstats));
 
         $sql = "select count(toktextlc)
 from texttokens

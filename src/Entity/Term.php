@@ -151,6 +151,14 @@ class Term
         return $this->WoText;
     }
 
+    // HACK - this really shouldn't be used ...  but adding this
+    // method for TokenCoverage calculations.
+    public function setTextLC(string $s): self
+    {
+        $this->WoTextLC = $s;
+        return $this;
+    }
+
     public function getTextLC(): ?string
     {
         return $this->WoTextLC;
