@@ -387,7 +387,7 @@ class Language
             ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#ch/en/###')
             ->setLgRegexpWordCharacters('一-龥')
-            ->setLgRegexpSplitSentences('.!?:;。！？：；')
+            ->setLgRegexpSplitSentences('.!?。！？')
             ->setLgRemoveSpaces(true)
             ->setLgShowRomanization(true)
             ->setLgParserType('classicalchinese');
