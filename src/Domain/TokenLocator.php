@@ -6,31 +6,11 @@ namespace App\Domain;
  * tokens. */
 class TokenLocator {
 
-    /**
-     * Create a search string, adding zero-width spaces between each
-     * token as the word boundary (to simplify string matching).
-     */
-    public static function make_string($t) {
-        $zws = mb_chr(0x200B);
-        if (is_array($t))
-            $t = implode($zws, $t);
-        return $zws . $t . $zws;
-    }
+    private string $subject;
+    private float $pregmatchtime = 0;
 
-    private static function get_count_before($string, $pos, $zws): int {
-        $beforesubstr = mb_substr($string, 0, $pos, 'UTF-8');
-        // echo "     get count, string = {$string} \n";
-        // echo "     get count, pos = {$pos} \n";
-        // echo "     get count, before = {$beforesubstr} \n";
-        if ($beforesubstr == '')
-            return 0;
-        $parts = explode($zws, $beforesubstr);
-        $parts = array_filter($parts, fn($s) => $s != '');
-        // echo "     get count, parts:\n ";
-        // dump($parts) . "\n";
-        $n = count($parts);
-        // echo "     get count, result = {$n} \n";
-        return $n;
+    public function __construct($subject) {
+        $this->subject = $subject;
     }
 
     /**
@@ -48,24 +28,84 @@ class TokenLocator {
      *
      * See the test cases for more examples.
      */
-    public static function locate($subject, $find_patt) {
-        $zws = mb_chr(0x200B);
-        $len_zws = mb_strlen($zws);
-        $wordlen = mb_strlen($find_patt) - 2 * $len_zws;
-
-        $LCsubject = mb_strtolower($subject);
+    public function locateString($tlc) {
+        $find_patt = TokenLocator::make_string($tlc);
         $LCpatt = mb_strtolower($find_patt);
-        $pos = mb_strpos($LCsubject, $LCpatt, 0);
 
-        $termmatches = [];
-        while ($pos !== false) {
-            $rtext = mb_substr($subject, $pos + $len_zws, $wordlen);
-            $i = TokenLocator::get_count_before($subject, $pos, $zws);
-            $termmatches[] = [ $rtext, $i ];
-            $pos = mb_strpos($LCsubject, $LCpatt, $pos + 1);
-        }
+        // "(?=())" is required because sometimes the search pattern can
+        // overlap -- e.g. _b_b_ has _b_ *twice*.
+        // Ref https://stackoverflow.com/questions/22454032/
+        //   preg-match-all-how-to-get-all-combinations-even-overlapping-ones
+        $pattern = '/(?=(' . preg_quote($LCpatt) . '))/ui';
+        $timenow = microtime(true);
+        $matches = $this->pregMatchCapture($pattern, $this->subject);
+        $this->pregmatchtime += (microtime(true) - $timenow);
+        // dump($matches);
+
+        $zws = mb_chr(0x200B);
+        $termmatches = array_map(
+            fn($m) => [ trim($m[0], $zws), $this->get_count_before($this->subject, $m[1]) ],
+            $matches
+        );
 
         return $termmatches;
+    }
+
+    private function get_count_before($string, $pos): int {
+        $zws = mb_chr(0x200B);
+        $beforesubstr = mb_substr($string, 0, $pos, 'UTF-8');
+        $n = mb_substr_count($beforesubstr, $zws);
+        return $n;
+    }
+
+    /**
+     * Returns array of matches in same format as preg_match or
+     * preg_match_all
+     * @param string $pattern  The pattern to search for, as a string.
+     * @param string $subject  The input string.
+     * @return array
+     *
+     * Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
+     */
+    private function pregMatchCapture($pattern, $subject)
+    {
+        $matchInfo = array();
+        $n = preg_match_all($pattern, $subject, $matchInfo, PREG_OFFSET_CAPTURE, 0);
+        if ($n == 0 || empty($matchInfo))
+            return [];
+
+        $result = [];
+        $matches = $matchInfo[1];  // Use 1 for the lookahead
+        foreach ($matches as $match) {
+            $matchedText   = $match[0];
+            $matchedLength = $match[1];
+            $result[]   = [
+                $matchedText,
+                mb_strlen(mb_strcut($subject, 0, $matchedLength))
+            ];
+        }
+
+        return $result;
+    }
+
+    // public function debugPrintStats() {
+    //    // dump('TokenLocator preg match time: ' . $this->pregmatchtime);
+    // }
+    
+    /**
+     * Create a search string, adding zero-width spaces between each
+     * token as the word boundary (to simplify string matching).
+     */
+    public static function make_string($t) {
+        $zws = mb_chr(0x200B);
+        if (is_array($t))
+            $t = implode($zws, $t);
+        return $zws . $t . $zws;
+    }
+
+    public static function locate($subject, $needle) {
+        $tocloc = new TokenLocator($subject);
+        return $tocloc->locateString($needle);
     }
 
 }

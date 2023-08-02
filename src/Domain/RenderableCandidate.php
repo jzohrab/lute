@@ -6,6 +6,8 @@ use App\Entity\Term;
 use App\Entity\TextItem;
 
 class RenderableCandidate {
+    public int $id;
+
     public ?Term $term = null;
 
     public string $displaytext; // Text to show, if there is any overlap

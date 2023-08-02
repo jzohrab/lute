@@ -21,72 +21,94 @@ class TokenLocator_Test extends TestCase
         // Third is the expected result.
         $cases = [
             // Finds b
-            [ [ "a", "b", "c", "d" ],
+            [ 1,
+              [ "a", "b", "c", "d" ],
               "b",
               [ [ "b", 1 ] ]
             ],
 
             // Case doesn't matter
-            [ [ "A", "B", "C", "D" ],
+            [ 2,
+              [ "A", "B", "C", "D" ],
               "b",
               [ [ "B", 1 ] ]  // The original case is returned
             ],
 
-            [ [ "a", "b", "c", "d" ],
+            [ 3,
+              [ "a", "b", "c", "d" ],
               "B",
               [ [ "b", 1 ] ]  // Original case returned.
             ],
 
-            [ [ "a", "bb", "c", "d" ],
+            [ 4,
+              [ "a", "bb", "c", "d" ],
               "B",
               []  // No match
             ],
 
-            [ [ "b", "b", "c", "d" ],
+            [ 5,
+              [ "b", "b", "c", "d" ],
               "b",
               [ [ "b", 0 ], [ "b", 1 ] ]  // Found in multiple places.
             ],
 
-            [ [ "b", "B", "b", "d" ],
+            [ 6,
+              [ "b", "B", "b", "d" ],
               "b{$zws}b",
               [ [ "b{$zws}B", 0 ], [ "B{$zws}b", 1 ] ]  // multiword, found in multiple
             ],
 
-            [ [ "b", "B", "c", "b", "b", "x", "b" ],
+            [ 7,
+              [ "b", "B", "c", "b", "b", "x", "b" ],
               "b{$zws}b",
               [ [ "b{$zws}B", 0 ], [ "b{$zws}b", 3 ] ]  // multiword, found in multiple
             ],
 
-            [ [ "a", " ", "cat", " ", "here" ],
+            [ 8,
+              [ "a", " ", "cat", " ", "here" ],
               "cat",
               [ [ "cat", 2 ] ]
             ],
 
-            [ [ "a", " ", "CAT", " ", "here" ],
+            [ 9,
+              [ "a", " ", "CAT", " ", "here" ],
               "cat",
               [ [ "CAT", 2 ] ]
             ],
 
-            [ [ "a", " ", "CAT", " ", "here" ],
+            [ 10,
+              [ "a", " ", "CAT", " ", "here" ],
               "ca",
               []  // no match
             ],
+
+            [ 11,
+              [ "b", "b", "c", "d" ],
+              "x",
+              []  // no match
+            ],
+
            
         ];
 
         foreach ($cases as $case) {
-            $tokens = $case[0];
-            $word = $case[1];
-            $expected = $case[2];
+            $casenum = intval($case[0]);
+
+            // if ($casenum < 5)
+            //     continue;
+
+            $tokens = $case[1];
+            $word = $case[2];
+            $expected = $case[3];
 
             $sentence = TokenLocator::make_string($tokens);
-            $word = TokenLocator::make_string($word);
             $actual = TokenLocator::locate($sentence, $word);
             // dump($actual);
             // dump($expected);
 
-            $msg = implode('', $tokens) . ' == ' . $word;
-            $this->assertEquals($actual, $expected, );
+            $msg = 'case ' . $casenum . '. ' . $sentence . ' , find: ' . $word;
+            $msg = str_replace($zws, '/', $msg);
+            $this->assertEquals($actual, $expected, $msg);
         }
     }
 

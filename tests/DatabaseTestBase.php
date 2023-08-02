@@ -87,6 +87,9 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_languages(): void
     {
+        $this->classicalchinese = Language::makeClassicalChinese();
+        $this->language_repo->save($this->classicalchinese, true);
+
         $spanish = new Language();
         $spanish
             ->setLgName('Spanish')

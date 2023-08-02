@@ -543,9 +543,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group classicalchinesehighlight
      */
     public function test_classical_chinese_first_char_bug() {
-        $cc = Language::makeClassicalChinese();
-        $this->language_repo->save($cc, true);
-
+        $cc = $this->classicalchinese;
         $text = $this->make_text("t1", "關關。", $cc);
         $this->assert_rendered_text_equals($text, "關/關/。");
 

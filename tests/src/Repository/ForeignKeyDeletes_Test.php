@@ -33,8 +33,6 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
         $this->book->addTag($this->texttag);
         $this->book_repo->save($this->book, true);
 
-        BookStats::refresh($this->book_repo);
-
         $this->term = $this->addTerms($this->english, 'term')[0];
         $this->termtag = TermTag::makeTermTag('termtag');
         $this->term->addTermTag($this->termtag);
