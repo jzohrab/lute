@@ -1,5 +1,18 @@
 # Changelog
 
+## 2023-08-03 v2.0.10
+
+Feature changes:
+
+* Fix stats for character-based languages ([issue 55](https://github.com/jzohrab/lute/issues/55)), with notes on [wiki](https://github.com/jzohrab/lute/wiki/Stats-calculation)
+* Fix Japanese paragraph copy ([issue 56](https://github.com/jzohrab/lute/issues/56)), adding paragraph numbers to rendering
+* Remove "hasflash" style on term click
+
+Back end changes:
+
+* Speed up RenderableCalculator, TokenLocator
+
+
 ## 2023-07-24 v2.0.9
 
 Feature changes:
