@@ -1,5 +1,11 @@
 # Changelog
 
+## 2023-08-04 v2.0.11
+
+Feature changes:
+
+* Fix missing -ru character at end of Japanese terms ([issue 60](https://github.com/jzohrab/lute/issues/60)).
+
 ## 2023-08-03 v2.0.10
 
 Feature changes:
