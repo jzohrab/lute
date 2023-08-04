@@ -412,7 +412,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "2/後/ヲ/ウメニ/能/問/アラ/費/理/セイ/北/多国/び/持/困/寿/ながち(1)/。");
     }
 
-
     // Japanese multi-word items were getting placed in the wrong location.
     /**
      * @group reload
@@ -451,6 +450,21 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "1234/おれの方(1)/が/強い/。");
     }
 
+    /**
+     * @group rumissing
+     */
+    public function test_japanese_ru_missing() {
+        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
+        }
+
+        $japanese = App\Entity\Language::makeJapanese();
+        $this->language_repo->save($japanese, true);
+        $text = $this->make_text("Hola", "している", $japanese);
+
+        $this->save_term($text, 'している');
+        $this->assert_rendered_text_equals($text, "している(1)");
+    }
 
     /**
      * @group reload
