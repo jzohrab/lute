@@ -42,11 +42,16 @@ class TokenLocator {
         $this->pregmatchtime += (microtime(true) - $timenow);
         // dump($matches);
 
-        $zws = mb_chr(0x200B);
-        $termmatches = array_map(
-            fn($m) => [ trim($m[0], $zws), $this->get_count_before($this->subject, $m[1]) ],
-            $matches
-        );
+        $makeTextIndexPair = function($match) {
+            $matchtext = $match[0];  // includes zws at start and end.
+            $matchpos = $match[1];
+            $zws = mb_chr(0x200B);
+            $t = mb_ereg_replace("(^{$zws}+)|({$zws}+$)", '', $matchtext);
+            $index = $this->get_count_before($this->subject, $matchpos);
+            return [ $t, $index ];
+        };
+
+        $termmatches = array_map($makeTextIndexPair, $matches);
 
         return $termmatches;
     }
