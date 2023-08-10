@@ -12,7 +12,7 @@ SEARCHFOR="$@"
 
 function runsearch() {
     echo "# $1 ---------------"
-    find $1 -name "*.*" -maxdepth $2 -print0 | xargs -0 grep -i "$SEARCHFOR" 2>/dev/null | grep -v .min.js | grep -v phpunit.result.cache | grep -v findstring.sh | grep -v composer.json | grep -v Binary | grep -v js/jquery | grep -v docs/archive
+    find $1 -name "*.*" -maxdepth $2 -print0 | xargs -0 grep -i "$SEARCHFOR" 2>/dev/null | grep -v .min.js | grep -v phpunit.result.cache | grep -v findstring.sh | grep -v composer.json | grep -v Binary | grep -v js/jquery | grep -v docs/archive | grep -v composer.lock | grep -v css/jplayer.css | grep -v public/css/jquery | grep -v public/iui/iuix.css | grep -v public/css/datatables | grep -v public/iui/iui.css | grep -v symfony.lock
 }
 
 runsearch . 1
