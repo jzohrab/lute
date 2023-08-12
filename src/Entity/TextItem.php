@@ -58,38 +58,9 @@ class TextItem
         return strtoupper($hex);
     }
 
-    /**
-     * Returns "TERM" + non-hexified string.
-     * Escapes everything to "HEXxx" but not 0-9, a-z, A-Z, and unicode >= (hex 00A5, dec 165)
-     */
-    public function getTermClassname(): string
-    {
-        $string = $this->TextLC;
-        $length = mb_strlen($string, 'UTF-8');
-        $r = '';
-        for ($i=0; $i < $length; $i++)
-        {
-            $c = mb_substr($string, $i, 1, 'UTF-8');
-            $add = $c;
-
-            $o = ord($c);
-            if (
-                ($o < 48) ||
-                ($o > 57 && $o < 65) ||
-                ($o > 90 && $o < 97) ||
-                ($o > 122 && $o < 165)
-            ) {
-                $add = 'HEX' . $this->strToHex($c);
-            }
-
-            $r .= $add; 
-        }
-
-        return "TERM{$r}";
-    }
-
     public function getHtmlDisplayText(): string {
-        return str_replace(' ', '&nbsp;', $this->DisplayText);
+        $zws = mb_chr(0x200B);
+        return str_replace([$zws, ' '], ['', '&nbsp;'], $this->DisplayText);
     }
 
     public function getSpanID(): string {
@@ -120,26 +91,28 @@ class TextItem
         if ($this->IsWord == 0) {
             return "textitem";
         }
-        $tc = $this->getTermClassname();
+
         if ($this->WoID == null) {
-            return "textitem click word status0 {$tc}";
+            $classes = [ 'textitem', 'click', 'word', 'status0' ];
+            return implode(' ', $classes);
         }
 
         $st = $this->WoStatus;
-        $hidetip = ($st == Status::WELLKNOWN || $st == Status::IGNORED);
+        $classes = [
+            'textitem', 'click', 'word',
+            'word' . $this->WoID, 'status' . $st
+        ];
 
-        $showtooltip = 'showtooltip';
-        if ($hidetip && !$this->has_extra_info())
-            $showtooltip = '';
+        $showtooltip = ($st != Status::WELLKNOWN && $st != Status::IGNORED);
+        if ($showtooltip || $this->has_extra_info())
+            $classes[] = 'showtooltip';
 
-        $fm = '';
         if ($this->FlashMessage != null)
-            $fm = 'hasflash';
+            $classes[] = 'hasflash';
 
-        $overlapped = '';
         if ($this->DisplayText != $this->Text)
-            $overlapped = 'overlapped';
+            $classes[] = 'overlapped';
 
-        return "textitem click word word{$this->WoID} status{$st} {$showtooltip} {$fm} {$tc} {$overlapped}";
+        return implode(' ', $classes);
     }
 }

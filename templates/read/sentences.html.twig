@@ -5,9 +5,8 @@
   {% for sentence in para %}
 
   <span class="textsentence" id="sent_{{ sentence.SeID }}">
-    {% for item in sentence.renderable %}
-    {% include '/read/textitem.html.twig' %}
-    {% endfor %}
+    {# Note: do not add paragraphs between the renders, it messes up some online chinese dictionary tools. #}
+    {% for item in sentence.renderable %}{% include '/read/textitem.html.twig' %}{% endfor %}
   </span>
 
   {% endfor %}
