@@ -56,7 +56,7 @@ class TokenCoverage {
 
     public function getStats(Book $book, TermService $term_service) {
         $pt = $this->getParsedTokens($book);
-        $sgi = new SentenceGroupIterator($pt, 500);
+        $sgi = new SentenceGroupIterator($pt, 250);
 
         $maxcount = $sgi->count();
         if ($maxcount > 20)
