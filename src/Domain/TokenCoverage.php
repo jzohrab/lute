@@ -5,6 +5,7 @@ namespace App\Domain;
 use App\Entity\Book;
 use App\Entity\Language;
 use App\Entity\Term;
+use App\Domain\TermService;
 use App\Repository\TermRepository;
 use App\Utils\Connection;
 use App\DTO\TextToken;
@@ -100,7 +101,7 @@ class TokenCoverage {
         return $terms;
     }
 
-    public function getStats(Book $book) {
+    public function getStats(Book $book, TermService $term_service) {
         $pt = $this->getParsedTokens($book);
         $sgi = new SentenceGroupIterator($pt, 500);
 
@@ -127,7 +128,10 @@ class TokenCoverage {
             // $time_now = microtime(true);
             // /* after some operation */ $trace[] = 'note: ' . (microtime(true) - $time_now);
 
-            $terms = $this->findTermsInParsedTokens($tokens, $book->getLanguage());
+            $tokentext = array_map(fn($t) => $t->token, $tokens);
+            $s = implode('', $tokentext);
+            $terms = $term_service->findAllInString($s, $book->getLanguage());
+
             $tts = $this->createTextTokens($tokens);
             $renderable = RenderableCalculator::getRenderable($terms, $tts);
             $textitems = array_map(

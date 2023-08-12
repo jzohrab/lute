@@ -31,7 +31,7 @@ final class TokenCoverage_Test extends DatabaseTestBase
             $this->addTerm($ts[0], $ts[1]);
 
         $tc = new TokenCoverage();
-        $stats = $tc->getStats($b);
+        $stats = $tc->getStats($b, $this->term_service);
 
         $this->assertEquals($stats, $expected);
     }
@@ -89,7 +89,7 @@ final class TokenCoverage_Test extends DatabaseTestBase
         $b = $t->getBook();
 
         $tc = new TokenCoverage();
-        $stats = $tc->getStats($b);
+        $stats = $tc->getStats($b, $this->term_service);
         $expected = [
             0 => 4,
             1 => 0,
@@ -107,7 +107,7 @@ final class TokenCoverage_Test extends DatabaseTestBase
         $this->term_service->add($term, true);
 
         $tc = new TokenCoverage();
-        $stats = $tc->getStats($b);
+        $stats = $tc->getStats($b, $this->term_service);
         $expected = [
             0 => 2,
             1 => 1,
