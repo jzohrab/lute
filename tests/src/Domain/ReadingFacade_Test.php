@@ -14,20 +14,17 @@ final class ReadingFacade_Test extends DatabaseTestBase
 {
 
     private ReadingFacade $facade;
-    private TermService $term_service;
     private int $spid;
 
     public function childSetUp(): void
     {
         $this->load_languages();
         $this->spid = $this->spanish->getLgID();
-        $term_svc = new TermService($this->term_repo);
-        $this->term_service = $term_svc;
         $this->facade = new ReadingFacade(
             $this->term_repo,
             $this->text_repo,
             $this->book_repo,
-            $term_svc,
+            $this->term_service,
             $this->termtag_repo
         );
     }

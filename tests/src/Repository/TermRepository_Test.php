@@ -331,19 +331,22 @@ final class TermRepository_Test extends DatabaseTestBase
     }
 
     /**
-     * @group findTermsInText
+     * @group findByID
      */
-    public function test_findTermsInText() {
-        $t = $this->make_text("Gato.", "Hola tengo un gato.", $this->spanish);
+    public function test_findBy_array_of_ids() {
+        $a = new Term($this->spanish, "a");
+        $b = new Term($this->spanish, "b");
+        $c = new Term($this->spanish, "c");
+        $d = new Term($this->spanish, "d");
+        $this->term_repo->save($a, true);
+        $this->term_repo->save($b, true);
+        $this->term_repo->save($c, true);
+        $this->term_repo->save($d, true);
 
-        $p = new Term($this->spanish, 'perro');
-        $g = new Term($this->spanish, 'gato');
-        $this->term_repo->save($p, true);
-        $this->term_repo->save($g, true);
-
-        $terms = $this->term_repo->findTermsInText($t);
-        $this->assertEquals(1, count($terms), "1 term");
-        $this->assertEquals('gato', $terms[0]->getTextLC(), 'gato found');
+        $ids = [ $a->getId(), $b->getId(), $c->getId() ];
+        $terms = $this->term_repo->findBy(['id' => $ids]);
+        // dump($terms);
+        $this->assertEquals(3, count($terms), "3 terms returned");
     }
 
     /**

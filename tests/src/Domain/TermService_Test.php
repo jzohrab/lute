@@ -11,17 +11,12 @@ use App\Entity\TermTag;
 final class TermService_Test extends DatabaseTestBase
 {
 
-    private TermService $term_service;
     private Term $p;
     private Term $p2;
 
     public function childSetUp(): void
     {
         $this->load_languages();
-
-        $this->term_service = new TermService(
-            $this->term_repo
-        );
     }
 
     public function test_find_by_text_is_found()
@@ -254,6 +249,24 @@ final class TermService_Test extends DatabaseTestBase
 
         $this->term_service->remove($t);
         $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato");
+    }
+
+    /**
+     * @group findAllInString
+     */
+    public function test_findAllInString() {
+        $p = new Term($this->spanish, 'perro');
+        $g = new Term($this->spanish, 'gato');
+        $ug = new Term($this->spanish, 'un gato');
+        $this->term_repo->save($p, true);
+        $this->term_repo->save($g, true);
+        $this->term_repo->save($ug, true);
+
+        $terms = $this->term_service->findAllInString('Hola tengo un gato', $this->spanish);
+        $this->assertEquals(2, count($terms), "2 terms");
+        $this->assertEquals('gato', $terms[0]->getTextLC(), 'gato found');
+        $zws = mb_chr(0x200B);
+        $this->assertEquals("un{$zws} {$zws}gato", $terms[1]->getTextLC(), 'un gato found');
     }
 
     /**

@@ -14,6 +14,10 @@ final class BookStats_Test extends DatabaseTestBase
         $this->load_languages();
     }
 
+    private function do_refresh() {
+        BookStats::refresh($this->book_repo, $this->term_service);
+    }
+
     public function test_cache_loads_when_prompted()
     {
         DbHelpers::assertRecordcountEquals("bookstats", 0, "nothing loaded");
@@ -22,7 +26,7 @@ final class BookStats_Test extends DatabaseTestBase
 
         DbHelpers::assertRecordcountEquals("bookstats", 0, "still not loaded");
 
-        BookStats::refresh($this->book_repo);
+        $this->do_refresh();
         DbHelpers::assertRecordcountEquals("bookstats", 1, "loaded");
     }
 
@@ -32,7 +36,7 @@ final class BookStats_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, [
             "gato", "TENGO"
         ]);
-        BookStats::refresh($this->book_repo);
+        $this->do_refresh();
 
         $sql = "select 
           BkID, wordcount, distinctterms,
@@ -51,7 +55,7 @@ final class BookStats_Test extends DatabaseTestBase
         $t = $this->make_text("Hola.", "Tengo un gato.", $this->spanish);
         $b = $t->getBook();
         $this->addTerms($this->spanish, [ "tengo un" ]);
-        BookStats::refresh($this->book_repo);
+        $this->do_refresh();
 
         $sql = "select 
           BkID, wordcount, distinctterms,
@@ -70,7 +74,7 @@ final class BookStats_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, [
             "gato", "TENGO"
         ]);
-        BookStats::refresh($this->book_repo);
+        $this->do_refresh();
 
         $sql = "select 
           BkID, wordcount, distinctterms,
@@ -83,7 +87,7 @@ final class BookStats_Test extends DatabaseTestBase
         $this->addTerms($this->spanish, [
             "hola"
         ]);
-        BookStats::refresh($this->book_repo);
+        $this->do_refresh();
         DbHelpers::assertTableContains(
             $sql,
             [ "{$b->getId()}; 4; 4; 2; 50" ],
@@ -91,7 +95,7 @@ final class BookStats_Test extends DatabaseTestBase
         );
 
         BookStats::markStale($b);
-        BookStats::refresh($this->book_repo);
+        $this->do_refresh();
         DbHelpers::assertTableContains(
             $sql,
             [ "{$b->getId()}; 4; 4; 1; 25" ],

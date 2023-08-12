@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\BookRepository;
 use App\Domain\BookStats;
+use App\Domain\TermService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +23,8 @@ class IndexController extends AbstractController
     public function index(
         Request $request,
         SettingsRepository $repo,
-        BookRepository $bookrepo
+        BookRepository $bookrepo,
+        TermService $term_svc
     ): Response
     {
         $m = AppManifest::read();
@@ -40,7 +42,7 @@ class IndexController extends AbstractController
         }
 
         $show_import_link = count(ImportCSV::DbLoadedTables()) == 0;
-        BookStats::refresh($bookrepo);
+        BookStats::refresh($bookrepo, $term_svc);
 
         return $this->render('index.html.twig', [
             'isdemodata' => SqliteHelper::isDemoData(),

@@ -13,10 +13,8 @@ final class TermService_WoStatusChanged_Test extends DatabaseTestBase
 {
 
     private Term $term;
-    private TermService $term_service;
 
     public function childSetUp() {
-        $this->term_service = new TermService($this->term_repo);
         $this->load_languages();
         $t = new Term();
         $t->setLanguage($this->spanish);

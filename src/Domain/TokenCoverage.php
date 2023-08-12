@@ -5,6 +5,7 @@ namespace App\Domain;
 use App\Entity\Book;
 use App\Entity\Language;
 use App\Entity\Term;
+use App\Domain\TermService;
 use App\Repository\TermRepository;
 use App\Utils\Connection;
 use App\DTO\TextToken;
@@ -53,56 +54,9 @@ class TokenCoverage {
     }
 
 
-    // Returns partially hydrated Terms (TextLC and TokenCount only).
-    private function findTermsInParsedTokens($tokens, Language $lang) {
-
-        // 1. Build query to get terms.  Building full query instead
-        // of using named params, only using query once so no benefit
-        // to parameterizing.
-        $conn = Connection::getFromEnvironment();
-
-        $wordtokens = array_filter($tokens, fn($t) => $t->isWord);
-        $tokstrings = array_map(fn($t) => mb_strtolower($t->token), $wordtokens);
-        $tokstrings = array_unique($tokstrings);
-        $termcriteria = array_map(fn($s) => $conn->quote($s), $tokstrings);
-        $termcriteria = implode(',', $termcriteria);
-
-        $zws = mb_chr(0x200B); // zero-width space.
-        $is = array_map(fn($t) => $t->token, $tokens);
-        $lctokstring = mb_strtolower($zws . implode($zws, $is) . $zws);
-        $lctokstring = $conn->quote($lctokstring);
-
-        // Querying all words that match the text is very slow, so
-        // breaking it up into two parts.
-        $lgid = $lang->getLgID();
-        $sql = "select WoTextLC, 1 as WoTokenCount, WoStatus from words
-            where wotextlc in ($termcriteria)
-            and WoTokenCount = 1 and WoLgID = $lgid
-
-            UNION
-
-            select WoTextLC, WoTokenCount, WoStatus from words
-            where WoLgID = $lgid AND
-            WoTokenCount > 1 AND
-            instr($lctokstring, WoTextLC) > 0";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-
-        $terms = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
-            $t = new Term();
-            $t->setTextLC($row[0])
-                ->setTokenCount(intval($row[1]))
-                ->setStatus(intval($row[2]));
-            $terms[] = $t;
-        }
-
-        return $terms;
-    }
-
-    public function getStats(Book $book) {
+    public function getStats(Book $book, TermService $term_service) {
         $pt = $this->getParsedTokens($book);
-        $sgi = new SentenceGroupIterator($pt, 500);
+        $sgi = new SentenceGroupIterator($pt, 250);
 
         $maxcount = $sgi->count();
         if ($maxcount > 20)
@@ -127,7 +81,10 @@ class TokenCoverage {
             // $time_now = microtime(true);
             // /* after some operation */ $trace[] = 'note: ' . (microtime(true) - $time_now);
 
-            $terms = $this->findTermsInParsedTokens($tokens, $book->getLanguage());
+            $tokentext = array_map(fn($t) => $t->token, $tokens);
+            $s = implode('', $tokentext);
+            $terms = $term_service->findAllInString($s, $book->getLanguage());
+
             $tts = $this->createTextTokens($tokens);
             $renderable = RenderableCalculator::getRenderable($terms, $tts);
             $textitems = array_map(

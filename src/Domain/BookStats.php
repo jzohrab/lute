@@ -5,12 +5,13 @@ namespace App\Domain;
 use App\Entity\Book;
 use App\Repository\BookRepository;
 use App\Domain\TokenCoverage;
+use App\Domain\TermService;
 use App\Entity\Language;
 use App\Utils\Connection;
 
 class BookStats {
 
-    public static function refresh(BookRepository $book_repo) {
+    public static function refresh(BookRepository $book_repo, TermService $term_service) {
         $conn = Connection::getFromEnvironment();
         $books = BookStats::booksToUpdate($conn, $book_repo);
         if (count($books) == 0)
@@ -26,7 +27,7 @@ class BookStats {
                 $books,
                 fn($b) => $b->getLanguage()->getLgID() == $langid);
             foreach ($langbooks as $b) {
-                $stats = BookStats::getStats($b, $conn);
+                $stats = BookStats::getStats($b, $conn, $term_service);
                 BookStats::updateStats($b, $stats, $conn);
             }
         }
@@ -67,7 +68,8 @@ class BookStats {
 
     private static function getStats(
         Book $b,
-        $conn
+        $conn,
+        TermService $term_service
     )
     {
         $count = function($sql) use ($conn) {
@@ -82,7 +84,7 @@ class BookStats {
         $bkid = $b->getID();
 
         $tc = new TokenCoverage();
-        $covstats = $tc->getStats($b);
+        $covstats = $tc->getStats($b, $term_service);
         $unknowns = $covstats[0];
         $allunique = array_sum(array_values($covstats));
 

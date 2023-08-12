@@ -40,7 +40,7 @@ class ReadingFacade {
     
     public function getParagraphs(Text $text)
     {
-        return RenderableSentence::getParagraphs($text, $this->term_repo);
+        return RenderableSentence::getParagraphs($text, $this->term_service);
     }
 
 
