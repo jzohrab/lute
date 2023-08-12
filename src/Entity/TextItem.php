@@ -89,7 +89,8 @@ class TextItem
     }
 
     public function getHtmlDisplayText(): string {
-        return str_replace(' ', '&nbsp;', $this->DisplayText);
+        $zws = mb_chr(0x200B);
+        return str_replace([$zws, ' '], ['', '&nbsp;'], $this->DisplayText);
     }
 
     public function getSpanID(): string {
