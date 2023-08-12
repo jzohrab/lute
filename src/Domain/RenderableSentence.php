@@ -5,7 +5,7 @@ namespace App\Domain;
 use App\Entity\Text;
 use App\Utils\Connection;
 use App\DTO\TextToken;
-use App\Repository\TermRepository;
+use App\Domain\TermService;
 
 class RenderableSentence
 {
@@ -32,7 +32,7 @@ class RenderableSentence
      *   [ renderable sentence 1, sentence 2, etc ]  // first paragraph
      * ]
      */
-    public static function getParagraphs(Text $text, TermRepository $repo)
+    public static function getParagraphs(Text $text, TermService $svc)
     {
         if ($text->getID() == null)
             return [];
@@ -43,7 +43,7 @@ class RenderableSentence
             $tokens = RenderableSentence::getTextTokens($text);
         }
         $tokens = array_filter($tokens, fn($t) => $t->TokText != '¶');
-        $terms = $repo->findTermsInText($text);
+        $terms = $svc->findAllInString($text->getText(), $text->getLanguage());
 
         $makeRenderableSentence = function($pnum, $sentenceNum, $tokens, $terms, $text) {
             $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $sentenceNum);
