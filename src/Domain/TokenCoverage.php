@@ -54,53 +54,6 @@ class TokenCoverage {
     }
 
 
-    // Returns partially hydrated Terms (TextLC and TokenCount only).
-    private function findTermsInParsedTokens($tokens, Language $lang) {
-
-        // 1. Build query to get terms.  Building full query instead
-        // of using named params, only using query once so no benefit
-        // to parameterizing.
-        $conn = Connection::getFromEnvironment();
-
-        $wordtokens = array_filter($tokens, fn($t) => $t->isWord);
-        $tokstrings = array_map(fn($t) => mb_strtolower($t->token), $wordtokens);
-        $tokstrings = array_unique($tokstrings);
-        $termcriteria = array_map(fn($s) => $conn->quote($s), $tokstrings);
-        $termcriteria = implode(',', $termcriteria);
-
-        $zws = mb_chr(0x200B); // zero-width space.
-        $is = array_map(fn($t) => $t->token, $tokens);
-        $lctokstring = mb_strtolower($zws . implode($zws, $is) . $zws);
-        $lctokstring = $conn->quote($lctokstring);
-
-        // Querying all words that match the text is very slow, so
-        // breaking it up into two parts.
-        $lgid = $lang->getLgID();
-        $sql = "select WoTextLC, 1 as WoTokenCount, WoStatus from words
-            where wotextlc in ($termcriteria)
-            and WoTokenCount = 1 and WoLgID = $lgid
-
-            UNION
-
-            select WoTextLC, WoTokenCount, WoStatus from words
-            where WoLgID = $lgid AND
-            WoTokenCount > 1 AND
-            instr($lctokstring, WoTextLC) > 0";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-
-        $terms = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
-            $t = new Term();
-            $t->setTextLC($row[0])
-                ->setTokenCount(intval($row[1]))
-                ->setStatus(intval($row[2]));
-            $terms[] = $t;
-        }
-
-        return $terms;
-    }
-
     public function getStats(Book $book, TermService $term_service) {
         $pt = $this->getParsedTokens($book);
         $sgi = new SentenceGroupIterator($pt, 500);
