@@ -331,6 +331,25 @@ final class TermRepository_Test extends DatabaseTestBase
     }
 
     /**
+     * @group findByID
+     */
+    public function test_findBy_array_of_ids() {
+        $a = new Term($this->spanish, "a");
+        $b = new Term($this->spanish, "b");
+        $c = new Term($this->spanish, "c");
+        $d = new Term($this->spanish, "d");
+        $this->term_repo->save($a, true);
+        $this->term_repo->save($b, true);
+        $this->term_repo->save($c, true);
+        $this->term_repo->save($d, true);
+
+        $ids = [ $a->getId(), $b->getId(), $c->getId() ];
+        $terms = $this->term_repo->findBy(['id' => $ids]);
+        dump($terms);
+        $this->assertEquals(3, count($terms), "3 terms returned");
+    }
+
+    /**
      * @group findTermsInText
      */
     public function test_findTermsInText() {

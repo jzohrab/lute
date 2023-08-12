@@ -257,6 +257,24 @@ final class TermService_Test extends DatabaseTestBase
     }
 
     /**
+     * @group findAllInString
+     */
+    public function test_findAllInString() {
+        $p = new Term($this->spanish, 'perro');
+        $g = new Term($this->spanish, 'gato');
+        $ug = new Term($this->spanish, 'un gato');
+        $this->term_repo->save($p, true);
+        $this->term_repo->save($g, true);
+        $this->term_repo->save($ug, true);
+
+        $terms = $this->term_service->findAllInString('Hola tengo un gato', $this->spanish);
+        $this->assertEquals(2, count($terms), "2 terms");
+        $this->assertEquals('gato', $terms[0]->getTextLC(), 'gato found');
+        $zws = mb_chr(0x200B);
+        $this->assertEquals("un{$zws} {$zws}gato", $terms[1]->getTextLC(), 'un gato found');
+    }
+
+    /**
      * @group dictflush
      */
     public function test_save_and_flush_bulk_updates_text_items() {
