@@ -345,7 +345,7 @@ final class TermRepository_Test extends DatabaseTestBase
 
         $ids = [ $a->getId(), $b->getId(), $c->getId() ];
         $terms = $this->term_repo->findBy(['id' => $ids]);
-        dump($terms);
+        // dump($terms);
         $this->assertEquals(3, count($terms), "3 terms returned");
     }
 

@@ -12,15 +12,9 @@ use App\DTO\TermDTO;
 final class TermDTO_Test extends DatabaseTestBase
 {
 
-    private TermService $term_service;
-
     public function childSetUp(): void
     {
         $this->load_languages();
-
-        $this->term_service = new TermService(
-            $this->term_repo
-        );
     }
 
     private function dumpTerm(Term $t): string {

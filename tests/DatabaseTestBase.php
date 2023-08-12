@@ -40,6 +40,8 @@ abstract class DatabaseTestBase extends WebTestCase
     public BookRepository $book_repo;
     public SettingsRepository $settings_repo;
 
+    public TermService $term_service;
+
     public Language $spanish;
     public Language $french;
     public Language $english;
@@ -66,6 +68,8 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->book_repo = $this->entity_manager->getRepository(App\Entity\Book::class);
 
         $this->settings_repo = new SettingsRepository($this->entity_manager);
+
+        $this->term_service = new TermService($this->term_repo);
 
         $this->childSetUp();
     }

@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\Book;
 use App\Entity\Term;
 use App\Domain\BookStats;
-use App\Domain\TermService;
 use App\Domain\ReadingFacade;
 use App\Domain\TokenCoverage;
 
@@ -19,10 +18,9 @@ final class TokenCoverage_Test extends DatabaseTestBase
     }
 
     public function addTerm(string $s, int $status) {
-        $term_svc = new TermService($this->term_repo);
         $term = new Term($this->spanish, $s);
         $term->setStatus($status);
-        $term_svc->add($term, true);
+        $this->term_service->add($term, true);
     }
 
     public function scenario(string $fulltext, $terms_and_statuses, $expected) {
@@ -104,10 +102,9 @@ final class TokenCoverage_Test extends DatabaseTestBase
         ];
         $this->assertEquals($stats, $expected, '4 chars');
 
-        $term_svc = new TermService($this->term_repo);
         $term = new Term($this->classicalchinese, '東西');
         $term->setStatus(1);
-        $term_svc->add($term, true);
+        $this->term_service->add($term, true);
 
         $tc = new TokenCoverage();
         $stats = $tc->getStats($b);

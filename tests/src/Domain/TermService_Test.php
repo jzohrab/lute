@@ -11,17 +11,12 @@ use App\Entity\TermTag;
 final class TermService_Test extends DatabaseTestBase
 {
 
-    private TermService $term_service;
     private Term $p;
     private Term $p2;
 
     public function childSetUp(): void
     {
         $this->load_languages();
-
-        $this->term_service = new TermService(
-            $this->term_repo
-        );
     }
 
     public function test_find_by_text_is_found()

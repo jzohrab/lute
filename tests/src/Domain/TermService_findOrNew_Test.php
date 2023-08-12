@@ -12,7 +12,6 @@ use App\Domain\TermService;
 final class TermService_findOrNew_Test extends DatabaseTestBase {
 
     private Term $bebida;
-    private TermService $term_service;
 
     public function childSetUp() {
         // set up the text
@@ -22,8 +21,6 @@ final class TermService_findOrNew_Test extends DatabaseTestBase {
         $t = $this->make_text("Hola.", $content, $this->spanish);
 
         $this->bebida = $this->addTerms($this->spanish, 'BEBIDA')[0];
-
-        $this->term_service = new TermService($this->term_repo);
     }
 
     public function test_load_existing_word() {
