@@ -350,22 +350,6 @@ final class TermRepository_Test extends DatabaseTestBase
     }
 
     /**
-     * @group findTermsInText
-     */
-    public function test_findTermsInText() {
-        $t = $this->make_text("Gato.", "Hola tengo un gato.", $this->spanish);
-
-        $p = new Term($this->spanish, 'perro');
-        $g = new Term($this->spanish, 'gato');
-        $this->term_repo->save($p, true);
-        $this->term_repo->save($g, true);
-
-        $terms = $this->term_repo->findTermsInText($t);
-        $this->assertEquals(1, count($terms), "1 term");
-        $this->assertEquals('gato', $terms[0]->getTextLC(), 'gato found');
-    }
-
-    /**
      * @group termflash
      */
     public function test_term_flash_message_mapping() {
