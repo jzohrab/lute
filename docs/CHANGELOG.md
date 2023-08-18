@@ -1,5 +1,17 @@
 # Changelog
 
+## 2023-08-17 v2.0.12
+
+Feature changes:
+
+* Remove spaces between rendered spans to support [Zhongwen Chrome extension](https://github.com/cschiller/zhongwen)
+* Fix half-covered "?" help icon when term form opens
+
+Back end changes:
+
+* remove unused code, simplify existing.
+
+
 ## 2023-08-04 v2.0.11
 
 Feature changes:
