@@ -27,8 +27,8 @@ final class BookRepository_Test extends DatabaseTestBase
 
         $this->book_repo->save($b, true);
 
-        $sql = "select BkID, BkTitle, BkLgID from books";
-        $expected = [ "{$b->getId()}; hi; {$this->english->getLgId()}" ];
+        $sql = "select BkID, BkTitle, BkLgID, BkWordCount from books";
+        $expected = [ "{$b->getId()}; hi; {$this->english->getLgId()}; 2" ];
         DbHelpers::assertTableContains($sql, $expected);
 
         $sql = "select TxBkID, TxOrder, TxText from texts";
