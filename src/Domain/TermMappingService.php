@@ -363,24 +363,19 @@ where WoLgID = $lgid
 
 
     /**
-     * Get all sentences, joined as a single string.
-     * Using the sentences because the book has already been
-     * parsed, and so the sentences contain tokens, null-separated.
+     * Get all sentences.
      */
-    private function getAllJoinedSentences(Book $book, $conn): string {
+    private function getAllSentences(Book $book, $conn) {
         $bkid = $book->getId();
-        $sql = "select GROUP_CONCAT(SeText, char(0x200B))
-          from (
-            select SeText from
+        $sql = "select SeText from
             sentences
             inner join texts on TxID = SeTxID
             where TxBkID = {$bkid}
-            order by TxID
-          ) src";
+            order by TxID";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
-        $record = $stmt->fetch(\PDO::FETCH_NUM);
-        return $record[0];
+        $records = $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
+        return $records;
     }
 
 
@@ -436,14 +431,30 @@ where WoLgID = $lgid
             langwords.WoTextLC is null";
         */
 
-        $txt = $this->getAllJoinedSentences($book, $conn);
-        $zws = mb_chr(0x200B); // zero-width space.
-        $txt = str_replace($zws, '', $txt);
-        $toks = $book->getLanguage()->getParsedTokens($txt);
-        $words = array_filter($toks, fn($t) => $t->isWord);
-        $words = array_map(fn($t) => mb_strtolower($t->token), $words);
-        $words = array_unique($words);
-        $alltoks = $words;
+        // UPDATE: re-parsing the book to get tokens.
+        //
+        // For space/data redundancy, I'm moving away from storing all
+        // of the parsed tokens in the db, so this routine just gets
+        // all sentences.  Reparsing is done in chunks due to memory
+        // constraints.
+        //
+        // This is slow, but (on my mac, at least) it doesn't time
+        // out.  Not too concerned at the moment, as I'm not sure if
+        // many users are using this feature.
+        $sentences = $this->getAllSentences($book, $conn);
+        $uniquewords = [];
+        $arbitrary_chunk_size = 100;
+        foreach (array_chunk($sentences, $arbitrary_chunk_size) as $sentbatch) {
+            $zws = mb_chr(0x200B); // zero-width space.
+            $txt = implode($zws, $sentbatch);
+            $txt = str_replace($zws, '', $txt);
+            $toks = $book->getLanguage()->getParsedTokens($txt);
+            $words = array_filter($toks, fn($t) => $t->isWord);
+            $words = array_map(fn($t) => mb_strtolower($t->token), $words);
+            $uniquewords[] = array_unique($words);
+        }
+        $uniquewords = array_merge([], ...$uniquewords);
+        $alltoks = array_unique($uniquewords);
 
         $sql = "select WoTextLC
 from words
