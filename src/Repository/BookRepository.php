@@ -79,7 +79,7 @@ class BookRepository extends ServiceEntityRepository
           pagecnt.c as PageCount,
           BkArchived,
           tags.taglist AS TagList,
-          c.wordcount as WordCount,
+          b.BkWordCount as WordCount,
           c.distinctterms as DistinctCount,
           c.distinctunknowns as UnknownCount,
           c.unknownpercent as UnknownPercent

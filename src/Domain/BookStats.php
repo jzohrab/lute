@@ -88,26 +88,15 @@ class BookStats {
         $unknowns = $covstats[0];
         $allunique = array_sum(array_values($covstats));
 
-        $sql = "select count(toktextlc)
-from texttokens
-inner join texts on txid = toktxid
-inner join books on bkid = txbkid
-where tokisword = 1
-and txbkid = {$bkid}
-group by txbkid";
-        $all = $count($sql);
-        // dump($sql);
-        // dump($all);
-
         $percent = 0;
         if ($allunique > 0) // In case not parsed.
             $percent = round(100.0 * $unknowns / $allunique);
 
         // Any change in the below fields requires a change to
         // updateStats as well, query insert doesn't check field
-        // order..
+        // order.
         return [
-            $all,
+            $b->getWordCount(),
             $allunique,
             $unknowns,
             $percent
