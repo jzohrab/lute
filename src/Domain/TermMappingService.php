@@ -315,6 +315,7 @@ class TermMappingService {
         ];
     }
 
+
     /**
      * Export a file to be used for lemmatization process.
      * Include: new TextTokens, terms without parents.
@@ -359,6 +360,29 @@ where WoLgID = $lgid
 
         return $outfile;
     }
+
+
+    /**
+     * Get all sentences, joined as a single string.
+     * Using the sentences because the book has already been
+     * parsed, and so the sentences contain tokens, null-separated.
+     */
+    private function getAllJoinedSentences(Book $book, $conn): string {
+        $bkid = $book->getId();
+        $sql = "select GROUP_CONCAT(SeText, char(0x200B))
+          from (
+            select SeText from
+            sentences
+            inner join texts on TxID = SeTxID
+            where TxBkID = {$bkid}
+            order by TxID
+          ) src";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $record = $stmt->fetch(\PDO::FETCH_NUM);
+        return $record[0];
+    }
+
 
     /**
      * Export a file to be used for lemmatization process.
@@ -412,14 +436,14 @@ where WoLgID = $lgid
             langwords.WoTextLC is null";
         */
 
-        $sql = "select distinct(TokTextLC)
-from texttokens
-inner join texts on TxID = TokTxID
-inner join books on TxBkID = BkID
-where
-  TokIsWord = 1
-  and BkID = $bkid";
-        $alltoks = $getArr($conn, $sql);
+        $txt = $this->getAllJoinedSentences($book, $conn);
+        $zws = mb_chr(0x200B); // zero-width space.
+        $txt = str_replace($zws, '', $txt);
+        $toks = $book->getLanguage()->getParsedTokens($txt);
+        $words = array_filter($toks, fn($t) => $t->isWord);
+        $words = array_map(fn($t) => mb_strtolower($t->token), $words);
+        $words = array_unique($words);
+        $alltoks = $words;
 
         $sql = "select WoTextLC
 from words
