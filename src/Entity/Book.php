@@ -26,6 +26,9 @@ class Book
     #[ORM\JoinColumn(name: 'BkLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $Language = null;
 
+    #[ORM\Column(name: 'BkWordCount', type: Types::SMALLINT)]
+    private ?int $WordCount = null;
+
     #[ORM\OneToMany(mappedBy: 'book', targetEntity: Text::class, orphanRemoval: true, cascade: ['persist'], fetch: 'EXTRA_LAZY')]
     #[ORM\OrderBy(['TxOrder' => 'ASC'])]
     #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
@@ -89,6 +92,17 @@ class Book
         return $this;
     }
 
+    public function getWordCount(): ?int
+    {
+        return $this->WordCount;
+    }
+
+    public function setWordCount(?int $wc): self
+    {
+        $this->WordCount = $wc;
+        return $this;
+    }
+
     /**
      * Sets the book text, replacing existing text.
      */
@@ -107,6 +121,10 @@ class Book
         $tokens = $p->getParsedTokens($fulltext, $lang);
         $it = new SentenceGroupIterator($tokens, $maxWordTokensPerText);
 
+        $wordcount = function($tokens) {
+            $words = array_filter($tokens, fn($t) => $t->isWord);
+            return count($words);
+        };
         $tokstring = function($tokens) {
             $a = array_map(fn($t) => $t->token, $tokens);
             $ret = implode('', $a);
@@ -115,6 +133,7 @@ class Book
             return trim($ret);
         };
 
+        $wc = 0;
         $count = $it->count();
         $i = 0;
         while ($toks = $it->next()) {
@@ -124,7 +143,10 @@ class Book
             $t->setOrder($i);
             $t->setText($tokstring($toks));
             $this->addText($t);
+            $wc += $wordcount($toks);
         }
+
+        $this->setWordCount($wc);
     }
 
     /**

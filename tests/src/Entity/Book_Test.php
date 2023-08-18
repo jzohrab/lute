@@ -39,6 +39,8 @@ class Book_Test extends TestCase
         $this->assertEquals(count($texts), 2, "2 texts");
         $this->assertEquals($texts[0]->getText(), "Here is a dog.");
         $this->assertEquals($texts[1]->getText(), "And a cat.");
+
+        $this->assertEquals($b->getWordCount(), 7, "word count");
     }
 
 
