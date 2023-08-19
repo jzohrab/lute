@@ -13,7 +13,7 @@ use App\DTO\TextToken;
 /** Helper class for finding coverage of tokens for a given text string. */
 class TokenCoverage {
 
-    private function getFullText(Book $book) {
+    private function getTextExtract(Book $book) {
         $conn = Connection::getFromEnvironment();
         $bkid = $book->getId();
         $sql = "select GROUP_CONCAT(TxText, char(10))
@@ -23,6 +23,7 @@ class TokenCoverage {
             inner join books on BkID = TxBkID
             where BkID = {$bkid} and TxID >= ifnull(BkCurrentTxID, 0)
             order by TxID
+            limit 50
           ) src";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
@@ -30,32 +31,10 @@ class TokenCoverage {
         return $record[0];
     }
 
-    private function getParsedTokens($book) {
-        $ft = $this->getFullText($book);
-        return $book->getLanguage()->getParsedTokens($ft);
-    }
-
-    private function createTextTokens($parsedTokens) {
-        $ret = [];
-        $i = 0;
-        foreach ($parsedTokens as $pt) {
-            $tok = new TextToken();
-            $tok->TokSentenceNumber = 1;
-            $tok->TokParagraphNumber = 1;
-            $tok->TokOrder = $i;
-            $i += 1;
-            $tok->TokIsWord = $pt->isWord;
-            $tok->TokText = $pt->token;
-            $tok->TokTextLC = mb_strtolower($pt->token);
-            $ret[] = $tok;
-        }
-        return $ret;
-
-    }
-
 
     public function getStats(Book $book, TermService $term_service) {
-        $pt = $this->getParsedTokens($book);
+        $ft = $this->getTextExtract($book);
+        $pt = $book->getLanguage()->getParsedTokens($ft);
         $sgi = new SentenceGroupIterator($pt, 250);
 
         $maxcount = $sgi->count();
@@ -85,7 +64,7 @@ class TokenCoverage {
             $s = implode('', $tokentext);
             $terms = $term_service->findAllInString($s, $book->getLanguage());
 
-            $tts = $this->createTextTokens($tokens);
+            $tts = ParsedToken::createTextTokens($tokens);
             $renderable = RenderableCalculator::getRenderable($terms, $tts);
             $textitems = array_map(
                 fn($i) => $i->makeTextItem(1, 1, 1, $book->getLanguage()->getLgID()),
