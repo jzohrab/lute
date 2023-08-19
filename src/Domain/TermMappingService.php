@@ -315,9 +315,10 @@ class TermMappingService {
         ];
     }
 
+
     /**
      * Export a file to be used for lemmatization process.
-     * Include: new TextTokens, terms without parents.
+     * Include: new terms, terms without parents.
      * Return name of created file.
      */
     public function lemma_export_language(
@@ -360,9 +361,27 @@ where WoLgID = $lgid
         return $outfile;
     }
 
+
+    /**
+     * Get all sentences.
+     */
+    private function getAllSentences(Book $book, $conn) {
+        $bkid = $book->getId();
+        $sql = "select SeText from
+            sentences
+            inner join texts on TxID = SeTxID
+            where TxBkID = {$bkid}
+            order by TxID";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $records = $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
+        return $records;
+    }
+
+
     /**
      * Export a file to be used for lemmatization process.
-     * Include: new TextTokens
+     * Include: new terms
      * Return name of created file.
      */
     public function lemma_export_book(
@@ -389,10 +408,10 @@ where WoLgID = $lgid
         $conn = Connection::getFromEnvironment();
         $handle = fopen($outfile, 'w');
 
-        // All new TextTokens.
+        // All new parsed word tokens.
 
         // Dev note: originally, I had written the query below to find
-        // all `texttokens` that don't have a corresponding `words`
+        // all "text tokens" that don't have a corresponding `words`
         // record.  The query runs correctly and quickly in the sqlite3
         // command line, but when run in PHP it was brutally slow
         // (i.e., 30+ seconds).  I'm not sure why, and can't be
@@ -412,14 +431,30 @@ where WoLgID = $lgid
             langwords.WoTextLC is null";
         */
 
-        $sql = "select distinct(TokTextLC)
-from texttokens
-inner join texts on TxID = TokTxID
-inner join books on TxBkID = BkID
-where
-  TokIsWord = 1
-  and BkID = $bkid";
-        $alltoks = $getArr($conn, $sql);
+        // UPDATE: re-parsing the book to get parsed tokens.
+        //
+        // For space/data redundancy, I'm moving away from storing all
+        // of the parsed tokens in the db, so this routine just gets
+        // all sentences.  Reparsing is done in chunks due to memory
+        // constraints.
+        //
+        // This is slow, but (on my mac, at least) it doesn't time
+        // out.  Not too concerned at the moment, as I'm not sure if
+        // many users are using this feature.
+        $sentences = $this->getAllSentences($book, $conn);
+        $uniquewords = [];
+        $arbitrary_chunk_size = 100;
+        foreach (array_chunk($sentences, $arbitrary_chunk_size) as $sentbatch) {
+            $zws = mb_chr(0x200B); // zero-width space.
+            $txt = implode($zws, $sentbatch);
+            $txt = str_replace($zws, '', $txt);
+            $toks = $book->getLanguage()->getParsedTokens($txt);
+            $words = array_filter($toks, fn($t) => $t->isWord);
+            $words = array_map(fn($t) => mb_strtolower($t->token), $words);
+            $uniquewords[] = array_unique($words);
+        }
+        $uniquewords = array_merge([], ...$uniquewords);
+        $alltoks = array_unique($uniquewords);
 
         $sql = "select WoTextLC
 from words

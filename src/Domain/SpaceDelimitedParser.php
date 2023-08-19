@@ -54,7 +54,6 @@ class SpaceDelimitedParser extends AbstractParser {
     /**
      * Returns array of matches in same format as preg_match or
      * preg_match_all
-     * @param bool   $matchAll If true, execute preg_match_all, otherwise preg_match
      * @param string $pattern  The pattern to search for, as a string.
      * @param string $subject  The input string.
      * @param int    $offset   The place from which to start the search (in bytes).
@@ -62,25 +61,18 @@ class SpaceDelimitedParser extends AbstractParser {
      *
      * Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
      */
-    private function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
+    private function pregMatchCapture($pattern, $subject, $offset = 0)
     {
         if ($offset != 0) { $offset = strlen(mb_substr($subject, 0, $offset)); }
 
         $matchInfo = array();
-        $method    = 'preg_match';
         $flag      = PREG_OFFSET_CAPTURE;
-        if ($matchAll) {
-            $method .= '_all';
-        }
 
         // var_dump([$method, $pattern, $subject, $matchInfo, $flag, $offset]);
-        $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
+        $n = preg_match_all($pattern, $subject, $matchInfo, $flag, $offset);
 
         $result = array();
         if ($n !== 0 && !empty($matchInfo)) {
-            if (!$matchAll) {
-                $matchInfo = array($matchInfo);
-            }
             foreach ($matchInfo as $matches) {
                 $positions = array();
                 foreach ($matches as $match) {
@@ -93,9 +85,6 @@ class SpaceDelimitedParser extends AbstractParser {
                     );
                 }
                 $result[] = $positions;
-            }
-            if (!$matchAll) {
-                $result = $result[0];
             }
         }
         return $result;
@@ -137,7 +126,7 @@ class SpaceDelimitedParser extends AbstractParser {
         $termchar = $lang->getLgRegexpWordCharacters();
         $splitSentence = preg_quote($lang->getLgRegexpSplitSentences());
         $splitex = str_replace('.', '\\.', $lang->getLgExceptionsSplitSentences());
-        $m = $this->pregMatchCapture(true, "/($splitex|[$termchar]*)/ui", $text, 0);
+        $m = $this->pregMatchCapture("/($splitex|[$termchar]*)/ui", $text, 0);
         $wordtoks = array_filter($m[0], fn($t) => $t[0] != "");
         // dump($text);
         // dump($termchar . '    ' . $splitex);
@@ -149,7 +138,7 @@ class SpaceDelimitedParser extends AbstractParser {
                 return;
             // dump("ADDING NON WORDS $s");
             $pattern = '/[' . $splitSentence . ']/ui';
-            $allmatches = $this->pregMatchCapture(true, $pattern, $s, 0);
+            $allmatches = $this->pregMatchCapture($pattern, $s, 0);
             $hasEOS = count($allmatches) > 0;
             $tokens[] = new ParsedToken($s, false, $hasEOS);
         };
