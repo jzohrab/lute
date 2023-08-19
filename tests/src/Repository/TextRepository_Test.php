@@ -25,21 +25,15 @@ final class TextRepository_Test extends DatabaseTestBase
     /**
      * @group reworkparsing
      */
-    public function test_saving_Text_entity_does_not_load_texttokens()
+    public function test_saving_Text_entity_makes_sentences()
     {
         $t = $this->make_text("Hola.", "Tengo un gato. Un perro.", $this->spanish);
         $sql = "select TokSentenceNumber, TokOrder, TokIsWord, TokText from texttokens where TokTxID = {$t->getID()} order by TokOrder";
+
+        $sql = "select SeID, SeTxID, SeOrder, SeText from sentences where SeTxID = {$t->getID()}";
         $expected = [
-            "1; 1; 1; Tengo",
-            "1; 2; 0;  ",
-            "1; 3; 1; un",
-            "1; 4; 0;  ",
-            "1; 5; 1; gato",
-            "1; 6; 0; . ",
-            "2; 7; 1; Un",
-            "2; 8; 0;  ",
-            "2; 9; 1; perro",
-            "2; 10; 0; ."
+            "2; 2; 1; /Tengo/ /un/ /gato/./",
+            "3; 2; 2; /Un/ /perro/./"
         ];
         DbHelpers::assertTableContains($sql, $expected);
     }
@@ -47,21 +41,18 @@ final class TextRepository_Test extends DatabaseTestBase
     /**
      * @group textsent
      */
-    public function test_parsing_Text_replaces_existing_texttokens()
+    public function test_parsing_Text_replaces_existing_sentences()
     {
         $t = $this->text;
 
-        $sql = "select toksentencenumber, tokorder, toktext from texttokens where tokorder = 7";
         $sqlsent = "select SeID, SeTxID, SeText from sentences";
 
-        DbHelpers::assertTableContains($sql, [ "1; 7; gato" ]);
         DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /gato/./" ], 'sentences');
 
         $t->setText("Hola tengo un perro.");
         $this->text_repo->save($t, true);
         // Saving a text automatically re-parses it.
 
-        DbHelpers::assertTableContains($sql, [ "1; 7; perro" ], "toksentencenumber is _not_ incremented");
         DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /perro/./" ], "sent ID _not_ incremented :-P");
     }
 

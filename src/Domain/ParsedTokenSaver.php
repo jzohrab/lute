@@ -125,7 +125,7 @@ class ParsedTokenSaver {
         // Keep track of the current sentence and the token sort
         // order.
         $curr_sentence_tokens = [];
-        $sentence_number = 0;
+        $sentence_number = 1;
 
         foreach ($parsedtokens as $pt) {
             $curr_sentence_tokens[] = $pt;
@@ -134,12 +134,15 @@ class ParsedTokenSaver {
             // sentence.
             if ($pt->isEndOfSentence) {
                 $ptstrings = array_map(fn($t) => $t->token, $curr_sentence_tokens);
+
                 $zws = mb_chr(0x200B); // zero-width space.
+                $s = implode($zws, $ptstrings);
+                $s = trim($s, ' ');  // Remove spaces at start and end.
 
                 // The zws is added at the start and end of each
                 // sentence, to standardize the string search when
                 // looking for terms.
-                $s = $zws . implode($zws, $ptstrings) . $zws;
+                $s = $zws . $s . $zws;
 
                 $sentences[] = [ $txid, $sentence_number, $s ];
 
