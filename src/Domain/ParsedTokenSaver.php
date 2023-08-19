@@ -81,13 +81,13 @@ class ParsedTokenSaver {
             $s = str_replace($zws, '', $s);
 
             $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
-            $inserts[] = $this->build_insert_array($text->getID(), $tokens);
+            $inserts[] = $this->build_sentence_insert_array($text->getID(), $tokens);
         }
         $allinserts = array_merge([], ...$inserts);
 
         $chunks = array_chunk($allinserts, 5000);
         foreach ($chunks as $chunk) {
-            $this->load_temptexttokens($chunk);
+            $this->load_sentences($chunk);
         }
 
         $idjoin = implode(',', $allids);
@@ -119,31 +119,43 @@ class ParsedTokenSaver {
     }
 
 
-    private function build_insert_array($txid, $tokens): array {
+    private function build_sentence_insert_array($txid, $parsedtokens): array {
+        $sentences = [];
+
         // Keep track of the current sentence and the token sort
         // order.
+        $curr_sentence_tokens = [];
         $sentence_number = 0;
-        $ord = 0;
-        $arr = [];
-        foreach ($tokens as $token) {
-            $isword = $token->isWord ? 1 : 0;
-            $ord += 1;
-            $arr[] = [ $txid, $sentence_number, $ord, $isword, $token->token ];
+
+        foreach ($parsedtokens as $pt) {
+            $curr_sentence_tokens[] = $pt;
 
             // Word ending with \r marks the end of the current
             // sentence.
-            if ($token->isEndOfSentence) {
+            if ($pt->isEndOfSentence) {
+                $ptstrings = array_map(fn($t) => $t->token, $curr_sentence_tokens);
+                $zws = mb_chr(0x200B); // zero-width space.
+
+                // The zws is added at the start and end of each
+                // sentence, to standardize the string search when
+                // looking for terms.
+                $s = $zws . implode($zws, $ptstrings) . $zws;
+
+                $sentences[] = [ $txid, $sentence_number, $s ];
+
+                $curr_sentence_tokens = [];
                 $sentence_number += 1;
             }
         }
-        return $arr;
+
+        return $sentences;
     }
 
 
     // Insert each record in chunk in a prepared statement,
-    // where chunk record is [ txid, sentence_num, ord, isword, word ].
-    private function load_temptexttokens(array $chunk) {
-        $sqlbase = "insert into temptexttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC) values ";
+    // where chunk record is [ txid, sentence_num, sentence ].
+    private function load_sentences(array $chunk) {
+        $sqlbase = "insert into sentences (SeTxID, SeOrder, SeText) values ";
 
         // NOTE: I'm building the raw sql string for the integer
         // values, because it is _much_ faster to do this instead of
@@ -154,11 +166,7 @@ class ParsedTokenSaver {
         // I'm not sure why, and can't be bothered to look into this
         // more.  (It could be due to how SQL logs queries ... but
         // that seems nuts.)
-        //
-        // "+ 1" on the sentence number is a relic of old code
-        // ... sentences in the array were numbered starting at 0.
-        // Can be amended in the future.
-        $vals = array_map(fn($t) => '(' . implode(',', [ $t[0], $t[1] + 1, $t[2], $t[3], '?', '?' ]) . ')', $chunk);
+        $vals = array_map(fn($t) => '(' . implode(',', [ $t[0], $t[1], '?' ]) . ')', $chunk);
         $valstring = implode(',', $vals);
 
         $sql = $sqlbase . $valstring;
@@ -168,11 +176,12 @@ class ParsedTokenSaver {
         // Positional numbering starts at 1. !!!
         $prmIndex = 1;
         for ($i = 0; $i < count($chunk); $i++) {
-            $w = $chunk[$i][4];
+            $w = $chunk[$i][2];
             $wlc = mb_strtolower($w);
             $stmt->bindValue($prmIndex, $w, \PDO::PARAM_STR);
-            $stmt->bindValue($prmIndex + 1, $wlc, \PDO::PARAM_STR);
-            $prmIndex += 2;
+            $prmIndex += 1;
+            // $stmt->bindValue($prmIndex + 1, $wlc, \PDO::PARAM_STR);
+            // $prmIndex += 2;
         }
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
