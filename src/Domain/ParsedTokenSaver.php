@@ -38,9 +38,32 @@ class ParsedTokenSaver {
         }
         return $stmt;
     }
- 
+
+    private function prepForImport($texts) {
+        $allids = array_map(fn($t) => $t->getID(), $texts);
+        $idjoin = implode(',', $allids);
+        $setup = [
+            "DELETE FROM sentences WHERE SeTxID in ($idjoin)",
+            "DELETE FROM texttokens WHERE TokTxID in ($idjoin)",
+            "DROP TABLE IF EXISTS `temptexttokens`",
+            "CREATE TABLE `temptexttokens` (
+              `TokTxID` INTEGER NOT NULL,
+              `TokSentenceNumber` INTEGER NOT NULL,
+              `TokOrder` INTEGER NOT NULL,
+              `TokIsWord` tinyint NOT NULL,
+              `TokText` varchar(100) NOT NULL,
+              `TokTextLC` varchar(100) NOT NULL
+            )"
+        ];
+        foreach ($setup as $sql) {
+            $this->exec_sql($sql);
+        }
+    }
+
     private function parseText($texts) {
         $this->conn = Connection::getFromEnvironment();
+
+        $this->prepForImport($texts);
 
         $allids = [];
         $inserts = [];
@@ -62,29 +85,12 @@ class ParsedTokenSaver {
         }
         $allinserts = array_merge([], ...$inserts);
 
-        $idjoin = implode(',', $allids);
-        $setup = [
-            "DELETE FROM sentences WHERE SeTxID in ($idjoin)",
-            "DELETE FROM texttokens WHERE TokTxID in ($idjoin)",
-            "DROP TABLE IF EXISTS `temptexttokens`",
-            "CREATE TABLE `temptexttokens` (
-              `TokTxID` INTEGER NOT NULL,
-              `TokSentenceNumber` INTEGER NOT NULL,
-              `TokOrder` INTEGER NOT NULL,
-              `TokIsWord` tinyint NOT NULL,
-              `TokText` varchar(100) NOT NULL,
-              `TokTextLC` varchar(100) NOT NULL
-            )"
-        ];
-        foreach ($setup as $sql) {
-            $this->exec_sql($sql);
-        }
-
         $chunks = array_chunk($allinserts, 5000);
         foreach ($chunks as $chunk) {
             $this->load_temptexttokens($chunk);
         }
 
+        $idjoin = implode(',', $allids);
         $sqls = [
             "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC)
               select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC from temptexttokens",
