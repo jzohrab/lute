@@ -42,22 +42,8 @@ class ParsedTokenSaver {
     private function prepForImport($texts) {
         $allids = array_map(fn($t) => $t->getID(), $texts);
         $idjoin = implode(',', $allids);
-        $setup = [
-            "DELETE FROM sentences WHERE SeTxID in ($idjoin)",
-            "DELETE FROM texttokens WHERE TokTxID in ($idjoin)",
-            "DROP TABLE IF EXISTS `temptexttokens`",
-            "CREATE TABLE `temptexttokens` (
-              `TokTxID` INTEGER NOT NULL,
-              `TokSentenceNumber` INTEGER NOT NULL,
-              `TokOrder` INTEGER NOT NULL,
-              `TokIsWord` tinyint NOT NULL,
-              `TokText` varchar(100) NOT NULL,
-              `TokTextLC` varchar(100) NOT NULL
-            )"
-        ];
-        foreach ($setup as $sql) {
-            $this->exec_sql($sql);
-        }
+        $sql = "DELETE FROM sentences WHERE SeTxID in ($idjoin)";
+        $this->exec_sql($sql);
     }
 
     private function parseText($texts) {
@@ -89,33 +75,6 @@ class ParsedTokenSaver {
         foreach ($chunks as $chunk) {
             $this->load_sentences($chunk);
         }
-
-        $idjoin = implode(',', $allids);
-        $sqls = [
-            "insert into texttokens (TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC)
-              select TokTxID, TokSentenceNumber, TokOrder, TokIsWord, TokText, TokTextLC from temptexttokens",
-            "DROP TABLE if exists `temptexttokens`",
-
-            // Load sentences.
-            // char(0x200B) (the zero-width space) is added between each
-            // token, and at the start and end of each sentence, to
-            // standardize the string search when looking for terms.
-            "INSERT INTO sentences (SeTxID, SeOrder, SeText)
-              SELECT TxID, TokSentenceNumber,
-              char(0x200B) || TRIM(GROUP_CONCAT(TokText, char(0x200B))) || char(0x200B)
-              FROM (
-                select TxLgID, TxID, TokSentenceNumber, TokOrder, TokText
-                from texttokens
-                inner join texts on TxID = TokTxID
-                WHERE TxID in ({$idjoin})
-                order by TxLgID, TxID, TokSentenceNumber, TokOrder
-              ) src
-              group by TxLgID, TxID, TokSentenceNumber"
-        ];
-        foreach ($sqls as $sql) {
-            $this->conn->query($sql);
-        }
-
     }
 
 
