@@ -74,39 +74,17 @@ class RenderableSentence
         $textid = $t->getID();
         if ($textid == null)
             return [];
+        $txt = $t->getText();
 
-        $sql = "select
-          TokSentenceNumber,
-          TokOrder,
-          TokIsWord,
-          TokText,
-          TokTextLC
-          from texttokens
-          where toktxid = $textid
-          order by TokSentenceNumber, TokOrder";
+        // Replace double spaces, because they can mess up multi-word
+        // terms (e.g., "llevar[ ][ ]a" is different from "llevar[
+        // ]a").  Note this is duplicated code from ParsedTokenSaver
+        // ... therefore is bad.  Should be extracted somewhere.
+        // TODO:remove_duplicate_logic
+        $txt = preg_replace('/ +/u', ' ', $txt);
 
-        $conn = Connection::getFromEnvironment();
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        $ret = [];
-        $currpara = 1;
-        foreach ($rows as $row) {
-            $tok = new TextToken();
-            $tok->TokSentenceNumber = intval($row['TokSentenceNumber']);
-            $tok->TokParagraphNumber = $currpara;
-            $tok->TokOrder = intval($row['TokOrder']);
-            $tok->TokIsWord = intval($row['TokIsWord']);
-            $tok->TokText = $row['TokText'];
-            $tok->TokTextLC = $row['TokTextLC'];
-
-            if ($tok->TokText == '¶')
-                $currpara += 1;
-
-            $ret[] = $tok;
-        }
-        return $ret;
+        $pts = $t->getLanguage()->getParsedTokens($txt);
+        return ParsedToken::createTextTokens($pts);
     }
 
 }
