@@ -318,7 +318,7 @@ class TermMappingService {
 
     /**
      * Export a file to be used for lemmatization process.
-     * Include: new TextTokens, terms without parents.
+     * Include: new terms, terms without parents.
      * Return name of created file.
      */
     public function lemma_export_language(
@@ -381,7 +381,7 @@ where WoLgID = $lgid
 
     /**
      * Export a file to be used for lemmatization process.
-     * Include: new TextTokens
+     * Include: new terms
      * Return name of created file.
      */
     public function lemma_export_book(
@@ -408,10 +408,10 @@ where WoLgID = $lgid
         $conn = Connection::getFromEnvironment();
         $handle = fopen($outfile, 'w');
 
-        // All new TextTokens.
+        // All new parsed word tokens.
 
         // Dev note: originally, I had written the query below to find
-        // all `texttokens` that don't have a corresponding `words`
+        // all "text tokens" that don't have a corresponding `words`
         // record.  The query runs correctly and quickly in the sqlite3
         // command line, but when run in PHP it was brutally slow
         // (i.e., 30+ seconds).  I'm not sure why, and can't be
@@ -431,7 +431,7 @@ where WoLgID = $lgid
             langwords.WoTextLC is null";
         */
 
-        // UPDATE: re-parsing the book to get tokens.
+        // UPDATE: re-parsing the book to get parsed tokens.
         //
         // For space/data redundancy, I'm moving away from storing all
         // of the parsed tokens in the db, so this routine just gets
