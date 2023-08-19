@@ -92,7 +92,6 @@ DB_FILENAME=%kernel.project_dir%/test_lute.db
         $tables = [
             "sentences",
             "settings",
-            "texttokens",
 
             "booktags",
             "bookstats",

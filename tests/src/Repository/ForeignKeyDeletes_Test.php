@@ -57,7 +57,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     }
 
     private function assertBookTablesEmpty() {
-        foreach ([ 'books', 'texts', 'booktags', 'bookstats', 'sentences', 'texttokens' ] as $t)
+        foreach ([ 'books', 'texts', 'booktags', 'bookstats', 'sentences' ] as $t)
             DbHelpers::assertRecordcountEquals($t, 0, $t);
     }
 
