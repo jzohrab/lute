@@ -31,7 +31,7 @@ final class LanguageRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals('select * from wordparents', 1, '1 parent');
 
         $this->language_repo->remove($english, true);
-        $tables = [ 'languages', 'books', 'bookstats', 'texts', 'words', 'wordparents', 'texttokens' ];
+        $tables = [ 'languages', 'books', 'bookstats', 'texts', 'words', 'wordparents' ];
         foreach ($tables as $t) {
             DbHelpers::assertRecordcountEquals('select * from ' . $t, 0, $t . ' deleted');
         }
