@@ -20,23 +20,6 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
         // echo "tearing down ... \n";
     }
 
-    // Rewiring the constructor of Parser.
-    /**
-     * @group rewire
-     */
-    public function test_existing_cruft_deleted() {
-        $t = $this->make_text("Hola.", "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.", $this->spanish);
-
-        $sql = "update texttokens set toktext = 'STUFF'";
-        DbHelpers::exec_sql($sql);
-        $sql = "select distinct Toktext FROM texttokens where toktext = 'STUFF'";
-        DbHelpers::assertRecordcountEquals($sql, 1, 'before');
-
-        $t->parse();
-        DbHelpers::assertRecordcountEquals($sql, 0, 'after');
-    }
-
-
     /**
      * @group spaces
      */
@@ -143,17 +126,9 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
      */
     public function test_last_word_is_a_word()
     {
-        $t = $this->make_text("Jams.", "Here is a word", $this->english);
-
-        // BRUTAL! issue with strings not matching in Sqlite db.
-        // If I use "TokText = 'word'", nothing is returned, but using "like" with
-        // no wildcard works.
-        // Ref https://stackoverflow.com/questions/26719948/sqlite-why-select-like-works-and-equals-does-not
-        $sql = "select TokText, TokIsWord from texttokens where TokText like 'word'";
-        $expected = [
-            "word; 1"
-        ];
-        DbHelpers::assertTableContains($sql, $expected);
+        $t = $this->make_text("last-one", "Here is a word", $this->english);
+        $term = $this->addTerms($this->english, "word");
+        $this->assert_rendered_text_equals($t, "Here/ /is/ /a/ /word(1)");
     }
 
 }
