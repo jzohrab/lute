@@ -168,7 +168,11 @@ class TermService {
             $pattern = "/{$zws}({$termlc}){$zws}/ui";
             $replacement = "{$zws}<b>" . '${1}' . "</b>{$zws}";
             $s = preg_replace($pattern, $replacement, $s);
-
+            $s = str_replace(
+                [ $zws, '¶' ],
+                [ '', '' ],
+                $s
+            );
             $ret[] = new TermReferenceDTO($row['TxID'], $row['TxTitle'], $s);
         }
         return $ret;
