@@ -381,15 +381,13 @@ final class TermService_Test extends DatabaseTestBase
         $this->assertEquals(1, count($refs['parent']), 'parent');
         $this->assertEquals(1, count($refs['siblings']), 'siblings');
 
-        $tostring = function($refdto) {
-            $zws = mb_chr(0x200B);
-            $ret = implode(', ', [ $refdto->TxID, $refdto->Title, $refdto->Sentence ?? 'NULL' ]);
-            return str_replace($zws, '/', $ret);
+        $tostring = function($r) {
+            return implode(', ', [ $r->TxID, $r->Title, $r->Sentence ?? 'NULL' ]);
         };
-        $this->assertEquals("1, hola (1/1), /<b>Tengo</b>/ /un/ /gato/./", $tostring($refs['term'][0]), 'term');
-        $this->assertEquals("1, hola (1/1), /No/ /quiero/ /<b>tener</b>/ /nada/./", $tostring($refs['parent'][0]), 'p');
-        $this->assertEquals("1, hola (1/1), /Ella/ /<b>tiene</b>/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
-        $this->assertEquals("2, luego (1/1), /<b>Tengo</b>/ /un/ /coche/./", $tostring($refs['term'][1]), 't 1');
+        $this->assertEquals("1, hola (1/1), <b>Tengo</b> un gato.", $tostring($refs['term'][0]), 'term');
+        $this->assertEquals("1, hola (1/1), No quiero <b>tener</b> nada.", $tostring($refs['parent'][0]), 'p');
+        $this->assertEquals("1, hola (1/1), Ella <b>tiene</b> un perro.", $tostring($refs['siblings'][0]), 's');
+        $this->assertEquals("2, luego (1/1), <b>Tengo</b> un coche.", $tostring($refs['term'][1]), 't 1');
 
         $refs = $this->term_service->findReferences($tener);
         $this->assertEquals(1, count($refs['term']), 'term');
@@ -397,10 +395,10 @@ final class TermService_Test extends DatabaseTestBase
         $this->assertEquals(3, count($refs['children']), 'children');
         $this->assertEquals(0, count($refs['siblings']), 'siblings');
 
-        $this->assertEquals("1, hola (1/1), /No/ /quiero/ /<b>tener</b>/ /nada/./", $tostring($refs['term'][0]), 'term');
-        $this->assertEquals("1, hola (1/1), /<b>Tengo</b>/ /un/ /gato/./", $tostring($refs['children'][0]), 'c tener 1');
-        $this->assertEquals("2, luego (1/1), /<b>Tengo</b>/ /un/ /coche/./", $tostring($refs['children'][1]), 'c tener 0');
-        $this->assertEquals("1, hola (1/1), /Ella/ /<b>tiene</b>/ /un/ /perro/./", $tostring($refs['children'][2]), 'c tener 2');
+        $this->assertEquals("1, hola (1/1), No quiero <b>tener</b> nada.", $tostring($refs['term'][0]), 'term');
+        $this->assertEquals("1, hola (1/1), <b>Tengo</b> un gato.", $tostring($refs['children'][0]), 'c tener 1');
+        $this->assertEquals("2, luego (1/1), <b>Tengo</b> un coche.", $tostring($refs['children'][1]), 'c tener 0');
+        $this->assertEquals("1, hola (1/1), Ella <b>tiene</b> un perro.", $tostring($refs['children'][2]), 'c tener 2');
     }
 
     /**
@@ -428,18 +426,16 @@ final class TermService_Test extends DatabaseTestBase
 
         $refs = $this->term_service->findReferences($tengo);
 
-        $tostring = function($refdto) {
-            $zws = mb_chr(0x200B);
-            $ret = implode(', ', [ $refdto->TxID, $refdto->Title, $refdto->Sentence ?? 'NULL' ]);
-            return str_replace($zws, '/', $ret);
+        $tostring = function($r) {
+            return implode(', ', [ $r->TxID, $r->Title, $r->Sentence ?? 'NULL' ]);
         };
 
         $refs = $this->term_service->findReferences($tengo);
 
-        $this->assertEquals("1, hola (1/1), /<b>Tengo</b>/ /un/ /gato/./", $tostring($refs['term'][0]), 'term 1');
-        $this->assertEquals("2, luego (1/1), /<b>Tengo</b>/ /un/ /coche/./", $tostring($refs['term'][1]), 'term 0');
-        $this->assertEquals("1, hola (1/1), /No/ /quiero/ /<b>tener</b>/ /nada/./", $tostring($refs['parent'][0]), 'p');
-        $this->assertEquals("1, hola (1/1), /Ella/ /<b>tiene</b>/ /un/ /perro/./", $tostring($refs['siblings'][0]), 's');
+        $this->assertEquals("1, hola (1/1), <b>Tengo</b> un gato.", $tostring($refs['term'][0]), 'term 1');
+        $this->assertEquals("2, luego (1/1), <b>Tengo</b> un coche.", $tostring($refs['term'][1]), 'term 0');
+        $this->assertEquals("1, hola (1/1), No quiero <b>tener</b> nada.", $tostring($refs['parent'][0]), 'p');
+        $this->assertEquals("1, hola (1/1), Ella <b>tiene</b> un perro.", $tostring($refs['siblings'][0]), 's');
     }
 
 }
