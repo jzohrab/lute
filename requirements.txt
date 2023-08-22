@@ -1,0 +1,8 @@
+iniconfig==2.0.0
+
+# Have to update the sha as the code changes?
+-e git+ssh://git@github.com/jzohrab/lute.git@a93913dd6667df8a791872084aca8ed5631ca742#egg=lutev3&subdirectory=py_src
+
+packaging==23.1
+pluggy==1.2.0
+pytest==7.4.0
