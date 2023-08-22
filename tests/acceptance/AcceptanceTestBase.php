@@ -86,7 +86,14 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
         $this->settings_repo = new SettingsRepository($this->entity_manager);
 
-        $this->client = static::createPantherClient(); // App auto-started using the built-in web server
+        if (array_key_exists('V3_STRANGLE_USING_NGINX', $_ENV)) {
+            dump('Going to Nginx reverse proxy at port 8080');
+            $this->client = static::createPantherClient(['external_base_uri' => 'http://localhost:8080']);
+        }
+        else {
+            // App auto-started using the built-in web server
+            $this->client = static::createPantherClient();
+        }
 
         $this->childSetUp();
     }

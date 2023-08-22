@@ -142,6 +142,10 @@
       "composer db:create:test",
       "NO_BING_IMAGES=true PANTHER_NO_HEADLESS=true PANTHER_DEVTOOLS=0 SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group "
     ],
+    "test:v3:group": [
+      "composer db:create:test",
+      "NGINX=true NO_BING_IMAGES=true PANTHER_NO_HEADLESS=true PANTHER_DEVTOOLS=0 SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit --debug -v -c phpunit.xml.dist --group "
+    ],
     "test:validateschema": [
       "bin/console doctrine:schema:validate --skip-sync"
     ],
