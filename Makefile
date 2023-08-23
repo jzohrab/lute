@@ -1,13 +1,15 @@
 # Makefile for Python tasks.
 
 # Run tests
-test:
+test: lint
 	python -m pytest py_tests/ $(ARGS)
 
 # Run tests and show print() messages
 testprint:
 	python -m pytest -s py_tests/
 
+lint:
+	pylint py_src/ py_tests/
 
 ### all: down build up test
 ### 
