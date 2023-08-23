@@ -96,7 +96,7 @@ class BookStats {
         // updateStats as well, query insert doesn't check field
         // order.
         return [
-            $b->getWordCount(),
+            $b->getWordCount() ?? 0,
             $allunique,
             $unknowns,
             $percent

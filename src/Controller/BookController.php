@@ -225,7 +225,7 @@ class BookController extends AbstractController
     }
 
     #[Route('/{BkID}/reparse', name: 'app_book_reparse', methods: ['POST'])]
-    public function reparse(Request $request, Book $book): Response
+    public function reparse(Request $request, Book $book, BookRepository $bookRepository): Response
     {
         // TODO:security - CSRF token for datatables actions.
         // $tok = $request->request->get('_token');
@@ -233,7 +233,8 @@ class BookController extends AbstractController
         //     $book->setArchived(true);
         //     $bookRepository->save($book, true);
         // }
-        $book->fullParse();
+        $book->reparse();
+        $bookRepository->save($book, true);
         return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
     }
 

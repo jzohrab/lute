@@ -25,6 +25,11 @@ composer.phar
 /var/
 /vendor/
 
+# Python experiments
+.venv
+py_src
+py_tests
+
 # Manifest, generated when creating a release.
 manifest.json
 
