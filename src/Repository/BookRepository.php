@@ -79,7 +79,7 @@ class BookRepository extends ServiceEntityRepository
           pagecnt.c as PageCount,
           BkArchived,
           tags.taglist AS TagList,
-          b.BkWordCount as WordCount,
+          case when ifnull(b.BkWordCount, 0) = 0 then 'n/a' else b.BkWordCount end as WordCount,
           c.distinctterms as DistinctCount,
           c.distinctunknowns as UnknownCount,
           c.unknownpercent as UnknownPercent
