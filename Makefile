@@ -8,6 +8,11 @@ test: lint
 testprint:
 	python -m pytest -s py_tests/
 
+# Generate test coverage report, excluding the tests from the report
+coverage:
+	coverage run -m pytest py_tests/
+	coverage report --omit="*/test*"
+
 lint:
 	pylint py_src/ py_tests/
 

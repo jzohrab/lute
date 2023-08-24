@@ -1,6 +1,7 @@
 astroid==2.15.6
 blinker==1.6.2
 click==8.1.7
+coverage==7.3.0
 dill==0.3.7
 Flask==2.3.3
 iniconfig==2.0.0
