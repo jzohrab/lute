@@ -1,0 +1,42 @@
+<p>
+  <b style="font-size:120%">
+    {{ term.Text }}
+    {% if term.Parent %}
+    ({{ term.Parent.Text }})
+    {% endif %}
+  </b>
+</p>
+
+{% if flashmsg is not empty %}
+<p class="small-flash-notice">{{ flashmsg }}</p>
+{% endif %}
+
+{% if term.Romanization is not empty %}
+<p><i>{{ term.Romanization }}</i></p>
+{% endif %}
+
+{% for img in termImages %}
+<img class="tooltip-image" src="{{ img }}" />
+{% endfor %}
+
+<p>{{ term.Translation | replace({"\n": '<br />'}) | raw }}</p>
+
+<p>
+  {% for t in termTags %}
+  <span class="termpopup-tag">{{ t }}</span>
+  {% endfor %}
+</p>
+
+{% for p in parentdata %}
+<p>
+  <b>{{ p.term }}</b> <i>({{ p.roman }})</i>
+</p>
+<p>
+  {{ p.trans | replace({"\n": '<br />'}) | raw }}
+</p>
+<p>
+  {% for t in p.tags %}
+  <span class="termpopup-tag">{{ t }}</span>
+  {% endfor %}
+</p>
+{% endfor %}
