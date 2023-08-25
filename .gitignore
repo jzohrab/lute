@@ -27,6 +27,7 @@ composer.phar
 
 # Python experiments
 .venv
+.coverage
 py_src
 py_tests
 
