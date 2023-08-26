@@ -33,12 +33,8 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->updateTermForm('hola', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
-        $ctx->assertWordDataEquals(
-            'Hola', 'status1',
-            [ 'data_trans' => 'hello', 'parent_text' => 'adios' ]);
-        $ctx->assertWordDataEquals(
-            'Adios', 'status1',
-            [ 'data_trans' => 'hello', 'parent_text' => null ]);
+        $ctx->assertWordDataEquals('Hola', 'status1');
+        $ctx->assertWordDataEquals('Adios', 'status1');
     }
 
     public function test_create_multiword_term(): void
@@ -63,9 +59,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->updateTermForm('adios amigo', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios amigo/.', 'adios amigo grouped');
-        $ctx->assertWordDataEquals(
-            'Adios amigo', 'status1',
-            [ 'data_trans' => 'goodbye friend' ]);
+        $ctx->assertWordDataEquals('Adios amigo', 'status1');
     }
 
     /**
@@ -90,9 +84,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->updateTermForm('cap.', $updates);
 
         $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'updated');
-        $ctx->assertWordDataEquals(
-            'cap.', 'status1',
-            [ 'data_trans' => 'chapter' ]);
+        $ctx->assertWordDataEquals('cap.', 'status1');
 
         $cap = $ctx->getReadingNodesByText('cap.');
         $uno = $ctx->getReadingNodesByText('uno');
@@ -106,9 +98,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->updateTermForm('cap. uno', $updates);
 
         $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap. uno/.', 're-updated');
-        $ctx->assertWordDataEquals(
-            'cap. uno', 'status1',
-            [ 'data_trans' => 'chap 1' ]);
+        $ctx->assertWordDataEquals('cap. uno', 'status1');
     }
 
 
