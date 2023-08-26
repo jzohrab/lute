@@ -29,7 +29,10 @@
 
 {% for p in parentdata %}
 <p>
-  <b>{{ p.term }}</b> <i>({{ p.roman }})</i>
+  <b>{{ p.term }}</b>
+  {% if p.roman is not empty %}
+  &nbsp;<i>({{ p.roman }})</i>
+  {% endif %}
 </p>
 <p>
   {{ p.trans | replace({"\n": '<br />'}) | raw }}
