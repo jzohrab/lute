@@ -88,86 +88,16 @@ function prepareTextInteractions(textid) {
  * Build the html content for jquery-ui tooltip.
  */
 let tooltip_textitem_hover_content = function (el) {
-
-  let tooltip_title = function() {
-    let t = el.attr('data_text');
-    const parent_text = el.attr('parent_text') ?? '';
-    if (parent_text != '')
-      t = `${t} (${parent_text})`;
-    return t;
-  }
-
-  const status_span = function() {
-    const status = parseInt(el.attr('data_status'));
-    const st = STATUSES[status];
-    const statname = `[${st['abbr']}]`;
-    return `<span style="margin-left: 12px; float: right;" class="status${status}">${statname}</span>`;
-  }
-
-  let image_if_src = function(el, attr) {
-    const filename = el.attr(attr) ?? '';
-    if (filename == '')
-      return '';
-    return `<img class="tooltip-image" src="${filename}" />`;
-  }
-
-  let tooltip_images = function() {
-    const images = [ 'data_img_src', 'parent_img_src' ].
-          map(s => image_if_src(el, s));
-    const unique = (value, index, self) => {
-      return self.indexOf(value) === index
+  elid = parseInt(el.attr('data_wid'));
+  let content = null;
+  $.ajax({
+    url: `/termpopup/${elid}`,
+    type: 'get',
+    async: false,
+    success: function(response) {
+      content = response;
     }
-    const unique_images = images.filter(unique).join(' ');
-    if (unique_images == ' ')
-      return '';
-    return `<p>${unique_images}</p>`;
-  }
-
-  let build_entry = function(term, transl, roman, tags) {
-    let have_val = (v) => v != null && `${v}`.trim() != '';
-    if (!have_val(term))
-      return '';
-    let ret = [ `<b>${term}</b>` ];
-    if (have_val(roman))
-      ret.push(` <i>(${roman})</i>`);
-    if (have_val(transl))
-      ret.push(`: ${transl}`);
-    if (have_val(tags))
-      ret.push(` [${tags}]`);
-    return `<p>${ret.join('')}</p>`;
-  }
-
-  let get_attr = a => (el.attr(a) ?? '').
-      trim().
-      replace(/(\r\n|\n|\r)/gm, "<br />");  // Some translations have cr/lf.
-  ptrans = get_attr('parent_trans');
-  ctrans = get_attr('data_trans');
-  ctags = get_attr('data_tags');
-
-  let translation_content = ctrans;
-  if (ctags != '') {
-    translation_content = `${translation_content} [${ctags}]`;
-  }
-  if (ptrans != '' && ctrans != '' && ctrans != ptrans) {
-    // show both.
-    translation_content = [
-      build_entry(el.text(), ctrans, el.attr('data_rom'), el.attr('data_tags')),
-      build_entry(el.attr('parent_text'), ptrans, null, el.attr('parent_tags'))
-    ].join('');
-  }
-  if (ptrans != '' && ctrans == '') {
-    translation_content = build_entry(el.attr('parent_text'), ptrans, null, el.attr('parent_tags'));
-  }
-
-  let content = `<p><b style="font-size:120%">${tooltip_title()}</b>${status_span()}</p>`;
-  const flash = get_attr('data_flashmessage');
-  if (flash != '')
-    content += `<p class="small-flash-notice">${flash}</p>`;
-  const rom = get_attr('data_rom');
-  if (rom != '')
-    content += `<p><i>${rom}</i></p>`;
-  content += translation_content;
-  content += tooltip_images();
+  });
   return content;
 }
 

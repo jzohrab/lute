@@ -43,7 +43,7 @@ class TermUpload_Test extends AcceptanceTestBase
     }
 
     /**
-     * @group acc_uploadterms
+     * @group acc_uploadterms_varcols
      */
     public function test_upload_terms_valid_file_variable_columns(): void
     {

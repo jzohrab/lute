@@ -61,54 +61,31 @@ class RenderableCandidate {
         $t->TextLength = mb_strlen($this->text);
 
         // $logmsg('done base');
-        if ($this->term == null) {
-            // dump($msgs);
-            return $t;
-        }
-
         $term = $this->term;
-        $t->WoID = $term->getID();
-        $t->WoText = $term->getText();
-        $t->WoStatus = $term->getStatus();
-        $t->WoTranslation = $term->getTranslation();
-        $t->WoRomanization = $term->getRomanization();
-        $t->ImageSource = $term->getCurrentImage();
-        $t->FlashMessage = $term->getFlashMessage();
-        // $logmsg('done basic term');
-
-        $t->Tags = null;
-        $tags = $term->getTermTags();
-        if (count($tags) > 0) {
-            $ts = [];
-            foreach ($tags as $tag)
-                $ts[] = $tag->getText();
-            $t->Tags = implode(', ', $ts);
-        }
-        // $logmsg('done term tags');
-
-        $p = $term->getParent();
-        if ($p == null) {
-            // $logmsg('no parent');
+        if ($term == null) {
             // dump($msgs);
             return $t;
         }
 
-        $t->ParentWoID = $p->getID();
-        $t->ParentWoTextLC = $p->getTextLC();
-        $t->ParentWoTranslation = $p->getTranslation();
-        $t->ParentImageSource = $p->getCurrentImage();
-        // $logmsg('done basic parent');
+        $t->WoID = $term->getID();
+        $t->WoStatus = $term->getStatus();
+        $t->FlashMessage = $term->getFlashMessage();
 
-        $t->ParentTags = null;
-        $tags = $p->getTermTags();
-        if (count($tags) > 0) {
-            $ts = [];
-            foreach ($tags as $tag)
-                $ts[] = $tag->getText();
-            $t->ParentTags = implode(', ', $ts);
-        }
-        // $logmsg('done parent tags, done');
-        // dump($msgs);
+        // Always show tooltip if some things are set.
+        $hasExtra = function($cterm) {
+            if ($cterm == null)
+                return false;
+            $noextra = (
+                $cterm->getTranslation() == null &&
+                $cterm->getRomanization() == null &&
+                $cterm->getCurrentImage() == null
+            );
+            return !$noextra;
+        };
+
+        $showtooltip = $hasExtra($term) || $hasExtra($term->getParent());
+        $t->ShowTooltip = $showtooltip;
+
         return $t;
     }
 }

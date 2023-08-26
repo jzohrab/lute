@@ -53,7 +53,7 @@ class TermTags_Test extends AcceptanceTestBase
 
         $this->client->request('GET', '/');
         $this->client->clickLink('Term Tags');
-
+        usleep(200 * 1000);
         $this->client->getMouse()->clickTo("#deltermtag1");
         $this->client->getWebDriver()->switchTo()->alert()->accept(); // accept after clicking on delete
         $this->client->switchTo()->defaultContent();

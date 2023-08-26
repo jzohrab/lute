@@ -198,15 +198,6 @@ class TermController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'app_term_show', methods: ['GET'])]
-    public function show(Term $term): Response
-    {
-        return $this->render('term/show.html.twig', [
-            'term' => $term,
-            'termdto' => $term->createTermDTO()
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_term_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Term $term, TermService $term_svc, TermTagRepository $termtag_repo): Response
     {
