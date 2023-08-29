@@ -1,5 +1,24 @@
 # Changelog
 
+## 2023-08-28 v2.0.13
+
+This release adds support for multiple parents, and simplifies some back-end data storage.
+
+Feature changes:
+
+* Allow terms to have multiple parents ([issue 61](https://github.com/jzohrab/lute/issues/61))
+* Enter parents using tags
+* Term detail pop-up (on reading page) modified to display data for multiple parents
+* Sentence lookups return sentences for multiple parents
+
+Back end changes:
+
+* Remove `texttokens` table - big space savings
+* Change popup to API endpoint
+* Simplify reading page rendering, use fewer attributes
+* Store word count in book table to speed stats calc
+
+
 ## 2023-08-17 v2.0.12
 
 Feature changes:
