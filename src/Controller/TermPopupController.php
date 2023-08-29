@@ -39,6 +39,11 @@ class TermPopupController extends AbstractController
             return $ret;
         };
 
+        $parentterms = [];
+        foreach ($term->getParents() as $p)
+            $parentterms[] = $p->getTextLC();
+        $parentterms = implode(', ', $parentterms);
+
         $parentdata = [];
         if (count($term->getParents()) == 1) {
             $parent = $term->getParents()->toArray()[0];
@@ -49,9 +54,6 @@ class TermPopupController extends AbstractController
             foreach ($term->getParents() as $p)
                 $parentdata[] = $makeArray($p);
         }
-
-        $parentterms = array_map(fn($p) => $p['term'], $parentdata);
-        $parentterms = implode(', ', $parentterms);
 
         $images = [ $term->getCurrentImage() ];
         foreach ($term->getParents() as $p)

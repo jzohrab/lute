@@ -1,7 +1,7 @@
 <p>
   <b style="font-size:120%">
     {{ term.Text }}
-    {% if parentdata | length > 0 %}
+    {% if parentterms is not empty %}
     ({{ parentterms }})
     {% endif %}
   </b>
