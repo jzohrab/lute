@@ -83,7 +83,9 @@ class RenderableCandidate {
             return !$noextra;
         };
 
-        $showtooltip = $hasExtra($term) || $hasExtra($term->getParent());
+        $showtooltip = $hasExtra($term);
+        foreach ($term->getParents() as $p)
+            $showtooltip = $showtooltip || $hasExtra($p);
         $t->ShowTooltip = $showtooltip;
 
         return $t;

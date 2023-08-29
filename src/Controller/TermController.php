@@ -69,7 +69,8 @@ class TermController extends AbstractController
             fn($t) => ($t->getLanguage()->getLgID() == $langid) && ($t->getID() != $pid)
         );
         foreach ($update as $t) {
-            $t->setParent($parent);
+            $t->removeAllParents();
+            $t->addParent($parent);
             $term_repo->save($t, true);
         }
         return $this->json('ok');
@@ -175,21 +176,16 @@ class TermController extends AbstractController
             return mb_strtoupper($firstChar, $encoding) . $then;
         };
 
-        $ptext = 'Parent';
-        $p = $term->getParent();
-        if ($p != null)
-            $ptext = $mb_ucfirst($p->getText());
-
-        $references = [
-            $mb_ucfirst($term->getText()) => $refs['term'],
-            $ptext => $refs['parent'],
-            'Term children' => $refs['children'],
-            'Sibling terms (with same parent ' . $ptext . ')' => $refs['siblings']
+        $ret = [
+            $mb_ucfirst($term->getText()) => array_merge($refs['term'], $refs['children'])
         ];
-
+        foreach ($refs['parents'] as $p) {
+            $ptxt = $mb_ucfirst($p['term']);
+            $ret[$ptxt] = $p['refs'];
+        }
         return $this->render(
             'term/sentences.html.twig',
-            [ 'references' => $references ]
+            [ 'references' => $ret ]
         );
     }
 

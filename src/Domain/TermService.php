@@ -138,12 +138,10 @@ class TermService {
     public function findReferences(Term $term): array
     {
         $conn = Connection::getFromEnvironment();
-        $p = $term->getParent();
         $ret = [
             'term' => $this->getReferences($term, $conn),
-            'parent' => $this->getReferences($p, $conn),
             'children' => $this->getChildReferences($term, $conn),
-            'siblings' => $this->getSiblingReferences($p, $term, $conn)
+            'parents' => $this->getParentReferences($term, $conn),
         ];
         return $ret;
     }
@@ -206,14 +204,25 @@ class TermService {
         return array_merge([], ...$ret);
     }
 
-    private function getSiblingReferences($parent, $term, $conn): array {
+    private function getParentReferences($term, $conn): array {
+        $ret = [];
+        foreach ($term->getParents() as $parent) {
+            $ret[] = [
+                'term' => $parent->getTextLC(),
+                'refs' => $this->getFamilyReferences($parent, $term, $conn)
+            ];
+        }
+        return $ret;
+    }
+
+    private function getFamilyReferences($parent, $term, $conn): array {
         if ($term == null || $parent == null)
             return [];
-        $sibs = [];
+        $family = [$parent];
         foreach ($parent->getChildren() as $s)
-            $sibs[] = $s;
-        $sibs = array_filter($sibs, fn($t) => $t->getID() != $term->getID());
-        return $this->getAllRefs($sibs, $conn);
+            $family[] = $s;
+        $family = array_filter($family, fn($t) => $t->getID() != $term->getID());
+        return $this->getAllRefs($family, $conn);
     }
 
     private function getChildReferences($term, $conn): array {

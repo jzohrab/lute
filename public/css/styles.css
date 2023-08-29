@@ -606,3 +606,41 @@ a:active {
      padding: 0 1px 0 1px;
      border: 1px solid darkgrey;
  }
+
+ /* */
+
+ ul.shorttaglist {
+     margin: 0;
+     padding: 0;
+     font-size: 1em;
+     margin-block-start: 0em;
+     margin-block-end: 0em;
+ }
+
+ ul.shorttaglist li {
+     padding: 0 18px 0 0.5em;
+     padding-left: 3px !important;
+     margin: 0 5px 0 0;
+     font-size: 85%;
+ }
+
+
+ ul.shorttaglist li.tagit-new {
+     padding: 0 18px 0 0.5em;
+     margin: 0 5px 0 0;
+     font-size: 85%;
+ }
+
+ ul.shorttaglist li.tagit-choice {
+     padding: 0 18px 0 0.5em;
+     margin: 0 5px 0 0;
+     font-size: 85%;
+ }
+
+ ul.shorttaglist li.tagit-choice-editable {
+     padding: 0 18px 0 0.5em;
+     margin: 0 5px 0 0;
+     font-size: 85%;
+ }
+
+ /* */
