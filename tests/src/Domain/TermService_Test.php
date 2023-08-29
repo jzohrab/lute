@@ -321,6 +321,7 @@ final class TermService_Test extends DatabaseTestBase
             foreach ($refs_array as $r) {
                 $ret[] = $tostring($r);
             }
+            sort($ret);
             return $ret;
         };
 
@@ -371,16 +372,16 @@ final class TermService_Test extends DatabaseTestBase
             $this->full_refs_to_string($refs),
             [
                 'term' => [
-                    "2, luego (1/1), <b>Tengo</b> un coche.",
                     "1, hola (1/1), <b>Tengo</b> un gato.",
+                    "2, luego (1/1), <b>Tengo</b> un coche."
                 ],
                 'children' => [],
                 'parents' => [
                     [
                         'term' => 'tener',
                         'refs' => [
-                            "1, hola (1/1), No quiero <b>tener</b> nada.",
-                            "1, hola (1/1), Ella <b>tiene</b> un perro."
+                            "1, hola (1/1), Ella <b>tiene</b> un perro.",
+                            "1, hola (1/1), No quiero <b>tener</b> nada."
                         ]
                     ]
                 ]
@@ -397,9 +398,9 @@ final class TermService_Test extends DatabaseTestBase
                     "1, hola (1/1), No quiero <b>tener</b> nada."
                 ],
                 'children' => [
-                    "2, luego (1/1), <b>Tengo</b> un coche.",
                     "1, hola (1/1), <b>Tengo</b> un gato.",
-                    "1, hola (1/1), Ella <b>tiene</b> un perro."
+                    "1, hola (1/1), Ella <b>tiene</b> un perro.",
+                    "2, luego (1/1), <b>Tengo</b> un coche."
                 ],
                 'parents' => []
             ],
