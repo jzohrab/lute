@@ -23,7 +23,7 @@ class LanguageType extends AbstractType
             )
             ->add('LgDict1URI',
                   TextType::class,
-                  [ 'label' => 'TermService 1',
+                  [ 'label' => 'Dictionary 1',
                     'help' => 'e.g., https://es.thefreedictionary.com/###.  "###" is replaced by the term.',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
@@ -31,7 +31,7 @@ class LanguageType extends AbstractType
             )
             ->add('LgDict2URI',
                   TextType::class,
-                  [ 'label' => 'TermService 2',
+                  [ 'label' => 'Dictionary 2',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
                   ]
@@ -54,21 +54,21 @@ class LanguageType extends AbstractType
             )
             ->add('LgRegexpSplitSentences',
                   TextType::class,
-                  [ 'label' => 'Split sentences regex',
+                  [ 'label' => 'Split sentences at',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
                   ]
             )
             ->add('LgExceptionsSplitSentences',
                   TextType::class,
-                  [ 'label' => 'Split sentences regex exceptions',
+                  [ 'label' => 'Split sentences exceptions',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
                   ]
             )
             ->add('LgRegexpWordCharacters',
                   TextType::class,
-                  [ 'label' => 'Regex word characters',
+                  [ 'label' => 'Word characters',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => true
                   ]
