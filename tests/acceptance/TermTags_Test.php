@@ -30,12 +30,14 @@ class TermTags_Test extends AcceptanceTestBase
         $updates = [
             'language' => $this->spanish->getLgID(),
             'Text' => 'gato',
-            'Translation' => 'cat'
+            'Translation' => 'cat',
+            'Tags' => [ 'sometag' ]
         ];
-        $ctx->updateTermForm($updates, [ 'sometag' ]);
+        $ctx->updateTermForm($updates);
 
         $this->client->request('GET', '/');
         $this->client->clickLink('Term Tags');
+        usleep(200 * 1000);
         $ctx = $this->getTermTagContext();
         $ctx->listingShouldContain('tag created', [ 'sometag; ; 1; ' ]);
 

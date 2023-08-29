@@ -31,7 +31,7 @@ class TermPopupController extends AbstractController
             $ret = [];
             $ret['term'] = $t->getText();
             $ret['roman'] = $t->getRomanization();
-            $ret['trans'] = $t->getTranslation();
+            $ret['trans'] = $t->getTranslation() ?? '-';
 
             $termTags = $t->getTermTags()->toArray();
             $tts = array_map(fn($tt) => $tt->getText(), $termTags);
@@ -40,13 +40,22 @@ class TermPopupController extends AbstractController
         };
 
         $parentdata = [];
-        $parent = $term->getParent();
-        if ($parent != null && $parent->getTranslation() != $term->getTranslation())
-            $parentdata[] = $makeArray($parent);
+        if (count($term->getParents()) == 1) {
+            $parent = $term->getParents()->toArray()[0];
+            if ($parent->getTranslation() != $term->getTranslation())
+                $parentdata[] = $makeArray($parent);
+        }
+        else {
+            foreach ($term->getParents() as $p)
+                $parentdata[] = $makeArray($p);
+        }
+
+        $parentterms = array_map(fn($p) => $p['term'], $parentdata);
+        $parentterms = implode(', ', $parentterms);
 
         $images = [ $term->getCurrentImage() ];
-        if ($parent != null)
-            $images[] = $parent->getCurrentImage();
+        foreach ($term->getParents() as $p)
+            $images[] = $p->getCurrentImage();
         $images = array_filter($images, fn($i) => $i != null);
         $images = array_unique($images);
 
@@ -55,7 +64,8 @@ class TermPopupController extends AbstractController
             'flashmsg' => $term->getFlashMessage(),
             'termTags' => $tts,
             'termImages' => $images,
-            'parentdata' => $parentdata
+            'parentdata' => $parentdata,
+            'parentterms' => $parentterms
         ]);
     }
 

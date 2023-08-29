@@ -133,7 +133,7 @@ class TermRepository extends ServiceEntityRepository
     public function getDataTablesList($parameters) {
 
         $base_sql = "SELECT
-0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, w.WoText as WoText, p.WoText as ParentText, w.WoTranslation,
+0 as chk, w.WoID as WoID, LgName, L.LgID as LgID, w.WoText as WoText, parents.parentlist as ParentText, w.WoTranslation,
 replace(wi.WiSource, '.jpeg', '') as WiSource,
 ifnull(tags.taglist, '') as TagList,
 StText,
@@ -142,8 +142,17 @@ FROM
 words w
 INNER JOIN languages L on L.LgID = w.WoLgID
 INNER JOIN statuses S on S.StID = w.WoStatus
-LEFT OUTER JOIN wordparents on WpWoID = w.WoID
-LEFT OUTER JOIN words p on p.WoID = WpParentWoID
+LEFT OUTER JOIN (
+  SELECT WpWoID as WoID, GROUP_CONCAT(PText, ', ') AS parentlist
+  FROM
+  (
+    select WpWoID, WoText as PText
+    from wordparents wp
+    INNER JOIN words on WoID = WpParentWoID
+    order by WoText
+  ) parentssrc
+  GROUP BY WpWoID
+) AS parents on parents.WoID = w.WoID
 LEFT OUTER JOIN (
   SELECT WtWoID as WoID, GROUP_CONCAT(TgText, ', ') AS taglist
   FROM
@@ -168,7 +177,7 @@ LEFT OUTER JOIN wordimages wi on wi.WiWoID = w.WoID
 
         $wheres = [ "1 = 1" ];
         if ($filtParentsOnly == 'true')
-            $wheres[] = "WpWoID IS NULL";
+            $wheres[] = "parents.parentlist IS NULL";
         if ($filtAgeMin != "") {
             $filtAgeMin = intval('0' . $filtAgeMin);
             $wheres[] = "cast(julianday('now') - julianday(w.wocreated) as int) >= $filtAgeMin";

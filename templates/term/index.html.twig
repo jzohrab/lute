@@ -199,7 +199,7 @@
     });
     const ptxt = $('#txtSetParent').val();
 
-    const resp = confirm(`Change parent for ${wordids.length} term(s) to "${ptxt}"?`);
+    const resp = confirm(`Change parent for ${wordids.length} term(s) to "${ptxt}"?  Note this will *remove* any existing parents for these terms.`);
     if (! resp)
       return;
 

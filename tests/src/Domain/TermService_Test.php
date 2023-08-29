@@ -94,7 +94,7 @@ final class TermService_Test extends DatabaseTestBase
 
         $p = new Term($this->spanish, 'perro');
         $t = new Term($this->spanish, 'perros');
-        $t->setParent($p);
+        $t->addParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
         $this->term_service->add($t);
 
@@ -121,11 +121,11 @@ final class TermService_Test extends DatabaseTestBase
         $this->term_service->add($p);
 
         $perros = new Term($this->spanish, 'perros');
-        $perros->setParent($p);
+        $perros->addParent($p);
         $this->term_service->add($perros);
 
         $f = $this->term_service->find('perros', $this->spanish);
-        $this->assertEquals($perros->getParent()->getID(), $p->getID(), 'parent set');
+        $this->assertEquals($perros->getParents()[0]->getID(), $p->getID(), 'parent set');
     }
 
     public function test_remove_term_removes_term() {
@@ -149,7 +149,7 @@ final class TermService_Test extends DatabaseTestBase
     public function test_remove_term_leaves_parent_breaks_wordparent_association() {
         $p = new Term($this->spanish, 'perro');
         $t = new Term($this->spanish, 'perros');
-        $t->setParent($p);
+        $t->addParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
         $this->term_service->add($t);
 
@@ -173,7 +173,7 @@ final class TermService_Test extends DatabaseTestBase
         $p = new Term($this->spanish, 'perro');
         $t = new Term($this->spanish, 'perros');
         $t->setText('perros');
-        $t->setParent($p);
+        $t->addParent($p);
         $t->addTermTag(TermTag::makeTermTag('noun'));
         $this->term_service->add($t);
 
@@ -199,21 +199,22 @@ final class TermService_Test extends DatabaseTestBase
         $this->term_service->add($gato, true);
 
         $t = new Term($this->spanish, 'perros');
-        $t->setParent($parent);
+        $t->addParent($parent);
         $this->term_service->add($t, true);
 
         $expected = [ "{$t->getID()}; {$parent->getID()}" ];
         DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "parent set");
 
-        $t->setParent($gato);
+        $t->addParent($gato);
         $this->term_service->add($t, true);
 
-        $expected = [ "{$t->getID()}; {$gato->getID()}" ];
-        DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "NEW parent set");
+        $expected = [ "{$t->getID()}; {$parent->getID()}",
+                      "{$t->getID()}; {$gato->getID()}" ];
+        DbHelpers::assertTableContains("select WpWoID, WpParentWoID from wordparents", $expected, "NEW parent added");
 
-        $t->setParent(null);
+        $t->removeAllParents();
         $this->term_service->add($t, true);
-        DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
+        DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'all removed');
 
         foreach(['perros', 'perro', 'gato'] as $s) {
             $f = $this->term_service->find($s, $this->spanish);
@@ -308,32 +309,104 @@ final class TermService_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "tengo(1)/ /un gato(1)");
     }
 
-    /**
-     * @group dictrefs
-     */
-    public function test_get_references_smoke_test()
-    {
-        $text = $this->make_text('hola', 'Tengo un gato.  No tengo un perro.', $this->spanish);
-        $text->setReadDate(new DateTime("now"));
-        $this->text_repo->save($text, true);
 
-        $tengo = $this->addTerms($this->spanish, 'tengo')[0];
-        $refs = $this->term_service->findReferences($tengo);
+    private function full_refs_to_string($refs) {
 
-        $keys = array_keys($refs);
-        $this->assertEquals([ 'term', 'parent', 'children', 'siblings' ], $keys);
+        $tostring = function($r) {
+            return implode(', ', [ $r->TxID, $r->Title, $r->Sentence ?? 'NULL' ]);
+        };
 
-        $this->assertEquals(2, count($refs['term']), 'term');
-        $this->assertEquals(0, count($refs['parent']), 'parent');
-        $this->assertEquals(0, count($refs['siblings']), 'siblings');
+        $refs_to_string = function($refs_array) use ($tostring) {
+            $ret = [];
+            foreach ($refs_array as $r) {
+                $ret[] = $tostring($r);
+            }
+            return $ret;
+        };
 
-        $trs = $refs['term'];
-        $zws = mb_chr(0x200B);
-        $this->assertEquals("<b>Tengo</b> un gato.", str_replace($zws, '', $trs[0]->Sentence));
-        $this->assertEquals($text->getID(), $trs[0]->TxID);
-        $this->assertEquals("hola (1/1)", $trs[0]->Title);
-        $this->assertEquals("No <b>tengo</b> un perro.", str_replace($zws, '', $trs[1]->Sentence));
+        $parent_refs_to_string = function($prefs) use ($refs_to_string) {
+            $ret = [];
+            foreach ($prefs as $p) {
+                $ret[] = [
+                    'term' => $p['term'],
+                    'refs' => $refs_to_string($p['refs'])
+                ];
+            }
+            return $ret;
+        };
+
+        return [
+            'term' => $refs_to_string($refs['term']),
+            'children' => $refs_to_string($refs['children']),
+            'parents' => $parent_refs_to_string($refs['parents'])
+        ];
     }
+
+
+    /**
+     * @group dictrefs_get_all
+     */
+    public function test_get_all_references()
+    {
+        $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
+        $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
+        $archtext->setArchived(true);
+        $this->text_repo->save($archtext, true);
+
+        foreach ([$text, $archtext] as $t) {
+            $t->setReadDate(new DateTime("now"));
+            $this->text_repo->save($t, true);
+        }
+
+        [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
+        $tengo->addParent($tener);
+        $this->assertEquals(count($tengo->getParents()), 1, 'has parent');
+        $tiene->addParent($tener);
+        $this->term_service->add($tengo, true);
+        $this->term_service->add($tener, true);
+        $this->term_service->add($tiene, true);
+
+        $refs = $this->term_service->findReferences($tengo);
+        $this->assertEquals(
+            $this->full_refs_to_string($refs),
+            [
+                'term' => [
+                    "2, luego (1/1), <b>Tengo</b> un coche.",
+                    "1, hola (1/1), <b>Tengo</b> un gato.",
+                ],
+                'children' => [],
+                'parents' => [
+                    [
+                        'term' => 'tener',
+                        'refs' => [
+                            "1, hola (1/1), No quiero <b>tener</b> nada.",
+                            "1, hola (1/1), Ella <b>tiene</b> un perro."
+                        ]
+                    ]
+                ]
+            ],
+            'term tengo'
+        );
+
+
+        $refs = $this->term_service->findReferences($tener);
+        $this->assertEquals(
+            $this->full_refs_to_string($refs),
+            [
+                'term' => [
+                    "1, hola (1/1), No quiero <b>tener</b> nada."
+                ],
+                'children' => [
+                    "2, luego (1/1), <b>Tengo</b> un coche.",
+                    "1, hola (1/1), <b>Tengo</b> un gato.",
+                    "1, hola (1/1), Ella <b>tiene</b> un perro."
+                ],
+                'parents' => []
+            ],
+            'term tener'
+        );
+    }
+
 
     /**
      * @group dictrefsunread
@@ -353,89 +426,6 @@ final class TermService_Test extends DatabaseTestBase
         $this->text_repo->save($text, true);
         $refs = $this->term_service->findReferences($tengo);
         $this->assertEquals(2, count($refs['term']), 'have refs once text is read');
-    }
-
-    /**
-     * @group dictrefs
-     */
-    public function test_get_all_references()
-    {
-        $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
-        $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
-        foreach ([$text, $archtext] as $t) {
-            $t->setReadDate(new DateTime("now"));
-            $this->text_repo->save($t, true);
-        }
-
-        [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
-        $tengo->setParent($tener);
-        $tiene->setParent($tener);
-        $this->term_service->add($tener, true);
-        $this->term_service->add($tiene, true);
-
-        $archtext->setArchived(true);
-        $this->text_repo->save($archtext, true);
-
-        $refs = $this->term_service->findReferences($tengo);
-        $this->assertEquals(2, count($refs['term']), 'term');
-        $this->assertEquals(1, count($refs['parent']), 'parent');
-        $this->assertEquals(1, count($refs['siblings']), 'siblings');
-
-        $tostring = function($r) {
-            return implode(', ', [ $r->TxID, $r->Title, $r->Sentence ?? 'NULL' ]);
-        };
-        $this->assertEquals("1, hola (1/1), <b>Tengo</b> un gato.", $tostring($refs['term'][0]), 'term');
-        $this->assertEquals("1, hola (1/1), No quiero <b>tener</b> nada.", $tostring($refs['parent'][0]), 'p');
-        $this->assertEquals("1, hola (1/1), Ella <b>tiene</b> un perro.", $tostring($refs['siblings'][0]), 's');
-        $this->assertEquals("2, luego (1/1), <b>Tengo</b> un coche.", $tostring($refs['term'][1]), 't 1');
-
-        $refs = $this->term_service->findReferences($tener);
-        $this->assertEquals(1, count($refs['term']), 'term');
-        $this->assertEquals(0, count($refs['parent']), 'parent');
-        $this->assertEquals(3, count($refs['children']), 'children');
-        $this->assertEquals(0, count($refs['siblings']), 'siblings');
-
-        $this->assertEquals("1, hola (1/1), No quiero <b>tener</b> nada.", $tostring($refs['term'][0]), 'term');
-        $this->assertEquals("1, hola (1/1), <b>Tengo</b> un gato.", $tostring($refs['children'][0]), 'c tener 1');
-        $this->assertEquals("2, luego (1/1), <b>Tengo</b> un coche.", $tostring($refs['children'][1]), 'c tener 0');
-        $this->assertEquals("1, hola (1/1), Ella <b>tiene</b> un perro.", $tostring($refs['children'][2]), 'c tener 2');
-    }
-
-    /**
-     * @group dictrefs
-     */
-    public function test_archived_references()
-    {
-        $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
-        $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
-        foreach ([$text, $archtext] as $t) {
-            $t->setReadDate(new DateTime("now"));
-            $this->text_repo->save($t, true);
-        }
-
-        [ $tengo, $tiene, $tener ] = $this->addTerms($this->spanish, ['tengo', 'tiene', 'tener']);
-        $tengo->setParent($tener);
-        $tiene->setParent($tener);
-        $this->term_service->add($tener, true);
-        $this->term_service->add($tiene, true);
-
-        $text->setArchived(true);
-        $this->text_repo->save($text, true);
-        $archtext->setArchived(true);
-        $this->text_repo->save($archtext, true);
-
-        $refs = $this->term_service->findReferences($tengo);
-
-        $tostring = function($r) {
-            return implode(', ', [ $r->TxID, $r->Title, $r->Sentence ?? 'NULL' ]);
-        };
-
-        $refs = $this->term_service->findReferences($tengo);
-
-        $this->assertEquals("1, hola (1/1), <b>Tengo</b> un gato.", $tostring($refs['term'][0]), 'term 1');
-        $this->assertEquals("2, luego (1/1), <b>Tengo</b> un coche.", $tostring($refs['term'][1]), 'term 0');
-        $this->assertEquals("1, hola (1/1), No quiero <b>tener</b> nada.", $tostring($refs['parent'][0]), 'p');
-        $this->assertEquals("1, hola (1/1), Ella <b>tiene</b> un perro.", $tostring($refs['siblings'][0]), 's');
     }
 
 }

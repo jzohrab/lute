@@ -473,7 +473,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         // Update "tiene" to have "tener" as parent.
         $tid = $text->getID();
         $tiene = $this->facade->loadDTO($this->spanish, 'tiene');
-        $tiene->ParentText = 'tener';
+        $tiene->termParents = ['tener'];
         $tiene->Status = 1;
         $this->facade->saveDTO($tiene);
 
@@ -493,7 +493,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
         // Update "tiene" to have "tener uno" as parent.
         $tiene = $this->facade->loadDTO($this->spanish, 'tiene');
-        $tiene->ParentText = 'tener uno';
+        $tiene->termParents = ['tener uno'];
         $tiene->Status = 1;
         $this->facade->saveDTO($tiene);
 
@@ -583,7 +583,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $tid = $text->getID();
 
         $dto = $this->facade->loadDTO($this->spanish, 'tengo');
-        $dto->ParentText = 'que';
+        $dto->termParents = ['que'];
         $dto->Status = 1;
         $this->facade->saveDTO($dto);
 

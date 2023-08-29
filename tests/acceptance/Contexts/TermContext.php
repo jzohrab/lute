@@ -37,19 +37,38 @@ class TermContext
         return $ret;
     }
 
-    public function updateTermForm($updates, $tags = []) {
+    public function updateTermForm($updates) {
         $crawler = $this->client->refreshCrawler();
         $form = $crawler->selectButton('Update')->form();
-        foreach (array_keys($updates) as $f) {
+
+        $checkkeys = array_keys($updates);
+        $checkkeys = array_filter($checkkeys, fn($s) => $s != 'Tags' && $s != 'Parents');
+        foreach ($checkkeys as $f) {
             $form["term_dto[{$f}]"] = $updates[$f];
         }
 
+        $valOrEmpty = function($key, $arr) {
+            if (! array_key_exists($key, $arr))
+                return [];
+            return $arr[$key];
+        };
+
+        $tags = $valOrEmpty('Tags', $updates);
         if (count($tags) > 0) {
-            $fs = 'li.tagit-new > input.ui-autocomplete-input';
+            $fs = 'ul#termtagslist li.tagit-new > input.ui-autocomplete-input';
             $tt = $crawler->filter($fs);
-            \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'single tag input');
+            \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single tag input');
             $input = $tt->eq(0);
             $input->sendkeys(implode(' ', $tags));
+        }
+
+        $parents = $valOrEmpty('Parents', $updates);
+        if (count($parents) > 0) {
+            $fs = 'ul#parentslist li.tagit-new > input.ui-autocomplete-input';
+            $tt = $crawler->filter($fs);
+            \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single parent input');
+            $input = $tt->eq(0);
+            $input->sendkeys(implode(' ', $parents));
         }
 
         $crawler = $this->client->submit($form);

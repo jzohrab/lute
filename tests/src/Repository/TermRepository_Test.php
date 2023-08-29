@@ -62,7 +62,7 @@ final class TermRepository_Test extends DatabaseTestBase
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
-        $t->setParent($p);
+        $t->addParent($p);
         $t->addTermTag($this->termtag_repo->findOrCreateByText('tag'));
         $this->term_repo->save($t, true);
 
@@ -91,8 +91,8 @@ final class TermRepository_Test extends DatabaseTestBase
         $t = new Term($this->spanish, "HOLA");
         $g = new Term($this->spanish, "gato");
         $p = new Term($this->spanish, "PARENT");
-        $g->setParent($p);
-        $t->setParent($p);
+        $g->addParent($p);
+        $t->addParent($p);
         $this->term_repo->save($t, true);
         $this->term_repo->save($g, true);
 
@@ -101,10 +101,10 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals($pget->getChildren()->count(), 2, "2 kids");
 
         $tget = $this->term_repo->find($t->getId());
-        $this->assertEquals($tget->getParent()->getText(), "PARENT", "have text");
+        $this->assertEquals($tget->getParents()[0]->getText(), "PARENT", "have text");
 
         $gget = $this->term_repo->find($g->getId());
-        $this->assertEquals($gget->getParent()->getText(), "PARENT", "have text");
+        $this->assertEquals($gget->getParents()[0]->getText(), "PARENT", "have text");
     }
 
     /**
@@ -114,7 +114,7 @@ final class TermRepository_Test extends DatabaseTestBase
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
-        $t->setParent($p);
+        $t->addParent($p);
         $this->term_repo->save($t, true);
 
         // Hacky sql check.
@@ -127,7 +127,8 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent");
 
         $o = new Term($this->spanish, "OTHER");
-        $t->setParent($o);
+        $t->removeAllParents();
+        $t->addParent($o);
         $this->term_repo->save($t, true);
 
         $exp = [ "HOLA; OTHER" ];
@@ -138,7 +139,7 @@ final class TermRepository_Test extends DatabaseTestBase
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
-        $t->setParent($p);
+        $t->addParent($p);
         $this->term_repo->save($t, true);
 
         // Hacky sql check.
@@ -150,7 +151,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $exp = [ "HOLA; PARENT" ];
         DbHelpers::assertTableContains($sql, $exp, "parents");
 
-        $t->setParent(null);
+        $t->removeAllParents();
         $this->term_repo->save($t, true);
         $exp = [ "HOLA; NULL" ];
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
@@ -163,7 +164,7 @@ final class TermRepository_Test extends DatabaseTestBase
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
-        $t->setParent($p);
+        $t->addParent($p);
         $this->term_repo->save($t, true);
 
         $sqllist = "select WoText from words order by WoText";
@@ -191,7 +192,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $t = new Term($this->spanish, "HOLA");
         $t->addTermTag($this->termtag_repo->findOrCreateByText('tag'));
         $p = new Term($this->spanish, "PARENT");
-        $t->setParent($p);
+        $t->addParent($p);
         $this->term_repo->save($t, true);
 
         $sqllist = "select WoText from words order by WoText";
@@ -302,8 +303,8 @@ final class TermRepository_Test extends DatabaseTestBase
         $a = new Term($this->spanish, "abc");
         $xp = new Term($this->spanish, "axyPAR");
         $x = new Term($this->spanish, "axy");
-        $a->setParent($ap);
-        $x->setParent($xp);
+        $a->addParent($ap);
+        $x->addParent($xp);
         $this->term_repo->save($ap, true);
         $this->term_repo->save($a, true);
         $this->term_repo->save($xp, true);
@@ -320,8 +321,8 @@ final class TermRepository_Test extends DatabaseTestBase
         $a = new Term($this->spanish, "abc");
         $xp = new Term($this->spanish, "axyPAR");
         $x = new Term($this->spanish, "axy");
-        $a->setParent($ap);
-        $x->setParent($xp);
+        $a->addParent($ap);
+        $x->addParent($xp);
         $this->term_repo->save($ap, true);
         $this->term_repo->save($a, true);
         $this->term_repo->save($xp, true);

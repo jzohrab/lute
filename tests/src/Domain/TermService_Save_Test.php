@@ -62,7 +62,7 @@ final class TermService_Save_Test extends DatabaseTestBase
 
         $t1 = new Term($this->spanish, "tengo");
         $t2 = new Term($this->spanish, "un gato");
-        $t1->setParent($t2);
+        $t1->addParent($t2);
 
         $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
 

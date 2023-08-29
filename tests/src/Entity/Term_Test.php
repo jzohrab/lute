@@ -120,4 +120,14 @@ class Term_Test extends TestCase
         $this->assertEquals($t->getText(), 'ee.uu.');
     }
 
+    /**
+     * @group noselfparent
+     */
+    public function test_cannot_add_self_as_own_parent() {
+        $sp = Language::makeSpanish();
+        $t = new Term($sp, 'gato');
+        $t->addParent($t);
+        $this->assertEquals(count($t->getParents()), 0, 'no parents');
+    }
+
 }
