@@ -51,10 +51,6 @@ class TermController extends AbstractController
         $parenttext = trim($parameters['parenttext']);
         $langid = intval($parameters['langid']);
 
-        // dump($wordids);
-        // dump($parenttext);
-        // dump($langid);
-
         $lang = $lang_repo->find($langid);
         $parent = null;
         if ($parenttext != '') {

@@ -31,16 +31,6 @@ class TermService {
     }
 
     public function flush() {
-        /* * /
-        $msg = 'flushing ' . count($this->pendingTerms) . ' terms: ';
-        foreach ($this->pendingTerms as $t) {
-            $msg .= $t->getText();
-            if ($t->getParent() != null)
-                $msg .= " (parent " . $t->getParent()->getText() . ")";
-            $msg .= ', ';
-        }
-        // dump($msg);
-        /* */
         $this->term_repo->flush();
         $this->pendingTerms = array();
     }
