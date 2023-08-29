@@ -196,7 +196,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $gato = $ts->find('gato', $this->spanish);
         $gatos = $ts->find('gatos', $this->spanish);
 
-        $this->assertEquals($gatos->getParent()->getId(), $gato->getId(), 'mapped to gato');
+        $this->assertEquals($gatos->getParents()[0]->getId(), $gato->getId(), 'mapped to gato');
         $this->assertEquals($gato->getFlashMessage(), 'Auto-created parent for "gatos"', 'gato implicitly created');
     }
 
@@ -229,7 +229,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $gatos = $ts->find('gatos', $this->spanish);
         $gato_eng = $ts->find('gato', $this->english);
 
-        $this->assertEquals($gatos->getParent()->getId(), $gato->getId(), 'mapped to spanish gato');
+        $this->assertEquals($gatos->getParents()[0]->getId(), $gato->getId(), 'mapped to spanish gato');
         $this->assertTrue($gato_eng != null, 'have eng gato');
     }
 
@@ -261,7 +261,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $gato = $ts->find('gato', $this->spanish);
         $gatos = $ts->find('gatos', $this->spanish);
 
-        $this->assertEquals($gatos->getParent()->getId(), $gato->getId(), 'mapped');
+        $this->assertEquals($gatos->getParents()[0]->getId(), $gato->getId(), 'mapped');
         $this->assertEquals($gato->getTranslation(), 'CAT', 'x');
     }
 

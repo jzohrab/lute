@@ -155,7 +155,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
 
     private function save_parent_with_term() {
         $p = $this->addTerms($this->english, 'parent')[0];
-        $this->term->setParent($p);
+        $this->term->addParent($p);
         $this->term_repo->save($this->term, true);  // save parent
         foreach (['wordimages', 'wordflashmessages', 'wordparents', 'wordtags' ] as $t)
             DbHelpers::assertRecordcountEquals($t, 1, $t . " before");

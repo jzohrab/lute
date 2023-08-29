@@ -59,7 +59,7 @@ class Terms_Test extends AcceptanceTestBase
         $updates = [
             'language' => $this->spanish->getLgID(),
             'Text' => 'gatos',
-            'ParentText' => 'gato',
+            'Parents' => ['gato'],
             'Translation' => 'cat'
         ];
         $ctx = $this->getTermContext();
@@ -75,7 +75,32 @@ class Terms_Test extends AcceptanceTestBase
         $crawler = $this->client->refreshCrawler();
         $form = $crawler->selectButton('Update')->form();
         $this->assertEquals($form['term_dto[Text]']->getValue(), 'gatos', 'same term found');
-        $this->assertEquals($form['term_dto[ParentText]']->getValue(), 'gato', 'parent set');
+    }
+
+    /**
+     * @group termandmultipleparents
+     */
+    public function test_term_and_multiple_parents_created(): void
+    {
+        $this->client->request('GET', '/');
+        $this->client->clickLink('Terms');
+        $this->client->clickLink('Create new');
+
+        $updates = [
+            'language' => $this->spanish->getLgID(),
+            'Text' => 'aaaa',
+            'Parents' => ['aa', 'bb'],
+            'Translation' => 'thing'
+        ];
+        $ctx = $this->getTermContext();
+        $ctx->updateTermForm($updates);
+
+        $expected = [
+            '; aa; ; thing; Spanish; ; New (1)',
+            '; aaaa; aa, bb; thing; Spanish; ; New (1)',
+            '; bb; ; thing; Spanish; ; New (1)',
+        ];
+        $ctx->listingShouldContain('3 terms', $expected);
     }
 
     /**
@@ -92,7 +117,7 @@ class Terms_Test extends AcceptanceTestBase
         $updates = [
             'language' => $this->spanish->getLgID(),
             'Text' => 'gatos',
-            'ParentText' => 'gato',
+            'Parents' => ['gato'],
             'Translation' => 'cat'
         ];
         $ctx->updateTermForm($updates);

@@ -94,9 +94,36 @@ class ReadingContext
         $actual = str_replace($zws, '', $loaded);
         \PHPUnit\Framework\Assert::assertEquals($actual, $expected_Text, 'text pre-loaded');
 
-        foreach (array_keys($updates) as $f) {
+        $checkkeys = array_keys($updates);
+        $checkkeys = array_filter($checkkeys, fn($s) => $s != 'Tags' && $s != 'Parents');
+        foreach ($checkkeys as $f) {
             $form["term_dto[{$f}]"] = $updates[$f];
         }
+
+        $valOrEmpty = function($key, $arr) {
+            if (! array_key_exists($key, $arr))
+                return [];
+            return $arr[$key];
+        };
+
+        $tags = $valOrEmpty('Tags', $updates);
+        if (count($tags) > 0) {
+            $fs = 'ul#termtagslist li.tagit-new > input.ui-autocomplete-input';
+            $tt = $crawler->filter($fs);
+            \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single tag input');
+            $input = $tt->eq(0);
+            $input->sendkeys(implode(' ', $tags));
+        }
+
+        $parents = $valOrEmpty('Parents', $updates);
+        if (count($parents) > 0) {
+            $fs = 'ul#parentslist li.tagit-new > input.ui-autocomplete-input';
+            $tt = $crawler->filter($fs);
+            \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single parent input');
+            $input = $tt->eq(0);
+            $input->sendkeys(implode(' ', $parents));
+        }
+
         $crawler = $this->client->submit($form);
         usleep(300 * 1000);
     }

@@ -22,7 +22,7 @@ final class LanguageRepository_Test extends DatabaseTestBase
         $term_service = new TermService($this->term_repo);
         $t1 = new Term($english, "Hello");
         $t2 = new Term($english, "there");
-        $t1->setParent($t2);
+        $t1->addParent($t2);
         $term_service->add($t1, true);
 
         DbHelpers::assertRecordcountEquals('select * from languages', 1, '1 lang');
