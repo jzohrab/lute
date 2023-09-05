@@ -270,6 +270,10 @@
    /* disallow select, only allow mouse-down-drag-up to define multiword
    terms. */
    user-select: none;
+
+   /* Add a transparent border so that when the .wordhover or .kwordmarked
+   style is added, things don't get pushed around. */
+   border-bottom: 1px solid transparent;
  }
  
  span.status5stat
