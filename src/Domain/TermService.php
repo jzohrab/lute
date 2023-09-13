@@ -72,11 +72,10 @@ class TermService {
      */
     public function findOrNew(Language $language, string $text): Term
     {
-        $textlc = mb_strtolower($text);
-        $t = $this->find($textlc, $language);
+        $t = $this->find($text, $language);
         if (null != $t)
             return $t;
-        return new Term($language, $textlc);
+        return new Term($language, $text);
     }
 
     /**
