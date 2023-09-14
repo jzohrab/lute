@@ -1,5 +1,5 @@
 # User data is mounted into the container.
-data/
+#-data/
 
 # Development stuff
 .git/
@@ -14,5 +14,5 @@ var/
 vendor/
 
 # env files are copied into the final layer
-.env
+#-.env
 .env.test

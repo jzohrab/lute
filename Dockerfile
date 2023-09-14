@@ -20,6 +20,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php -r "unlink('composer-setup.php');"
 
 WORKDIR /lute
+VOLUME /lute/data
 
 COPY ./composer.* ./
 
@@ -34,5 +35,5 @@ COPY . .
 # COPY .env.example ./.env
 
 WORKDIR public
-CMD ["php", "-S", "0.0.0.0:8000"]
-EXPOSE 8000
+CMD ["php", "-S", "0.0.0.0:80"]
+EXPOSE 80
