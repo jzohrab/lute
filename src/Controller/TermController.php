@@ -113,6 +113,11 @@ class TermController extends AbstractController
         if (! $submitted_valid)
             return null;
 
+        if ($termdto->textHasChanged()) {
+            $msg = "text has changed from {$termdto->OriginalText} to {$termdto->Text}";
+            throw new \Exception($msg);
+        }
+
         $term = TermDTO::buildTerm($termdto, $term_svc, $termtag_repo);
         try {
             $term_svc->add($term);
@@ -203,7 +208,7 @@ class TermController extends AbstractController
             'termdto' => $dto,
             'form' => $form,
             'showlanguageselector' => false,
-            'disabletermediting' => true
+            'disabletermediting' => false
         ]);
     }
 

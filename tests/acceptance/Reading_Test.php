@@ -41,6 +41,28 @@ class Reading_Test extends AcceptanceTestBase
     }
 
     /**
+     * @group termcase
+     */
+    public function test_reading_with_term_case_updates(): void
+    {
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->client->request('GET', '/');
+        usleep(300 * 1000);
+        $this->client->clickLink('Hola');
+        $this->assertPageTitleContains('Reading "Hola (1/1)"');
+
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
+        $ctx->clickReadingWord('Hola');
+
+        $updates = [ 'Text' => 'hola', 'Translation' => 'hello' ];
+        $ctx->updateTermForm('Hola', $updates);
+
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
+        $ctx->assertWordDataEquals('Hola', 'status1');
+    }
+
+    /**
      * @group readingtermmultipleparents
      */
     public function test_reading_with_term_multiple_parents_updates(): void
@@ -329,4 +351,6 @@ class Reading_Test extends AcceptanceTestBase
         $expected = "Tutorial (3/";
         $this->assertStringContainsString($expected, $fullcontent, $expected . ' not found in ' . $fullcontent);
     }
+
+    // TODO: can't change the text of term, can change case.
 }

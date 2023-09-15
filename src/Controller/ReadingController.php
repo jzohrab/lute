@@ -116,6 +116,12 @@ class ReadingController extends AbstractController
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // Front-end should prevent text changing.
+            if ($termdto->textHasChanged()) {
+                $msg = "text has changed from {$termdto->OriginalText} to {$termdto->Text}";
+                throw new \Exception($msg);
+            }
+
             $facade->saveDTO($termdto);
             return $this->render('read/updated.html.twig', [
                 'termdto' => $termdto
@@ -127,7 +133,7 @@ class ReadingController extends AbstractController
             'form' => $form,
             'extra' => $request->query,
             'showlanguageselector' => false,
-            'disabletermediting' => true,
+            'disabletermediting' => false,
             'parent_link_to_frame' => true,
         ]);
     }

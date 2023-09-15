@@ -14,6 +14,9 @@ class TermDTO
 
     public ?Language $language = null;
 
+    /* The original text given to the DTO, to track changes. */
+    public ?string $OriginalText = null;
+
     public ?string $Text = null;
 
     public ?int $Status = 1;
@@ -38,6 +41,11 @@ class TermDTO
         $this->termTags = array();
     }
 
+    public function textHasChanged(): bool {
+        if (($this->OriginalText ?? '') == '')
+            return false;
+        return mb_strtolower($this->OriginalText) != mb_strtolower($this->Text);
+    }
 
     /**
      * Convert the given TermDTO to a Term.

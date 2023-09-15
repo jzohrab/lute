@@ -36,6 +36,7 @@ class TermTags_Test extends AcceptanceTestBase
         $ctx->updateTermForm($updates);
 
         $wait = function() { usleep(200 * 1000); };
+        $wait();
         $this->client->request('GET', '/');
         $this->client->clickLink('Term Tags');
         $wait();

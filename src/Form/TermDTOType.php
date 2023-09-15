@@ -31,6 +31,13 @@ class TermDTOType extends AbstractType
                     'choice_label' => 'lgName'
                   ]
             )
+            ->add('OriginalText',
+                  HiddenType::class,
+                  [ 'label' => 'OriginalText',
+                    'attr' => [ 'class' => 'form-text', 'placeholder' => 'Term' ],
+                    'required' => true
+                  ]
+            )
             ->add('Text',
                   TextType::class,
                   [ 'label' => 'Text',

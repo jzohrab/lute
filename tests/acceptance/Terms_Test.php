@@ -207,5 +207,7 @@ class Terms_Test extends AcceptanceTestBase
             [ 'No data available in table' ]
         );
     }
-    
+
+
+    // TODO: can't change the text of term, can change case.
 }
