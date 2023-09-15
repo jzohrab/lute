@@ -92,7 +92,7 @@ class TermController extends AbstractController
             $trans = $t->getTranslation();
             $result[] = [
                 'id' => $t->getID(),
-                'text' => $t->getTextLC(),
+                'text' => $t->getText(),
                 'translation' => $t->getTranslation()
             ];
         }

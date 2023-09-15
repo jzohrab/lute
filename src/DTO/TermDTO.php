@@ -77,7 +77,7 @@ class TermDTO
             fn($p) => $p != null && $p != '' && mb_strtolower($dto->Text) != mb_strtolower($p)
         );
         foreach ($createparents as $p) {
-            $termparents[] = TermDTO::findOrCreateParent(mb_strtolower($p), $dto, $term_service, $termtags);
+            $termparents[] = TermDTO::findOrCreateParent($p, $dto, $term_service, $termtags);
         }
         $t->removeAllParents();
         foreach ($termparents as $tp) {
