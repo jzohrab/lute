@@ -35,9 +35,10 @@ class TermTags_Test extends AcceptanceTestBase
         ];
         $ctx->updateTermForm($updates);
 
+        $wait = function() { usleep(200 * 1000); };
         $this->client->request('GET', '/');
         $this->client->clickLink('Term Tags');
-        usleep(200 * 1000);
+        $wait();
         $ctx = $this->getTermTagContext();
         $ctx->listingShouldContain('tag created', [ 'sometag; ; 1; ' ]);
 
@@ -47,23 +48,27 @@ class TermTags_Test extends AcceptanceTestBase
             'Comment' => 'some-comment'
         ];
         $ctx->updateForm($updates);
+        $wait();
         $ctx->listingShouldContain('new created', [ 'newtag; some-comment; -; ', 'sometag; ; 1; ' ]);
 
         $this->client->clickLink('1');  // One tag.
+        $wait();
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain('tagged term shown', [ '; gato; ; cat; Spanish; sometag; New (1)' ]);
 
         $this->client->request('GET', '/');
+        $wait();
         $this->client->clickLink('Term Tags');
-        usleep(200 * 1000);
+        $wait();
         $this->client->getMouse()->clickTo("#deltermtag1");
         $this->client->getWebDriver()->switchTo()->alert()->accept(); // accept after clicking on delete
         $this->client->switchTo()->defaultContent();
-        usleep(200 * 1000);
+        $wait();
         $ctx = $this->getTermTagContext();
         $ctx->listingShouldContain('sometag deleted', [ 'newtag; some-comment; -; ' ]);
 
         $this->client->request('GET', '/');
+        $wait();
         $this->client->clickLink('Terms');
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain('term not deleted', [ '; gato; ; cat; Spanish; ; New (1)' ]);

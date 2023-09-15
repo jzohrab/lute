@@ -33,7 +33,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->clickReadingWord('Hola');
 
         $updates = [ 'Translation' => 'hello', 'Parents' => ['adios'], 'Tags' => [ 'some', 'tags'] ];
-        $ctx->updateTermForm('hola', $updates);
+        $ctx->updateTermForm('Hola', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
         $ctx->assertWordDataEquals('Hola', 'status1');
@@ -58,7 +58,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->clickReadingWord('Hola');
 
         $updates = [ 'Translation' => 'hello', 'Parents' => [ 'adios', 'amigo' ] ];
-        $ctx->updateTermForm('hola', $updates);
+        $ctx->updateTermForm('Hola', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
         $ctx->assertWordDataEquals('Hola', 'status1');
@@ -85,7 +85,7 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000); // 300k microseconds - should really wait ...
 
         $updates = [ 'Translation' => 'goodbye friend' ];
-        $ctx->updateTermForm('adios amigo', $updates);
+        $ctx->updateTermForm('Adios amigo', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios amigo/.', 'adios amigo grouped');
         $ctx->assertWordDataEquals('Adios amigo', 'status1');
@@ -322,6 +322,8 @@ class Reading_Test extends AcceptanceTestBase
         $this->clickLinkID("#navNext");
 
         $this->client->request('GET', '/');
+        $wait = function() { usleep(500 * 1000); };
+        $wait();
         $ctx = $this->getBookContext();
         $fullcontent = implode('|', $ctx->getBookTableContent());
         $expected = "Tutorial (3/";
