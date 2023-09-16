@@ -39,7 +39,7 @@ class TermContext
 
     public function updateTermForm($updates) {
         $crawler = $this->client->refreshCrawler();
-        $form = $crawler->selectButton('Update')->form();
+        $form = $crawler->selectButton('Save')->form();
 
         $checkkeys = array_keys($updates);
         $checkkeys = array_filter($checkkeys, fn($s) => $s != 'Tags' && $s != 'Parents');

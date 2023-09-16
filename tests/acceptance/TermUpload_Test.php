@@ -37,7 +37,7 @@ class TermUpload_Test extends AcceptanceTestBase
 
         $this->client->clickLink('gato');
         $crawler = $this->client->refreshCrawler();
-        $form = $crawler->selectButton('Update')->form();
+        $form = $crawler->selectButton('Save')->form();
         $this->assertEquals($form['term_dto[Text]']->getValue(), 'gato', 'same term found');
         $this->assertEquals($form['term_dto[Translation]']->getValue(), "cat\nhouse cat", 'translation with return');
     }
