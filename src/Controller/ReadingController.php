@@ -133,7 +133,6 @@ class ReadingController extends AbstractController
             'form' => $form,
             'extra' => $request->query,
             'showlanguageselector' => false,
-            'disabletermediting' => false,
             'parent_link_to_frame' => true,
         ]);
     }

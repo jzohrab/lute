@@ -156,8 +156,7 @@ class TermController extends AbstractController
         return $this->renderForm('term/formframes.html.twig', [
             'termdto' => $dto,
             'form' => $form,
-            'showlanguageselector' => true,
-            'disabletermediting' => false
+            'showlanguageselector' => true
         ]);
     }
 
@@ -207,8 +206,7 @@ class TermController extends AbstractController
         return $this->renderForm('term/formframes.html.twig', [
             'termdto' => $dto,
             'form' => $form,
-            'showlanguageselector' => false,
-            'disabletermediting' => false
+            'showlanguageselector' => false
         ]);
     }
 

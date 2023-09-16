@@ -16,7 +16,7 @@
 
   <tr>
     <td>
-      {{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}
+      {{ form_widget(form.Text) }}
     </td>
     <td style="white-space: nowrap;">
       <img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" />
@@ -200,16 +200,6 @@
       do_term_lookup(false);
     }
 
-    // The "term" field is sometimes disabled, so it's not submitted,
-    // causing problems b/c the entity Text is not set ... so
-    // make sure it's enabled.
-    // Ref https://stackoverflow.com/questions/8925716/
-    //   disabled-form-fields-not-submitting-data
-    $('form[name="term_dto"]').submit(function(e) {
-      $(':disabled').each(function(e) {
-        $(this).removeAttr('disabled');
-      })
-    });
   });
 
   /** LOOKUPS */
