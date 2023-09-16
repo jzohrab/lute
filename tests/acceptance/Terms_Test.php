@@ -42,7 +42,7 @@ class Terms_Test extends AcceptanceTestBase
 
         $this->client->clickLink('gato');
         $crawler = $this->client->refreshCrawler();
-        $form = $crawler->selectButton('Update')->form();
+        $form = $crawler->selectButton('Save')->form();
         $this->assertEquals($form['term_dto[Text]']->getValue(), 'gato', 'same term found');
     }
 
@@ -73,7 +73,7 @@ class Terms_Test extends AcceptanceTestBase
 
         $this->client->clickLink('gatos');
         $crawler = $this->client->refreshCrawler();
-        $form = $crawler->selectButton('Update')->form();
+        $form = $crawler->selectButton('Save')->form();
         $this->assertEquals($form['term_dto[Text]']->getValue(), 'gatos', 'same term found');
     }
 
@@ -207,5 +207,7 @@ class Terms_Test extends AcceptanceTestBase
             [ 'No data available in table' ]
         );
     }
-    
+
+
+    // TODO: can't change the text of term, can change case.
 }

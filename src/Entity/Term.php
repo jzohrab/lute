@@ -118,15 +118,17 @@ class Term
         $tokstrings = array_map(fn($tok) => $tok->token, $tokens);
 
         $t = implode($zws, $tokstrings);
+        $oldWoTextLC = $this->WoTextLC;
+        $newWoTextLC = mb_strtolower($t);
 
-        $text_changed = $this->WoText != null && $this->WoText != $t;
+        $text_changed = $oldWoTextLC != null && $newWoTextLC != $oldWoTextLC;
         if ($this->id != null && $text_changed) {
             $msg = "Cannot change text of term '{$this->WoText}' (id = {$this->id}) once saved.";
             throw new \Exception($msg);
         }
 
         $this->WoText = $t;
-        $this->WoTextLC = mb_strtolower($t);
+        $this->WoTextLC = $newWoTextLC;
 
         $this->calcTokenCount();
         return $this;
@@ -317,6 +319,7 @@ class Term
         $f = new TermDTO();
         $f->id = $this->getID();
         $f->language = $this->getLanguage();
+        $f->OriginalText = $this->getText();
         $f->Text = $this->getText();
         $f->Status = $this->getStatus();
         $f->Translation = $this->getTranslation();

@@ -14,6 +14,9 @@ class TermDTO
 
     public ?Language $language = null;
 
+    /* The original text given to the DTO, to track changes. */
+    public ?string $OriginalText = null;
+
     public ?string $Text = null;
 
     public ?int $Status = 1;
@@ -38,6 +41,11 @@ class TermDTO
         $this->termTags = array();
     }
 
+    public function textHasChanged(): bool {
+        if (($this->OriginalText ?? '') == '')
+            return false;
+        return mb_strtolower($this->OriginalText) != mb_strtolower($this->Text);
+    }
 
     /**
      * Convert the given TermDTO to a Term.
@@ -77,7 +85,7 @@ class TermDTO
             fn($p) => $p != null && $p != '' && mb_strtolower($dto->Text) != mb_strtolower($p)
         );
         foreach ($createparents as $p) {
-            $termparents[] = TermDTO::findOrCreateParent(mb_strtolower($p), $dto, $term_service, $termtags);
+            $termparents[] = TermDTO::findOrCreateParent($p, $dto, $term_service, $termtags);
         }
         $t->removeAllParents();
         foreach ($termparents as $tp) {

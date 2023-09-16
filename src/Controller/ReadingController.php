@@ -97,6 +97,9 @@ class ReadingController extends AbstractController
         ReadingFacade $facade
     ): Response
     {
+        // TODO:duplicate_code? - this code is practically a dup of
+        // TermController->processTermForm().
+
         // When a term is created in the form, the spaces passed by
         // the form are "nbsp;" = non-breaking spaces, which are
         // actually different from regular spaces, as seen by the
@@ -113,6 +116,12 @@ class ReadingController extends AbstractController
         $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // Front-end should prevent text changing.
+            if ($termdto->textHasChanged()) {
+                $msg = "text has changed from {$termdto->OriginalText} to {$termdto->Text}";
+                throw new \Exception($msg);
+            }
+
             $facade->saveDTO($termdto);
             return $this->render('read/updated.html.twig', [
                 'termdto' => $termdto
@@ -124,7 +133,6 @@ class ReadingController extends AbstractController
             'form' => $form,
             'extra' => $request->query,
             'showlanguageselector' => false,
-            'disabletermediting' => true,
             'parent_link_to_frame' => true,
         ]);
     }

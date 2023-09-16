@@ -12,9 +12,11 @@
     <td>{{ form_widget(form.language) }}</td>
   </tr>
 
+  {{ form_widget(form.OriginalText) }}
+
   <tr>
     <td>
-      {{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}
+      {{ form_widget(form.Text) }}
     </td>
     <td style="white-space: nowrap;">
       <img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" />
@@ -82,7 +84,7 @@
   <tr>
     <td align="right">
       <a href="" onclick="show_term_sentences(); return false;">Sentences</a>
-      <button class="btn">{{ button_label|default('Save') }}</button>
+      <button class="btn" onclick="return validateTerm();">Save</button>
     </td>
   </tr>
 </table>
@@ -92,6 +94,18 @@
 {{ form_end(form) }}
 
 <script type="text/javascript">
+
+  let validateTerm = function() {
+    let origtext = $('#term_dto_OriginalText').val();
+    origtext = origtext.toLowerCase();
+    let newtext = $('#term_dto_Text').val();
+    newtext = newtext.toLowerCase();
+    if (origtext != '' && origtext != newtext) {
+      alert('Only changes of letter case are allowed.');
+      return false;
+    }
+    return true;
+  };
 
   let setup_parent_Tagit = function() {
     var prototypeFieldName = 'term_dto[termParents][__name__]';
@@ -186,16 +200,6 @@
       do_term_lookup(false);
     }
 
-    // The "term" field is sometimes disabled, so it's not submitted,
-    // causing problems b/c the entity Text is not set ... so
-    // make sure it's enabled.
-    // Ref https://stackoverflow.com/questions/8925716/
-    //   disabled-form-fields-not-submitting-data
-    $('form[name="term_dto"]').submit(function(e) {
-      $(':disabled').each(function(e) {
-        $(this).removeAttr('disabled');
-      })
-    });
   });
 
   /** LOOKUPS */

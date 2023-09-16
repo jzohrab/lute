@@ -92,7 +92,7 @@ class TermController extends AbstractController
             $trans = $t->getTranslation();
             $result[] = [
                 'id' => $t->getID(),
-                'text' => $t->getTextLC(),
+                'text' => $t->getText(),
                 'translation' => $t->getTranslation()
             ];
         }
@@ -112,6 +112,11 @@ class TermController extends AbstractController
         $submitted_valid = $form->isSubmitted() && $form->isValid();
         if (! $submitted_valid)
             return null;
+
+        if ($termdto->textHasChanged()) {
+            $msg = "text has changed from {$termdto->OriginalText} to {$termdto->Text}";
+            throw new \Exception($msg);
+        }
 
         $term = TermDTO::buildTerm($termdto, $term_svc, $termtag_repo);
         try {
@@ -151,8 +156,7 @@ class TermController extends AbstractController
         return $this->renderForm('term/formframes.html.twig', [
             'termdto' => $dto,
             'form' => $form,
-            'showlanguageselector' => true,
-            'disabletermediting' => false
+            'showlanguageselector' => true
         ]);
     }
 
@@ -202,8 +206,7 @@ class TermController extends AbstractController
         return $this->renderForm('term/formframes.html.twig', [
             'termdto' => $dto,
             'form' => $form,
-            'showlanguageselector' => false,
-            'disabletermediting' => true
+            'showlanguageselector' => false
         ]);
     }
 
