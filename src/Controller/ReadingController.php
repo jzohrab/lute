@@ -97,6 +97,9 @@ class ReadingController extends AbstractController
         ReadingFacade $facade
     ): Response
     {
+        // TODO:duplicate_code? - this code is practically a dup of
+        // TermController->processTermForm().
+
         // When a term is created in the form, the spaces passed by
         // the form are "nbsp;" = non-breaking spaces, which are
         // actually different from regular spaces, as seen by the
