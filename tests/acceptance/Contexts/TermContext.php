@@ -68,7 +68,7 @@ class TermContext
             $tt = $crawler->filter($fs);
             \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single parent input');
             $input = $tt->eq(0);
-            $input->sendkeys(implode(' ', $parents));
+            $input->sendkeys(implode(',', $parents));
         }
 
         $crawler = $this->client->submit($form);

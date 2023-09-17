@@ -119,6 +119,7 @@
           $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
         },
         fieldName: prototypeFieldName.replace('__name__', 0),
+        allowSpaces: true,
         autocomplete: {
           source: function(request, response) {
             const s = encodeURIComponent(request.term);
