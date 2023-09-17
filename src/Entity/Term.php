@@ -319,8 +319,14 @@ class Term
         $f = new TermDTO();
         $f->id = $this->getID();
         $f->language = $this->getLanguage();
-        $f->OriginalText = $this->getText();
-        $f->Text = $this->getText();
+
+        // Remove zws from strings for user forms.
+        $t = $this->getText();
+        $zws = mb_chr(0x200B); // zero-width space.
+        $t = str_replace($zws, '', $t);
+        $f->OriginalText = $t;
+        $f->Text = $t;
+
         $f->Status = $this->getStatus();
         $f->Translation = $this->getTranslation();
         $f->Romanization = $this->getRomanization();
