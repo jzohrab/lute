@@ -79,7 +79,7 @@ function prepareTextInteractions(textid) {
     position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit flip' },
     items: '.word.showtooltip',
     show: { easing: 'easeOutCirc' },
-    content: function () { return tooltip_textitem_hover_content($(this)); }
+    content: function (setContent) { tooltip_textitem_hover_content($(this), setContent); }
   });
 }
 
@@ -87,18 +87,15 @@ function prepareTextInteractions(textid) {
 /**
  * Build the html content for jquery-ui tooltip.
  */
-let tooltip_textitem_hover_content = function (el) {
+let tooltip_textitem_hover_content = function (el, setContent) {
   elid = parseInt(el.attr('data_wid'));
-  let content = null;
   $.ajax({
     url: `/termpopup/${elid}`,
     type: 'get',
-    async: false,
     success: function(response) {
-      content = response;
+      setContent(response);
     }
   });
-  return content;
 }
 
 
