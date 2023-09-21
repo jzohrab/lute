@@ -399,7 +399,8 @@ class Language
         $arabic
             ->setLgName('Arabic')
             ->setLgDict1URI('https://www.arabicstudentsdictionary.com/search?q=###')
-            ->setLgRegexpWordCharacters('\u0621-\u064A')
+            ->setLgDict2URI('*https://translate.google.com/?hl=es&sl=ar&tl=en&text=###&op=translate')
+            ->setLgRegexpWordCharacters('\x{0621}-\x{064A}')
             ->setLgRegexpSplitSentences('.!?؟۔‎')
             ->setLgRightToLeft(true)
             ->setLgGoogleTranslateURI('*https://translate.google.com/?hl=es&sl=ar&tl=en&text=###');
