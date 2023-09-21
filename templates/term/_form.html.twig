@@ -16,7 +16,7 @@
 
   <tr>
     <td>
-      {{ form_widget(form.Text) }}
+      {{ form_widget(form.Text, { 'attr': {'dir': 'rtl'} }) }}
     </td>
     <td style="white-space: nowrap;">
       <img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" />
