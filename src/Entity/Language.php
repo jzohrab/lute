@@ -394,6 +394,18 @@ class Language
         return $lang;
     }
 
+    public static function makeArabic() {
+        $arabic = new Language();
+        $arabic
+            ->setLgName('Arabic')
+            ->setLgDict1URI('https://www.arabicstudentsdictionary.com/search?q=###')
+            ->setLgRegexpWordCharacters('\u0621-\u064A')
+            ->setLgRegexpSplitSentences('.!?؟۔‎')
+            ->setLgRightToLeft(true)
+            ->setLgGoogleTranslateURI('*https://translate.google.com/?hl=es&sl=ar&tl=en&text=###');
+        return $arabic;
+    }
+
     public static function getPredefined(): array {
         $ret = [
             Language::makeEnglish(),
@@ -402,6 +414,7 @@ class Language
             Language::makeGreek(),
             Language::makeSpanish(),
             Language::makeClassicalChinese(),
+            Language::makeArabic(),
         ];
 
         if (JapaneseParser::MeCab_installed())
