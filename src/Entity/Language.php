@@ -400,7 +400,7 @@ class Language
             ->setLgName('Arabic')
             ->setLgDict1URI('https://www.arabicstudentsdictionary.com/search?q=###')
             ->setLgDict2URI('*https://translate.google.com/?hl=es&sl=ar&tl=en&text=###&op=translate')
-            ->setLgRegexpWordCharacters('\x{0621}-\x{064A}')
+            ->setLgRegexpWordCharacters('\x{0600}-\x{06FF}\x{FE70}-\x{FEFC}')
             ->setLgRegexpSplitSentences('.!?؟۔‎')
             ->setLgRightToLeft(true)
             ->setLgGoogleTranslateURI('*https://translate.google.com/?hl=es&sl=ar&tl=en&text=###');
