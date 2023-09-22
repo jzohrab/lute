@@ -1,5 +1,16 @@
 # Changelog
 
+## 2023-09-17 v2.0.14
+
+This release preserves the case of terms created from texts.  For example, clicking "Paris" in "Je suis à Paris" now creates the term "Paris", instead of "paris".  You can edit the term to change the letter capitalization if needed (but you can't change the term itself -- see [the wiki](https://github.com/jzohrab/lute/wiki/Terms-cannot-be-changed-once-created) for notes).
+
+Feature changes:
+
+* Preserve case for terms when creating from texts (issue [63](https://github.com/jzohrab/lute/issues/63))
+* Allow changing case of Term letters 
+* Allow spaces in parent tags (hit Return after entering a parent)
+* Fix text moving/shifting on hover/click
+
 ## 2023-08-28 v2.0.13
 
 This release adds support for multiple parents, and simplifies some back-end data storage.

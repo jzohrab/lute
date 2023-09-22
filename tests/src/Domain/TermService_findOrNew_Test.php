@@ -33,14 +33,14 @@ final class TermService_findOrNew_Test extends DatabaseTestBase {
     public function test_load_new_word() {
         $t = $this->term_service->findOrNew($this->spanish, 'TENGO');
         $this->assertEquals($t->getID(), 0, 'new word');
-        $this->assertEquals($t->getText(), "tengo", 'text');
+        $this->assertEquals($t->getText(), "TENGO", 'text');
     }
 
     public function test_new_multi_word() {
         $zws = mb_chr(0x200B);
         $t = $this->term_service->findOrNew($this->spanish, "TENGO{$zws} {$zws}una");
         $this->assertEquals($t->getID(), 0, 'new word');
-        $this->assertEquals($t->getText(), "tengo{$zws} {$zws}una", 'text');
+        $this->assertEquals($t->getText(), "TENGO{$zws} {$zws}una", 'text');
     }
 
     public function test_existing_multi_word() {

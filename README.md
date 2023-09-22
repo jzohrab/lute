@@ -51,7 +51,7 @@ If you're a gearhead, like me:
 * Run `composer install --dev` to install dependencies.  If running acceptance tests, run `vendor/bin/bdi detect drivers` to install Panther drivers
 * Make your changes
 * Run `composer test:full` to ensure everything passes.  This runs psalm, Doctrine ORM mapping checks, and unit and acceptance tests
-* Open a PR
+* Open a PR to the `develop` branch
 
 If you're a user: Lute is free :-) ... but if it makes your life better and you feel like saying thanks, I gladly accept <a href="https://www.buymeacoffee.com/jzohrab" target="_blank">coffee</a>.  I'll give thanks and will use the caffeine to implement features, or, better, recruit devs to grow the project.
 

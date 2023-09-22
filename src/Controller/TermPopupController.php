@@ -41,7 +41,7 @@ class TermPopupController extends AbstractController
 
         $parentterms = [];
         foreach ($term->getParents() as $p)
-            $parentterms[] = $p->getTextLC();
+            $parentterms[] = $p->getText();
         $parentterms = implode(', ', $parentterms);
 
         $parentdata = [];

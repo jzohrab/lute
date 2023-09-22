@@ -39,7 +39,7 @@ class TermContext
 
     public function updateTermForm($updates) {
         $crawler = $this->client->refreshCrawler();
-        $form = $crawler->selectButton('Update')->form();
+        $form = $crawler->selectButton('Save')->form();
 
         $checkkeys = array_keys($updates);
         $checkkeys = array_filter($checkkeys, fn($s) => $s != 'Tags' && $s != 'Parents');
@@ -68,7 +68,7 @@ class TermContext
             $tt = $crawler->filter($fs);
             \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single parent input');
             $input = $tt->eq(0);
-            $input->sendkeys(implode(' ', $parents));
+            $input->sendkeys(implode(',', $parents));
         }
 
         $crawler = $this->client->submit($form);

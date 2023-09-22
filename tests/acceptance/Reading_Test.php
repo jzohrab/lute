@@ -33,11 +33,33 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->clickReadingWord('Hola');
 
         $updates = [ 'Translation' => 'hello', 'Parents' => ['adios'], 'Tags' => [ 'some', 'tags'] ];
-        $ctx->updateTermForm('hola', $updates);
+        $ctx->updateTermForm('Hola', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
         $ctx->assertWordDataEquals('Hola', 'status1');
         $ctx->assertWordDataEquals('Adios', 'status1');
+    }
+
+    /**
+     * @group termcase
+     */
+    public function test_reading_with_term_case_updates(): void
+    {
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->client->request('GET', '/');
+        usleep(300 * 1000);
+        $this->client->clickLink('Hola');
+        $this->assertPageTitleContains('Reading "Hola (1/1)"');
+
+        $ctx = $this->getReadingContext();
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
+        $ctx->clickReadingWord('Hola');
+
+        $updates = [ 'Text' => 'hola', 'Translation' => 'hello' ];
+        $ctx->updateTermForm('Hola', $updates);
+
+        $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
+        $ctx->assertWordDataEquals('Hola', 'status1');
     }
 
     /**
@@ -58,7 +80,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->clickReadingWord('Hola');
 
         $updates = [ 'Translation' => 'hello', 'Parents' => [ 'adios', 'amigo' ] ];
-        $ctx->updateTermForm('hola', $updates);
+        $ctx->updateTermForm('Hola', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
         $ctx->assertWordDataEquals('Hola', 'status1');
@@ -85,7 +107,7 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000); // 300k microseconds - should really wait ...
 
         $updates = [ 'Translation' => 'goodbye friend' ];
-        $ctx->updateTermForm('adios amigo', $updates);
+        $ctx->updateTermForm('Adios amigo', $updates);
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios amigo/.', 'adios amigo grouped');
         $ctx->assertWordDataEquals('Adios amigo', 'status1');
@@ -322,9 +344,13 @@ class Reading_Test extends AcceptanceTestBase
         $this->clickLinkID("#navNext");
 
         $this->client->request('GET', '/');
+        $wait = function() { usleep(500 * 1000); };
+        $wait();
         $ctx = $this->getBookContext();
         $fullcontent = implode('|', $ctx->getBookTableContent());
         $expected = "Tutorial (3/";
         $this->assertStringContainsString($expected, $fullcontent, $expected . ' not found in ' . $fullcontent);
     }
+
+    // TODO: can't change the text of term, can change case.
 }
