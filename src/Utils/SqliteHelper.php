@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../db/lib/pdo_migrator.php';
 
 use Symfony\Component\Filesystem\Path;
 use App\Utils\Connection;
+use App\Domain\JapaneseParser;
 
 // Class for namespacing only.
 class SqliteHelper {
@@ -30,11 +31,26 @@ class SqliteHelper {
         return $m;
     }
 
+    /**
+     * Copy the demo db (created with composer db:create:demo),
+     * and remove any data that is not valid for the user.
+     */
     public static function CreateDb() {
         $baseline = __DIR__ . '/../../db/baseline/demo.sqlite';
         $dest = SqliteHelper::DbFilename();
         copy($baseline, $dest);
+
+        if (! JapaneseParser::MeCab_installed()) {
+            SqliteHelper::removeJapaneseData();
+        }
+
         SqliteHelper::runMigrations();
+    }
+
+    private static function removeJapaneseData() {
+        $sql = "delete from languages where LgName = 'Japanese'";
+        $conn = Connection::getFromEnvironment();
+        $conn->query($sql);
     }
 
     public static function isDemoData(): bool {
