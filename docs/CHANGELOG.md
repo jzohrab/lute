@@ -1,5 +1,13 @@
 # Changelog
 
+## 2023-09-22 v2.1.0
+
+Various fixes for new user non-Docker installs:
+
+* Windows users only: Add .env file variable `DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes`.  If you're running Windows and get the error "SQLSTATE[HY000] [14] unable to open database file", try using this .env setting.
+* Remove Japanese from new db demo data if user doesn't have MeCab (issue [69](https://github.com/jzohrab/lute/issues/69))
+
+
 ## 2023-09-17 v2.0.14
 
 This release preserves the case of terms created from texts.  For example, clicking "Paris" in "Je suis à Paris" now creates the term "Paris", instead of "paris".  You can edit the term to change the letter capitalization if needed (but you can't change the term itself -- see [the wiki](https://github.com/jzohrab/lute/wiki/Terms-cannot-be-changed-once-created) for notes).

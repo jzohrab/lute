@@ -189,7 +189,7 @@
     "dev:class": "Show public interface methods of class",
     "todo:list": "Show code todos",
     "todo:types": "Show types of todos",
-    "db:create:demobaseline": "Create the demo data loaded for new users",
+    "db:create:demo": "Create the demo data loaded for new users",
     "db:migrate:test": "Run db migrations on db in .env.test / .env.test.local",
     "db:migrate:prod": "Run db migrations on db in .env / .env.local",
     "db:newscript": "Make a new db migration script",
