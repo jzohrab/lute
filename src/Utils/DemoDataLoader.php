@@ -24,9 +24,10 @@ class DemoDataLoader {
         $s = Language::makeSpanish();
         $g = Language::makeGerman();
         $gr = Language::makeGreek();
+        $ar = Language::makeArabic();
         $cc = Language::makeClassicalChinese();
 
-        $langs = [ $e, $f, $s, $g, $gr, $cc ];
+        $langs = [ $e, $f, $s, $g, $gr, $cc, $ar ];
         $files = [
             'tutorial.txt',
             'tutorial_follow_up.txt',
@@ -35,6 +36,7 @@ class DemoDataLoader {
             'de_Stadtmusikanten.txt',
             'gr_demo.txt',
             'cc_demo.txt',
+            'ar_demo.txt',
         ];
 
         if (JapaneseParser::MeCab_installed()) {

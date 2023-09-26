@@ -80,6 +80,14 @@ class LanguageType extends AbstractType
                     'required' => true
                   ]
             )
+            ->add('LgRightToLeft',
+                  ChoiceType::class,
+                  [ 'choices'  => [ 'No' => 0, 'Yes' => 1 ],
+                    'label' => 'Right-to-left',
+                    'help' => 'For languages such as Arabic and Hebrew',
+                    'required' => true
+                  ]
+            )
             ->add('LgParserType',
                   ChoiceType::class,
                   [ 'choices'  => [
