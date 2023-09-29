@@ -1,0 +1,55 @@
+name: No-MeCab
+
+# Copied from symfony-ci.yml.
+
+on:
+  push:
+    branches: [ "no_mecab_acceptance_test" ]
+  pull_request:
+    branches: [ "no_mecab_acceptance_test" ]
+
+permissions:
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+    # To automatically get bug fixes and new Php versions for shivammathur/setup-php,
+    # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
+    # uses: shivammathur/setup-php@v2
+    - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+      with:
+        php-version: '8.1'
+
+    - uses: actions/checkout@v3
+
+    # "dump()" appears to cause problems in prod,
+    # and "echo" might print bad things to the user's screen.
+    - name: Prevent debug cruft
+      run: composer dev:finddump
+
+    - name: Copy .env.test
+      run: php -r "file_exists('.env.test') || copy('.env.test.example', '.env.test');"
+
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install Dependencies (no mecab)
+      run: composer install --no-progress
+
+    - name: Setup testing db
+      run: composer db:create:test
+
+    - name: Run no-mecab check
+      run: composer test:group nomecab
