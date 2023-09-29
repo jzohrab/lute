@@ -46,10 +46,15 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install Dependencies (no mecab)
-      run: composer install --no-progress
+      run: |
+        composer install --no-progress
+        sudo apt-get update -y
 
     - name: Setup testing db
       run: composer db:create:test
+
+    - name: Run src only tests
+      run: composer test:src
 
     - name: Run no-mecab check
       run: composer test:group nomecab
