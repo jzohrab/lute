@@ -53,13 +53,17 @@ class TermUpload_Test extends AcceptanceTestBase
     {
         $this->client->request('GET', '/');
         $this->client->clickLink('Import Terms');
+        $wait = function() { usleep(200 * 1000); };  // hack
+        $wait();
         $ctx = $this->getTermUploadContext();
 
         $test_file = __DIR__ . '/Fixtures/term_import_variable_columns.csv';
         $ctx->uploadFile($test_file);
+        $wait();
 
         $this->client->request('GET', '/');
         $this->client->clickLink('Terms');
+        $wait();
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain(
             'two terms',
@@ -94,13 +98,17 @@ class TermUpload_Test extends AcceptanceTestBase
 
         $this->client->request('GET', '/');
         $this->client->clickLink('Import Terms');
+        $wait = function() { usleep(200 * 1000); };  // hack
+        $wait();
         $ctx = $this->getTermUploadContext();
 
         $test_file = __DIR__ . '/Fixtures/term_import_issue_50_hsk.csv';
         $ctx->uploadFile($test_file);
+        $wait();
 
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Terms');
+        $wait();
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain(
             'two terms imported',
