@@ -5,7 +5,7 @@ name: Symfony-CI
 
 on:
   push:
-    branches: [ "develop", "master" ]
+    branches: [ "develop", "master", "activate_github_acceptance_tests" ]
   pull_request:
     branches: [ "develop", "master" ]
 
@@ -61,8 +61,8 @@ jobs:
     - name: Setup testing db
       run: composer db:create:test
 
-    # Currently having problems with acceptance tests on GitHub;
-    # locally the tests pass, but not on GitHub.  Needs to be
-    # debugged on separate branch.
     - name: Run src only tests
       run: composer test:src
+
+    - name: Run acceptance tests
+      run: composer test:accept

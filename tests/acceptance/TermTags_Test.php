@@ -71,6 +71,7 @@ class TermTags_Test extends AcceptanceTestBase
         $this->client->request('GET', '/');
         $wait();
         $this->client->clickLink('Terms');
+        $wait();
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain('term not deleted', [ '; gato; ; cat; Spanish; ; New (1)' ]);
     }
