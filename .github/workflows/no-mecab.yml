@@ -56,5 +56,9 @@ jobs:
     - name: Run src only tests
       run: composer test:src
 
+    # Don't use "composer test:group", because that sets various flags
+    # like PANTHER_NO_HEADLESS which aren't valid in GitHub Actions.
     - name: Run no-mecab check
-      run: composer test:group nomecab
+      run: |
+        composer db:create:test
+        NO_BING_IMAGES=true PANTHER_DEVTOOLS=0 SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group nomecab
