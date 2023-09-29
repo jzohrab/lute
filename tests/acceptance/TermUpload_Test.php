@@ -20,15 +20,18 @@ class TermUpload_Test extends AcceptanceTestBase
      */
     public function test_upload_terms_valid_file(): void
     {
+        $wait = function() { usleep(200 * 1000); };  // hack
         $this->client->request('GET', '/');
         $this->client->clickLink('Import Terms');
         $ctx = $this->getTermUploadContext();
 
         $test_file = __DIR__ . '/Fixtures/term_import_1.csv';
         $ctx->uploadFile($test_file);
+        $wait();
 
         $this->client->request('GET', '/');
         $this->client->clickLink('Terms');
+        $wait();
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain(
             'two terms',
@@ -36,6 +39,7 @@ class TermUpload_Test extends AcceptanceTestBase
               '; gatos; gato; ; Spanish; ; New (1)' ]);
 
         $this->client->clickLink('gato');
+        $wait();
         $crawler = $this->client->refreshCrawler();
         $form = $crawler->selectButton('Save')->form();
         $this->assertEquals($form['term_dto[Text]']->getValue(), 'gato', 'same term found');
