@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   symfony-tests:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
 
     # To automatically get bug fixes and new Php versions for shivammathur/setup-php,
@@ -46,9 +46,7 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install Dependencies (no mecab)
-      run: |
-        composer install --no-progress
-        sudo apt-get update -y
+      run: composer install --no-progress
 
     - name: Setup testing db
       run: composer db:create:test
@@ -61,4 +59,4 @@ jobs:
     - name: Run no-mecab check
       run: |
         composer db:create:test
-        NO_BING_IMAGES=true PANTHER_DEVTOOLS=0 SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -v -c phpunit.xml.dist --group nomecab
+        composer test:accept
