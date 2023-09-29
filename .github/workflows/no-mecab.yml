@@ -41,7 +41,9 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install Dependencies (no mecab)
-      run: composer install --no-progress
+      run: |
+        composer update
+        composer install --no-progress
 
     - name: Setup testing db
       run: composer db:create:test
