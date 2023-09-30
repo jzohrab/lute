@@ -34,11 +34,10 @@ jobs:
 
     - name: Windows file hack
       run: |
-        echo. >> .env
-        echo DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes >> .env
+        'DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes' >> .env
 
     - name: Validate windows file hack
-      run: type .env
+      run: Get-Content -Path .env
 
     - name: Cache Composer packages
       id: composer-cache
