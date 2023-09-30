@@ -83,6 +83,7 @@ class ReadingContext
     }
 
     public function updateTermForm($expected_Text, $updates) {
+        usleep(300 * 1000);
         $crawler = $this->client->refreshCrawler();
         $frames = $crawler->filter("#reading-frames-right iframe");
         $this->client->switchTo()->frame($frames);
@@ -113,6 +114,7 @@ class ReadingContext
             \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single tag input');
             $input = $tt->eq(0);
             $input->sendkeys(implode(' ', $tags));
+            usleep(300 * 1000);
         }
 
         $parents = $valOrEmpty('Parents', $updates);
@@ -122,10 +124,17 @@ class ReadingContext
             \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single parent input');
             $input = $tt->eq(0);
             $input->sendkeys(implode(',', $parents));
+            usleep(300 * 1000);
         }
 
         $crawler = $this->client->submit($form);
-        usleep(300 * 1000);
+        usleep(300 * 1000);  // Timing ...
+
+        $os = strtoupper(substr(PHP_OS, 0, 3));
+        if ($os == 'WIN') {
+            // Slow GitHub action on windows???
+            usleep(2000 * 1000);
+        }
     }
 
     public function updateTextBody($new_text) {
