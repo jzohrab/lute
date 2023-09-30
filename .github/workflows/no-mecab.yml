@@ -32,6 +32,14 @@ jobs:
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
+    - name: Windows file hack
+      run: |
+        echo. >> .env
+        echo DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes >> .env
+
+    - name: Validate windows file hack
+      run: type .env
+
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
