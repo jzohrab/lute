@@ -9,8 +9,9 @@ Use this file at your peril.
 use App\Utils\SqliteHelper;
 use App\Utils\MyDotenv;
 
-require __DIR__ . '/../vendor/autoload.php';
-MyDotenv::boot(__DIR__ . '/../.env.test');
+$ds = DIRECTORY_SEPARATOR;
+require __DIR__ . implode($ds, ['..', 'vendor', 'autoload.php']);
+MyDotenv::boot(__DIR__ . implode($ds, ['..', '.env.test']);
 
 SqliteHelper::CreateDb();
 ?>
