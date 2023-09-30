@@ -5,7 +5,7 @@ name: Symfony-CI
 
 on:
   push:
-    branches: [ "develop", "master", "fix_windows_no_mecab_ci" ]
+    branches: [ "develop", "master", "fix_windows_ci_tests" ]
   pull_request:
     branches: [ "develop", "master" ]
 
