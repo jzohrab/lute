@@ -114,7 +114,7 @@ class Reading_Test extends AcceptanceTestBase
 
         $updates = [ 'Translation' => 'goodbye friend' ];
         $ctx->updateTermForm('Adios amigo', $updates);
-        usleep(300 * 1000);
+        usleep(1000 * 1000); // slow github action?
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios amigo/.', 'adios amigo grouped');
         $ctx->assertWordDataEquals('Adios amigo', 'status1');
@@ -141,7 +141,7 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000);
         $updates = [ 'Translation' => 'chapter' ];
         $ctx->updateTermForm('cap.', $updates);
-        usleep(300 * 1000);
+        usleep(1000 * 1000); // slow github action?
 
         $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'updated');
         $ctx->assertWordDataEquals('cap.', 'status1');
