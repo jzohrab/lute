@@ -26,7 +26,7 @@ class Connection {
                 $dburl = str_replace('sqlite:///','sqlite:',$dburl);
             }
         }
-        dump('DB URL: ' . $dburl);  // TODO:remove
+        // dump('DB URL: ' . $dburl);  // TODO:remove
         $dbh = new \PDO($dburl);
 
         // THIS IS EXTREMELY IMPORTANT!
