@@ -24,6 +24,9 @@ jobs:
         php-version: '8.2'
         extensions: zip
 
+    - name: Install sqlite
+      run: choco install sqlite
+
     - uses: actions/checkout@v3
 
     - name: Copy .env.test
