@@ -27,6 +27,7 @@ class NoMecab_Test extends AcceptanceTestBase
         SqliteHelper::CreateDb();
         
         $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('#booktable', 'Tutorial');
 
         $this->assertPageTitleContains('LUTE');
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
