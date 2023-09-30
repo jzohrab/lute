@@ -80,5 +80,7 @@ jobs:
       shell: cmd
 
     - name: Run no-mecab acceptance tests
-      run: vendor\bin\phpunit -v -c phpunit.xml.dist tests\acceptance
+      run: |
+        set SYMFONY_DEPRECATIONS_HELPER=disabled
+        vendor\bin\phpunit -v -c phpunit.xml.dist tests\acceptance
       shell: cmd

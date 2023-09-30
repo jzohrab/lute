@@ -22,7 +22,7 @@ class Reading_Test extends AcceptanceTestBase
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
-
+        usleep(300 * 1000); // 300k microseconds
         $this->assertPageTitleContains('LUTE');
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Hola');
