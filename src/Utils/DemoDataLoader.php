@@ -59,10 +59,10 @@ class DemoDataLoader {
             $content = preg_replace('/#.*\n/u', '', $fullcontent);
 
             preg_match('/language:\s*(.*)\n/u', $fullcontent, $matches);
-            $lang = $langmap[$matches[1]];
+            $lang = $langmap[trim($matches[1])];
 
             preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
-            $title = $matches[1];
+            $title = trim($matches[1]);
 
             $b = Book::makeBook($title, $lang, $content);
             $book_repo->save($b, true);
