@@ -73,6 +73,6 @@ jobs:
     # like PANTHER_NO_HEADLESS which aren't valid in GitHub Actions.
     - name: Run no-mecab check
       run: |
-        D:\a\lute\lute\bin\phpunit --help
-        D:\a\lute\lute\bin\phpunit -v -c phpunit.xml.dist
+        D:\a\lute\lute\vendor\bin\phpunit --help
+        D:\a\lute\lute\vendor\bin\phpunit -v -c phpunit.xml.dist
       shell: cmd
