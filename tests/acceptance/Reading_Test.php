@@ -354,8 +354,7 @@ class Reading_Test extends AcceptanceTestBase
         $this->clickLinkID("#navNext");
 
         $this->client->request('GET', '/');
-        $wait = function() { usleep(500 * 1000); };
-        $wait();
+        $this->client->waitForElementToContain('#booktable', 'Tutorial');
         $ctx = $this->getBookContext();
         $fullcontent = implode('|', $ctx->getBookTableContent());
         $expected = "Tutorial (3/";
