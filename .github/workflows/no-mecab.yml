@@ -65,4 +65,6 @@ jobs:
     # Don't use "composer test:group", because that sets various flags
     # like PANTHER_NO_HEADLESS which aren't valid in GitHub Actions.
     - name: Run no-mecab check
-      run: .\bin\phpunit -v -c phpunit.xml.dist
+      run: |
+        .\bin\phpunit --help
+        .\bin\phpunit -v -c phpunit.xml.dist
