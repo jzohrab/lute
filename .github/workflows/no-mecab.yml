@@ -69,10 +69,12 @@ jobs:
         dir vendor\bin
       shell: cmd
 
+    - name: Debugging, show phpunit options
+      run: vendor\bin\phpunit --help
+      shell: cmd
+
     # Don't use "composer test:group", because that sets various flags
     # like PANTHER_NO_HEADLESS which aren't valid in GitHub Actions.
-    # Currently hardcoded to D:\a\lute\lute\ b/c that's where GitHub puts it ...
-    # maybe can remove that.
     - name: Run no-mecab check
-      run: D:\a\lute\lute\vendor\bin\phpunit -v -c phpunit.xml.dist
+      run: vendor\bin\phpunit -v --stop-on-error -c phpunit.xml.dist
       shell: cmd
