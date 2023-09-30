@@ -35,6 +35,7 @@ class Reading_Test extends AcceptanceTestBase
 
         $updates = [ 'Translation' => 'hello', 'Parents' => ['adios'], 'Tags' => [ 'some', 'tags'] ];
         $ctx->updateTermForm('Hola', $updates);
+        usleep(500 * 1000); // GitHub actions slow?
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
         $ctx->assertWordDataEquals('Hola', 'status1');
