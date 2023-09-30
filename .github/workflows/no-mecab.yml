@@ -65,6 +65,4 @@ jobs:
     # Don't use "composer test:group", because that sets various flags
     # like PANTHER_NO_HEADLESS which aren't valid in GitHub Actions.
     - name: Run no-mecab check
-      run: |
-        echo "Windows why can't I set ENV vars like on Mac ... why are you this way."
-        ./bin/phpunit -v -c phpunit.xml.dist tests/acceptance
+      run: ./bin/phpunit -v -c phpunit.xml.dist tests/acceptance
