@@ -1,5 +1,16 @@
 # Changelog
 
+## 2023-09-29 v2.1.1
+
+Feature changes:
+
+* Add Right-to-Left language support and a sample Arabic text (issue [67](https://github.com/jzohrab/lute/issues/67))
+
+Back end:
+
+* Re-activate acceptance tests for develop, master
+
+
 ## 2023-09-22 v2.1.0
 
 Various fixes for new user non-Docker installs:
