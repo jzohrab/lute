@@ -62,9 +62,14 @@ jobs:
     - name: Setup testing db
       run: php db/create_no_check.php
 
+    - name: Debugging, list directory contents
+      run: dir
+      shell: cmd
+
     # Don't use "composer test:group", because that sets various flags
     # like PANTHER_NO_HEADLESS which aren't valid in GitHub Actions.
     - name: Run no-mecab check
       run: |
-        .\bin\phpunit --help
-        .\bin\phpunit -v -c phpunit.xml.dist
+        D:\a\lute\lute\bin\phpunit --help
+        D:\a\lute\lute\bin\phpunit -v -c phpunit.xml.dist
+      shell: cmd
