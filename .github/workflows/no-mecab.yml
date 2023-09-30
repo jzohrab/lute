@@ -1,18 +1,16 @@
 name: No-MeCab
 
-# Copied from symfony-ci.yml.
-
 on:
   push:
-    branches: [ "no_mecab_acceptance_test" ]
+    branches: [ "fix_windows_no_mecab_ci" ]
   pull_request:
-    branches: [ "no_mecab_acceptance_test" ]
+    branches: [ "fix_windows_no_mecab_ci" ]
 
 permissions:
   contents: read
 
 jobs:
-  symfony-tests:
+  windows-no-mecab-tests:
     runs-on: windows-latest
     steps:
 
