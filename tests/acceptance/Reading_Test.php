@@ -35,7 +35,6 @@ class Reading_Test extends AcceptanceTestBase
 
         $updates = [ 'Translation' => 'hello', 'Parents' => ['adios'], 'Tags' => [ 'some', 'tags'] ];
         $ctx->updateTermForm('Hola', $updates);
-        usleep(1000 * 1000); // GitHub actions very slow?
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.');
         $ctx->assertWordDataEquals('Hola', 'status1');
@@ -114,7 +113,6 @@ class Reading_Test extends AcceptanceTestBase
 
         $updates = [ 'Translation' => 'goodbye friend' ];
         $ctx->updateTermForm('Adios amigo', $updates);
-        usleep(1000 * 1000); // slow github action?
 
         $ctx->assertDisplayedTextEquals('Hola/. /Adios amigo/.', 'adios amigo grouped');
         $ctx->assertWordDataEquals('Adios amigo', 'status1');
@@ -141,7 +139,6 @@ class Reading_Test extends AcceptanceTestBase
         usleep(300 * 1000);
         $updates = [ 'Translation' => 'chapter' ];
         $ctx->updateTermForm('cap.', $updates);
-        usleep(1000 * 1000); // slow github action?
 
         $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'updated');
         $ctx->assertWordDataEquals('cap.', 'status1');
@@ -156,7 +153,6 @@ class Reading_Test extends AcceptanceTestBase
 
         $updates = [ 'Translation' => 'chap 1' ];
         $ctx->updateTermForm('cap. uno', $updates);
-        usleep(300 * 1000);
 
         $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap. uno/.', 're-updated');
         $ctx->assertWordDataEquals('cap. uno', 'status1');

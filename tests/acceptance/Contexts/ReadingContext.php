@@ -128,7 +128,13 @@ class ReadingContext
         }
 
         $crawler = $this->client->submit($form);
-        usleep(300 * 1000);
+        usleep(300 * 1000);  // Timing ...
+
+        $os = strtoupper(substr(PHP_OS, 0, 3));
+        if ($os == 'WIN') {
+            // Slow GitHub action on windows???
+            usleep(2000 * 1000);
+        }
     }
 
     public function updateTextBody($new_text) {
