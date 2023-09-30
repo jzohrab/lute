@@ -26,7 +26,7 @@ class TermMappingService {
     private array $pendingTerms;
 
     public static function loadMappingFile($filename): array {
-        $lines = explode("\n", file_get_contents($filename));
+        $lines = explode(PHP_EOL, file_get_contents($filename));
         // No blanks
         $lines = array_filter($lines, fn($lin) => trim($lin) != '');
         // No comments
