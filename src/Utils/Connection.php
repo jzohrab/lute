@@ -18,8 +18,8 @@ class Connection {
             if ($replace == 'yes') {
                 $d = str_replace('sqlite:///','sqlite:',$d);
             }
-            throw new \Exception('DB URL: ' . $d);
         }
+        dump('DB STRING: ' . $d);  // TODO:remove
         $dbh = new \PDO($d);
 
         // THIS IS EXTREMELY IMPORTANT!

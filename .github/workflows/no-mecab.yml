@@ -38,9 +38,12 @@ jobs:
     - name: Windows file hack
       run: |
         'DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes' >> .env
+        'DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes' >> .env.test
 
     - name: Validate windows file hack
-      run: Get-Content -Path .env
+      run: |
+        Get-Content -Path .env
+        Get-Content -Path .env.test
 
     - name: Cache Composer packages
       id: composer-cache
