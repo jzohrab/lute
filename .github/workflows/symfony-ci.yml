@@ -5,7 +5,7 @@ name: Symfony-CI
 
 on:
   push:
-    branches: [ "develop", "master", "activate_github_acceptance_tests" ]
+    branches: [ "develop", "master", "fix_windows_no_mecab_ci" ]
   pull_request:
     branches: [ "develop", "master" ]
 
@@ -13,7 +13,9 @@ permissions:
   contents: read
 
 jobs:
+
   symfony-tests:
+
     runs-on: ubuntu-latest
     steps:
 
@@ -66,3 +68,80 @@ jobs:
 
     - name: Run acceptance tests
       run: composer test:accept
+
+
+  windows-no-mecab-tests:
+    runs-on: windows-latest
+    steps:
+
+    # To automatically get bug fixes and new Php versions for shivammathur/setup-php,
+    # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
+    # uses: shivammathur/setup-php@v2
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: zip,pdo_sqlite,sqlite3
+
+    - name: Install sqlite
+      run: choco install sqlite
+
+    - uses: actions/checkout@v3
+
+    - name: Copy .env.test
+      run: php -r "file_exists('.env.test') || copy('.env.test.example', '.env.test');"
+
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - name: Windows file hack
+      run: |
+        'DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes' >> .env
+        'DB_WINDOWS_REPLACE_TRIPLE_SLASH=yes' >> .env.test
+
+    - name: Validate windows file hack
+      run: |
+        Get-Content -Path .env
+        Get-Content -Path .env.test
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install Dependencies (no mecab)
+      run: |
+        composer update
+        composer install --no-progress
+
+    - name: Setup testing db
+      run: php db/create_no_check.php
+
+    # - name: Debugging, list directory contents
+    #   run: |
+    #     dir
+    #     dir bin
+    #     dir vendor\bin
+    #   shell: cmd
+
+    # - name: Debugging, show phpunit options
+    #   run: vendor\bin\phpunit --help
+    #   shell: cmd
+
+    # Don't use "composer test:src" etc, because that sets various flags
+    # like PANTHER_NO_HEADLESS as part of the script call,
+    # which isn't valid in windows
+    - name: Run no-mecab unit tests
+      run: |
+        set SYMFONY_DEPRECATIONS_HELPER=disabled
+        vendor\bin\phpunit -v -c phpunit.xml.dist tests\src
+      shell: cmd
+
+    - name: Run no-mecab acceptance tests
+      run: |
+        set SYMFONY_DEPRECATIONS_HELPER=disabled
+        vendor\bin\phpunit -v -c phpunit.xml.dist tests\acceptance
+      shell: cmd
