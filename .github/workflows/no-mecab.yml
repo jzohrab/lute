@@ -63,7 +63,10 @@ jobs:
       run: php db/create_no_check.php
 
     - name: Debugging, list directory contents
-      run: dir
+      run: |
+        dir
+        dir bin
+        dir vendor\bin
       shell: cmd
 
     # Don't use "composer test:group", because that sets various flags
