@@ -39,13 +39,12 @@ class Books_Test extends AcceptanceTestBase
             'Text' => 'Hola. Tengo un gato.',
         ];
         $ctx->updateBookForm($updates);
-        $wait = function() { usleep(200 * 1000); };  // hack
-        $wait();
+        $this->client->waitForElementToContain('body', 'Tengo');
         $ctx = $this->getReadingContext();
         $ctx->assertDisplayedTextEquals('Hola/. /Tengo/ /un/ /gato/.', 'book content shown');
 
         $this->client->request('GET', '/');
-        $wait();
+        $this->client->waitForElementToContain('body', 'Hola');
         $ctx = $this->getBookContext();
         $ctx->listingShouldContain('Book shown', [ 'Hola (1/1); Spanish; ; 4 (0%); ' ]);
     }

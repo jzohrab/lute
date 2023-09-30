@@ -324,7 +324,7 @@ A house cat.",,1,"animal, noun",GA-toh';
 
         $ts = new TermService($this->term_repo);
         $gato = $ts->find('gato', $this->spanish);
-        $this->assertEquals($gato->getTranslation(), "A cat.\nA house cat.", "has slash n");
+        $this->assertEquals($gato->getTranslation(), 'A cat.' . PHP_EOL . 'A house cat.', "has return");
     }
 
     /**

@@ -22,10 +22,11 @@ class Reading_Test extends AcceptanceTestBase
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
-
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->assertPageTitleContains('LUTE');
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
         $this->assertPageTitleContains('Reading "Hola (1/1)"');
 
         $ctx = $this->getReadingContext();
@@ -41,14 +42,15 @@ class Reading_Test extends AcceptanceTestBase
     }
 
     /**
-     * @group termcase
+     * @group acctermcase
      */
     public function test_reading_with_term_case_updates(): void
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
-        usleep(300 * 1000);
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
         $this->assertPageTitleContains('Reading "Hola (1/1)"');
 
         $ctx = $this->getReadingContext();
@@ -69,10 +71,12 @@ class Reading_Test extends AcceptanceTestBase
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('#booktable', 'Hola');
 
         $this->assertPageTitleContains('LUTE');
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
         $this->assertPageTitleContains('Reading "Hola (1/1)"');
 
         $ctx = $this->getReadingContext();
@@ -92,8 +96,9 @@ class Reading_Test extends AcceptanceTestBase
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
-        usleep(300 * 1000); // 300k microseconds - should really wait instead ...
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
 
         $ctx = $this->getReadingContext();
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.', 'initial text');
@@ -123,14 +128,15 @@ class Reading_Test extends AcceptanceTestBase
 
         $this->make_text("Hola", "He escrito cap. uno.", $this->spanish);
         $this->client->request('GET', '/');
-        usleep(300 * 1000); // 300k microseconds - should really wait instead ...
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'escrito');
 
         $ctx = $this->getReadingContext();
         $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'initial text');
 
         $ctx->clickReadingWord('cap.');
-
+        usleep(300 * 1000);
         $updates = [ 'Translation' => 'chapter' ];
         $ctx->updateTermForm('cap.', $updates);
 
@@ -344,8 +350,7 @@ class Reading_Test extends AcceptanceTestBase
         $this->clickLinkID("#navNext");
 
         $this->client->request('GET', '/');
-        $wait = function() { usleep(500 * 1000); };
-        $wait();
+        $this->client->waitForElementToContain('#booktable', 'Tutorial');
         $ctx = $this->getBookContext();
         $fullcontent = implode('|', $ctx->getBookTableContent());
         $expected = "Tutorial (3/";
