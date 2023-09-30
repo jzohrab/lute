@@ -18,7 +18,7 @@ class Connection {
             if ($replace == 'yes') {
                 $d = str_replace('sqlite:///','sqlite:',$d);
             }
-            dump('DB URL: ' . $d);  // TODO:remove_cruft
+            throw new \Exception('DB URL: ' . $d);
         }
         $dbh = new \PDO($d);
 
