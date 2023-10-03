@@ -4,8 +4,28 @@ namespace App\Domain;
 
 use App\Entity\Language;
 
-/** Helper class for finding tokens and positions in arrays of
- * tokens. */
+/** Helper class for finding tokens and positions in a subject string.
+ *
+ * Finds a given token (word) in a sentence, ignoring case, returning
+ * the actual word in the sentence (its original case), and its index
+ * or indices.
+ *
+ * For example, given:
+ *
+ *   - $subject "/this/ /CAT/ /is/ /big/"
+ *   - $find_patt = "/cat/"
+ *
+ * (where "/" is the zero-width space to indicate word boundaries)
+ *
+ * this method would return [ "CAT", 2 ]
+ *   - the token "cat" is actually "CAT" (uppercase) in the sentence
+ *   - it's at index = 2
+ *
+ * Note that the language of the string must also be provided, because
+ * some languages (Turkish!) have unusual case requirements.
+ * 
+ * See the test cases for more examples.
+ */
 class TokenLocator {
 
     private Language $language;
@@ -17,24 +37,14 @@ class TokenLocator {
         $this->subject = $subject;
     }
 
+
     /**
-     * Finds a given token (word) in a sentence (an array of tokens),
-     * ignoring case, returning the actual word in the sentence (its
-     * original case), and its index.
-     *
-     * For example, given:
-     *   - $subject "/this/ /CAT/ /is/ /big/"
-     *   - $find_patt = "/cat/"
-     * (where "/" is the zero-width space to indicate word boundaries)
-     * this method would return [ "CAT", 2 ]
-     *   - the token "cat" is actually "CAT" (uppercase) in the sentence
-     *   - it's at index = 2
-     *
-     * See the test cases for more examples.
+     * Locate the search string, returning the original subject text,
+     * and the position.
      */
-    public function locateString($tlc) {
-        $find_patt = TokenLocator::make_string($tlc);
-        $LCpatt = $this->language->getLowercase($find_patt);
+    public function locateString($s) {
+        $tlc = $this->language->getLowercase($s)
+        $LCpatt = TokenLocator::make_string($tlc);
 
         // "(?=())" is required because sometimes the search pattern can
         // overlap -- e.g. _b_b_ has _b_ *twice*.
@@ -48,13 +58,12 @@ class TokenLocator {
         $this->pregmatchtime += (microtime(true) - $timenow);
         // dump($matches);
 
-        // The matches were actually with the lowercased string,
-        // because some languages (Turkish!) have funny cases ...
-        // so we need to convert the matched text back to the _original_
-        // subject string.
+        // The $matches were performed with the lowercased subject,
+        // because some languages (Turkish!) have funny cases.
+        // We need to convert the matched text back to the _original_
+        // subject string cases.
         $subj = $this->subject;
-        // dump('here is the subject:');
-        // dump($subj);
+
         $makeTextIndexPair = function($match) use ($subj) {
             $matchtext = $match[0];  // includes zws at start and end.
             $matchlen = mb_strlen($matchtext);
