@@ -3,6 +3,7 @@
 namespace tests\App\Domain;
  
 use App\Domain\RenderableCalculator;
+use App\Domain\SpaceDelimitedParser;
 use App\DTO\TextToken;
 use App\Entity\Term;
 use App\Entity\Language;
@@ -34,7 +35,8 @@ class RenderableCalculator_Test extends TestCase
         $words = array_map(fn($t) => $makeTerm($t), $word_data);
 
         $rc = new RenderableCalculator();
-        $rcs = $rc->main($words, $tokens);
+        $p = new SpaceDelimitedParser();
+        $rcs = $rc->main($p, $words, $tokens);
         $res = '';
         foreach ($rcs as $rc) {
             if ($rc->render) {
@@ -105,7 +107,7 @@ class RenderableCalculator_Test extends TestCase
 
         $rc = new RenderableCalculator();
         $this->expectException(\Exception::class);
-        $rcs = $rc->main([], $tokens);
+        $rcs = $rc->main(new SpaceDelimitedParser(), [], $tokens);
     }
 
     public function test_multiword_items_cover_other_items()

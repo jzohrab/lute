@@ -112,7 +112,7 @@ class RenderableCalculator {
      * then "E F G H I":
      *   => "A [B-C][C-D-E][E-F-G-H-I]"
      */
-    private function get_renderable($terms, $texttokens) {
+    private function get_renderable($parser, $terms, $texttokens) {
 
         // Pre-condition: contiguous ordered texttokens.
         $cmp = function($a, $b) {
@@ -151,7 +151,7 @@ class RenderableCalculator {
         $firstTokOrder = $texttokens[0]->TokOrder;
         $toktext = array_map(fn($t) => $t->TokText, $texttokens);
         $subject = TokenLocator::make_string($toktext);
-        $tocloc = new TokenLocator($subject);
+        $tocloc = new TokenLocator($parser, $subject);
         foreach ($terms as $term) {
             $tlc = $term->getTextLC();
             $wtokencount = $term->getTokenCount();
@@ -239,18 +239,21 @@ class RenderableCalculator {
         return $items;
     }
 
-    public function main($words, $texttokens) {
+    public function main($parser, $words, $texttokens) {
         // $time_now = microtime(true);
-        $renderable = $this->get_renderable($words, $texttokens);
+        $renderable = $this->get_renderable($parser, $words, $texttokens);
+        // dump('got initial renderable:');
+        // dump($renderable);
         // dump('get renderable: ' . (microtime(true) - $time_now));
         $items = $this->sort_by_order_and_tokencount($renderable);
         $items = $this->calc_overlaps($items);
         return $items;
     }
 
-    public static function getRenderable($words, $texttokens) {
+    public static function getRenderable($parser, $words, $texttokens) {
+        // dump('called getRenderable');
         $rc = new RenderableCalculator();
-        return $rc->main($words, $texttokens);
+        return $rc->main($parser, $words, $texttokens);
     }
 
 }

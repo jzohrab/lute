@@ -87,13 +87,13 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
     /**
-     * @group associations
+     * @group associations_turkish
      */
     public function test_saving_term_associates_textitems()
     {
         $content = "Hola tengo un gato.";
         $text = $this->make_text("Hola", $content, $this->spanish);
-        $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un/ /gato/.");
+        $this->assert_rendered_text_equals($text, "Hola/ /tengo/ /un/ /gato/.", 'initial');
 
         $tengo = $this->facade->loadDTO($this->spanish, 'tengo');
         $this->facade->saveDTO($tengo);

@@ -6,10 +6,12 @@ namespace App\Domain;
  * tokens. */
 class TokenLocator {
 
+    private AbstractParser $parser;
     private string $subject;
     private float $pregmatchtime = 0;
 
-    public function __construct($subject) {
+    public function __construct($parser, $subject) {
+        $this->parser = $parser;
         $this->subject = $subject;
     }
 
@@ -30,7 +32,7 @@ class TokenLocator {
      */
     public function locateString($tlc) {
         $find_patt = TokenLocator::make_string($tlc);
-        $LCpatt = mb_strtolower($find_patt);
+        $LCpatt = $this->parser->getLowercase($find_patt);
 
         // "(?=())" is required because sometimes the search pattern can
         // overlap -- e.g. _b_b_ has _b_ *twice*.
@@ -38,15 +40,27 @@ class TokenLocator {
         //   preg-match-all-how-to-get-all-combinations-even-overlapping-ones
         $pattern = '/(?=(' . preg_quote($LCpatt) . '))/ui';
         $timenow = microtime(true);
-        $matches = $this->pregMatchCapture($pattern, $this->subject);
+
+        $subjLC = $this->parser->getLowercase($this->subject);
+        $matches = $this->pregMatchCapture($pattern, $subjLC);
         $this->pregmatchtime += (microtime(true) - $timenow);
         // dump($matches);
 
-        $makeTextIndexPair = function($match) {
+        // The matches were actually with the lowercased string,
+        // because some languages (Turkish!) have funny cases ...
+        // so we need to convert the matched text back to the _original_
+        // subject string.
+        $subj = $this->subject;
+        // dump('here is the subject:');
+        // dump($subj);
+        $makeTextIndexPair = function($match) use ($subj) {
             $matchtext = $match[0];  // includes zws at start and end.
+            $matchlen = mb_strlen($matchtext);
             $matchpos = $match[1];
+
+            $original_subject_text = mb_substr($subj, $matchpos, $matchlen);
             $zws = mb_chr(0x200B);
-            $t = mb_ereg_replace("(^{$zws}+)|({$zws}+$)", '', $matchtext);
+            $t = mb_ereg_replace("(^{$zws}+)|({$zws}+$)", '', $original_subject_text);
             $index = $this->get_count_before($this->subject, $matchpos);
             return [ $t, $index ];
         };
@@ -108,8 +122,8 @@ class TokenLocator {
         return $zws . $t . $zws;
     }
 
-    public static function locate($subject, $needle) {
-        $tocloc = new TokenLocator($subject);
+    public static function locate($parser, $subject, $needle) {
+        $tocloc = new TokenLocator($parser, $subject);
         return $tocloc->locateString($needle);
     }
 
