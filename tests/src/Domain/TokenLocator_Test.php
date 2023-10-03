@@ -95,18 +95,14 @@ class TokenLocator_Test extends TestCase
         foreach ($cases as $case) {
             $casenum = intval($case[0]);
 
-            // if ($casenum < 5)
-            //     continue;
-
             $tokens = $case[1];
             $word = $case[2];
             $expected = $case[3];
 
             $sentence = TokenLocator::make_string($tokens);
             $en = Language::makeEnglish();
-            $actual = TokenLocator::locate($en, $sentence, $word);
-            // dump($actual);
-            // dump($expected);
+            $tocloc = new TokenLocator($en, $sentence);
+            $actual = $tocloc->locateString($word);
 
             $msg = 'case ' . $casenum . '. ' . $sentence . ' , find: ' . $word;
             $msg = str_replace($zws, '/', $msg);

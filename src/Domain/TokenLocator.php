@@ -124,9 +124,4 @@ class TokenLocator {
         return $zws . $t . $zws;
     }
 
-    public static function locate(Language $lang, $subject, $needle) {
-        $tocloc = new TokenLocator($lang, $subject);
-        return $tocloc->locateString($needle);
-    }
-
 }
