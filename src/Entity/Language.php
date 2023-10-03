@@ -307,6 +307,12 @@ class Language
         return $this->getParser()->getParsedTokens($s, $this);
     }
 
+    /** Convenience method only. */
+    public function getLowercase(string $s): string
+    {
+        return $this->getParser()->getLowercase($s);
+    }
+
     /**
      * Language "factories" to create sensible defaults.
      * Returns unsaved entities.

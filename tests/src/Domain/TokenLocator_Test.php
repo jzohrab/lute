@@ -3,7 +3,7 @@
 namespace tests\App\Domain;
 
 use App\Domain\TokenLocator;
-use App\Domain\SpaceDelimitedParser;
+use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
 
 class TokenLocator_Test extends TestCase
@@ -103,8 +103,8 @@ class TokenLocator_Test extends TestCase
             $expected = $case[3];
 
             $sentence = TokenLocator::make_string($tokens);
-            $p = new SpaceDelimitedParser();
-            $actual = TokenLocator::locate($p, $sentence, $word);
+            $en = Language::makeEnglish();
+            $actual = TokenLocator::locate($en, $sentence, $word);
             // dump($actual);
             // dump($expected);
 

@@ -2,16 +2,18 @@
 
 namespace App\Domain;
 
+use App\Entity\Language;
+
 /** Helper class for finding tokens and positions in arrays of
  * tokens. */
 class TokenLocator {
 
-    private AbstractParser $parser;
+    private Language $language;
     private string $subject;
     private float $pregmatchtime = 0;
 
-    public function __construct($parser, $subject) {
-        $this->parser = $parser;
+    public function __construct($language, $subject) {
+        $this->language = $language;
         $this->subject = $subject;
     }
 
@@ -32,7 +34,7 @@ class TokenLocator {
      */
     public function locateString($tlc) {
         $find_patt = TokenLocator::make_string($tlc);
-        $LCpatt = $this->parser->getLowercase($find_patt);
+        $LCpatt = $this->language->getLowercase($find_patt);
 
         // "(?=())" is required because sometimes the search pattern can
         // overlap -- e.g. _b_b_ has _b_ *twice*.
@@ -41,7 +43,7 @@ class TokenLocator {
         $pattern = '/(?=(' . preg_quote($LCpatt) . '))/ui';
         $timenow = microtime(true);
 
-        $subjLC = $this->parser->getLowercase($this->subject);
+        $subjLC = $this->language->getLowercase($this->subject);
         $matches = $this->pregMatchCapture($pattern, $subjLC);
         $this->pregmatchtime += (microtime(true) - $timenow);
         // dump($matches);
@@ -122,8 +124,8 @@ class TokenLocator {
         return $zws . $t . $zws;
     }
 
-    public static function locate($parser, $subject, $needle) {
-        $tocloc = new TokenLocator($parser, $subject);
+    public static function locate(Language $lang, $subject, $needle) {
+        $tocloc = new TokenLocator($lang, $subject);
         return $tocloc->locateString($needle);
     }
 

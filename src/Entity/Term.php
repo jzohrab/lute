@@ -120,7 +120,7 @@ class Term
 
         $t = implode($zws, $tokstrings);
         $oldWoTextLC = $this->WoTextLC;
-        $newWoTextLC = $lang->getParser()->getLowercase($t);
+        $newWoTextLC = $lang->getLowercase($t);
 
         $text_changed = $oldWoTextLC != null && $newWoTextLC != $oldWoTextLC;
         if ($this->id != null && $text_changed) {

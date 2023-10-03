@@ -37,7 +37,7 @@ class RenderableSentence
         if ($text->getID() == null)
             return [];
 
-        $parser = $text->getBook()->getLanguage()->getParser();
+        $language = $text->getBook()->getLanguage();
         $tokens = RenderableSentence::getTextTokens($text);
         if (count($tokens) == 0) {
             $text->getBook()->fullParse();
@@ -46,9 +46,9 @@ class RenderableSentence
         $tokens = array_filter($tokens, fn($t) => $t->TokText != '¶');
         $terms = $svc->findAllInString($text->getText(), $text->getLanguage());
 
-        $makeRenderableSentence = function($pnum, $sentenceNum, $tokens, $terms, $text) use ($parser) {
+        $makeRenderableSentence = function($pnum, $sentenceNum, $tokens, $terms, $text) use ($language) {
             $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $sentenceNum);
-            $renderable = RenderableCalculator::getRenderable($parser, $terms, $setokens);
+            $renderable = RenderableCalculator::getRenderable($language, $terms, $setokens);
             $textitems = array_map(
                 fn($i) => $i->makeTextItem($pnum, $sentenceNum, $text->getID(), $text->getLanguage()->getLgID()),
                 $renderable

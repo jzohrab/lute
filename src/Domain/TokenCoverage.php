@@ -33,7 +33,6 @@ class TokenCoverage {
 
 
     public function getStats(Book $book, TermService $term_service) {
-        $parser = $book->getLanguage()->getParser();
         $ft = $this->getTextExtract($book);
         $pt = $book->getLanguage()->getParsedTokens($ft);
         $sgi = new SentenceGroupIterator($pt, 250);
@@ -66,7 +65,7 @@ class TokenCoverage {
             $terms = $term_service->findAllInString($s, $book->getLanguage());
 
             $tts = ParsedToken::createTextTokens($tokens);
-            $renderable = RenderableCalculator::getRenderable($parser, $terms, $tts);
+            $renderable = RenderableCalculator::getRenderable($book->getLanguage(), $terms, $tts);
             $textitems = array_map(
                 fn($i) => $i->makeTextItem(1, 1, 1, $book->getLanguage()->getLgID()),
                 $renderable
