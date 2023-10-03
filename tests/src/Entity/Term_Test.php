@@ -143,11 +143,10 @@ class Term_Test extends TestCase
             [ $sp, 'GATO', 'gato' ],
             [ $sp, 'gato', 'gato' ],
 
-            [ $sp, 'GATO', 'gato' ],
-            [ $sp, 'gato', 'gato' ],
+            [ $en, 'GATO', 'gato' ],
+            [ $en, 'gato', 'gato' ],
 
-            [ $sp, 'GATO', 'gato' ],
-            [ $sp, 'gato', 'gato' ],
+            [ $jp, '元気です', '元気です' ],
 
             # cases from https://github.com/jzohrab/lute/issues/71
             [ $tu, 'İÇİN', 'için' ],
