@@ -83,7 +83,7 @@ class TermRepository extends ServiceEntityRepository
         $query = $this->getEntityManager()
                ->createQuery($dql)
                ->setParameter('langid', $specification->getLanguage()->getLgID())
-               ->setParameter('val', mb_strtolower($specification->getText()));
+               ->setParameter('val', $specification->getLanguage()->getParser()->getLowercase($specification->getText()));
         $terms = $query->getResult();
 
         if (count($terms) == 0)
