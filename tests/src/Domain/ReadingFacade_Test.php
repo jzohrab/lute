@@ -87,7 +87,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
     /**
-     * @group associations_turkish
+     * @group associations
      */
     public function test_saving_term_associates_textitems()
     {
@@ -549,6 +549,25 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $ap3 = $this->make_text("AP3", "Ghi wrote to the Associated Press about it.", $this->english);
         $this->assert_rendered_text_equals($ap3, "Ghi/ /wrote(99)/ /to(99)/ /the(99)/ /Associated Press(1)/ /about(99)/ /it(99)/.");
     }
+
+    /**
+     * @group issue71_turkish
+     */
+    public function test_turkish_downcasing_handled_correctly() {
+        $tr = $this->turkish;
+        $text = $this->make_text("Downcasing_with_funny_i", "ışık için Işık İçin.", $tr);
+        $this->assert_rendered_text_equals($text, "ışık/ /için/ /Işık/ /İçin/.");
+
+        $dto = $this->facade->loadDTO($tr, 'ışık');
+        $this->facade->saveDTO($dto);
+        $this->assert_rendered_text_equals($text, "ışık(1)/ /için/ /Işık(1)/ /İçin/.");
+
+        $dto = $this->facade->loadDTO($tr, 'İçin');
+        $dto->Status = 3;
+        $this->facade->saveDTO($dto);
+        $this->assert_rendered_text_equals($text, "ışık(1)/ /için(3)/ /Işık(1)/ /İçin(3)/.");
+    }
+
 
     /**
      * @group classicalchinesehighlight

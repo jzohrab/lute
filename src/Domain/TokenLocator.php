@@ -43,7 +43,7 @@ class TokenLocator {
      * and the position.
      */
     public function locateString($s) {
-        $tlc = $this->language->getLowercase($s)
+        $tlc = $this->language->getLowercase($s);
         $LCpatt = TokenLocator::make_string($tlc);
 
         // "(?=())" is required because sometimes the search pattern can
