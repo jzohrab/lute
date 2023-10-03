@@ -1,15 +1,6 @@
 # title: Büyük ağaç
 # language: Turkish
 #
-
-Bla ışık bla
-
-Bla Işık bla
-
-Bla için bla
-
-Bla İçin bla
-
 Büyük ağaç eskiden aşılanmış ve her yıl güzel, iri, pembe şeftaliler verirmiş, insanın eline sığmazmış bu şeftaliler. Öyle güzelmişler ki insan yemeye kıyamazmış onları. Bahçıvan, bu büyük ağacı yabancı bir uzmanın kendi ülkesinden getirdiği bir tohumla aşıladığını söylermiş. Belli ki böyle masraf edilen bir ağaçta yetişen şeftaliler oldukça değerliymiş.
 
 İki ağacın da gövdelerine nazar değmesin diye birer nazarlık asılıymış.
