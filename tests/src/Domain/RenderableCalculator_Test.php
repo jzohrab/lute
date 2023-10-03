@@ -16,7 +16,6 @@ class RenderableCalculator_Test extends TestCase
             $t = new TextToken();
             $t->TokOrder = $arr[0];
             $t->TokText = $arr[1];
-            $t->TokTextLC = strtolower($arr[1]);
             $t->TokIsWord = 1;
             return $t;
         };

@@ -399,35 +399,7 @@ where WoLgID = $lgid
         $handle = fopen($outfile, 'w');
 
         // All new parsed word tokens.
-
-        // Dev note: originally, I had written the query below to find
-        // all "text tokens" that don't have a corresponding `words`
-        // record.  The query runs correctly and quickly in the sqlite3
-        // command line, but when run in PHP it was brutally slow
-        // (i.e., 30+ seconds).  I'm not sure why, and can't be
-        // bothered to try to figure it out.  Instead of using the
-        // query, I'm just calculating the array difference (the
-        // uncommented code), which runs fast and should not be _too_
-        // brutal on memory.
-        /*
-        $sql = "select distinct(TokTextLC) from texttokens
-          inner join texts on TxID = TokTxID
-          inner join books on TxBkID = BkID
-          left join (
-            select WoTextLC from words where WoLgID = $lgid
-          ) langwords on langwords.WoTextLC = TokTextLC
-          where
-            TokIsWord = 1 and BkLgID = $lgid and
-            langwords.WoTextLC is null";
-        */
-
-        // UPDATE: re-parsing the book to get parsed tokens.
-        //
-        // For space/data redundancy, I'm moving away from storing all
-        // of the parsed tokens in the db, so this routine just gets
-        // all sentences.  Reparsing is done in chunks due to memory
-        // constraints.
-        //
+        // Lute doesn't store parsed tokens, just parsed sentences.
         // This is slow, but (on my mac, at least) it doesn't time
         // out.  Not too concerned at the moment, as I'm not sure if
         // many users are using this feature.
