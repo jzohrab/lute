@@ -137,7 +137,6 @@ class Term_Test extends TestCase
 
         $sp = Language::makeSpanish();
         $en = Language::makeEnglish();
-        $jp = Language::makeJapanese();
         $tu = Language::makeTurkish();
         $cases = [
             [ $sp, 'GATO', 'gato' ],
@@ -145,8 +144,6 @@ class Term_Test extends TestCase
 
             [ $en, 'GATO', 'gato' ],
             [ $en, 'gato', 'gato' ],
-
-            [ $jp, '元気です', '元気です' ],
 
             # cases from https://github.com/jzohrab/lute/issues/71
             [ $tu, 'İÇİN', 'için' ],
@@ -159,6 +156,12 @@ class Term_Test extends TestCase
             $lang = $case[0];
             $t = new Term($lang, $case[1]);
             $this->assertEquals($t->getTextLC(), $case[2], "{$lang->getLgName()}, {$case[1]}");
+        }
+
+        if (JapaneseParser::MeCab_installed()) {
+            $lang = Language::makeJapanese();
+            $t = new Term($lang, '元気');
+            $this->assertEquals($t->getTextLC(), '元気', "jp");
         }
     }
 
