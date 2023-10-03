@@ -14,4 +14,12 @@ abstract class AbstractParser {
     public function getReading(string $text) {
         return null;
     }
+
+    /**
+     * Many writing systems can just downcase, but some (Turkish!) have special quirks.
+     */
+    public function getLowercase(string $text) {
+        return mb_strtolower($text);
+    }
+
 }

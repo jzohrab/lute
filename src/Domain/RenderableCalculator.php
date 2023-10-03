@@ -2,6 +2,8 @@
 
 namespace App\Domain;
 
+use App\Entity\Language;
+
 /**
  * Calculating what TextTokens and Terms should be rendered.
  *
@@ -112,7 +114,7 @@ class RenderableCalculator {
      * then "E F G H I":
      *   => "A [B-C][C-D-E][E-F-G-H-I]"
      */
-    private function get_renderable($terms, $texttokens) {
+    private function get_renderable($language, $terms, $texttokens) {
 
         // Pre-condition: contiguous ordered texttokens.
         $cmp = function($a, $b) {
@@ -151,7 +153,7 @@ class RenderableCalculator {
         $firstTokOrder = $texttokens[0]->TokOrder;
         $toktext = array_map(fn($t) => $t->TokText, $texttokens);
         $subject = TokenLocator::make_string($toktext);
-        $tocloc = new TokenLocator($subject);
+        $tocloc = new TokenLocator($language, $subject);
         foreach ($terms as $term) {
             $tlc = $term->getTextLC();
             $wtokencount = $term->getTokenCount();
@@ -239,18 +241,17 @@ class RenderableCalculator {
         return $items;
     }
 
-    public function main($words, $texttokens) {
+    public function main($language, $words, $texttokens) {
         // $time_now = microtime(true);
-        $renderable = $this->get_renderable($words, $texttokens);
-        // dump('get renderable: ' . (microtime(true) - $time_now));
+        $renderable = $this->get_renderable($language, $words, $texttokens);
         $items = $this->sort_by_order_and_tokencount($renderable);
         $items = $this->calc_overlaps($items);
         return $items;
     }
 
-    public static function getRenderable($words, $texttokens) {
+    public static function getRenderable(Language $lang, $words, $texttokens) {
         $rc = new RenderableCalculator();
-        return $rc->main($words, $texttokens);
+        return $rc->main($lang, $words, $texttokens);
     }
 
 }

@@ -25,9 +25,10 @@ class DemoDataLoader {
         $g = Language::makeGerman();
         $gr = Language::makeGreek();
         $ar = Language::makeArabic();
+        $tr = Language::makeTurkish();
         $cc = Language::makeClassicalChinese();
 
-        $langs = [ $e, $f, $s, $g, $gr, $cc, $ar ];
+        $langs = [ $e, $f, $s, $g, $gr, $cc, $ar, $tr ];
         $files = [
             'tutorial.txt',
             'tutorial_follow_up.txt',
@@ -37,6 +38,7 @@ class DemoDataLoader {
             'gr_demo.txt',
             'cc_demo.txt',
             'ar_demo.txt',
+            'tr_demo.txt',
         ];
 
         if (JapaneseParser::MeCab_installed()) {

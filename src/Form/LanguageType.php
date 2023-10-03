@@ -93,7 +93,8 @@ class LanguageType extends AbstractType
                   [ 'choices'  => [
                       'Space Delimited' => 'spacedel',
                       'Japanese Language (MeCab)' => 'japanese',
-                      'Classical Chinese' => 'classicalchinese'
+                      'Classical Chinese' => 'classicalchinese',
+                      'Turkish' => 'turkish',
                      ],
                     'label' => 'Parse as',
                     'required' => true

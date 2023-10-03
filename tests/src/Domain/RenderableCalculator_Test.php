@@ -16,7 +16,6 @@ class RenderableCalculator_Test extends TestCase
             $t = new TextToken();
             $t->TokOrder = $arr[0];
             $t->TokText = $arr[1];
-            $t->TokTextLC = strtolower($arr[1]);
             $t->TokIsWord = 1;
             return $t;
         };
@@ -34,7 +33,8 @@ class RenderableCalculator_Test extends TestCase
         $words = array_map(fn($t) => $makeTerm($t), $word_data);
 
         $rc = new RenderableCalculator();
-        $rcs = $rc->main($words, $tokens);
+        $en = Language::makeEnglish();
+        $rcs = $rc->main($en, $words, $tokens);
         $res = '';
         foreach ($rcs as $rc) {
             if ($rc->render) {
@@ -105,7 +105,7 @@ class RenderableCalculator_Test extends TestCase
 
         $rc = new RenderableCalculator();
         $this->expectException(\Exception::class);
-        $rcs = $rc->main([], $tokens);
+        $rcs = $rc->main(Language::makeEnglish(), [], $tokens);
     }
 
     public function test_multiword_items_cover_other_items()

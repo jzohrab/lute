@@ -100,14 +100,15 @@ class TermService {
         $conn = Connection::getFromEnvironment();
 
         $wordtokens = array_filter($tokens, fn($t) => $t->isWord);
-        $tokstrings = array_map(fn($t) => mb_strtolower($t->token), $wordtokens);
+        $parser = $lang->getParser();
+        $tokstrings = array_map(fn($t) => $parser->getLowercase($t->token), $wordtokens);
         $tokstrings = array_unique($tokstrings);
         $termcriteria = array_map(fn($s) => $conn->quote($s), $tokstrings);
         $termcriteria = implode(',', $termcriteria);
 
         $zws = mb_chr(0x200B); // zero-width space.
-        $is = array_map(fn($t) => $t->token, $tokens);
-        $lctokstring = mb_strtolower($zws . implode($zws, $is) . $zws);
+        $is = array_map(fn($t) => $parser->getLowercase($t->token), $tokens);
+        $lctokstring = $zws . implode($zws, $is) . $zws;
         $lctokstring = $conn->quote($lctokstring);
 
         // Querying all words that match the text is very slow, so

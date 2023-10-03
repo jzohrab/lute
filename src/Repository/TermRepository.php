@@ -83,7 +83,7 @@ class TermRepository extends ServiceEntityRepository
         $query = $this->getEntityManager()
                ->createQuery($dql)
                ->setParameter('langid', $specification->getLanguage()->getLgID())
-               ->setParameter('val', mb_strtolower($specification->getText()));
+               ->setParameter('val', $specification->getLanguage()->getLowercase($specification->getText()));
         $terms = $query->getResult();
 
         if (count($terms) == 0)
@@ -96,7 +96,7 @@ class TermRepository extends ServiceEntityRepository
      */
     public function findLikeSpecification(Term $specification, int $maxResults = 50): array
     {
-        $search = mb_strtolower(trim($specification->getText() ?? ''));
+        $search = trim($specification->getTextLC() ?? '');
         if ($search == '')
             return [];
 

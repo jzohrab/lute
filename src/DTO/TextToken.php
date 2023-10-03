@@ -2,7 +2,7 @@
 
 namespace App\DTO;
 
-/** DTO for table texttokens. **/
+/** DTO for text tokens. **/
 class TextToken
 {
     public int $TokTxID;
@@ -11,5 +11,4 @@ class TextToken
     public int $TokOrder;
     public int $TokIsWord;
     public string $TokText;
-    public string $TokTextLC;
 }
