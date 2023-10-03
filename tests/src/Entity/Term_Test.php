@@ -130,4 +130,37 @@ class Term_Test extends TestCase
         $this->assertEquals(count($t->getParents()), 0, 'no parents');
     }
 
+    /**
+     * @group downcasing
+     */
+    public function test_downcasing_handled_correctly() {
+
+        $sp = Language::makeSpanish();
+        $en = Language::makeEnglish();
+        $jp = Language::makeJapanese();
+        $tu = Language::makeTurkish();
+        $cases = [
+            [ $sp, 'GATO', 'gato' ],
+            [ $sp, 'gato', 'gato' ],
+
+            [ $sp, 'GATO', 'gato' ],
+            [ $sp, 'gato', 'gato' ],
+
+            [ $sp, 'GATO', 'gato' ],
+            [ $sp, 'gato', 'gato' ],
+
+            # cases from https://github.com/jzohrab/lute/issues/71
+            [ $tu, 'İÇİN', 'için' ],
+            [ $tu, 'IŞIK', 'ışık' ],
+            [ $tu, 'İçin', 'için' ],
+            [ $tu, 'Işık', 'ışık' ],
+        ];
+
+        foreach ($cases as $case) {
+            $lang = $case[0];
+            $t = new Term($lang, $case[1]);
+            $this->assertEquals($t->getTextLC(), $case[2], "{$lang->getLgName()}, {$case[1]}");
+        }
+    }
+
 }

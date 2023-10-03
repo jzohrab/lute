@@ -108,7 +108,8 @@ class Term
         $nbsp = mb_chr(0x00A0); // non-breaking space
         $t = str_replace($nbsp, ' ', $t);
 
-        $tokens = $this->getLanguage()->getParsedTokens($t);
+        $lang = $this->getLanguage();
+        $tokens = $lang->getParsedTokens($t);
 
         // Terms can't contain paragraph markers.
         $isNotPara = function($tok) {
@@ -119,7 +120,7 @@ class Term
 
         $t = implode($zws, $tokstrings);
         $oldWoTextLC = $this->WoTextLC;
-        $newWoTextLC = mb_strtolower($t);
+        $newWoTextLC = $lang->getParser()->getLowercase($t);
 
         $text_changed = $oldWoTextLC != null && $newWoTextLC != $oldWoTextLC;
         if ($this->id != null && $text_changed) {

@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\Domain\SpaceDelimitedParser;
 use App\Domain\JapaneseParser;
 use App\Domain\ClassicalChineseParser;
+use App\Domain\TurkishParser;
 use App\Domain\ParsedTokenSaver;
 
 
@@ -287,6 +288,8 @@ class Language
             return new ClassicalChineseParser();
         case 'japanese':
             return new JapaneseParser();
+        case 'turkish':
+            return new TurkishParser();
         default:
             throw new \Exception("Unknown parser type {$this->LgParserType} for {$this->getLgName()}");
         }
@@ -407,6 +410,19 @@ class Language
         return $arabic;
     }
 
+    public static function makeTurkish() {
+        $turkish = new Language();
+        $turkish
+            ->setLgName('Turkish')
+            ->setLgRegexpWordCharacters('a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑğĞıİöÖüÜşŞçÇ')
+            ->setLgShowRomanization(true)
+            ->setLgDict1URI('https://www.wordreference.com/tren/###')
+            ->setLgDict2URI('https://tr.wiktionary.org/###')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#tr/en/###')
+            ->setLgParserType('turkish');
+        return $turkish;
+    }
+
     public static function getPredefined(): array {
         $ret = [
             Language::makeEnglish(),
@@ -414,6 +430,7 @@ class Language
             Language::makeGerman(),
             Language::makeGreek(),
             Language::makeSpanish(),
+            Language::makeTurkish(),
             Language::makeClassicalChinese(),
             Language::makeArabic(),
         ];
