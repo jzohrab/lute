@@ -139,11 +139,8 @@ class ParsedTokenSaver {
         $prmIndex = 1;
         for ($i = 0; $i < count($chunk); $i++) {
             $w = $chunk[$i][2];
-            $wlc = mb_strtolower($w);
             $stmt->bindValue($prmIndex, $w, \PDO::PARAM_STR);
             $prmIndex += 1;
-            // $stmt->bindValue($prmIndex + 1, $wlc, \PDO::PARAM_STR);
-            // $prmIndex += 2;
         }
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);

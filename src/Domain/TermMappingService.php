@@ -148,7 +148,7 @@ class TermMappingService {
 
         $mappings = array_filter($mappings, fn($a) => $a['parent'] != $a['child']);
         $mappings = array_filter($mappings, fn($a) => $a['parent'] != null && $a['child'] != null);
-        $mappings = array_map(fn($a) => [ 'parent' => mb_strtolower($a['parent']), 'child' => mb_strtolower($a['child']) ], $mappings);
+        $mappings = array_map(fn($a) => [ 'parent' => $lang->getLowercase($a['parent']), 'child' => $lang->getLowercase($a['child']) ], $mappings);
 
         // dump($mappings);
         $this->term_repo->stopSqlLog();
@@ -434,13 +434,14 @@ where WoLgID = $lgid
         $sentences = $this->getAllSentences($book, $conn);
         $uniquewords = [];
         $arbitrary_chunk_size = 100;
+        $lang = $book->getLanguage();
         foreach (array_chunk($sentences, $arbitrary_chunk_size) as $sentbatch) {
             $zws = mb_chr(0x200B); // zero-width space.
             $txt = implode($zws, $sentbatch);
             $txt = str_replace($zws, '', $txt);
-            $toks = $book->getLanguage()->getParsedTokens($txt);
+            $toks = $lang->getParsedTokens($txt);
             $words = array_filter($toks, fn($t) => $t->isWord);
-            $words = array_map(fn($t) => mb_strtolower($t->token), $words);
+            $words = array_map(fn($t) => $lang->getLowercase($t->token), $words);
             $uniquewords[] = array_unique($words);
         }
         $uniquewords = array_merge([], ...$uniquewords);

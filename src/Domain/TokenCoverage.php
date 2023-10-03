@@ -67,7 +67,7 @@ class TokenCoverage {
             $tts = ParsedToken::createTextTokens($tokens);
             $renderable = RenderableCalculator::getRenderable($book->getLanguage(), $terms, $tts);
             $textitems = array_map(
-                fn($i) => $i->makeTextItem(1, 1, 1, $book->getLanguage()->getLgID()),
+                fn($i) => $i->makeTextItem(1, 1, 1, $book->getLanguage()),
                 $renderable
             );
 

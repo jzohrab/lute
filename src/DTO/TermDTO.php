@@ -44,7 +44,7 @@ class TermDTO
     public function textHasChanged(): bool {
         if (($this->OriginalText ?? '') == '')
             return false;
-        return mb_strtolower($this->OriginalText) != mb_strtolower($this->Text);
+        return $this->language->getLowercase($this->OriginalText) != $this->language->getLowercase($this->Text);
     }
 
     /**
@@ -82,7 +82,7 @@ class TermDTO
         $termparents = array();
         $createparents = array_filter(
             $dto->termParents,
-            fn($p) => $p != null && $p != '' && mb_strtolower($dto->Text) != mb_strtolower($p)
+            fn($p) => $p != null && $p != '' && $dto->language->getLowercase($dto->Text) != $dto->language->getLowercase($p)
         );
         foreach ($createparents as $p) {
             $termparents[] = TermDTO::findOrCreateParent($p, $dto, $term_service, $termtags);

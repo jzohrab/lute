@@ -96,7 +96,7 @@ class TermRepository extends ServiceEntityRepository
      */
     public function findLikeSpecification(Term $specification, int $maxResults = 50): array
     {
-        $search = mb_strtolower(trim($specification->getText() ?? ''));
+        $search = trim($specification->getTextLC() ?? '');
         if ($search == '')
             return [];
 

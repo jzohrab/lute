@@ -50,7 +50,7 @@ class RenderableSentence
             $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $sentenceNum);
             $renderable = RenderableCalculator::getRenderable($language, $terms, $setokens);
             $textitems = array_map(
-                fn($i) => $i->makeTextItem($pnum, $sentenceNum, $text->getID(), $text->getLanguage()->getLgID()),
+                fn($i) => $i->makeTextItem($pnum, $sentenceNum, $text->getID(), $language),
                 $renderable
             );
             return new RenderableSentence($sentenceNum, $textitems);
