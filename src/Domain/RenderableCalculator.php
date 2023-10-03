@@ -244,16 +244,12 @@ class RenderableCalculator {
     public function main($language, $words, $texttokens) {
         // $time_now = microtime(true);
         $renderable = $this->get_renderable($language, $words, $texttokens);
-        // dump('got initial renderable:');
-        // dump($renderable);
-        // dump('get renderable: ' . (microtime(true) - $time_now));
         $items = $this->sort_by_order_and_tokencount($renderable);
         $items = $this->calc_overlaps($items);
         return $items;
     }
 
     public static function getRenderable(Language $lang, $words, $texttokens) {
-        // dump('called getRenderable');
         $rc = new RenderableCalculator();
         return $rc->main($lang, $words, $texttokens);
     }
