@@ -1,4 +1,4 @@
-# title: Misc examples
+# title: Examples
 # language: Arabic
 #
 

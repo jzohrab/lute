@@ -38,7 +38,6 @@ class DemoDataLoader {
     public function loadDemoFile($filename) {
         $demodir = dirname(__DIR__) . '/../demo/';
         $d = Yaml::parseFile($demodir . $filename);
-        dump($d);
 
         $lang = new Language();
 
@@ -57,7 +56,7 @@ class DemoDataLoader {
                 $val = true;
             if (strtolower($val) == 'false')
                 $val = false;
-            
+
             $lang->{$method}($d[$key]);
         };
 
@@ -86,16 +85,26 @@ class DemoDataLoader {
         foreach (array_keys($d) as $key) {
             $funcname = $mappings[$key];
             if ($funcname != '') {
-                dump('setting ' . $key . ' with ' . $funcname);
                 $load($key, $funcname);
             }
         }
 
-        dump('saving ...');
         $this->lang_repo->save($lang, true);
-        dump('done save??? ...');
+
+        if (array_key_exists('story', $d)) {
+            $f = $demodir . $d['story'];
+            $this->loadBook($lang, $f);
+        }
     }
 
+    private function loadBook(Language $lang, $filename) {
+        $fullcontent = file_get_contents($filename);
+        $content = preg_replace('/#.*\n/u', '', $fullcontent);
+        preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
+        $title = trim($matches[1]);
+        $b = Book::makeBook($title, $lang, $content);
+        $this->book_repo->save($b, true);
+    }
 
     public static function loadDemoData(
         LanguageRepository $lang_repo,
