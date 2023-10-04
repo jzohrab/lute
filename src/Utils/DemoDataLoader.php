@@ -37,69 +37,14 @@ class DemoDataLoader {
      */
     public function loadDemoFile($filename) {
         $demodir = dirname(__DIR__) . '/../demo/';
-        $d = Yaml::parseFile($demodir . $filename);
-
-        $lang = new Language();
-
-        $load = function($key, $method) use ($d, $lang) {
-            if (! array_key_exists($key, $d))
-                return;
-
-            $val = $d[$key];
-
-            // Have to put "\*" for external dicts in yaml,
-            // but those should be saved as "*" only.
-            // if (str_starts_with($val, '\*'))
-
-            // Bools are special
-            if (strtolower($val) == 'true')
-                $val = true;
-            if (strtolower($val) == 'false')
-                $val = false;
-
-            $lang->{$method}($d[$key]);
-        };
-
-        # Input fields on the user form, e.g.
-        # http://localhost:9999/language/1/edit
-        $mappings = [
-            'name' => 'setLgName',
-            'dict_1' => 'setLgDict1URI',
-            'dict_2' => 'setLgDict2URI',
-            'sentence_translation' => 'setLgGoogleTranslateURI',
-            'show_romanization' => 'setLgShowRomanization',
-            'right_to_left' => 'setLgRightToLeft',
-
-            # Parsing
-            'parser_type' => 'setLgParserType',
-            'character_substitutions' => 'setLgCharacterSubstitutions',
-            'split_sentences' => 'setLgRegexpSplitSentences',
-            'split_sentence_exceptions' => 'setLgExceptionsSplitSentences',
-            'word_chars' => 'setLgRegexpWordCharacters',
-
-            # Ignore these!
-            'stories' => '',
-            'sample_terms' => '',
-        ];
-
-        foreach (array_keys($d) as $key) {
-            $funcname = $mappings[$key];
-            if ($funcname != '') {
-                $load($key, $funcname);
-            }
-        }
-
+        $lang = Language::fromYaml($demodir . $filename);
         $this->lang_repo->save($lang, true);
-
-        if (array_key_exists('stories', $d)) {
-            $files = explode(',', $d['stories']);
-            foreach ($files as $f) {
-                $fp = $demodir . trim($f);
-                $this->loadBook($lang, $fp);
-            }
-        }
     }
 
+    /**
+     * Load all stories, if the language exists!
+     */
+    
     private function loadBook(Language $lang, $filename) {
         $fullcontent = file_get_contents($filename);
         $content = preg_replace('/#.*\n/u', '', $fullcontent);

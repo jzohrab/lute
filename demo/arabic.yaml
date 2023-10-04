@@ -10,9 +10,3 @@ right_to_left: true
 split_sentences: .!?؟۔‎
 # split_sentence_exceptions:
 word_chars: \x{0600}-\x{06FF}\x{FE70}-\x{FEFC}
-
-stories: ar_demo.txt
-# sample_terms:
-#  - term:
-#    status:
-#    translation:
