@@ -44,6 +44,28 @@ class DemoDataLoader {
     /**
      * Load all stories, if the language exists!
      */
+    public function loadDemoStories() {
+        $demoglob = dirname(__DIR__) . '/../demo/*.txt';
+        foreach (glob($demoglob) as $filename) {
+            // dump($filename);
+            $fullcontent = file_get_contents($filename);
+            $content = preg_replace('/#.*\n/u', '', $fullcontent);
+
+            preg_match('/language:\s*(.*)\n/u', $fullcontent, $matches);
+            $langname = trim($matches[1]);
+            $lang = $this->lang_repo->findOneByName($langname);
+            if ($lang == null) {
+                // Language not loaded, skip this demo.
+                continue;
+            }
+
+            preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
+            $title = trim($matches[1]);
+
+            $b = Book::makeBook($title, $lang, $content);
+            $this->book_repo->save($b, true);
+        }
+    }
     
     private function loadBook(Language $lang, $filename) {
         $fullcontent = file_get_contents($filename);
