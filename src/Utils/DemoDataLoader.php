@@ -11,8 +11,91 @@ use App\Repository\BookRepository;
 use App\Entity\Term;
 use App\Domain\TermService;
 use App\Domain\JapaneseParser;
+use Symfony\Component\Yaml\Yaml;
 
 class DemoDataLoader {
+
+    private LanguageRepository $lang_repo;
+    private BookRepository $book_repo;
+    private TermService $term_service;
+
+
+    public function __construct(
+        LanguageRepository $lang_repo,
+        BookRepository $book_repo,
+        TermService $term_service
+    ) {
+        $this->lang_repo = $lang_repo;
+        $this->book_repo = $book_repo;
+        $this->term_service = $term_service;
+    }
+
+
+    /**
+     * Demo files are stored in root/demo/*.yaml.
+     * Hardcoding the path :-)
+     */
+    public function loadDemoFile($filename) {
+        $demodir = dirname(__DIR__) . '/../demo/';
+        $d = Yaml::parseFile($demodir . $filename);
+        dump($d);
+
+        $lang = new Language();
+
+        $load = function($key, $method) use ($d, $lang) {
+            if (! array_key_exists($key, $d))
+                return;
+
+            $val = $d[$key];
+
+            // Have to put "\*" for external dicts in yaml,
+            // but those should be saved as "*" only.
+            // if (str_starts_with($val, '\*'))
+
+            // Bools are special
+            if (strtolower($val) == 'true')
+                $val = true;
+            if (strtolower($val) == 'false')
+                $val = false;
+            
+            $lang->{$method}($d[$key]);
+        };
+
+        # Input fields on the user form, e.g.
+        # http://localhost:9999/language/1/edit
+        $mappings = [
+            'name' => 'setLgName',
+            'dict_1' => 'setLgDict1URI',
+            'dict_2' => 'setLgDict2URI',
+            'sentence_translation' => 'setLgGoogleTranslateURI',
+            'show_romanization' => 'setLgShowRomanization',
+            'right_to_left' => 'setLgRightToLeft',
+
+            # Parsing
+            'parser_type' => 'setLgParserType',
+            'character_substitutions' => 'setLgCharacterSubstitutions',
+            'split_sentences' => 'setLgRegexpSplitSentences',
+            'split_sentence_exceptions' => 'setLgExceptionsSplitSentences',
+            'word_chars' => 'setLgRegexpWordCharacters',
+
+            # Ignore these!
+            'story' => '',
+            'sample_terms' => '',
+        ];
+
+        foreach (array_keys($d) as $key) {
+            $funcname = $mappings[$key];
+            if ($funcname != '') {
+                dump('setting ' . $key . ' with ' . $funcname);
+                $load($key, $funcname);
+            }
+        }
+
+        dump('saving ...');
+        $this->lang_repo->save($lang, true);
+        dump('done save??? ...');
+    }
+
 
     public static function loadDemoData(
         LanguageRepository $lang_repo,
