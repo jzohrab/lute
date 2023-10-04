@@ -19,6 +19,6 @@ Db = {$dbfilename} ... MUST contain test_lute.db\n\n";
 }
 else {
     SqliteHelper::CreateDb();
-    echo "\nCreated new db {$f}\n\n";
+    echo "\nCreated new db {$dbfilename}\n\n";
 }
 ?>
