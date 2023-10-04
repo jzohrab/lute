@@ -78,7 +78,7 @@ class DemoDataLoader {
             'word_chars' => 'setLgRegexpWordCharacters',
 
             # Ignore these!
-            'story' => '',
+            'stories' => '',
             'sample_terms' => '',
         ];
 
@@ -91,9 +91,12 @@ class DemoDataLoader {
 
         $this->lang_repo->save($lang, true);
 
-        if (array_key_exists('story', $d)) {
-            $f = $demodir . $d['story'];
-            $this->loadBook($lang, $f);
+        if (array_key_exists('stories', $d)) {
+            $files = explode(',', $d['stories']);
+            foreach ($files as $f) {
+                $fp = $demodir . trim($f);
+                $this->loadBook($lang, $fp);
+            }
         }
     }
 
