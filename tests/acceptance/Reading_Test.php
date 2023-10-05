@@ -302,7 +302,7 @@ class Reading_Test extends AcceptanceTestBase
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
         // isn't shown.
-        $b = $this->book_repo->find(1); // hardcoded ID :-(
+        $b = $this->book_repo->find(9); // hardcoded ID :-)
         $this->assertEquals('Tutorial', $b->getTitle(), 'sanity check');
         $txtid = $b->getTexts()[0]->getID();
         $sql = "select txorder,

@@ -426,7 +426,7 @@ class Language
     }
 
     public static function makeClassicalChinese() {
-        return Language::fromDemoYaml('classicalchinese.yaml');
+        return Language::fromDemoYaml('classical_chinese.yaml');
     }
 
     public static function makeArabic() {

@@ -62,9 +62,19 @@ class DemoDataLoader {
 
             $b = Book::makeBook($title, $lang, $content);
             $this->book_repo->save($b, true);
+
+            if ($b->getTitle() == 'Tutorial' and $lang->getLgName() == 'English') {
+                $required_tutorial_id = 9;
+                if ($b->getId() != $required_tutorial_id) {
+                    throw new \Exception("Tutorial ID = {$required_tutorial_id} is hardcoded in a few places ... fix them.");
+                    // Fixes:
+                    // templates/index.html.twig
+                    // tests/acceptance/Reading_Test.php
+                }
+            }
         }
     }
-    
+
     public static function loadDemoData(
         LanguageRepository $lang_repo,
         BookRepository $book_repo,
