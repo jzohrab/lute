@@ -57,9 +57,8 @@ git commit -m "Changelog."
 cd ../lute_build
 git fetch origin
 git checkout release_xxx
-composer app:release:check
-# OR:
-# MODE=offline composer app:release:check
+MODE=offline composer app:release:check
+# OR: composer app:release:check
 ```
 
 Run through some steps again.  If anything fails, fix the release branch in the dev environment, and retry.
