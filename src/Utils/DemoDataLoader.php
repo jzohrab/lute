@@ -35,7 +35,7 @@ class DemoDataLoader {
      * Demo files are stored in root/demo/*.yaml.
      * Hardcoding the path :-)
      */
-    public function loadDemoFile($filename) {
+    public function loadDemoLanguage($filename) {
         $demodir = dirname(__DIR__) . '/../demo/';
         $lang = Language::fromYaml($demodir . $filename);
         $this->lang_repo->save($lang, true);
@@ -67,15 +67,6 @@ class DemoDataLoader {
         }
     }
     
-    private function loadBook(Language $lang, $filename) {
-        $fullcontent = file_get_contents($filename);
-        $content = preg_replace('/#.*\n/u', '', $fullcontent);
-        preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
-        $title = trim($matches[1]);
-        $b = Book::makeBook($title, $lang, $content);
-        $this->book_repo->save($b, true);
-    }
-
     public static function loadDemoData(
         LanguageRepository $lang_repo,
         BookRepository $book_repo,

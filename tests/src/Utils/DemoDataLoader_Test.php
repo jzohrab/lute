@@ -24,12 +24,40 @@ inner join languages on lgid = bklgid
 
         $term_svc = new TermService($this->term_repo);
         $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
-        $ddl->loadDemoFile('arabic.yaml');
+        $ddl->loadDemoLanguage('arabic.yaml');
         $ddl->loadDemoStories();
 
         DbHelpers::assertTableContains($langsql, [ 'Arabic' ], 'Arabic loaded');
         DbHelpers::assertTableContains($booksql, [ 'Examples; Arabic' ], 'Example arabic loaded');
     }
 
-    // TODO: add loadAllDemoFiles
+    /**
+     * @group loadyaml
+     */
+    public function test_can_load_all_yaml() {
+        $booksql = "select LgName, BkTitle
+from books
+inner join languages on lgid = bklgid
+order by LgName, BkTitle
+";
+        DbHelpers::assertTableContains($booksql, []);
+
+        $term_svc = new TermService($this->term_repo);
+        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
+
+        $expected = [
+            'Arabic; Examples',
+            'Classical Chinese; 逍遙遊',
+            'English; Tutorial',
+            'English; Tutorial follow-up',
+            'French; Boucles d’or et les trois ours',
+            'German; Die Bremer Stadtmusikanten',
+            'Greek; Γεια σου, Νίκη. Ο Πέτρος είμαι.',
+            'Japanese; 北風と太陽 - きたかぜたいよう',
+            'Spanish; Aladino y la lámpara maravillosa',
+            'Turkish; Büyük ağaç',
+        ];
+        DbHelpers::assertTableContains($booksql, $expected);
+    }
+
 }
