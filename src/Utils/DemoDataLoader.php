@@ -36,7 +36,14 @@ class DemoDataLoader {
      */
     public function loadDemoLanguage($filename) {
         $lang = Language::fromYaml($filename);
-        $this->lang_repo->save($lang, true);
+
+        $should_save = true;
+        if ($lang->getLgParserType() == 'japanese' &&
+            (! JapaneseParser::MeCab_installed()))
+            $should_save = false;
+
+        if ($should_save)
+            $this->lang_repo->save($lang, true);
     }
 
     /**
