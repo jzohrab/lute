@@ -33,11 +33,9 @@ class DemoDataLoader {
 
     /**
      * Demo files are stored in root/demo/*.yaml.
-     * Hardcoding the path :-)
      */
     public function loadDemoLanguage($filename) {
-        $demodir = dirname(__DIR__) . '/../demo/';
-        $lang = Language::fromYaml($demodir . 'languages/' . $filename);
+        $lang = Language::fromYaml($filename);
         $this->lang_repo->save($lang, true);
     }
 

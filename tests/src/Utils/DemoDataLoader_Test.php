@@ -24,7 +24,10 @@ inner join languages on lgid = bklgid
 
         $term_svc = new TermService($this->term_repo);
         $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
-        $ddl->loadDemoLanguage('arabic.yaml');
+
+        $demodir = dirname(__FILE__) . '/../../../demo/languages/';
+        $f = $demodir . 'arabic.yaml';
+        $ddl->loadDemoLanguage($f);
         $ddl->loadDemoStories();
 
         DbHelpers::assertTableContains($langsql, [ 'Arabic' ], 'Arabic loaded');
