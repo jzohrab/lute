@@ -15,6 +15,11 @@ If any step fails, or things look bad, sort that stuff out.
 git checkout develop             # or whatever good commit
 git fetch
 git merge --no-ff origin/master  # To get any master hotfixes
+
+composer db:create:demo          # To load any new languages and stories
+git add -u
+git commit -m "Updated demo db."
+
 composer test:full               # All must pass
 composer dev:data:load           # For sanity checks:
 ```
