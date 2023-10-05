@@ -70,59 +70,20 @@ class DemoDataLoader {
         BookRepository $book_repo,
         TermService $term_service
     ) {
-        $e = Language::makeEnglish();
-        $f = Language::makeFrench();
-        $s = Language::makeSpanish();
-        $g = Language::makeGerman();
-        $gr = Language::makeGreek();
-        $ar = Language::makeArabic();
-        $tr = Language::makeTurkish();
-        $cc = Language::makeClassicalChinese();
+        $ddl = new DemoDataLoader(
+            $lang_repo,
+            $book_repo,
+            $term_service
+        );
 
-        $langs = [ $e, $f, $s, $g, $gr, $cc, $ar, $tr ];
-        $files = [
-            'tutorial.txt',
-            'tutorial_follow_up.txt',
-            'es_aladino.txt',
-            'fr_goldilocks.txt',
-            'de_Stadtmusikanten.txt',
-            'gr_demo.txt',
-            'cc_demo.txt',
-            'ar_demo.txt',
-            'tr_demo.txt',
-        ];
-
-        if (JapaneseParser::MeCab_installed()) {
-            $langs[] = Language::makeJapanese();
-            $files[] = 'jp_kitakaze_to_taiyou.txt';
+        $langglob = dirname(__DIR__) . '/../demo/languages/*.yaml';
+        foreach (glob($langglob) as $filename) {
+            $ddl->loadDemoLanguage($filename);
         }
-
-        $langmap = [];
-        foreach ($langs as $lang) {
-            $lang_repo->save($lang, true);
-            $langmap[ $lang->getLgName() ] = $lang;
-        }
-
-        $conn = Connection::getFromEnvironment();
-
-        foreach ($files as $f) {
-            $fname = $f;
-            $basepath = __DIR__ . '/../../demo/stories/';
-            $fullcontent = file_get_contents($basepath . $fname);
-            $content = preg_replace('/#.*\n/u', '', $fullcontent);
-
-            preg_match('/language:\s*(.*)\n/u', $fullcontent, $matches);
-            $lang = $langmap[trim($matches[1])];
-
-            preg_match('/title:\s*(.*)\n/u', $fullcontent, $matches);
-            $title = trim($matches[1]);
-
-            $b = Book::makeBook($title, $lang, $content);
-            $book_repo->save($b, true);
-        }
+        $ddl->loadDemoStories();
 
         $term = new Term();
-        $term->setLanguage($e);
+        $term->setLanguage($lang_repo->findOneByName('English'));
         $term->setText("your local environment file");
         $term->setStatus(3);
         $term->setTranslation("This is \".env\", your personal file in the project root folder :-)");
