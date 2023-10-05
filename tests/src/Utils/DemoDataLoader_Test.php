@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Utils\DemoDataLoader;
 use App\Domain\TermService;
+use App\Domain\JapaneseParser;
 
 
 final class DemoDataLoader_Test extends DatabaseTestBase
@@ -38,6 +39,10 @@ inner join languages on lgid = bklgid
      * @group loadyaml
      */
     public function test_can_load_all_yaml() {
+        if (!JapaneseParser::MeCab_installed()) {
+            $this->markTestSkipped('Skipping test, missing MeCab.');
+        }
+
         $booksql = "select LgName, BkTitle
 from books
 inner join languages on lgid = bklgid
