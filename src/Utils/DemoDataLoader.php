@@ -37,7 +37,7 @@ class DemoDataLoader {
      */
     public function loadDemoLanguage($filename) {
         $demodir = dirname(__DIR__) . '/../demo/';
-        $lang = Language::fromYaml($demodir . $filename);
+        $lang = Language::fromYaml($demodir . 'languages/' . $filename);
         $this->lang_repo->save($lang, true);
     }
 
@@ -45,7 +45,7 @@ class DemoDataLoader {
      * Load all stories, if the language exists!
      */
     public function loadDemoStories() {
-        $demoglob = dirname(__DIR__) . '/../demo/*.txt';
+        $demoglob = dirname(__DIR__) . '/../demo/stories/*.txt';
         foreach (glob($demoglob) as $filename) {
             // dump($filename);
             $fullcontent = file_get_contents($filename);
@@ -109,7 +109,7 @@ class DemoDataLoader {
 
         foreach ($files as $f) {
             $fname = $f;
-            $basepath = __DIR__ . '/../../demo/';
+            $basepath = __DIR__ . '/../../demo/stories/';
             $fullcontent = file_get_contents($basepath . $fname);
             $content = preg_replace('/#.*\n/u', '', $fullcontent);
 
