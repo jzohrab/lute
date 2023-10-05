@@ -5,6 +5,7 @@ namespace App\Tests\acceptance;
 require_once __DIR__ . '/../db_helpers.php';
 
 use App\Utils\DemoDataLoader;
+use App\Entity\Language;
 use App\Domain\TermService;
 
 class Reading_Test extends AcceptanceTestBase
@@ -296,13 +297,15 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_set_read_date() {
         \DbHelpers::clean_db();
+        $this->language_repo->save(Language::makeEnglish(), true);
         $term_svc = new TermService($this->term_repo);
-        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
+        $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
+        $ddl->loadDemoStories();
 
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
         // isn't shown.
-        $b = $this->book_repo->find(9); // hardcoded ID :-)
+        $b = $this->book_repo->find(1); // hardcoded ID :-)
         $this->assertEquals('Tutorial', $b->getTitle(), 'sanity check');
         $txtid = $b->getTexts()[0]->getID();
         $sql = "select txorder,
@@ -342,8 +345,10 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_reading_sets_index_page_bookmark() {
         \DbHelpers::clean_db();
+        $this->language_repo->save(Language::makeEnglish(), true);
         $term_svc = new TermService($this->term_repo);
-        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
+        $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
+        $ddl->loadDemoStories();
 
         $this->goToTutorialFirstPage();
         $this->clickLinkID("#navNext");
