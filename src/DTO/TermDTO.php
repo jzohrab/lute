@@ -87,9 +87,19 @@ class TermDTO
         foreach ($createparents as $p) {
             $termparents[] = TermDTO::findOrCreateParent($p, $dto, $term_service, $termtags);
         }
+        
         $t->removeAllParents();
         foreach ($termparents as $tp) {
             $t->addParent($tp);
+        }
+
+        // If the sole parent has the same translation as the child,
+        // then we really don't need the child translation, it adds no
+        // value.
+        if (count($termparents) == 1) {
+            $p = $termparents[0];
+            if ($p->getTranslation() == $t->getTranslation())
+                $t->setTranslation(null);
         }
 
         return $t;

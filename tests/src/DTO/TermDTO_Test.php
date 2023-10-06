@@ -146,7 +146,13 @@ final class TermDTO_Test extends DatabaseTestBase
 
     /** Parent translations **********/
 
-    private function assert_translations($childtrans, $parenttrans) {
+    private function assert_translations($parent_exists, $existing_parent_translation, $childtrans, $parenttrans) {
+        if ($parent_exists) {
+            $p = new Term($this->spanish, 'parent');
+            $p->setTranslation($existing_parent_translation);
+            $this->term_repo->save($p, true);
+        }
+
         $dto = new TermDTO();
         $dto->language = $this->spanish;
         $dto->Text = 'child';
@@ -160,7 +166,6 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals($child->getTranslation() ?? 'NULL', $childtrans ?? 'NULL', 'child trans');
         $parent = $parents[0];
         $this->assertEquals($parent->getTranslation() ?? 'NULL', $parenttrans ?? 'NULL', 'parent trans');
-
     }
 
     /**
@@ -168,16 +173,25 @@ final class TermDTO_Test extends DatabaseTestBase
      */
     public function test_new_term_new_parent()
     {
-        // h$this->assert_translations('childX', 'childX');  // current state
-        $this->assert_translations(null, 'childX');  // new state state
+        $this->assert_translations(false, null, null, 'childX');
     }
 
-    /*
-    public function test_new_term_existing_parent_with_translation() {}
-    public function test_new_term_existing_parent_no_translation() {}
-    public function test_existing_term_new_parent() {}
-    public function test_existing_term_existing_parent() {}
-    */
+    /**
+     * @group dtoparent_translation
+     */
+    public function test_new_term_existing_parent_with_translation() {
+        // existing parent translation stays as-is
+        $this->assert_translations(true, 'parent trans', 'childX', 'parent trans');
+    }
+
+    /**
+     * @group dtoparent_translation
+     */
+    public function test_new_term_existing_parent_no_translation() {
+        // existing parent translation replaced
+        $this->assert_translations(true, null, null, 'childX');  // new state state
+    }
+
 
     /**
      * @group dtoparent
