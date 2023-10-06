@@ -144,6 +144,41 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals($parent->getTranslation(), 'transl', 'parent trans');
     }
 
+    /** Parent translations **********/
+
+    private function assert_translations($childtrans, $parenttrans) {
+        $dto = new TermDTO();
+        $dto->language = $this->spanish;
+        $dto->Text = 'child';
+        $dto->Translation = 'childX';
+        $dto->termParents = ['parent'];
+        $child = TermDTO::buildTerm($dto, $this->term_service, $this->termtag_repo);
+        $parents = $child->getParents();
+        $this->assertEquals(count($parents), 1, 'have parent');
+
+        $parent = $parents[0];
+        $this->assertEquals($child->getTranslation() ?? 'NULL', $childtrans ?? 'NULL', 'child trans');
+        $parent = $parents[0];
+        $this->assertEquals($parent->getTranslation() ?? 'NULL', $parenttrans ?? 'NULL', 'parent trans');
+
+    }
+
+    /**
+     * @group dtoparent_translation
+     */
+    public function test_new_term_new_parent()
+    {
+        // h$this->assert_translations('childX', 'childX');  // current state
+        $this->assert_translations(null, 'childX');  // new state state
+    }
+
+    /*
+    public function test_new_term_existing_parent_with_translation() {}
+    public function test_new_term_existing_parent_no_translation() {}
+    public function test_existing_term_new_parent() {}
+    public function test_existing_term_existing_parent() {}
+    */
+
     /**
      * @group dtoparent
      */
