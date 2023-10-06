@@ -100,8 +100,9 @@ class TermController extends AbstractController
     }
 
 
+    /** Note the form is passed by reference, may need to revert it to earlier state. */
     private function processTermForm(
-        \Symfony\Component\Form\Form $form,
+        \Symfony\Component\Form\Form &$form,
         Request $request,
         TermDTO $termdto,
         TermService $term_svc,
@@ -114,8 +115,11 @@ class TermController extends AbstractController
             return null;
 
         if ($termdto->textHasChanged()) {
-            $msg = "text has changed from {$termdto->OriginalText} to {$termdto->Text}";
-            throw new \Exception($msg);
+            $msg = "Can only change term case.";
+            $this->addFlash('error', $msg);
+            $termdto->Text = $termdto->OriginalText;
+            $form = $this->createForm(TermDTOType::class, $termdto);
+            return null;
         }
 
         $term = TermDTO::buildTerm($termdto, $term_svc, $termtag_repo);

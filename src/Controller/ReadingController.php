@@ -123,14 +123,18 @@ class ReadingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Front-end should prevent text changing.
             if ($termdto->textHasChanged()) {
-                $msg = "text has changed from {$termdto->OriginalText} to {$termdto->Text}";
-                throw new \Exception($msg);
+                $msg = "Can only change term case.";
+                $this->addFlash('error', $msg);
+                $termdto->Text = $usetext;
+                $termdto->OriginalText = $usetext;
+                $form = $this->createForm(TermDTOType::class, $termdto, [ 'hide_sentences' => true ]);
             }
-
-            $facade->saveDTO($termdto);
-            return $this->render('read/updated.html.twig', [
-                'termdto' => $termdto
-            ]);
+            else {
+                $facade->saveDTO($termdto);
+                return $this->render('read/updated.html.twig', [
+                    'termdto' => $termdto
+                ]);
+            }
         }
 
         return $this->renderForm('read/frameform.html.twig', [
