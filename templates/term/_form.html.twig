@@ -101,6 +101,26 @@
 
 <script type="text/javascript">
 
+  // Preventing user navigating away by clicking on form parent tags.
+  // Done with monitor_form and form_changed vars.
+  // TODO acceptance tests; need to check interactions.  Painful.
+
+  // Only start monitoring the form for changes after everything has
+  // been initialized.  Tagit calls before/afterTagAdded etc during
+  // initialization of the form, and we don't want those changes to
+  // be treated as user-activated changes.
+  let monitor_form = false;
+
+  // Monitor state of form change (hacky, but seems to work).
+  let form_changed = false;
+
+  // This takes care of most controls, but not the tagit managed lists.
+  $("form :input").change(function() {
+    if (monitor_form)
+      form_changed = true;
+  });
+
+
   let setup_parent_Tagit = function() {
     var prototypeFieldName = 'term_dto[termParents][__name__]';
     var fieldIndex = 0;
@@ -112,6 +132,50 @@
           fieldIndex++;
           $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
         },
+        afterTagAdded: function (_event, ui) {
+          if (monitor_form) {
+            form_changed = true;
+          }
+        },
+        afterTagRemoved: function (_event, ui) {
+          if (monitor_form) {
+            form_changed = true;
+          }
+        },
+        onTagClicked: function (evt, ui) {
+          if (form_changed) {
+            choice = confirm('You have unsaved changes, going to the parent will lose them.  Continue?');
+            if (! choice) {
+              return;
+            }
+          }
+
+          let clickedtagtext = $('#parentslist').tagit('tagLabel', ui.tag);
+          // Annoying hack.  I wanted to send a period '.' in the term, but
+          // Symfony didn't handle that well (per issue
+          // https://github.com/jzohrab/lute/issues/28), and replacing the '.'
+          // with the encoded value ('\u2e' or '%2E') didn't work, as it kept
+          // getting changed back to '.' on send, or it said that it couldn't
+          // find the controller route.  There is probably something very
+          // simple I'm missing, but for now, replacing the '.' with a hacky
+          // string which I'll replace on server side as well.
+          const periodhack = '__LUTE_PERIOD__';
+          clickedtagtext = clickedtagtext.replaceAll('.', periodhack);
+          if (clickedtagtext == '')
+            return;
+
+          // alert("You clicked me: " + clickedtagtext);
+          const langid = {{ form.language.vars.value }};
+          let url = '';
+          {% if parent_link_to_frame ?? false %}
+          url = `/read/termform/${langid}/${clickedtagtext}`;
+          {% else %}
+          url = `/term/editbytext/${langid}/${clickedtagtext}`;
+          {% endif %}
+
+          window.location = url;
+        },
+
         fieldName: prototypeFieldName.replace('__name__', 0),
         allowSpaces: true,
         autocomplete: {
@@ -191,10 +255,12 @@
     // Approx good size for the text area:
     $('#term_dto_Translation').css({'width': '500px', 'height': '43px'});
 
+    // Setup complete, can now start monitoring form.
+    monitor_form = true;
+
     if (($('#term_dto_Text').val() ?? '') != '') {
       do_term_lookup(false);
     }
-
   });
 
   /** LOOKUPS */
