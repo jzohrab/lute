@@ -152,13 +152,13 @@
 
           let clickedtagtext = $('#parentslist').tagit('tagLabel', ui.tag);
           // Annoying hack.  I wanted to send a period '.' in the term, but
-          // Symfony didn't handle that well (per issue
+          // Symfony did not handle that well (per issue
           // https://github.com/jzohrab/lute/issues/28), and replacing the '.'
-          // with the encoded value ('\u2e' or '%2E') didn't work, as it kept
-          // getting changed back to '.' on send, or it said that it couldn't
+          // with the encoded value ('\u2e' or '%2E') did not work, as it kept
+          // getting changed back to '.' on send, or it said that it could not
           // find the controller route.  There is probably something very
-          // simple I'm missing, but for now, replacing the '.' with a hacky
-          // string which I'll replace on server side as well.
+          // simple I am missing, but for now, replacing the '.' with a hacky
+          // string which is replaced on server side as well.
           const periodhack = '__LUTE_PERIOD__';
           clickedtagtext = clickedtagtext.replaceAll('.', periodhack);
           if (clickedtagtext == '')
@@ -299,17 +299,31 @@
   let do_image_lookup = function() {
     const langid = $('#term_dto_language').val();
     const text = $('#term_dto_Text').val();
-    const parent_text = $('#term_dto_ParentText').val();
 
     if (langid == null || langid == '' || parseInt(langid) == 0 || text == null || text == '') {
       alert('Please select a language and enter the term.');
       return;
     }
 
-    const raw_bing_url = 'https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle';
     let use_text = text;
-    if (parent_text != null && parent_text != '')
-      use_text = parent_text;
+
+    // If there is a single parent, use that as the basis of the lookup.
+    // Get text for all parent tags.
+    // There is **likely** an easier way to get this with jquery!
+    let parentTags = [];
+    $('form input').each(
+      function(index) {
+        var input = $(this);
+        let n = input.attr('name');
+        if (typeof n !== "undefined" && n != null && n.startsWith('term_dto[termParents]')) {
+           parentTags.push(input.val());
+        }
+    });
+    let parent_text = null;
+    if (parentTags.length == 1)
+      use_text = parentTags[0];
+
+    const raw_bing_url = 'https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle';
     const binghash = raw_bing_url.replace('https://www.bing.com/images/search?', '');
     const url = `/bing/search/${langid}/${encodeURIComponent(use_text)}/${encodeURIComponent(binghash)}`;
     top.frames.dictframe.location.href = url;
@@ -332,7 +346,7 @@
     }
 
     // TODO:fix_language_dict_asterisk
-    // The URL shouldn't be prepended with trash
+    // The URL shouldn not be prepended with trash
     // (e.g. "*http://" means "open an external window", while
     // "http://" means "this can be opened in an iframe."
     // Instead, each dict should have an "is_external" property.
