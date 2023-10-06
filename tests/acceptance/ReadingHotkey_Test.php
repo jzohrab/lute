@@ -91,6 +91,7 @@ class ReadingHotkey_Test extends AcceptanceTestBase
             $this->client->getKeyboard()->pressKey(WebDriverKeys::COMMAND);
             $this->client->getKeyboard()->sendKeys('c');
             $this->client->getKeyboard()->releaseKey(WebDriverKeys::COMMAND);
+            usleep(300 * 1000);
         };
         $hover = function($word) {
             $wid = $this->ctx->getWordCssID($word);
@@ -99,14 +100,17 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         };
         $click = function($word) {
             $this->ctx->clickReadingWord($word);
+            usleep(300 * 1000);
         };
         $shiftclick = function($word) {
             $this->client->getKeyboard()->pressKey(WebDriverKeys::SHIFT);
             $this->ctx->clickReadingWord($word);
             $this->client->getKeyboard()->releaseKey(WebDriverKeys::SHIFT);
+            usleep(300 * 1000);
         };
         $hotkey = function($key) {
             $this->client->getKeyboard()->sendKeys($key);
+            usleep(300 * 1000);
         };
         $wait = function($millis = 100) {
             usleep($millis * 1000);

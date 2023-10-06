@@ -5,6 +5,7 @@ namespace App\Tests\acceptance;
 require_once __DIR__ . '/../db_helpers.php';
 
 use App\Utils\DemoDataLoader;
+use App\Entity\Language;
 use App\Domain\TermService;
 
 class Reading_Test extends AcceptanceTestBase
@@ -22,10 +23,11 @@ class Reading_Test extends AcceptanceTestBase
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
-
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->assertPageTitleContains('LUTE');
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
         $this->assertPageTitleContains('Reading "Hola (1/1)"');
 
         $ctx = $this->getReadingContext();
@@ -41,14 +43,15 @@ class Reading_Test extends AcceptanceTestBase
     }
 
     /**
-     * @group termcase
+     * @group acctermcase
      */
     public function test_reading_with_term_case_updates(): void
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
-        usleep(300 * 1000);
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
         $this->assertPageTitleContains('Reading "Hola (1/1)"');
 
         $ctx = $this->getReadingContext();
@@ -69,10 +72,12 @@ class Reading_Test extends AcceptanceTestBase
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('#booktable', 'Hola');
 
         $this->assertPageTitleContains('LUTE');
         $this->assertSelectorTextContains('body', 'Learning Using Texts (LUTE)');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
         $this->assertPageTitleContains('Reading "Hola (1/1)"');
 
         $ctx = $this->getReadingContext();
@@ -92,8 +97,9 @@ class Reading_Test extends AcceptanceTestBase
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $this->client->request('GET', '/');
-        usleep(300 * 1000); // 300k microseconds - should really wait instead ...
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'Adios');
 
         $ctx = $this->getReadingContext();
         $ctx->assertDisplayedTextEquals('Hola/. /Adios/ /amigo/.', 'initial text');
@@ -123,14 +129,15 @@ class Reading_Test extends AcceptanceTestBase
 
         $this->make_text("Hola", "He escrito cap. uno.", $this->spanish);
         $this->client->request('GET', '/');
-        usleep(300 * 1000); // 300k microseconds - should really wait instead ...
+        $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
+        $this->client->waitForElementToContain('body', 'escrito');
 
         $ctx = $this->getReadingContext();
         $ctx->assertDisplayedTextEquals('He/ /escrito/ /cap./ /uno/.', 'initial text');
 
         $ctx->clickReadingWord('cap.');
-
+        usleep(300 * 1000);
         $updates = [ 'Translation' => 'chapter' ];
         $ctx->updateTermForm('cap.', $updates);
 
@@ -290,13 +297,15 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_set_read_date() {
         \DbHelpers::clean_db();
+        $this->language_repo->save(Language::makeEnglish(), true);
         $term_svc = new TermService($this->term_repo);
-        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
+        $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
+        $ddl->loadDemoStories();
 
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
         // isn't shown.
-        $b = $this->book_repo->find(1); // hardcoded ID :-(
+        $b = $this->book_repo->find(1); // hardcoded ID :-)
         $this->assertEquals('Tutorial', $b->getTitle(), 'sanity check');
         $txtid = $b->getTexts()[0]->getID();
         $sql = "select txorder,
@@ -336,16 +345,17 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_reading_sets_index_page_bookmark() {
         \DbHelpers::clean_db();
+        $this->language_repo->save(Language::makeEnglish(), true);
         $term_svc = new TermService($this->term_repo);
-        DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
+        $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
+        $ddl->loadDemoStories();
 
         $this->goToTutorialFirstPage();
         $this->clickLinkID("#navNext");
         $this->clickLinkID("#navNext");
 
         $this->client->request('GET', '/');
-        $wait = function() { usleep(500 * 1000); };
-        $wait();
+        $this->client->waitForElementToContain('#booktable', 'Tutorial');
         $ctx = $this->getBookContext();
         $fullcontent = implode('|', $ctx->getBookTableContent());
         $expected = "Tutorial (3/";

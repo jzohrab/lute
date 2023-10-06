@@ -1,5 +1,33 @@
 # Changelog
 
+## 2023-10-05 v2.1.2
+
+Feature changes:
+
+* Added support for Turkish (issue [71](https://github.com/jzohrab/lute/issues/71)).  There's a new "parse as" "turkish" Language option, because Turkish has a few characters for "i" (i, İ; ı, I) that need special handling.
+
+Bug fixes:
+
+* Prevent frozen Term hover (issue [71](https://github.com/jzohrab/lute/issues/73))
+
+Back end changes:
+
+* Reorganize demo data and language templates in demo/
+* Load language from yaml
+* Fix Windows GitHub CI tests
+
+
+## 2023-09-29 v2.1.1
+
+Feature changes:
+
+* Add Right-to-Left language support and a sample Arabic text (issue [67](https://github.com/jzohrab/lute/issues/67))
+
+Back end:
+
+* Re-activate acceptance tests for develop, master
+
+
 ## 2023-09-22 v2.1.0
 
 Various fixes for new user non-Docker installs:

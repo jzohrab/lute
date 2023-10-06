@@ -26,7 +26,7 @@ class TermMappingService {
     private array $pendingTerms;
 
     public static function loadMappingFile($filename): array {
-        $lines = explode("\n", file_get_contents($filename));
+        $lines = explode(PHP_EOL, file_get_contents($filename));
         // No blanks
         $lines = array_filter($lines, fn($lin) => trim($lin) != '');
         // No comments
@@ -148,7 +148,7 @@ class TermMappingService {
 
         $mappings = array_filter($mappings, fn($a) => $a['parent'] != $a['child']);
         $mappings = array_filter($mappings, fn($a) => $a['parent'] != null && $a['child'] != null);
-        $mappings = array_map(fn($a) => [ 'parent' => mb_strtolower($a['parent']), 'child' => mb_strtolower($a['child']) ], $mappings);
+        $mappings = array_map(fn($a) => [ 'parent' => $lang->getLowercase($a['parent']), 'child' => $lang->getLowercase($a['child']) ], $mappings);
 
         // dump($mappings);
         $this->term_repo->stopSqlLog();
@@ -399,48 +399,21 @@ where WoLgID = $lgid
         $handle = fopen($outfile, 'w');
 
         // All new parsed word tokens.
-
-        // Dev note: originally, I had written the query below to find
-        // all "text tokens" that don't have a corresponding `words`
-        // record.  The query runs correctly and quickly in the sqlite3
-        // command line, but when run in PHP it was brutally slow
-        // (i.e., 30+ seconds).  I'm not sure why, and can't be
-        // bothered to try to figure it out.  Instead of using the
-        // query, I'm just calculating the array difference (the
-        // uncommented code), which runs fast and should not be _too_
-        // brutal on memory.
-        /*
-        $sql = "select distinct(TokTextLC) from texttokens
-          inner join texts on TxID = TokTxID
-          inner join books on TxBkID = BkID
-          left join (
-            select WoTextLC from words where WoLgID = $lgid
-          ) langwords on langwords.WoTextLC = TokTextLC
-          where
-            TokIsWord = 1 and BkLgID = $lgid and
-            langwords.WoTextLC is null";
-        */
-
-        // UPDATE: re-parsing the book to get parsed tokens.
-        //
-        // For space/data redundancy, I'm moving away from storing all
-        // of the parsed tokens in the db, so this routine just gets
-        // all sentences.  Reparsing is done in chunks due to memory
-        // constraints.
-        //
+        // Lute doesn't store parsed tokens, just parsed sentences.
         // This is slow, but (on my mac, at least) it doesn't time
         // out.  Not too concerned at the moment, as I'm not sure if
         // many users are using this feature.
         $sentences = $this->getAllSentences($book, $conn);
         $uniquewords = [];
         $arbitrary_chunk_size = 100;
+        $lang = $book->getLanguage();
         foreach (array_chunk($sentences, $arbitrary_chunk_size) as $sentbatch) {
             $zws = mb_chr(0x200B); // zero-width space.
             $txt = implode($zws, $sentbatch);
             $txt = str_replace($zws, '', $txt);
-            $toks = $book->getLanguage()->getParsedTokens($txt);
+            $toks = $lang->getParsedTokens($txt);
             $words = array_filter($toks, fn($t) => $t->isWord);
-            $words = array_map(fn($t) => mb_strtolower($t->token), $words);
+            $words = array_map(fn($t) => $lang->getLowercase($t->token), $words);
             $uniquewords[] = array_unique($words);
         }
         $uniquewords = array_merge([], ...$uniquewords);

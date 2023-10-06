@@ -3,6 +3,7 @@
 namespace App\Domain;
 
 use App\Entity\Term;
+use App\Entity\Language;
 use App\Entity\TextItem;
 
 class RenderableCandidate {
@@ -34,7 +35,7 @@ class RenderableCandidate {
         return "{$id}; {$this->text}; {$this->pos}; {$this->length}; render = {$ren}";
     }
 
-    public function makeTextItem(int $pnum, int $seid, int $textid, int $langid): TextItem {
+    public function makeTextItem(int $pnum, int $seid, int $textid, Language $lang): TextItem {
         /*
         $time_start = microtime(true);
         $msgs = [];
@@ -49,12 +50,12 @@ class RenderableCandidate {
         $t = new TextItem();
         $t->Order = $this->pos;
         $t->TextID = $textid;
-        $t->LangID = $langid;
+        $t->LangID = $lang->getLgID();
         $t->DisplayText = $this->displaytext;
         $t->Text = $this->text;
         $t->TokenCount = $this->length;
 
-        $t->TextLC = mb_strtolower($this->text);
+        $t->TextLC = $lang->getLowercase($this->text);
         $t->ParaID = $pnum;
         $t->SeID = $seid;
         $t->IsWord = $this->isword;

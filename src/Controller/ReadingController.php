@@ -72,9 +72,14 @@ class ReadingController extends AbstractController
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
     public function text(Request $request, Text $text, ReadingFacade $facade): Response
     {
+        $book = $text->getBook();
+        $lang = $book->getLanguage();
+        $isRTL = $lang->isLgRightToLeft() ?? false;
+
         $paragraphs = $facade->getParagraphs($text);
         return $this->render('read/text.html.twig', [
             'textid' => $text->getId(),
+            'isRTL' => $isRTL,
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
             'paragraphs' => $paragraphs
         ]);

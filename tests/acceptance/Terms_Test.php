@@ -18,7 +18,9 @@ class Terms_Test extends AcceptanceTestBase
     public function test_term_table_empty(): void
     {
         $this->client->request('GET', '/');
+        $wait = function() { usleep(200 * 1000); };  // hack
         $this->client->clickLink('Terms');
+        $wait();
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain('no data', [ 'No data available in table' ]);
     }

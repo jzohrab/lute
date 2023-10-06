@@ -47,6 +47,7 @@ abstract class DatabaseTestBase extends WebTestCase
     public Language $english;
     public Language $japanese;
     public Language $classicalchinese;
+    public Language $turkish;
 
     public Text $spanish_hola_text;
     
@@ -91,6 +92,9 @@ abstract class DatabaseTestBase extends WebTestCase
 
     public function load_languages(): void
     {
+        $this->turkish = Language::makeTurkish();
+        $this->language_repo->save($this->turkish, true);
+
         $this->classicalchinese = Language::makeClassicalChinese();
         $this->language_repo->save($this->classicalchinese, true);
 

@@ -43,7 +43,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
         $f = $this->tempfile;
         $this->svc->lemma_export_language($this->spanish, $f);
         $c = file_get_contents($f);
-        $actual = explode("\n", $c);
+        $actual = explode(PHP_EOL, $c);
         sort($actual);
         $this->assertEquals($expected, $actual, "contents");
     }
@@ -70,7 +70,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
         $f = $this->tempfile;
         $this->svc->lemma_export_book($t->getBook(), $f);
         $c = file_get_contents($f);
-        $actual = explode("\n", $c);
+        $actual = explode(PHP_EOL, $c);
         sort($actual);
         $this->assertEquals($expected, $actual, "contents");
     }

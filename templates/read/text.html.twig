@@ -3,7 +3,12 @@
 {# Hack for js translation keyboard shortcut. #}
 <span id="translateURL" style="display:none">{{ dictionary_url }}</span>
 
-<div id="thetext">
+<div
+  id="thetext"
+  {% if isRTL %}
+  dir="rtl"
+  {% endif %}
+>
   {% include '/read/sentences.html.twig' %}
 </div>
 

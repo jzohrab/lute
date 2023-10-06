@@ -3,6 +3,7 @@
 namespace tests\App\Domain;
 
 use App\Domain\TokenLocator;
+use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
 
 class TokenLocator_Test extends TestCase
@@ -94,17 +95,14 @@ class TokenLocator_Test extends TestCase
         foreach ($cases as $case) {
             $casenum = intval($case[0]);
 
-            // if ($casenum < 5)
-            //     continue;
-
             $tokens = $case[1];
             $word = $case[2];
             $expected = $case[3];
 
             $sentence = TokenLocator::make_string($tokens);
-            $actual = TokenLocator::locate($sentence, $word);
-            // dump($actual);
-            // dump($expected);
+            $en = Language::makeEnglish();
+            $tocloc = new TokenLocator($en, $sentence);
+            $actual = $tocloc->locateString($word);
 
             $msg = 'case ' . $casenum . '. ' . $sentence . ' , find: ' . $word;
             $msg = str_replace($zws, '/', $msg);

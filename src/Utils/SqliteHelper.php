@@ -55,7 +55,8 @@ class SqliteHelper {
 
     public static function isDemoData(): bool {
         $sql = "select count(*) from books
-          where BkID = 1 and BkTitle = 'Tutorial'";
+          inner join languages on LgID = BkLgID
+          where LgName = 'English' and BkTitle = 'Tutorial'";
         $conn = Connection::getFromEnvironment();
         $check = $conn
                ->query($sql)

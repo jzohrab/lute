@@ -12,8 +12,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\Domain\SpaceDelimitedParser;
 use App\Domain\JapaneseParser;
 use App\Domain\ClassicalChineseParser;
+use App\Domain\TurkishParser;
 use App\Domain\ParsedTokenSaver;
-
+use Symfony\Component\Yaml\Yaml;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 #[ORM\Table(name: 'languages')]
@@ -287,6 +288,8 @@ class Language
             return new ClassicalChineseParser();
         case 'japanese':
             return new JapaneseParser();
+        case 'turkish':
+            return new TurkishParser();
         default:
             throw new \Exception("Unknown parser type {$this->LgParserType} for {$this->getLgName()}");
         }
@@ -304,109 +307,134 @@ class Language
         return $this->getParser()->getParsedTokens($s, $this);
     }
 
+    /** Convenience method only. */
+    public function getLowercase(string $s): string
+    {
+        return $this->getParser()->getLowercase($s);
+    }
+
     /**
      * Language "factories" to create sensible defaults.
      * Returns unsaved entities.
      */
 
-    public static function makeSpanish() {
-        $spanish = new Language();
-        $spanish
-            ->setLgName('Spanish')
-            ->setLgDict1URI('https://es.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#es/en/###');
-        return $spanish;
-    }
+    /**
+     * Demo files are stored in root/demo/*.yaml.
+     */
+    public static function fromYaml($filename): Language {
+        $d = Yaml::parseFile($filename);
 
-    public static function makeGreek() {
-        $greek = new Language();
-        $greek
-            ->setLgName('Greek')
-            ->setLgRegexpWordCharacters('a-zA-ZÀ-ÖØ-öø-ȳͰ-Ͽἀ-ῼ')
-            ->setLgShowRomanization(true)
-            ->setLgDict1URI('https://www.wordreference.com/gren/###')
-            ->setLgDict2URI('https://en.wiktionary.org/wiki/###')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#el/en/###');
-        return $greek;
-    }
-
-    public static function makeFrench() {
-        $french = new Language();
-        $french
-            ->setLgName('French')
-            ->setLgDict1URI('https://fr.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#fr/en/###');
-        return $french;
-    }
-
-    public static function makeGerman() {
-        $german = new Language();
-        $german
-            ->setLgName('German')
-            ->setLgDict1URI('https://de.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.wordreference.com/deen/###')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#de/en/###');
-        return $german;
-    }
-
-    public static function makeEnglish() {
-        $english = new Language();
-        $english
-            ->setLgName('English')
-            ->setLgDict1URI('https://en.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#en/en/###');
-        return $english;
-    }
-
-    public static function makeJapanese() {
-        if (!JapaneseParser::MeCab_installed())
-            throw new \Exception("MeCab not installed.");
-        $japanese = new Language();
-        $japanese
-            ->setLgName('Japanese')
-            ->setLgDict1URI('https://jisho.org/search/###')
-            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#jp/en/###')
-            // Ref https://stackoverflow.com/questions/5797505/php-regex-expression-involving-japanese
-            ->setLgRegexpWordCharacters('\p{Han}\p{Katakana}\p{Hiragana}')
-            ->setLgRemoveSpaces(true)
-            ->setLgShowRomanization(true)
-            ->setLgRegexpSplitSentences('.!?。？！')
-            ->setLgParserType('japanese');
-        return $japanese;
-    }
-
-    public static function makeClassicalChinese() {
         $lang = new Language();
-        $lang
-            ->setLgName('Classical Chinese')
-            ->setLgDict1URI('https://ctext.org/dictionary.pl?if=en&char=###')
-            ->setLgDict2URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#ch/en/###')
-            ->setLgRegexpWordCharacters('一-龥')
-            ->setLgRegexpSplitSentences('.!?。！？')
-            ->setLgRemoveSpaces(true)
-            ->setLgShowRomanization(true)
-            ->setLgParserType('classicalchinese');
+
+        $load = function($key, $method) use ($d, $lang) {
+            if (! array_key_exists($key, $d))
+                return;
+
+            $val = $d[$key];
+
+            // Have to put "\*" for external dicts in yaml,
+            // but those should be saved as "*" only.
+            // if (str_starts_with($val, '\*'))
+
+            // Bools are special
+            if (strtolower($val) == 'true')
+                $val = true;
+            if (strtolower($val) == 'false')
+                $val = false;
+
+            $lang->{$method}($d[$key]);
+        };
+
+        # Input fields on the user form, e.g.
+        # http://localhost:9999/language/1/edit
+        $mappings = [
+            'name' => 'setLgName',
+            'dict_1' => 'setLgDict1URI',
+            'dict_2' => 'setLgDict2URI',
+            'sentence_translation' => 'setLgGoogleTranslateURI',
+            'show_romanization' => 'setLgShowRomanization',
+            'right_to_left' => 'setLgRightToLeft',
+
+            # Parsing
+            'parser_type' => 'setLgParserType',
+            'character_substitutions' => 'setLgCharacterSubstitutions',
+            'split_sentences' => 'setLgRegexpSplitSentences',
+            'split_sentence_exceptions' => 'setLgExceptionsSplitSentences',
+            'word_chars' => 'setLgRegexpWordCharacters',
+        ];
+
+        foreach (array_keys($d) as $key) {
+            $funcname = $mappings[$key];
+            if ($funcname != '') {
+                $load($key, $funcname);
+            }
+        }
+
         return $lang;
     }
 
-    public static function getPredefined(): array {
-        $ret = [
-            Language::makeEnglish(),
-            Language::makeFrench(),
-            Language::makeGerman(),
-            Language::makeGreek(),
-            Language::makeSpanish(),
-            Language::makeClassicalChinese(),
-        ];
 
-        if (JapaneseParser::MeCab_installed())
-            $ret[] = Language::makeJapanese();
+    public static function getPredefined(): array {
+        $demoglob = dirname(__FILE__) . '/../../demo/languages/*.yaml';
+        $ret = [];
+        foreach(glob($demoglob) as $f) {
+            $ret[] = Language::fromYaml($f);
+        }
+
+        $no_mecab = ! JapaneseParser::MeCab_installed();
+        if ($no_mecab) {
+            $ret = array_filter($ret, fn($lang) => $lang->getLgParserType() != 'japanese');
+        }
+
         return $ret;
+    }
+
+
+    /**
+     * TODO:remove_code: these makeXXX methods are only used in the
+     * tests, so they should be moved over there.
+     */
+
+    // Helper to get file in demo/languages/$f
+    private static function fromDemoYaml($f) {
+        $p = dirname(__FILE__) . '/../../demo/languages/' . $f;
+        return Language::fromYaml($p);
+    }
+    
+    public static function makeSpanish() {
+        return Language::fromDemoYaml('spanish.yaml');
+    }
+
+    public static function makeGreek() {
+        return Language::fromDemoYaml('greek.yaml');
+    }
+
+    public static function makeFrench() {
+        return Language::fromDemoYaml('french.yaml');
+    }
+
+    public static function makeGerman() {
+        return Language::fromDemoYaml('german.yaml');
+    }
+
+    public static function makeEnglish() {
+        return Language::fromDemoYaml('english.yaml');
+    }
+
+    public static function makeJapanese() {
+        return Language::fromDemoYaml('japanese.yaml');
+    }
+
+    public static function makeClassicalChinese() {
+        return Language::fromDemoYaml('classical_chinese.yaml');
+    }
+
+    public static function makeArabic() {
+        return Language::fromDemoYaml('arabic.yaml');
+    }
+
+    public static function makeTurkish() {
+        return Language::fromDemoYaml('turkish.yaml');
     }
 
 }

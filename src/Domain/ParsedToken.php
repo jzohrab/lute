@@ -30,7 +30,6 @@ class ParsedToken
         foreach ($parsedTokens as $pt) {
             $tok = new TextToken();
             $tok->TokText = $pt->token;
-            $tok->TokTextLC = mb_strtolower($pt->token);
             $tok->TokIsWord = $pt->isWord;
 
             $tok->TokOrder = $tokOrder;
