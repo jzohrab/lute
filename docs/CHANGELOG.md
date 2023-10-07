@@ -12,8 +12,6 @@ Fixes:
 * Issue [77](https://github.com/jzohrab/lute/issues/77): Turkish term case changes.  Old code was using naive javascript, now posts back to server.
 * Issue [75](https://github.com/jzohrab/lute/issues/75): Stop images moving around on image search
 
-=> don't forget to update the vX.X.X above <=
-
 Back end changes:
 
 * Some changes to structure to clarify the migration to Lute v3: add Parse and Render namespaces, remove unused code.
