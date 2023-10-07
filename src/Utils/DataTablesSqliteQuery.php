@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace App\Utils;
 
 /**
  * Utility repo for sqlite backend for DataTables ajax calls.

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Term;
 use App\Entity\Text;
 use App\Entity\Language;
+use App\Utils\DataTablesSqliteQuery;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

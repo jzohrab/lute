@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Book;
 use App\Domain\BookStats;
+use App\Utils\DataTablesSqliteQuery;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

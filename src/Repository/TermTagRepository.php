@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\TermTag;
+use App\Utils\DataTablesSqliteQuery;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

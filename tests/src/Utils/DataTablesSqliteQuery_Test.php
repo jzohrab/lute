@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../../src/Repository/DataTablesSqliteQuery.php';
+// require_once __DIR__ . '/../../../src/Repository/DataTablesSqliteQuery.php';
 
 use PHPUnit\Framework\TestCase;
-use App\Repository\DataTablesSqliteQuery;
+use App\Utils\DataTablesSqliteQuery;
 
 
 final class DataTablesSqliteQuery_Test extends TestCase
