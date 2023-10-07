@@ -8,7 +8,7 @@ use App\Entity\Term;
 use App\Domain\TermService;
 use App\Repository\TermRepository;
 use App\Utils\Connection;
-use App\DTO\TextToken;
+use App\Render\TextToken;
 use App\Parse\ParsedToken;
 use App\Parse\SentenceGroupIterator;
 use App\Render\RenderableCalculator;
