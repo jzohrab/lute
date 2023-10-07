@@ -11,44 +11,6 @@ class SpaceDelimitedParser extends AbstractParser {
         return $this->parse_to_tokens($text, $lang);
     }
 
-    // A (possibly) easier way to do substitutions -- each
-    // pair in $replacements is run in order.
-    // Possible entries:
-    // ( <src string or regex string (starting with '/')>, <target (string or callback)> )
-    private function do_replacements($text, $replacements) {
-        foreach($replacements as $r) {
-            if ($r == 'skip') {
-                continue;
-            }
-
-            if ($r == 'trim') {
-                $text = trim($text);
-                continue;
-            }
-
-            $src = $r[0];
-            $tgt = $r[1];
-
-            // echo "=====================\n";
-            // echo "Applying '$src' \n\n";
-
-            if (! is_string($tgt)) {
-                $text = preg_replace_callback($src, $tgt, $text);
-            }
-            else {
-                if (substr($src, 0, 1) == '/')
-                    $text = preg_replace($src, $tgt, $text);
-                else
-                    $text = str_replace($src, $tgt, $text);
-            }
-
-            // echo "text is ---------------------\n";
-            // echo str_replace("\r", "<RET>\n", $text);
-            // echo "\n-----------------------------\n";
-        }
-        return $text;
-    }
-
     /**
      * Returns array of matches in same format as preg_match or
      * preg_match_all
@@ -100,11 +62,9 @@ class SpaceDelimitedParser extends AbstractParser {
             }
         }
 
-        $text = $this->do_replacements($text, [
-            [ "\r\n",  "\n" ],
-            [ '{', '['],
-            [ '}', ']']
-        ]);
+        $text = str_replace("\r\n",  "\n", $text);
+        $text = str_replace('{', '[', $text);
+        $text = str_replace('}', ']', $text);
 
         $tokens = [];
         $paras = explode("\n", $text);
