@@ -143,6 +143,11 @@
           }
         },
         onTagClicked: function (evt, ui) {
+          // Exit early if language not set - can't handle, too complicated.
+          if ("{{ form.language.vars.value }}" == "") {
+            return;
+          }
+
           if (form_changed) {
             choice = confirm('You have unsaved changes, going to the parent will lose them.  Continue?');
             if (! choice) {
@@ -165,7 +170,8 @@
             return;
 
           // alert("You clicked me: " + clickedtagtext);
-          const langid = {{ form.language.vars.value }};
+          // We should never reach this point if the lang is not set.
+          const langid = {{ form.language.vars.value | default(-1) }};
           let url = '';
           {% if parent_link_to_frame ?? false %}
           url = `/read/termform/${langid}/${clickedtagtext}`;
