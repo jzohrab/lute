@@ -11,6 +11,7 @@ use App\Utils\Connection;
 use App\DTO\TextToken;
 use App\Parse\ParsedToken;
 use App\Parse\SentenceGroupIterator;
+use App\Render\RenderableCalculator;
 
 /** Helper class for finding coverage of tokens for a given text string. */
 class TokenCoverage {

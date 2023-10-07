@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain;
+namespace App\Render;
 
 use App\Entity\Language;
 

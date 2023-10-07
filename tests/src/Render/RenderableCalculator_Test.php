@@ -2,7 +2,7 @@
 
 namespace tests\App\Domain;
  
-use App\Domain\RenderableCalculator;
+use App\Render\RenderableCalculator;
 use App\DTO\TextToken;
 use App\Entity\Term;
 use App\Entity\Language;

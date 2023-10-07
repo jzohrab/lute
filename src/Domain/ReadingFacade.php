@@ -14,6 +14,7 @@ use App\Repository\BookRepository;
 use App\Repository\TermTagRepository;
 use App\Repository\TermRepository;
 use App\Domain\TermService;
+use App\Render\RenderableSentence;
 
 class ReadingFacade {
 
