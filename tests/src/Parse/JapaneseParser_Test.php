@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\JapaneseParser;
-use App\Domain\ParsedToken;
+use App\Parse\JapaneseParser;
+use App\Parse\ParsedToken;
 use App\Entity\Text;
 use App\Entity\Language;
 use App\Entity\Term;

@@ -6,6 +6,7 @@ use App\Entity\Text;
 use App\Utils\Connection;
 use App\DTO\TextToken;
 use App\Domain\TermService;
+use App\Parse\ParsedToken;
 
 class RenderableSentence
 {

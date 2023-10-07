@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domain;
+namespace App\Parse;
 
 use App\Entity\Text;
 use App\Entity\Language;
-use App\Domain\ParsedToken;
+use App\Parse\ParsedToken;
 use App\Utils\Connection;
 
 class SpaceDelimitedParser extends AbstractParser {

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
 
-use App\Domain\ClassicalChineseParser;
-use App\Domain\ParsedToken;
+use App\Parse\ClassicalChineseParser;
+use App\Parse\ParsedToken;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
 

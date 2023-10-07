@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../db/lib/pdo_migrator.php';
 
 use Symfony\Component\Filesystem\Path;
 use App\Utils\Connection;
-use App\Domain\JapaneseParser;
+use App\Parse\JapaneseParser;
 
 // Class for namespacing only.
 class SqliteHelper {

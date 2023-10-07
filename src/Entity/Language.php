@@ -9,11 +9,11 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Domain\SpaceDelimitedParser;
-use App\Domain\JapaneseParser;
-use App\Domain\ClassicalChineseParser;
-use App\Domain\TurkishParser;
-use App\Domain\ParsedTokenSaver;
+use App\Parse\SpaceDelimitedParser;
+use App\Parse\JapaneseParser;
+use App\Parse\ClassicalChineseParser;
+use App\Parse\TurkishParser;
+use App\Parse\ParsedTokenSaver;
 use Symfony\Component\Yaml\Yaml;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]

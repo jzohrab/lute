@@ -395,7 +395,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group reload
      */
     public function test_japanese_multiword_stays_in_correct_place() {
-        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+        if (!App\Parse\JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
         }
 
@@ -414,7 +414,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group reload
      */
     public function test_japanese_multiword_demo_story() {
-        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+        if (!App\Parse\JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
         }
 
@@ -435,7 +435,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group reload
      */
      public function test_japanese_multiword_with_numbers() {
-        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+        if (!App\Parse\JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
         }
 
@@ -451,7 +451,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group rumissing
      */
     public function test_japanese_ru_missing() {
-        if (!App\Domain\JapaneseParser::MeCab_installed()) {
+        if (!App\Parse\JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
         }
 

@@ -10,7 +10,7 @@ use App\Repository\TextRepository;
 use App\Repository\BookRepository;
 use App\Entity\Term;
 use App\Domain\TermService;
-use App\Domain\JapaneseParser;
+use App\Parse\JapaneseParser;
 use Symfony\Component\Yaml\Yaml;
 
 class DemoDataLoader {

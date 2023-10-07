@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain;
+namespace App\Parse;
 
 use App\Entity\Text;
 use App\Entity\Language;
