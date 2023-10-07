@@ -2,7 +2,7 @@
 
 namespace tests\App\Domain;
 
-use App\Domain\TokenLocator;
+use App\Render\TokenLocator;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
 
