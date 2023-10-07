@@ -4,7 +4,7 @@ namespace tests\App\Entity;
  
 use App\Entity\Term;
 use App\Entity\Language;
-use App\Domain\JapaneseParser;
+use App\Parse\JapaneseParser;
 use PHPUnit\Framework\TestCase;
  
 class Term_Test extends TestCase

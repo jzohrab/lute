@@ -4,7 +4,7 @@ namespace App\Tests\acceptance;
 
 require_once __DIR__ . '/../db_helpers.php';
 
-use App\Domain\JapaneseParser;
+use App\Parse\JapaneseParser;
 use App\Utils\SqliteHelper;
 
 class NoMecab_Test extends AcceptanceTestBase

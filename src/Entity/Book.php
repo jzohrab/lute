@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\BookRepository;
 use App\DTO\BookDTO;
-use App\Domain\SentenceGroupIterator;
+use App\Parse\SentenceGroupIterator;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;

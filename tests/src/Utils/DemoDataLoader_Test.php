@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Utils\DemoDataLoader;
 use App\Domain\TermService;
-use App\Domain\JapaneseParser;
+use App\Parse\JapaneseParser;
 
 
 final class DemoDataLoader_Test extends DatabaseTestBase

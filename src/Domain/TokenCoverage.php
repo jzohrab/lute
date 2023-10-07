@@ -9,6 +9,8 @@ use App\Domain\TermService;
 use App\Repository\TermRepository;
 use App\Utils\Connection;
 use App\DTO\TextToken;
+use App\Parse\ParsedToken;
+use App\Parse\SentenceGroupIterator;
 
 /** Helper class for finding coverage of tokens for a given text string. */
 class TokenCoverage {

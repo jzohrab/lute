@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Term;
 use App\Entity\Text;
-use App\Domain\JapaneseParser;
+use App\Parse\JapaneseParser;
 use App\Entity\Language;
 use App\Domain\TermService;
 

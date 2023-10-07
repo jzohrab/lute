@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
-use App\Domain\SpaceDelimitedParser;
-use App\Domain\ParsedToken;
+use App\Parse\SpaceDelimitedParser;
+use App\Parse\ParsedToken;
 use App\Entity\Text;
 use App\Entity\Term;
 

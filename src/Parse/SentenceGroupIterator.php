@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain;
+namespace App\Parse;
 
 /**
  * Given tokens and a max token count, on each iteration, returns the
