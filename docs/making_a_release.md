@@ -42,10 +42,19 @@ Then run some sanity checks:
 
 If all good:
 
+Export some env vars to simplify subsequent steps:
+
 ```
-git checkout -b release_xxx
+export OLDVERSION=
+export NEWVERSION=
+
+echo $OLDVERSION
+echo $NEWVERSION
+```
+
+git checkout -b release_$NEWVERSION
 # Generate Changelog
-composer app:changelog vPREVVERSION
+composer app:changelog $OLDVERSION
 # ... edit change log ...
 git add docs/CHANGELOG.md
 git commit -m "Changelog."
@@ -56,7 +65,7 @@ git commit -m "Changelog."
 ```
 cd ../lute_build
 git fetch origin
-git checkout release_xxx
+git checkout release_$NEWVERSION
 MODE=offline composer app:release:check
 # OR: composer app:release:check
 ```
@@ -66,25 +75,27 @@ Run through some steps again.  If anything fails, fix the release branch in the 
 ### 3. BUILD environment: finalize
 
 ```
-git tag vNEWVERSION
+git tag $NEWVERSION
 composer app:release:final
-git push origin vNEWVERSION
+git push origin $NEWVERSION
 ```
 
 ### 4. DEV env: finish up
 
 ```
 cd ../lute_dev
-git push origin vNEWVERSION   # to github
+git push origin $NEWVERSION   # to github
 git checkout master
-git merge vNEWVERSION
+git merge $NEWVERSION
 git push origin master
 git checkout develop
 git merge master
 git push origin develop
+
+git br -d release_$NEWVERSION
 ```
 
-Go to GitHub and make the release, including the generated .zip files, and the changelog notes.
+Go to GitHub and make the release, including the generated .zip files, and the changelog notes.  Then share on Discord.
 
 
 # Creating the build environment
