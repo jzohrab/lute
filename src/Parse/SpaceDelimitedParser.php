@@ -16,19 +16,17 @@ class SpaceDelimitedParser extends AbstractParser {
      * preg_match_all
      * @param string $pattern  The pattern to search for, as a string.
      * @param string $subject  The input string.
-     * @param int    $offset   The place from which to start the search (in bytes).
      * @return array
      *
      * Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
      */
-    private function pregMatchCapture($pattern, $subject, $offset = 0)
+    private function pregMatchCapture($pattern, $subject)
     {
-        if ($offset != 0) { $offset = strlen(mb_substr($subject, 0, $offset)); }
-
         $matchInfo = array();
         $flag      = PREG_OFFSET_CAPTURE;
 
         // var_dump([$method, $pattern, $subject, $matchInfo, $flag, $offset]);
+        $offset = 0;
         $n = preg_match_all($pattern, $subject, $matchInfo, $flag, $offset);
 
         $result = array();
@@ -84,7 +82,7 @@ class SpaceDelimitedParser extends AbstractParser {
         $termchar = $lang->getLgRegexpWordCharacters();
         $splitSentence = preg_quote($lang->getLgRegexpSplitSentences());
         $splitex = str_replace('.', '\\.', $lang->getLgExceptionsSplitSentences());
-        $m = $this->pregMatchCapture("/($splitex|[$termchar]*)/ui", $text, 0);
+        $m = $this->pregMatchCapture("/($splitex|[$termchar]*)/ui", $text);
         $wordtoks = array_filter($m[0], fn($t) => $t[0] != "");
         // dump($text);
         // dump($termchar . '    ' . $splitex);
@@ -96,7 +94,7 @@ class SpaceDelimitedParser extends AbstractParser {
                 return;
             // dump("ADDING NON WORDS $s");
             $pattern = '/[' . $splitSentence . ']/ui';
-            $allmatches = $this->pregMatchCapture($pattern, $s, 0);
+            $allmatches = $this->pregMatchCapture($pattern, $s);
             $hasEOS = count($allmatches) > 0;
             $tokens[] = new ParsedToken($s, false, $hasEOS);
         };
