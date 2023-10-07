@@ -1,5 +1,24 @@
 # Changelog
 
+## 2023-10-07 v2.1.3
+
+Features:
+
+* In reading screen Term form, clicking on parent tag now moves to the parent word.  For example, if I have a term "dogs" with parent "dog", clicking on the "dog" parent tag will display the form for "dog".  Ref the [wiki](https://github.com/jzohrab/lute/wiki/Parent-Terms#click-a-parent-tag-to-edit-the-parent-term)
+* Images now saved and searched by parent text.  For example, if the Term is "dogs", and the parent is "dog", "dog" will be searched.
+
+Fixes:
+
+* Issue [77](https://github.com/jzohrab/lute/issues/77): Turkish term case changes.  Old code was using naive javascript, now posts back to server.
+* Issue [75](https://github.com/jzohrab/lute/issues/75): Stop images moving around on image search
+
+=> don't forget to update the vX.X.X above <=
+
+Back end changes:
+
+* Some changes to structure to clarify the migration to Lute v3: add Parse and Render namespaces, remove unused code.
+
+
 ## 2023-10-05 v2.1.2
 
 Feature changes:
