@@ -2,10 +2,8 @@
 
 namespace App\Parse;
 
-use App\Entity\Text;
 use App\Entity\Language;
 use App\Parse\ParsedToken;
-use App\Utils\Connection;
 
 class SpaceDelimitedParser extends AbstractParser {
 
