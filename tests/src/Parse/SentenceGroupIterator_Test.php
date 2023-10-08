@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-use App\Domain\SentenceGroupIterator;
-use App\Domain\SpaceDelimitedParser;
+use App\Parse\SentenceGroupIterator;
+use App\Parse\SpaceDelimitedParser;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
 

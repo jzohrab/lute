@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO;
+namespace App\Render;
 
 /** DTO for text tokens. **/
 class TextToken

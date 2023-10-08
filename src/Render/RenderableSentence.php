@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Domain;
+namespace App\Render;
 
 use App\Entity\Text;
 use App\Utils\Connection;
-use App\DTO\TextToken;
+use App\Render\TextToken;
 use App\Domain\TermService;
+use App\Parse\ParsedToken;
 
 class RenderableSentence
 {

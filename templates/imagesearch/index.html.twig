@@ -5,12 +5,16 @@
     <title>Images</title>
     <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
     <style>
+      .initial {
+          border: solid 2px transparent;
+      }
+
       .highlight {
-          border: solid 2px red;
+          border: solid 2px red !important;
       }
 
       .saved {
-          border: solid 2px green;
+          border: solid 2px green !important;
       }
 
       span > img {
@@ -82,7 +86,8 @@
     <p>Clicking an image will save it in your userimages/{{ langid }}/{{ text }}.jpeg</p>
 
     {% for image in images %}
-    <span style="margin: 2px; display:inline-block;"
+    <span class="initial"
+          style="margin: 2px; display:inline-block;"
           onmouseover="highlight_image(this);"
           onmouseout="un_highlight_image(this);"
           onclick='save_image_locally("{{ image['src'] }}", {{ langid }}, "{{ text }}")'

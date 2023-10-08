@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-use App\Domain\SpaceDelimitedParser;
-use App\Domain\ParsedToken;
+use App\Parse\SpaceDelimitedParser;
+use App\Parse\ParsedToken;
 use App\Entity\Text;
 use App\Entity\Language;
 use App\Entity\Term;

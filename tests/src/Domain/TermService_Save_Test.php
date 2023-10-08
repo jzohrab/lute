@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\TermTag;
 use App\Entity\Term;
 use App\Entity\Language;
-use App\Domain\JapaneseParser;
+use App\Parse\JapaneseParser;
 use App\Entity\Text;
 
 // Tests to validate the Doctrine mappings.

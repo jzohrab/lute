@@ -2,8 +2,8 @@
 
 namespace tests\App\Domain;
  
-use App\Domain\RenderableCalculator;
-use App\DTO\TextToken;
+use App\Render\RenderableCalculator;
+use App\Render\TextToken;
 use App\Entity\Term;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;

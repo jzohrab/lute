@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain;
+namespace App\Parse;
 
-use App\DTO\TextToken;
+use App\Render\TextToken;
 
 class ParsedToken
 {

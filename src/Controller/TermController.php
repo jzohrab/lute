@@ -100,8 +100,9 @@ class TermController extends AbstractController
     }
 
 
+    /** Note the form is passed by reference, may need to revert it to earlier state. */
     private function processTermForm(
-        \Symfony\Component\Form\Form $form,
+        \Symfony\Component\Form\Form &$form,
         Request $request,
         TermDTO $termdto,
         TermService $term_svc,
@@ -114,8 +115,11 @@ class TermController extends AbstractController
             return null;
 
         if ($termdto->textHasChanged()) {
-            $msg = "text has changed from {$termdto->OriginalText} to {$termdto->Text}";
-            throw new \Exception($msg);
+            $msg = "Can only change term case.";
+            $this->addFlash('error', $msg);
+            $termdto->Text = $termdto->OriginalText;
+            $form = $this->createForm(TermDTOType::class, $termdto);
+            return null;
         }
 
         $term = TermDTO::buildTerm($termdto, $term_svc, $termtag_repo);
@@ -209,6 +213,41 @@ class TermController extends AbstractController
             'showlanguageselector' => false
         ]);
     }
+
+
+    /**
+     * Method used by the term form
+     * (templates/term/_form.html.twig) to find the Term by text.
+     *
+     * A few hacky notes about this method:
+     * - the zero-width-string cruft is included in the URL
+     * - terms with '.' will throw due to Symfony not liking URLs with '.'
+     *   To work around this, clients send __LUTE_PERIOD__ instead of '.'.
+     */
+    #[Route('/editbytext/{LgID}/{text}', name: 'app_term_edit_by_text', methods: ['GET', 'POST'])]
+    public function editbytext(Request $request, Language $lang, string $text, TermService $term_svc, TermTagRepository $termtag_repo): Response
+    {
+        // Undo the "annoying hack" sent by lute.js to handle '.'
+        // character.
+        $usetext = preg_replace('/__LUTE_PERIOD__/u', '.', $text);
+        $term = $term_svc->find($usetext, $lang);
+        if ($term == null) {
+            throw new \Exception("Missing expected term {$usetext}");
+        }
+
+        $dto = $term->createTermDTO();
+        $form = $this->createForm(TermDTOType::class, $dto);
+        $resp = $this->processTermForm($form, $request, $dto, $term_svc, $termtag_repo);
+        if ($resp != null)
+            return $resp;
+
+        return $this->renderForm('term/formframes.html.twig', [
+            'termdto' => $dto,
+            'form' => $form,
+            'showlanguageselector' => false
+        ]);
+    }
+
 
     #[Route('/{id}', name: 'app_term_delete', methods: ['POST'])]
     public function delete(Request $request, Term $term, TermService $term_svc): Response
