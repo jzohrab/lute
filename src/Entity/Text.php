@@ -134,11 +134,6 @@ class Text
         return $this;
     }
 
-    public function parse(): void
-    {
-        $this->getLanguage()->parse([$this]);
-    }
-
     public function getBook(): ?Book
     {
         return $this->book;
