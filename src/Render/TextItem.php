@@ -2,6 +2,8 @@
 
 namespace App\Render;
 
+use App\Entity\Status;
+
 class TextItem
 {
     public int $TextID;
