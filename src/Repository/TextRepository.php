@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Text;
 use App\Entity\Sentence;
-use App\Entity\TextItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

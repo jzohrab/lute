@@ -4,7 +4,7 @@ namespace App\Render;
 
 use App\Entity\Term;
 use App\Entity\Language;
-use App\Entity\TextItem;
+use App\Render\TextItem;
 
 class RenderableCandidate {
     public int $id;
