@@ -38,14 +38,11 @@ class RenderableSentence
         if ($text->getID() == null)
             return [];
 
-        $language = $text->getBook()->getLanguage();
         $tokens = RenderableSentence::getTextTokens($text);
-        if (count($tokens) == 0) {
-            $text->getBook()->fullParse();
-            $tokens = RenderableSentence::getTextTokens($text);
-        }
         $tokens = array_filter($tokens, fn($t) => $t->TokText != '¶');
-        $terms = $svc->findAllInString($text->getText(), $text->getLanguage());
+
+        $language = $text->getBook()->getLanguage();
+        $terms = $svc->findAllInString($text->getText(), $language);
 
         $makeRenderableSentence = function($pnum, $sentenceNum, $tokens, $terms, $text) use ($language) {
             $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $sentenceNum);
