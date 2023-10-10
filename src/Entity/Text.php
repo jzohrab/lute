@@ -45,8 +45,15 @@ class Text
     #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
     private ?Book $book = null;
 
+    #[ORM\OneToMany(mappedBy: 'sentences', targetEntity: Sentence::class, orphanRemoval: true, cascade: ['persist'], fetch: 'EXTRA_LAZY')]
+    #[ORM\OrderBy(['SeOrder' => 'ASC'])]
+    #[ORM\JoinColumn(name: 'SeTxID', referencedColumnName: 'TxID', nullable: false)]
+    private Collection $Sentences;
+
+
     public function __construct()
     {
+        $this->Sentences = new ArrayCollection();
     }
 
 
@@ -156,4 +163,35 @@ class Text
         $this->TxReadDate = $dt;
         return $this;
     }
+
+    /**
+     * @return Collection<int, Sentence>
+     */
+    public function getSentences(): Collection
+    {
+        return $this->Sentences;
+    }
+
+    public function getPageCount(): int
+    {
+        return count($this->Sentences);
+    }
+
+    private function addSentence(Sentence $sentence): self
+    {
+        if (!$this->Sentences->contains($sentence)) {
+            $this->Sentences->add($sentence);
+            $sentence->setText($this);
+        }
+        return $this;
+    }
+
+    private function removeSentence(Sentence $sentence): self
+    {
+        if ($this->Sentences->removeElement($sentence)) {
+            $sentence->setText(null);
+        }
+        return $this;
+    }
+
 }
