@@ -32,7 +32,14 @@
         {
           "name": "BkTitle", "targets": 0,
           "render": function ( data, type, row, meta ) {
-            return `<a href="/book/read/${row[3]}">${row[0]}</a>`;
+            const bkid = parseInt(row[3]);
+            const pgnum = parseInt(row[10]);
+            const pgcount = parseInt(row[8]);
+            let pgfraction = '';
+            if (pgnum > 1) {
+              pgfraction = ` (${pgnum}/${pgcount})`;
+            }
+            return `<a href="/book/read/${bkid}/page/${pgnum}">${row[0]}${pgfraction}</a>`;
           }
         },
         { "name": "LgName", "targets": 1 },
@@ -84,7 +91,8 @@
         { "name": "UnknownCount", "targets": 8, "data": null, "visible": false },
         { "name": "UnknownPercent", "targets": 9, "data": null, "visible": false },
         { "name": "PageCount", "targets": 10, "data": null, "visible": false },
-        { "name": "DistinctCount", "targets": 11, "data": null, "visible": false }
+        { "name": "DistinctCount", "targets": 11, "data": null, "visible": false },
+        { "name": "PageNum", "targets": 12, "data": null, "visible": false },
       ],
 
       // Ajax call
