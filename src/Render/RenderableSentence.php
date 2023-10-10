@@ -38,14 +38,11 @@ class RenderableSentence
         if ($text->getID() == null)
             return [];
 
-        $language = $text->getBook()->getLanguage();
         $tokens = RenderableSentence::getTextTokens($text);
-        if (count($tokens) == 0) {
-            $text->getBook()->fullParse();
-            $tokens = RenderableSentence::getTextTokens($text);
-        }
         $tokens = array_filter($tokens, fn($t) => $t->TokText != '¶');
-        $terms = $svc->findAllInString($text->getText(), $text->getLanguage());
+
+        $language = $text->getBook()->getLanguage();
+        $terms = $svc->findAllInString($text->getText(), $language);
 
         $makeRenderableSentence = function($pnum, $sentenceNum, $tokens, $terms, $text) use ($language) {
             $setokens = array_filter($tokens, fn($t) => $t->TokSentenceNumber == $sentenceNum);
@@ -78,16 +75,7 @@ class RenderableSentence
         $textid = $t->getID();
         if ($textid == null)
             return [];
-        $txt = $t->getText();
-
-        // Replace double spaces, because they can mess up multi-word
-        // terms (e.g., "llevar[ ][ ]a" is different from "llevar[
-        // ]a").  Note this is duplicated code from ParsedTokenSaver
-        // ... therefore is bad.  Should be extracted somewhere.
-        // TODO:remove_duplicate_logic
-        $txt = preg_replace('/ +/u', ' ', $txt);
-
-        $pts = $t->getLanguage()->getParsedTokens($txt);
+        $pts = $t->getLanguage()->getParsedTokens($t->getText());
         return ParsedToken::createTextTokens($pts);
     }
 
