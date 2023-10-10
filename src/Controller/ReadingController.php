@@ -47,6 +47,11 @@ class ReadingController extends AbstractController
     }
 
 
+    /**
+     * Note: the book listing on the front page links to
+     * BookController::read(), which determines the actual
+     * Text that should be shown.
+     */
     #[Route('/{TxID}', name: 'app_read', methods: ['GET'])]
     public function read(Request $request, Text $text, ReadingFacade $facade): Response
     {
