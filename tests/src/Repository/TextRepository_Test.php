@@ -51,8 +51,8 @@ final class TextRepository_Test extends DatabaseTestBase
         $t->setText("Tienes un perro. Un gato.");
         $this->text_repo->save($t, true);
         $expected = [
-            "1; 2; 1; /Tienes/ /un/ /perro/./",
-            "2; 2; 2; /Un/ /gato/./"
+            "3; 2; 1; /Tienes/ /un/ /perro/./",
+            "4; 2; 2; /Un/ /gato/./"
         ];
         DbHelpers::assertTableContains($sql, $expected, 'sentences changed on save');
     }
