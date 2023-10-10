@@ -41,7 +41,7 @@ class BookRepository extends ServiceEntityRepository
         $this->getEntityManager()->persist($entity);
         $this->getEntityManager()->flush();
 
-        if (($isnew || $entity->needsFullParse) && !$entity->isArchived()) {
+        if ($entity->needsFullParse && !$entity->isArchived()) {
             $entity->fullParse();
             $entity->needsFullParse = false;
         }

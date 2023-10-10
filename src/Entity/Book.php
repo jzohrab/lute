@@ -196,6 +196,7 @@ class Book
         return $this;
     }
 
+    // TODO:sentences - remove this?
     public function fullParse() {
         $texts = [];
         foreach ($this->getTexts() as $t)

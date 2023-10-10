@@ -18,7 +18,7 @@ final class TextRepository_Test extends DatabaseTestBase
         $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->text = $t;
 
-        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup sentences');
+        DbHelpers::assertRecordcountEquals("sentences", 0, 'no sentences');
         DbHelpers::assertRecordcountEquals("texts", 1, 'setup texts');
     }
 
@@ -42,8 +42,8 @@ final class TextRepository_Test extends DatabaseTestBase
         $t->setReadDate(new DateTime("now"));
         $this->text_repo->save($t, true);
         $expected = [
-            "2; 2; 1; /Tengo/ /un/ /gato/./",
-            "3; 2; 2; /Un/ /perro/./"
+            "1; 2; 1; /Tengo/ /un/ /gato/./",
+            "2; 2; 2; /Un/ /perro/./"
         ];
 
         DbHelpers::assertTableContains($sql, $expected, 'sentences generated on readdate set');
@@ -51,8 +51,8 @@ final class TextRepository_Test extends DatabaseTestBase
         $t->setText("Tienes un perro. Un gato.");
         $this->text_repo->save($t, true);
         $expected = [
-            "2; 2; 1; /Tienes/ /un/ /perro/./",
-            "3; 2; 2; /Un/ /gato/./"
+            "1; 2; 1; /Tienes/ /un/ /perro/./",
+            "2; 2; 2; /Un/ /gato/./"
         ];
         DbHelpers::assertTableContains($sql, $expected, 'sentences changed on save');
     }
