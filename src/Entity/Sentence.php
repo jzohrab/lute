@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity()]
 #[ORM\Table(name: 'sentences')]
 class Sentence
 {
@@ -61,7 +62,6 @@ class Sentence
     public function setText(?Text $text): self
     {
         $this->text = $text;
-
         return $this;
     }
 }

@@ -45,7 +45,7 @@ class Text
     #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
     private ?Book $book = null;
 
-    #[ORM\OneToMany(mappedBy: 'sentences', targetEntity: Sentence::class, orphanRemoval: true, cascade: ['persist'], fetch: 'EXTRA_LAZY')]
+    #[ORM\OneToMany(mappedBy: 'text', targetEntity: Sentence::class, orphanRemoval: true, cascade: ['persist'], fetch: 'EXTRA_LAZY')]
     #[ORM\OrderBy(['SeOrder' => 'ASC'])]
     #[ORM\JoinColumn(name: 'SeTxID', referencedColumnName: 'TxID', nullable: false)]
     private Collection $Sentences;

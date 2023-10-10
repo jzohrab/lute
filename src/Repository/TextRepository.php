@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Text;
 use App\Entity\Sentence;
-use App\Parse\SentenceSaver;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -37,11 +36,6 @@ class TextRepository extends ServiceEntityRepository
         $tid = $entity->getId();
         if ($flush) {
             $this->getEntityManager()->flush();
-
-            if ($entity->getReadDate() != null) {
-                $ss = new SentenceSaver();
-                $ss->saveSentences($entity);
-            }
         }
     }
 
