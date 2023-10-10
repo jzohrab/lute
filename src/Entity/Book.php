@@ -106,16 +106,6 @@ class Book
         return $this;
     }
 
-    public function reparse()
-    {
-        $txt = [];
-        foreach ($this->Texts as $text) {
-            $txt[] = $text->getText();
-        }
-        $this->setFullText(implode("\n", $txt));
-        $this->needsFullParse = true;
-    }
-
     /**
      * Sets the book text, replacing existing text.
      */
