@@ -12,28 +12,28 @@
       <tr>
         <td align="left">
     <h2 style="margin: 0px;">
-      {% if prevtext10 %}
-      <a id="navPrev10" href="/read/{{ prevtext10.ID }}" title="{{ prevtext10.Title }}" tabindex="-1">&#171;</a>
+      {% if prev10page != pagenum %}
+      <a id="navPrev10" href="/read/{{ book.ID }}/page/{{ prev10page }}" title="page {{ prev10page }}" tabindex="-1">&#171;</a>
       {% else %}
       <span style="color: lightgrey;">&#171;</span>
       {% endif %}
 
-      {% if prevtext %}
-      <a id="navPrev" href="/read/{{ prevtext.ID }}" title="{{ prevtext.Title }}" tabindex="-1">&#8249;</a>
+      {% if prevpage != pagenum %}
+      <a id="navPrev" href="/read/{{ book.ID }}/page/{{ prevpage }}" title="page {{ prevpage }}" tabindex="-1">&#8249;</a>
       {% else %}
       <span style="color: lightgrey;">&#8249;</span>
       {% endif %}
 
       {{ pagenum }}/{{ pagecount }}
 
-      {% if nexttext %}
-      <a id="navNext" href="/read/{{ nexttext.ID }}" title="{{ nexttext.Title }}" tabindex="-1">&#8250;</a>
+      {% if pagenum != pagecount %}
+      <a id="navNext" href="/read/{{ book.ID }}/page/{{ nextpage }}" title="page {{ nextpage }}" tabindex="-1">&#8250;</a>
       {% else %}
       <span style="color: lightgrey;">&#8250;</span>
       {% endif %}
 
-      {% if nexttext10 %}
-      <a id="navNext10" href="/read/{{ nexttext10.ID }}" title="{{ nexttext10.Title }}" tabindex="-1">&#187;</a>
+      {% if next10page != pagecount %}
+      <a id="navNext10" href="/read/{{ book.ID }}/page/{{ next10page }}" title="page {{ next10page }}" tabindex="-1">&#187;</a>
       {% else %}
       <span style="color: lightgrey;">&#187;</span>
       {% endif %}
@@ -68,7 +68,7 @@
     <h2>
       <form style="display:none"
             id="setknown"
-            action="/read/{{ text.ID }}/allknown"
+            action="/read/{{ book.ID }}/page/{{ pagenum }}/allknown"
             method="post">
       </form>
       <a id="footerMarkRestAsKnown"
@@ -78,11 +78,11 @@
         <img src="/icn/tick.png" />
       </a>
 
-      {% if nexttext %}
+      {% if nextpage != pagecount %}
       &nbsp;
       <form style="display:none"
             id="knowntonext"
-            action="/read/{{ text.ID }}/allknown/{{ nexttext.ID }}"
+            action="/read/{{ book.ID }}/page/{{ pagenum }}/allknown/{{ pagenum + 1 }}"
             method="post">
       </form>
       <a id="footerMarkRestAsKnownNextPage"
@@ -96,7 +96,7 @@
 
       <form style="display:none"
             id="gotonext"
-            action="/read/{{ text.ID }}/goto/{{ nexttext.ID }}"
+            action="/read/{{ book.ID }}/page/{{ pagenum }}/markread/{{ pagenum + 1 }}"
             method="post">
       </form>
       <a id="footerNextPage"

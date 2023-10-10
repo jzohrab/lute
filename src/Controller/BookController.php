@@ -8,7 +8,6 @@ use App\Form\BookDTOType;
 use App\Domain\BookStats;
 use App\Domain\TermService;
 use App\Repository\BookRepository;
-use App\Repository\TextRepository;
 use App\Repository\TextTagRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,19 +56,6 @@ class BookController extends AbstractController
         return $this->render('book/index.html.twig', [
             'status' => 'Archived'
         ]);
-    }
-
-
-    #[Route('/read/{BkID}/page/{pagenum}', name: 'app_book_read', methods: ['GET'])]
-    public function read(Book $book, int $pagenum, TextRepository $textRepository): Response
-    {
-        if ($pagenum < 1)
-            $pagenum = 1;
-        $pc = $book->getPageCount();
-        if ($pagenum > $pc)
-            $pagenum = $pc;
-        $text = $textRepository->getTextAtPageNumber($book, $pagenum);
-        return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
     }
 
 
