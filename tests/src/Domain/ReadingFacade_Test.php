@@ -49,16 +49,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
     }
 
     /**
-     * @group sentenceeos
-     */
-    public function test_get_sentences_reparses_text_if_no_sentences()
-    {
-        $t = $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        $sentences = $this->getSentences($t);
-        $this->assertEquals(2, count($sentences), "reparsed");
-    }
-
-    /**
      * @group renderablesentences
      */
     public function test_get_renderable_sentences()
