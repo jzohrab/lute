@@ -7,9 +7,17 @@ use App\Entity\Language;
 use App\Utils\Connection;
 
 
-class ParsedTokenSaver {
+/**
+ * Saves the parsed tokens for a given Text as individual
+ * zero-width-space joined sentences.  These sentences are used to
+ * find references for terms.
+ */
+class SentenceSaver {
 
-    public function parse(Text $text) {
+    /**
+     * Parse a Text into ParsedTokens, and create and save sentences.
+     */
+    public function saveSentences(Text $text) {
         $s = $text->getText();
         $lang = $text->getLanguage();
         $parser = $lang->getParser();
