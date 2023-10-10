@@ -8,6 +8,7 @@ use App\Form\BookDTOType;
 use App\Domain\BookStats;
 use App\Domain\TermService;
 use App\Repository\BookRepository;
+use App\Repository\TextRepository;
 use App\Repository\TextTagRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,15 +60,16 @@ class BookController extends AbstractController
     }
 
 
-    #[Route('/read/{BkID}', name: 'app_book_read', methods: ['GET'])]
-    public function read(Request $request, Book $book): Response
+    #[Route('/read/{BkID}/page/{pagenum}', name: 'app_book_read', methods: ['GET'])]
+    public function read(Book $book, int $pagenum, TextRepository $textRepository): Response
     {
-        $currtxid = $book->getCurrentTextID();
-        if ($currtxid == 0) {
-            $text = $book->getTexts()[0];
-            $currtxid = $text->getId();
-        }
-        return $this->redirectToRoute('app_read', [ 'TxID' => $currtxid ], Response::HTTP_SEE_OTHER);
+        if ($pagenum < 1)
+            $pagenum = 1;
+        $pc = $book->getPageCount();
+        if ($pagenum > $pc)
+            $pagenum = $pc;
+        $text = $textRepository->getTextAtPageNumber($book, $pagenum);
+        return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
     }
 
 

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Text;
+use App\Entity\Book;
 use App\Entity\Sentence;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -57,6 +58,23 @@ class TextRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+
+    public function getTextAtPageNumber(Book $book, int $pagenum) {
+        $bkid = $book->getID();
+        $dql = "SELECT t FROM App\Entity\Text t
+        JOIN App\Entity\Book b WITH b = t.book
+        WHERE b.BkID = $bkid AND t.TxOrder = $pagenum";
+
+        $query = $this->getEntityManager()
+               ->createQuery($dql)
+               ->setMaxResults(1);
+        $texts = $query->getResult();
+
+        if (count($texts) == 0)
+            return null;
+        return $texts[0];
     }
 
 
