@@ -36,9 +36,12 @@ class TextRepository extends ServiceEntityRepository
         $tid = $entity->getId();
         if ($flush) {
             $this->getEntityManager()->flush();
-            if (! $entity->isArchived()) {
-                $entity->parse();
-            }
+
+            // TODO:sentence_save - fix this bad code.
+            // This replaces the sentences associated with the Text,
+            // if any.  The lifecycle of sentences needs to be
+            // managed better.
+            $entity->getLanguage()->parse([$entity]);
         }
     }
 
