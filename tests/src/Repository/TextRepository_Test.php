@@ -58,40 +58,6 @@ final class TextRepository_Test extends DatabaseTestBase
     }
 
 
-    /**
-     * @group reworkparsing
-     */
-    public function test_saving_Text_entity_makes_sentences()
-    {
-        $t = $this->make_text("Hola.", "Tengo un gato. Un perro.", $this->spanish);
-        $sql = "select TokSentenceNumber, TokOrder, TokIsWord, TokText from texttokens where TokTxID = {$t->getID()} order by TokOrder";
-
-        $sql = "select SeID, SeTxID, SeOrder, SeText from sentences where SeTxID = {$t->getID()}";
-        $expected = [
-            "2; 2; 1; /Tengo/ /un/ /gato/./",
-            "3; 2; 2; /Un/ /perro/./"
-        ];
-        DbHelpers::assertTableContains($sql, $expected);
-    }
-
-    /**
-     * @group textsent
-     */
-    public function test_parsing_Text_replaces_existing_sentences()
-    {
-        $t = $this->text;
-
-        $sqlsent = "select SeID, SeTxID, SeText from sentences";
-
-        DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /gato/./" ], 'sentences');
-
-        $t->setText("Hola tengo un perro.");
-        $this->text_repo->save($t, true);
-        // Saving a text automatically re-parses it.
-
-        DbHelpers::assertTableContains($sqlsent, [ "1; 1; /Hola/ /tengo/ /un/ /perro/./" ], "sent ID _not_ incremented :-P");
-    }
-
     public function test_removing_Text_removes_sentences()
     {
         $t = $this->text;
@@ -105,11 +71,15 @@ final class TextRepository_Test extends DatabaseTestBase
     public function test_archiving_Text_leaves_sentences()
     {
         $t = $this->text;
+        $t->setReadDate(new DateTime("now"));
+        $this->text_repo->save($t, true);
+        DbHelpers::assertRecordcountEquals('sentences', 1, 'after read set');
+
         $t->setArchived(true);
         $this->text_repo->save($t, true);
 
-        DbHelpers::assertRecordcountEquals('sentences', 1, 'after');
-        DbHelpers::assertRecordcountEquals("texts", 1, 'after');
+        DbHelpers::assertRecordcountEquals('sentences', 1, 'after archive');
+        DbHelpers::assertRecordcountEquals("texts", 1, 'still have text');
     }
 
 }

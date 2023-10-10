@@ -353,13 +353,12 @@ where WoLgID = $lgid
 
 
     /**
-     * Get all sentences.
+     * Get all Text strings.
      */
-    private function getAllSentences(Book $book, $conn) {
+    private function getAllTexts(Book $book, $conn) {
         $bkid = $book->getId();
-        $sql = "select SeText from
-            sentences
-            inner join texts on TxID = SeTxID
+        $sql = "select TxText from
+            texts
             where TxBkID = {$bkid}
             order by TxID";
         $stmt = $conn->prepare($sql);
@@ -403,13 +402,12 @@ where WoLgID = $lgid
         // This is slow, but (on my mac, at least) it doesn't time
         // out.  Not too concerned at the moment, as I'm not sure if
         // many users are using this feature.
-        $sentences = $this->getAllSentences($book, $conn);
+        $texts = $this->getAllTexts($book, $conn);
         $uniquewords = [];
         $arbitrary_chunk_size = 100;
         $lang = $book->getLanguage();
-        foreach (array_chunk($sentences, $arbitrary_chunk_size) as $sentbatch) {
+        foreach ($texts as $txt) {
             $zws = mb_chr(0x200B); // zero-width space.
-            $txt = implode($zws, $sentbatch);
             $txt = str_replace($zws, '', $txt);
             $toks = $lang->getParsedTokens($txt);
             $words = array_filter($toks, fn($t) => $t->isWord);
