@@ -60,12 +60,8 @@ final class BookRepository_Test extends DatabaseTestBase
     private function make_multipage_book() {
         $b = Book::makeBook("hi", $this->english, "some more text. some text.", 3);
         $this->book_repo->save($b, true);
-        $b->fullParse();
-
         DbHelpers::assertRecordcountEquals("select * from books", 1, 'b');
         DbHelpers::assertRecordcountEquals("select * from texts", 2, 't');
-        DbHelpers::assertRecordcountEquals("select * from sentences", 2, 's');
-
         return $b;
     }
 

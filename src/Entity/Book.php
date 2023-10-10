@@ -183,21 +183,6 @@ class Book
         return $this;
     }
 
-    // TODO:sentences - remove this?
-    public function fullParse() {
-        $texts = [];
-        foreach ($this->getTexts() as $t)
-            $texts[] = $t;
-        $lang = $this->getLanguage();
-        // Have to chunk the page parsing,
-        // it takes too much memory to parse
-        // large texts otherwise.
-        $chunks = array_chunk($texts, 10);
-        foreach ($chunks as $chunk) {
-            $lang->parse($chunk);
-        }
-    }
-    
     /**
      * @return Collection<int, TextTag>
      */
