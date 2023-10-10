@@ -13,7 +13,6 @@ use App\Parse\SpaceDelimitedParser;
 use App\Parse\JapaneseParser;
 use App\Parse\ClassicalChineseParser;
 use App\Parse\TurkishParser;
-use App\Parse\ParsedTokenSaver;
 use Symfony\Component\Yaml\Yaml;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
@@ -295,13 +294,6 @@ class Language
         }
     }
     
-    public function parse($texts): void
-    {
-        $p = $this->getParser();
-        $persister = new ParsedTokenSaver($p);
-        $persister->parse($texts);
-    }
-
     public function getParsedTokens(string $s): array
     {
         return $this->getParser()->getParsedTokens($s, $this);

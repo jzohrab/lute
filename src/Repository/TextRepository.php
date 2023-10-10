@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Text;
 use App\Entity\Sentence;
+use App\Parse\ParsedTokenSaver;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -41,8 +42,12 @@ class TextRepository extends ServiceEntityRepository
             // This replaces the sentences associated with the Text,
             // if any.  The lifecycle of sentences needs to be
             // managed better.
-            if ($entity->getReadDate() != null)
-                $entity->getLanguage()->parse([$entity]);
+            if ($entity->getReadDate() != null) {
+                $lang = $entity->getBook()->getLanguage();
+                $parser = $lang->getParser();
+                $pps = new ParsedTokenSaver($parser);
+                $pps->parse([$entity]);
+            }
         }
     }
 
