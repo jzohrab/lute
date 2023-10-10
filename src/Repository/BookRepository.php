@@ -40,11 +40,6 @@ class BookRepository extends ServiceEntityRepository
 
         $this->getEntityManager()->persist($entity);
         $this->getEntityManager()->flush();
-
-        if ($entity->needsFullParse && !$entity->isArchived()) {
-            $entity->fullParse();
-            $entity->needsFullParse = false;
-        }
     }
 
     public function remove(Book $entity, bool $flush = false): void

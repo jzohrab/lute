@@ -49,9 +49,6 @@ class Book
     #[ORM\Column(name: 'BkArchived')]
     private ?bool $Archived = false;
 
-    # Hack/flag to indicate that the book needs a full (re)parse on save.
-    public bool $needsFullParse = false;
-
     public function __construct()
     {
         $this->Texts = new ArrayCollection();
