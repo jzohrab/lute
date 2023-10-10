@@ -8,6 +8,12 @@ use App\Parse\ParsedToken;
 class SpaceDelimitedParser extends AbstractParser {
 
     public function getParsedTokens(string $text, Language $lang) {
+        // Replace double spaces, because they can mess up multi-word terms
+        // (e.g., "llevar[ ][ ]a" is different from "llevar[ ]a").
+        $text = preg_replace('/ +/u', ' ', $text);
+        $zws = mb_chr(0x200B); // zero-width space.
+        $text = str_replace($zws, '', $text);
+
         return $this->parse_to_tokens($text, $lang);
     }
 

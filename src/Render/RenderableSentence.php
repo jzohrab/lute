@@ -75,16 +75,7 @@ class RenderableSentence
         $textid = $t->getID();
         if ($textid == null)
             return [];
-        $txt = $t->getText();
-
-        // Replace double spaces, because they can mess up multi-word
-        // terms (e.g., "llevar[ ][ ]a" is different from "llevar[
-        // ]a").  Note this is duplicated code from ParsedTokenSaver
-        // ... therefore is bad.  Should be extracted somewhere.
-        // TODO:remove_duplicate_logic
-        $txt = preg_replace('/ +/u', ' ', $txt);
-
-        $pts = $t->getLanguage()->getParsedTokens($txt);
+        $pts = $t->getLanguage()->getParsedTokens($t->getText());
         return ParsedToken::createTextTokens($pts);
     }
 

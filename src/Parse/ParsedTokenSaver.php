@@ -58,14 +58,6 @@ class ParsedTokenSaver {
             $allids[] = $text->getID();
 
             $s = $text->getText();
-            // Replace double spaces, because they can mess up multi-word terms
-            // (e.g., "llevar[ ][ ]a" is different from "llevar[ ]a").
-            // Note that this code is duplicated in RenderableSentence.  Should extract.
-            // TODO:remove_duplicate_logic
-            $s = preg_replace('/ +/u', ' ', $s);
-            $zws = mb_chr(0x200B); // zero-width space.
-            $s = str_replace($zws, '', $s);
-
             $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
             $inserts[] = $this->build_sentence_insert_array($text->getID(), $tokens);
         }

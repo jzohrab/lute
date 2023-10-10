@@ -204,7 +204,8 @@ final class SpaceDelimitedParser_Test extends TestCase
         $this->assert_string_equals('"test."', $e, '"[test]."');
         $this->assert_string_equals('"test".', $e, '"[test]".');
         $this->assert_string_equals('Hi there.', $e, '[Hi] [there].');
-        $this->assert_string_equals('Hi there.  Goodbye.', $e, '[Hi] [there].  [Goodbye].');
+        $this->assert_string_equals('Extra    spaces   are removed.', $e, '[Extra] [spaces] [are] [removed].');
+        $this->assert_string_equals('Hi there.  Goodbye.', $e, '[Hi] [there]. [Goodbye].');
         $this->assert_string_equals("Hi.\nGoodbye.", $e, '[Hi].¶[Goodbye].');
         $this->assert_string_equals('He123llo.', $e, '[He]123[llo].');
         $this->assert_string_equals('1234', $e, '1234');
