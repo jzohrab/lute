@@ -9,45 +9,16 @@ use App\Utils\Connection;
 
 class ParsedTokenSaver {
 
-    /** PUBLIC **/
-    
-    private $conn;
-    private $parser = null;
-
-    public function __construct(AbstractParser $p) {
-        $this->parser = $p;
-    }
-
-    /** PRIVATE **/
-
-    private function exec_sql($sql, $params = null) {
-        // echo $sql . "\n";
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            throw new \Exception($this->conn->error);
-        }
-        if ($params) {
-            $stmt->bind_param(...$params);
-        }
-        if (!$stmt->execute()) {
-            throw new \Exception($stmt->error);
-        }
-        return $stmt;
-    }
-
-    private function prepForImport($txid) {
-        $sql = "DELETE FROM sentences WHERE SeTxID = {$txid}";
-        $this->exec_sql($sql);
-    }
-
     public function parse(Text $text) {
         $s = $text->getText();
-        $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
+        $lang = $text->getLanguage();
+        $parser = $lang->getParser();
+        $tokens = $parser->getParsedTokens($s, $lang);
         $sentences = $this->build_sentences($tokens);
 
-        $this->conn = Connection::getFromEnvironment();
-        $this->prepForImport($text->getID());
-        $this->load_sentences($text->getID(), $sentences);
+        $conn = Connection::getFromEnvironment();
+        $this->prepForImport($conn, $text->getID());
+        $this->load_sentences($conn, $text->getID(), $sentences);
     }
 
 
@@ -86,10 +57,15 @@ class ParsedTokenSaver {
         return $sentences;
     }
 
+    private function prepForImport($conn, $txid) {
+        $sql = "DELETE FROM sentences WHERE SeTxID = {$txid}";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+    }
 
     // Insert each sentence in a prepared statement,
     // where sentence record is [ sentence_num, sentence ].
-    private function load_sentences($textid, $sentences) {
+    private function load_sentences($conn, $textid, $sentences) {
         $sqlbase = "insert into sentences (SeTxID, SeOrder, SeText) values ";
 
         // NOTE: I'm building the raw sql string for the integer
@@ -106,7 +82,7 @@ class ParsedTokenSaver {
 
         $sql = $sqlbase . $valstring;
 
-        $stmt = $this->conn->prepare($sql);
+        $stmt = $conn->prepare($sql);
         // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
         // Positional numbering starts at 1. !!!
         $prmIndex = 1;
