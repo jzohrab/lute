@@ -78,7 +78,7 @@ class Text
     public function setText(string $TxText): self
     {
         $this->TxText = $TxText;
-
+        $this->loadSentences();
         return $this;
     }
 
@@ -161,7 +161,61 @@ class Text
     public function setReadDate(?DateTime $dt): self
     {
         $this->TxReadDate = $dt;
+        $this->loadSentences();
         return $this;
+    }
+
+    /** Sentences. */
+
+    private function makeSentenceFromTokens($tokens, $senumber) {
+        $ptstrings = array_map(fn($t) => $t->token, $tokens);
+
+        $zws = mb_chr(0x200B); // zero-width space.
+        $s = implode($zws, $ptstrings);
+        $s = trim($s, ' ');
+
+        // The zws is added at the start and end of each
+        // sentence, to standardize the string search when
+        // looking for terms.
+        $s = $zws . $s . $zws;
+
+        $sentence = new Sentence();
+        $sentence->setSeOrder($senumber);
+        $sentence->setSeText($s);
+        return $sentence;
+    }
+
+
+    private function loadSentences() {
+        foreach ($this->getSentences() as $s)
+            $this->removeSentence($s);
+
+        if ($this->TxReadDate == null)
+            return;
+
+        $parser = $this->language->getParser();
+        $parsedtokens = $parser->getParsedTokens($this->TxText, $this->language);
+
+        $curr_sentence_tokens = [];
+        $sentence_number = 1;
+
+        foreach ($parsedtokens as $pt) {
+            $curr_sentence_tokens[] = $pt;
+            if ($pt->isEndOfSentence) {
+                $se = $this->makeSentenceFromTokens($curr_sentence_tokens, $sentence_number);
+                $this->addSentence($se);
+
+                // Reset for next sentence.
+                $curr_sentence_tokens = [];
+                $sentence_number += 1;
+            }
+        }
+
+        // Add any stragglers.
+        if (count($curr_sentence_tokens) > 0) {
+            $se = $this->makeSentenceFromTokens($curr_sentence_tokens, $sentence_number);
+            $this->addSentence($se);
+        }
     }
 
     /**
@@ -170,11 +224,6 @@ class Text
     public function getSentences(): Collection
     {
         return $this->Sentences;
-    }
-
-    public function getPageCount(): int
-    {
-        return count($this->Sentences);
     }
 
     private function addSentence(Sentence $sentence): self

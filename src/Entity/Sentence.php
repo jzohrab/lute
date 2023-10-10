@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'sentences')]
-class Text
+class Sentence
 {
 
     #[ORM\Id]
@@ -17,7 +17,7 @@ class Text
 
     #[ORM\ManyToOne(inversedBy: 'Sentences')]
     #[ORM\JoinColumn(name: 'SeTxID', referencedColumnName: 'TxID', nullable: false)]
-    private ?Text $book = null;
+    private ?Text $text = null;
 
     #[ORM\Column(name: 'SeOrder', type: Types::SMALLINT)]
     private int $SeOrder = 1;
