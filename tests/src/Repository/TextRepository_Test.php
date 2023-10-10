@@ -23,6 +23,42 @@ final class TextRepository_Test extends DatabaseTestBase
     }
 
     /**
+     * @group gensentences_change
+     *
+     * Sentences should only be generated when a Text is saved with the ReadDate saved.
+     * Sentences are only used for reference lookups, 
+     */
+    public function test_sentence_lifecycle()
+    {
+        $t = $this->make_text("Hola.", "Tienes un perro. Un gato.", $this->spanish);
+
+        $sql = "select SeID, SeTxID, SeOrder, SeText from sentences where SeTxID = {$t->getID()}";
+        DbHelpers::assertTableContains($sql, [], 'no sentences at first');
+
+        $t->setText("Tengo un gato.  Un perro.");
+        $this->text_repo->save($t, true);
+        DbHelpers::assertTableContains($sql, [], 'still none');
+
+        $t->setReadDate(new DateTime("now"));
+        $this->text_repo->save($t, true);
+        $expected = [
+            "2; 2; 1; /Tengo/ /un/ /gato/./",
+            "3; 2; 2; /Un/ /perro/./"
+        ];
+
+        DbHelpers::assertTableContains($sql, $expected, 'sentences generated on readdate set');
+
+        $t->setText("Tienes un perro. Un gato.");
+        $this->text_repo->save($t, true);
+        $expected = [
+            "2; 2; 1; /Tienes/ /un/ /perro/./",
+            "3; 2; 2; /Un/ /gato/./"
+        ];
+        DbHelpers::assertTableContains($sql, $expected, 'sentences changed on save');
+    }
+
+
+    /**
      * @group reworkparsing
      */
     public function test_saving_Text_entity_makes_sentences()
