@@ -224,21 +224,6 @@ class BookController extends AbstractController
         return $this->redirectToRoute('app_book_archived', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{BkID}/reparse', name: 'app_book_reparse', methods: ['POST'])]
-    public function reparse(Request $request, Book $book, BookRepository $bookRepository): Response
-    {
-        // TODO:security - CSRF token for datatables actions.
-        // $tok = $request->request->get('_token');
-        // if ($this->isCsrfTokenValid('archive'.$book->getID(), $tok)) {
-        //     $book->setArchived(true);
-        //     $bookRepository->save($book, true);
-        // }
-        $book->reparse();
-        $bookRepository->save($book, true);
-        return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-
     private function processEditForm(
         \Symfony\Component\Form\Form $form,
         Request $request,
