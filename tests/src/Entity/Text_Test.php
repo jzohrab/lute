@@ -37,7 +37,9 @@ class Text_Test extends TestCase
 
         $t->setText("Tengo un coche.");
         $this->assertEquals(count($t->getSentences()), 1, 'changed');
-        $this->assertEquals($fn($t->getSentences()[0]), '/Tengo/ /un/ /coche/./', 'changed');
+        // Note how Doctrine handles the collection, elements 0 and 1
+        // are still "in" the array.
+        $this->assertEquals($fn($t->getSentences()[2]), '/Tengo/ /un/ /coche/./', 'changed');
     }
 
 }
