@@ -46,7 +46,7 @@ class TextRepository extends ServiceEntityRepository
                 $lang = $entity->getBook()->getLanguage();
                 $parser = $lang->getParser();
                 $pps = new ParsedTokenSaver($parser);
-                $pps->parse([$entity]);
+                $pps->parse($entity);
             }
         }
     }

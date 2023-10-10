@@ -18,10 +18,6 @@ class ParsedTokenSaver {
         $this->parser = $p;
     }
 
-    public function parse($texts) {
-        $this->parseText($texts);
-    }
-
     /** PRIVATE **/
 
     private function exec_sql($sql, $params = null) {
@@ -39,38 +35,28 @@ class ParsedTokenSaver {
         return $stmt;
     }
 
-    private function prepForImport($texts) {
-        $allids = array_map(fn($t) => $t->getID(), $texts);
-        $idjoin = implode(',', $allids);
-        $sql = "DELETE FROM sentences WHERE SeTxID in ($idjoin)";
+    private function prepForImport($txid) {
+        $sql = "DELETE FROM sentences WHERE SeTxID = {$txid}";
         $this->exec_sql($sql);
     }
 
-    private function parseText($texts) {
+    public function parse(Text $text) {
         $this->conn = Connection::getFromEnvironment();
 
-        $this->prepForImport($texts);
+        $this->prepForImport($text->getID());
 
         $allids = [];
         $inserts = [];
         $colltokens = [];
-        foreach ($texts as $text) {
-            $allids[] = $text->getID();
 
-            $s = $text->getText();
-            $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
-            $inserts[] = $this->build_sentence_insert_array($text->getID(), $tokens);
-        }
-        $allinserts = array_merge([], ...$inserts);
-
-        $chunks = array_chunk($allinserts, 5000);
-        foreach ($chunks as $chunk) {
-            $this->load_sentences($chunk);
-        }
+        $s = $text->getText();
+        $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
+        $sentences = $this->build_sentences($tokens);
+        $this->load_sentences($text->getID(), $sentences);
     }
 
 
-    private function build_sentence_insert_array($txid, $parsedtokens): array {
+    private function build_sentences($parsedtokens): array {
         $sentences = [];
 
         // Keep track of the current sentence and the token sort
@@ -95,7 +81,7 @@ class ParsedTokenSaver {
                 // looking for terms.
                 $s = $zws . $s . $zws;
 
-                $sentences[] = [ $txid, $sentence_number, $s ];
+                $sentences[] = [ $sentence_number, $s ];
 
                 $curr_sentence_tokens = [];
                 $sentence_number += 1;
@@ -106,9 +92,9 @@ class ParsedTokenSaver {
     }
 
 
-    // Insert each record in chunk in a prepared statement,
-    // where chunk record is [ txid, sentence_num, sentence ].
-    private function load_sentences(array $chunk) {
+    // Insert each sentence in a prepared statement,
+    // where sentence record is [ sentence_num, sentence ].
+    private function load_sentences($textid, $sentences) {
         $sqlbase = "insert into sentences (SeTxID, SeOrder, SeText) values ";
 
         // NOTE: I'm building the raw sql string for the integer
@@ -120,7 +106,7 @@ class ParsedTokenSaver {
         // I'm not sure why, and can't be bothered to look into this
         // more.  (It could be due to how SQL logs queries ... but
         // that seems nuts.)
-        $vals = array_map(fn($t) => '(' . implode(',', [ $t[0], $t[1], '?' ]) . ')', $chunk);
+        $vals = array_map(fn($t) => '(' . implode(',', [ $textid, $t[0], '?' ]) . ')', $sentences);
         $valstring = implode(',', $vals);
 
         $sql = $sqlbase . $valstring;
@@ -129,8 +115,8 @@ class ParsedTokenSaver {
         // https://www.php.net/manual/en/sqlite3stmt.bindvalue.php
         // Positional numbering starts at 1. !!!
         $prmIndex = 1;
-        for ($i = 0; $i < count($chunk); $i++) {
-            $w = $chunk[$i][2];
+        for ($i = 0; $i < count($sentences); $i++) {
+            $w = $sentences[$i][1];
             $stmt->bindValue($prmIndex, $w, \PDO::PARAM_STR);
             $prmIndex += 1;
         }
