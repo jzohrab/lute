@@ -165,6 +165,29 @@ class ReadingController extends AbstractController
         ]);
     }
 
+
+    private function pageRead(
+        Book $book,
+        int $pagenum,
+        ?int $nextpage,
+        bool $mark_unknowns_as_known,
+        TextRepository $textRepository,
+        ReadingFacade $facade
+    )
+    {
+        $text = $textRepository->getTextAtPageNumber($book, $pagenum);
+        if ($mark_unknowns_as_known) {
+            $facade->mark_unknowns_as_known($text);
+        }
+        $facade->mark_read($text);
+        $nextpage = $nextpage ?? $pagenum;
+        return $this->redirectToRoute(
+            'app_read',
+            [ 'BkID' => $book->getID(), 'pagenum' => $nextpage ],
+            Response::HTTP_SEE_OTHER
+        );
+    }
+        
     #[Route('/{BkID}/page/{pagenum}/allknown/{nextpage?}', name: 'app_read_allknown', methods: ['POST'])]
     public function allknown(
         Book $book,
@@ -174,14 +197,8 @@ class ReadingController extends AbstractController
         ReadingFacade $facade
     ): Response
     {
-        $text = $textRepository->getTextAtPageNumber($book, $pagenum);
-        $facade->mark_unknowns_as_known($text);
-        $facade->mark_read($text);
-        $nextpage = $nextpage ?? $pagenum;
-        return $this->redirectToRoute(
-            'app_read',
-            [ 'BkID' => $book->getID(), 'pagenum' => $nextpage ],
-            Response::HTTP_SEE_OTHER
+        return $this->pageRead(
+            $book, $pagenum, $nextpage, true, $textRepository, $facade
         );
     }
 
@@ -194,13 +211,8 @@ class ReadingController extends AbstractController
         ReadingFacade $facade
     ): Response
     {
-        $text = $textRepository->getTextAtPageNumber($book, $pagenum);
-        $facade->mark_read($text);
-        $nextpage = $nextpage ?? $pagenum;
-        return $this->redirectToRoute(
-            'app_read',
-            [ 'BkID' => $book->getID(), 'pagenum' => $nextpage ],
-            Response::HTTP_SEE_OTHER
+        return $this->pageRead(
+            $book, $pagenum, $nextpage, false, $textRepository, $facade
         );
     }
 
