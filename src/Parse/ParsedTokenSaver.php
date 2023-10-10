@@ -41,17 +41,12 @@ class ParsedTokenSaver {
     }
 
     public function parse(Text $text) {
-        $this->conn = Connection::getFromEnvironment();
-
-        $this->prepForImport($text->getID());
-
-        $allids = [];
-        $inserts = [];
-        $colltokens = [];
-
         $s = $text->getText();
         $tokens = $this->parser->getParsedTokens($s, $text->getLanguage());
         $sentences = $this->build_sentences($tokens);
+
+        $this->conn = Connection::getFromEnvironment();
+        $this->prepForImport($text->getID());
         $this->load_sentences($text->getID(), $sentences);
     }
 
