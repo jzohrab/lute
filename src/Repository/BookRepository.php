@@ -70,10 +70,8 @@ class BookRepository extends ServiceEntityRepository
         $base_sql = "SELECT
           b.BkID As BkID,
           LgName,
-          BkTitle || case
-            when currtext.TxID is null then ''
-            else ' (' || currtext.TxOrder || '/' || pagecnt.c || ')'
-          end as BkTitle,
+          BkTitle,
+          case when currtext.TxID is null then 1 else currtext.TxOrder end as PageNum,
           pagecnt.c as PageCount,
           BkArchived,
           tags.taglist AS TagList,

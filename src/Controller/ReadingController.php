@@ -7,6 +7,7 @@ use App\Domain\BookStats;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
 use App\DTO\TermDTO;
+use App\Entity\Book;
 use App\Entity\Text;
 use App\Entity\Language;
 use App\Entity\Sentence;
@@ -47,30 +48,43 @@ class ReadingController extends AbstractController
     }
 
 
-    /**
-     * Note: the book listing on the front page links to
-     * BookController::read(), which determines the actual
-     * Text that should be shown.
-     */
-    #[Route('/{TxID}', name: 'app_read', methods: ['GET'])]
-    public function read(Request $request, Text $text, ReadingFacade $facade): Response
+    #[Route('/{BkID}/page/{pagenum}', name: 'app_read', methods: ['GET'])]
+    public function read(
+        Book $book,
+        int $pagenum,
+        TextRepository $textRepository,
+        ReadingFacade $facade
+    ): Response
     {
-        $facade->set_current_book_text($text);
+        $pc = $book->getPageCount();
+        $pageInRange = function($n) use ($pc) {
+            if ($n < 1)
+                $n = 1;
+            if ($n > $pc)
+                $n = $pc;
+            return $n;
+        };
 
-        $book = $text->getBook();
+        $pagenum = $pageInRange($pagenum);
+        $prev = $pageInRange($pagenum - 1);
+        $next = $pageInRange($pagenum + 1);
+        $prev10 = $pageInRange($pagenum - 10);
+        $next10 = $pageInRange($pagenum + 10);
+
+        $text = $textRepository->getTextAtPageNumber($book, $pagenum);
+        $facade->set_current_book_text($text);
         BookStats::markStale($book);
-        [ $prev, $next ] = $facade->get_prev_next($text);
-        [ $prev10, $next10 ] = $facade->get_prev_next_by_10($text);
+
         return $this->render('read/index.html.twig', [
             'text' => $text,
             'htmltitle' => $text->getTitle(),
             'book' => $book,
-            'pagenum' => $text->getOrder(),
+            'pagenum' => $pagenum,
             'pagecount' => $book->getPageCount(),
-            'prevtext' => $prev,
-            'prevtext10' => $prev10,
-            'nexttext' => $next,
-            'nexttext10' => $next10,
+            'prevpage' => $prev,
+            'prev10page' => $prev10,
+            'nextpage' => $next,
+            'next10page' => $next10,
         ]);
     }
 
@@ -151,28 +165,57 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    #[Route('/{TxID}/allknown/{nexttextid?}', name: 'app_read_allknown', methods: ['POST'])]
-    public function allknown(Request $request, ?int $nexttextid, Text $text, ReadingFacade $facade): Response
+
+    private function pageRead(
+        Book $book,
+        int $pagenum,
+        ?int $nextpage,
+        bool $mark_unknowns_as_known,
+        TextRepository $textRepository,
+        ReadingFacade $facade
+    )
     {
-        $facade->mark_unknowns_as_known($text);
+        $text = $textRepository->getTextAtPageNumber($book, $pagenum);
+        if ($mark_unknowns_as_known) {
+            $facade->mark_unknowns_as_known($text);
+        }
         $facade->mark_read($text);
-        $showid = $nexttextid ?? $text->getID();
+        $nextpage = $nextpage ?? $pagenum;
         return $this->redirectToRoute(
             'app_read',
-            [ 'TxID' => $showid ],
+            [ 'BkID' => $book->getID(), 'pagenum' => $nextpage ],
             Response::HTTP_SEE_OTHER
+        );
+    }
+        
+    #[Route('/{BkID}/page/{pagenum}/allknown/{nextpage?}', name: 'app_read_allknown', methods: ['POST'])]
+    public function allknown(
+        Book $book,
+        int $pagenum,
+        TextRepository $textRepository,
+        ?int $nextpage,
+        ReadingFacade $facade
+    ): Response
+    {
+        return $this->pageRead(
+            $book, $pagenum, $nextpage, true, $textRepository, $facade
         );
     }
 
-    #[Route('/{TxID}/goto/{nexttextid}', name: 'app_read_done_goto', methods: ['POST'])]
-    public function done_goto(Request $request, int $nexttextid, Text $text, ReadingFacade $facade): Response
+    #[Route('/{BkID}/page/{pagenum}/markread/{nextpage?}', name: 'app_mark_read', methods: ['POST'])]
+    public function mark_read(
+        Book $book,
+        int $pagenum,
+        TextRepository $textRepository,
+        ?int $nextpage,
+        ReadingFacade $facade
+    ): Response
     {
-        $facade->mark_read($text);
-        return $this->redirectToRoute(
-            'app_read', [ 'TxID' => $nexttextid ],
-            Response::HTTP_SEE_OTHER
+        return $this->pageRead(
+            $book, $pagenum, $nextpage, false, $textRepository, $facade
         );
     }
+
 
     #[Route('/update_status', name: 'app_read_update_status', methods: ['POST'])]
     public function update_status(
