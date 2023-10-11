@@ -600,32 +600,4 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "Tengo(1)/ /que(1)/ /y/ /qué/.");
     }
 
-
-    /**
-     * @group paging
-     */
-    public function test_get_prev_next_stays_in_current_book() {
-        $text = "Here is some text.  And some more. And some more now.";
-        $b = Book::makeBook('test', $this->english, $text, 3);
-        $this->book_repo->save($b, true);
-        $texts = $b->getTexts();
-        $this->assertEquals(count($texts), 3, '3 pages');
-
-        $s1 = $texts[0];
-        $s2 = $texts[1];
-        $s3 = $texts[2];
-        
-        [ $prev, $next ] = $this->facade->get_prev_next($s1);
-        $this->assertTrue($prev == null, 's1 prev');
-        $this->assertEquals($next->getID(), $s2->getID(), 's1 next');
-
-        [ $prev, $next ] = $this->facade->get_prev_next($s2);
-        $this->assertEquals($prev->getID(), $s1->getID(), 's2 prev');
-        $this->assertEquals($next->getID(), $s3->getID(), 's2 next');
-
-        [ $prev, $next ] = $this->facade->get_prev_next($s3);
-        $this->assertEquals($prev->getID(), $s2->getID(), 's3 prev');
-        $this->assertTrue($next == null, 's3 next');
-    }
-    
 }

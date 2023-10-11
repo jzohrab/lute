@@ -135,14 +135,6 @@ class ReadingFacade {
         $this->bookrepo->save($b, true);
     }
 
-    public function get_prev_next(Text $text) {
-        return $this->textrepo->get_prev_next($text);
-    }
-
-    public function get_prev_next_by_10(Text $text) {
-        return $this->textrepo->get_prev_next_by_10($text);
-    }
-
     /**
      * Get fully populated Term from database, or create a new one with available data.
      *
