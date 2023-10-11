@@ -25,7 +25,7 @@ class TextController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Saving the text should replace any existing sentences.
             $textRepository->save($text, true);
-            return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_read', [ 'BkID' => $text->getBook()->getID(), 'pagenum' => $text->getOrder() ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('text/edit.html.twig', [

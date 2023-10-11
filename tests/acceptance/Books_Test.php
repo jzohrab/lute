@@ -46,7 +46,7 @@ class Books_Test extends AcceptanceTestBase
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
         $ctx = $this->getBookContext();
-        $ctx->listingShouldContain('Book shown', [ 'Hola (1/1); Spanish; ; 4 (0%); ' ]);
+        $ctx->listingShouldContain('Book shown', [ 'Hola; Spanish; ; 4 (0%); ' ]);
     }
     
 }
