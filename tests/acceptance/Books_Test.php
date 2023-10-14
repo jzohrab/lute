@@ -24,6 +24,7 @@ class Books_Test extends AcceptanceTestBase
         $crawler = $this->client->refreshCrawler();
         // Have to filter or the "create new text" link isn't shown.
         $crawler->filter("input")->sendKeys('Hola');
+        usleep(1000 * 1000); // 1 sec
         $this->client->clickLink('Create new Text');
 
         $ctx = $this->getBookContext();

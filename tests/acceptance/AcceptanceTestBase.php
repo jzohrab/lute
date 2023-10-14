@@ -97,11 +97,29 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $this->english = $this->language_repo->findOneByName('English');
     }
 
-    public function make_text(string $title, string $text, Language $lang): Text {
-        $b = Book::makeBook($title, $lang, $text);
-        $this->book_repo->save($b, true);
-        return $b->getTexts()[0];
+    /**
+     * Create a text via the UI.
+     */
+    public function make_text(string $title, string $text, Language $lang) {
+        $this->client->request('GET', '/');
+        $crawler = $this->client->refreshCrawler();
+        // Have to filter or the "create new text" link isn't shown.
+        $crawler->filter("input")->sendKeys('Hola');
+        usleep(1000 * 1000); // 1 sec
+        $this->client->clickLink('Create new Text');
+
+        $ctx = $this->getBookContext();
+        $updates = [
+            'language' => $lang->getLgID(),
+            'Title' => $title,
+            'Text' => $text,
+        ];
+        $ctx->updateBookForm($updates);
+        $this->client->waitForElementToContain('body', $title);
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', $title);
     }
+
 
     public function clickLinkID($linkid) {
         $crawler = $this->client->refreshCrawler();
