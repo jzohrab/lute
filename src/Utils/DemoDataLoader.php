@@ -98,13 +98,6 @@ class DemoDataLoader {
             $ddl->loadDemoLanguage($filename);
         }
         $ddl->loadDemoStories();
-
-        $term = new Term();
-        $term->setLanguage($lang_repo->findOneByName('English'));
-        $term->setText("your local environment file");
-        $term->setStatus(3);
-        $term->setTranslation("This is \".env\", your personal file in the project root folder :-)");
-        $term_service->add($term, true);
     }
 
 }
