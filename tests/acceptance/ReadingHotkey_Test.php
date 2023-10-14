@@ -2,8 +2,6 @@
 
 namespace App\Tests\acceptance;
 
-require_once __DIR__ . '/../db_helpers.php';
-
 use App\Utils\DemoDataLoader;
 use App\Domain\TermService;
 use App\Tests\acceptance\Contexts\ReadingContext;
@@ -71,7 +69,8 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         // than doing a full childSetUp() for each scenario.  There
         // may be a better way to do this.
         $reset = function() {
-            \DbHelpers::exec_sql('delete from words');
+            $this->client->request('GET', '/dangerous/delete_all_terms');
+            $this->client->waitForElementToContain('body', 'ALL TERMS DELETED');
             $this->client->request('GET', $this->book_url);
             $this->client->waitForElementToContain('body', 'full');
 
