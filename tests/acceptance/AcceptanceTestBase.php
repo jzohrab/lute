@@ -51,21 +51,11 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public EntityManagerInterface $entity_manager;
 
-    public TextRepository $text_repo;
     public LanguageRepository $language_repo;
-    public TextTagRepository $texttag_repo;
-    public TermTagRepository $termtag_repo;
-    public TermRepository $term_repo;
     public BookRepository $book_repo;
-    public SettingsRepository $settings_repo;
 
     public Language $spanish;
-    public Language $french;
     public Language $english;
-    public Language $japanese;
-    public Language $classicalchinese;
-
-    public Text $spanish_hola_text;
 
     public $client;
 
@@ -78,14 +68,8 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $kernel->boot();
         $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
 
-        $this->text_repo = $this->entity_manager->getRepository(\App\Entity\Text::class);
         $this->language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
-        $this->texttag_repo = $this->entity_manager->getRepository(\App\Entity\TextTag::class);
-        $this->termtag_repo = $this->entity_manager->getRepository(\App\Entity\TermTag::class);
-        $this->term_repo = $this->entity_manager->getRepository(\App\Entity\Term::class);
         $this->book_repo = $this->entity_manager->getRepository(\App\Entity\Book::class);
-
-        $this->settings_repo = new SettingsRepository($this->entity_manager);
 
         $this->client = static::createPantherClient(); // App auto-started using the built-in web server
 
