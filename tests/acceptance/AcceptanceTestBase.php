@@ -39,6 +39,7 @@ use App\Domain\ReadingFacade;
 use App\Utils\SqliteHelper;
 
 use App\Tests\acceptance\Contexts\ReadingContext;
+use App\Tests\acceptance\Contexts\LanguageContext;
 use App\Tests\acceptance\Contexts\BookContext;
 use App\Tests\acceptance\Contexts\TermContext;
 use App\Tests\acceptance\Contexts\TermTagContext;
@@ -131,6 +132,10 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public function getBookContext() {
         return new BookContext($this->client);
+    }
+
+    public function getLanguageContext() {
+        return new LanguageContext($this->client);
     }
 
     public function getTermContext() {

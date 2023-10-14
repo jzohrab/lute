@@ -120,12 +120,21 @@ class Reading_Test extends AcceptanceTestBase
     }
 
     /**
-     * @group abbrev
+     * @group acc_abbrev
      */
     public function test_create_term_with_period(): void
     {
-        $this->spanish->setLgExceptionsSplitSentences('cap.');
-        $this->language_repo->save($this->spanish, true);
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Languages');
+        $this->client->clickLink('Languages');
+        $wait = function() { usleep(200 * 1000); };  // hack
+        $wait();
+        $this->client->clickLink('Spanish');
+        $wait();
+        $ctx = $this->getLanguageContext();
+        $ctx->updateLanguageForm([
+            'LgExceptionsSplitSentences' => 'cap.'
+        ]);
 
         $this->make_text("Hola", "He escrito cap. uno.", $this->spanish);
         $this->client->request('GET', '/');
