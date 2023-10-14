@@ -148,8 +148,6 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         $hotkey_w = $get_hotkey_value('HOTKEY_WELLKNOWN', 'w');
         $hotkey_copyterm = $get_hotkey_value('HOTKEY_COPYTERM', 'c');
         $hotkey_copypara = $get_hotkey_value('HOTKEY_COPYPARA', 'C');
-        print("copy term: ");
-        print($hotkey_copyterm);
 
         $reset();
         $hover('a');
