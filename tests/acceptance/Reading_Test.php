@@ -2,12 +2,6 @@
 
 namespace App\Tests\acceptance;
 
-require_once __DIR__ . '/../db_helpers.php';
-
-use App\Utils\DemoDataLoader;
-use App\Entity\Language;
-use App\Domain\TermService;
-
 class Reading_Test extends AcceptanceTestBase
 {
 
