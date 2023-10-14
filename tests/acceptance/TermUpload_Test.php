@@ -92,10 +92,6 @@ class TermUpload_Test extends AcceptanceTestBase
      */
     public function test_issue_50(): void
     {
-        $cc = Language::makeClassicalChinese();
-        $cc->setLgName('Chinese'); // used in the import file.
-        $this->language_repo->save($cc, true);
-
         $this->client->request('GET', '/');
         $this->client->clickLink('Import Terms');
         $wait = function() { usleep(200 * 1000); };  // hack
@@ -112,8 +108,8 @@ class TermUpload_Test extends AcceptanceTestBase
         $ctx = $this->getTermContext();
         $ctx->listingShouldContain(
             'two terms imported',
-            [ '; 爱; ; love; Chinese; HSK1; New (1)',
-              '; 爱好; ; hobby; Chinese; HSK1; New (1)' ]);
+            [ '; 爱; ; love; Classical Chinese; HSK1; New (1)',
+              '; 爱好; ; hobby; Classical Chinese; HSK1; New (1)' ]);
     }
 
 }
