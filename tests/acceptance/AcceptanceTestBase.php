@@ -36,6 +36,8 @@ use App\Repository\SettingsRepository;
 use App\Domain\TermService;
 use App\Domain\ReadingFacade;
 
+use App\Utils\SqliteHelper;
+
 use App\Tests\acceptance\Contexts\ReadingContext;
 use App\Tests\acceptance\Contexts\BookContext;
 use App\Tests\acceptance\Contexts\TermContext;
@@ -69,9 +71,8 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public function setUp(): void
     {
-        // Set up db.
         \DbHelpers::ensure_using_test_db();
-        \DbHelpers::clean_db();
+        SqliteHelper::CreateDb();
 
         $kernel = static::createKernel();
         $kernel->boot();
@@ -108,32 +109,8 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public function load_languages(): void
     {
-        $spanish = new Language();
-        $spanish
-            ->setLgName('Spanish')
-            ->setLgDict1URI('https://www.bing.com/images/search?q=###&form=HDRSC2&first=1&tsc=ImageHoverTitle')
-            ->setLgDict2URI('https://es.thefreedictionary.com/###')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#es/en/###');
-        $this->language_repo->save($spanish, true);
-        $this->spanish = $spanish;
-
-        $french = new Language();
-        $french
-            ->setLgName('French')
-            ->setLgDict1URI('https://fr.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.wordreference.com/fren/###')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#fr/en/###');
-        $this->language_repo->save($french, true);
-        $this->french = $french;
-
-        $english = new Language();
-        $english
-            ->setLgName('English')
-            ->setLgDict1URI('https://en.thefreedictionary.com/###')
-            ->setLgDict2URI('https://www.wordreference.com/en/###')
-            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#en/fr/###');
-        $this->language_repo->save($english, true);
-        $this->english = $english;
+        $this->spanish = $this->language_repo->findOneByName('Spanish');
+        $this->english = $this->language_repo->findOneByName('English');
     }
 
     public function make_text(string $title, string $text, Language $lang): Text {
