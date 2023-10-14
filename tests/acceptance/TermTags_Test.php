@@ -5,11 +5,6 @@ namespace App\Tests\acceptance;
 class TermTags_Test extends AcceptanceTestBase
 {
 
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
-
     ///////////////////////
     // Tests
 

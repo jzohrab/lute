@@ -7,11 +7,6 @@ use App\Entity\Status;
 class Terms_Test extends AcceptanceTestBase
 {
 
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
-
     ///////////////////////
     // Tests
 

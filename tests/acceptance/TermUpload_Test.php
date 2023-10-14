@@ -7,11 +7,6 @@ use App\Entity\Language;
 class TermUpload_Test extends AcceptanceTestBase
 {
 
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
-
     ///////////////////////
     // Tests
 

@@ -26,8 +26,6 @@ class ReadingHotkey_Test extends AcceptanceTestBase
 
     public function childSetUp(): void
     {
-        $this->load_languages();
-
         // Note using 'full' and 'ice' here b/c the test setup for
         // english has single-character-then-point as a regex parsing
         // exception!

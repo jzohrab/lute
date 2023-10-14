@@ -11,11 +11,6 @@ use App\Domain\TermService;
 class Reading_Test extends AcceptanceTestBase
 {
 
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
-
     /**
      * @group readingtermupdate
      */

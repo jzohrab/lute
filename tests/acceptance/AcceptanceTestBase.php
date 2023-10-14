@@ -50,6 +50,9 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $kernel = static::createKernel();
         $kernel->boot();
         $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
+        $language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
+        $this->spanish = $language_repo->findOneByName('Spanish');
+        $this->english = $language_repo->findOneByName('English');
 
         // App auto-started using the built-in web server
         $this->client = static::createPantherClient();
@@ -66,14 +69,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
     public function childSetUp() {}
 
     public function childTearDown(): void {}
-
-    public function load_languages(): void
-    {
-        $language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
-
-        $this->spanish = $language_repo->findOneByName('Spanish');
-        $this->english = $language_repo->findOneByName('English');
-    }
 
     /**
      * Create a text via the UI.
