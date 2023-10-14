@@ -27,7 +27,13 @@ class Connection {
             }
         }
         // dump('DB URL: ' . $dburl);  // TODO:remove
-        $dbh = new \PDO($dburl);
+        $dbh = null;
+        try {
+            $dbh = new \PDO($dburl);
+        }
+        catch (\Exception $e) {
+            throw new \Exception($e->getMessage() . ' for db ' . $dburl);
+        }
 
         // THIS IS EXTREMELY IMPORTANT!
         // Without this, foreign key cascade deletes do not work!
