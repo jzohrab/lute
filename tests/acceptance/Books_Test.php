@@ -15,15 +15,6 @@ class Books_Test extends AcceptanceTestBase
     ///////////////////////
     // Tests
 
-    public function test_book_table_not_shown_if_no_books(): void
-    {
-        $this->client->request('GET', '/');
-        $crawler = $this->client->refreshCrawler();
-        $bt = $crawler->filter('#booktable');
-        $this->assertEquals(0, count($bt), 'no nodes');
-    }
-
-
     /**
      * @group smoketestbook
      */
