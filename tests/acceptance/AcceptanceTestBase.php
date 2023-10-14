@@ -20,21 +20,6 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Panther\PantherTestCase;
 
 use App\Entity\Language;
-use App\Entity\Book;
-use App\Entity\Text;
-use App\Entity\Term;
-use App\Entity\TextTag;
-use App\Entity\TermTag;
-
-use App\Repository\TextRepository;
-use App\Repository\LanguageRepository;
-use App\Repository\TextTagRepository;
-use App\Repository\TermTagRepository;
-use App\Repository\TermRepository;
-use App\Repository\BookRepository;
-use App\Repository\SettingsRepository;
-use App\Domain\TermService;
-use App\Domain\ReadingFacade;
 
 use App\Utils\SqliteHelper;
 
@@ -52,8 +37,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public EntityManagerInterface $entity_manager;
 
-    public LanguageRepository $language_repo;
-
     public Language $spanish;
     public Language $english;
 
@@ -68,32 +51,28 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $kernel->boot();
         $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
 
-        $this->language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
-
-        $this->client = static::createPantherClient(); // App auto-started using the built-in web server
+        // App auto-started using the built-in web server
+        $this->client = static::createPantherClient();
 
         $this->childSetUp();
     }
 
-    public function childSetUp() {
-        // no-op, child tests can override this to set up stuff.
-    }
-
     public function tearDown(): void
     {
-        // echo "tearing down ... \n";
         $this->childTearDown();
     }
 
-    public function childTearDown(): void
-    {
-        // echo "tearing down ... \n";
-    }
+    // no-op child setUp and tearDown, child tests can override
+    public function childSetUp() {}
+
+    public function childTearDown(): void {}
 
     public function load_languages(): void
     {
-        $this->spanish = $this->language_repo->findOneByName('Spanish');
-        $this->english = $this->language_repo->findOneByName('English');
+        $language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
+
+        $this->spanish = $language_repo->findOneByName('Spanish');
+        $this->english = $language_repo->findOneByName('English');
     }
 
     /**
