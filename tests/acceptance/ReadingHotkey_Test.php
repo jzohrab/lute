@@ -62,7 +62,10 @@ class ReadingHotkey_Test extends AcceptanceTestBase
             \PHPUnit\Framework\Assert::assertEquals($expected, $actual, $message);
         }
     }
-    
+
+    /**
+     * @group hotkeys
+     */
     public function test_hotkeys(): void {
         // This test just wipes terms from the database and reloads
         // the book being tested.  It's a bit hacky (I prefer to have
@@ -136,10 +139,22 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         // Fail fast-ish if not qwerty layout.  (I use Dvorak layout,
         // if sendKeys sends the key of the qwerty physical keyboard
         // layout ... very.)
+        $get_hotkey_value = function($envkey, $default) {
+            if (array_key_exists($envkey, $_ENV))
+                return $_ENV[$envkey];
+            return $default;
+        };
+
+        $hotkey_w = $get_hotkey_value('HOTKEY_WELLKNOWN', 'w');
+        $hotkey_copyterm = $get_hotkey_value('HOTKEY_COPYTERM', 'c');
+        $hotkey_copypara = $get_hotkey_value('HOTKEY_COPYPARA', 'C');
+        print("copy term: ");
+        print($hotkey_copyterm);
+
         $reset();
         $hover('a');
         $this->assert_classes([ 'wordhover' => 'a']);
-        $hotkey('w');
+        $hotkey($hotkey_w);
         $this->assert_classes([ 'status99' => 'a' ], 'well-known');
 
         // Hovered gets the status update.
@@ -170,14 +185,14 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         // Hovered gets the copy.
         $reset();
         $hover('b');
-        $hotkey('c');
+        $hotkey($hotkey_copyterm);
         $wait(1000); // Wait for flash to end ... :-(
         $this->assert_classes([ 'wascopied' => 'a b c d e full' ], 'hovered word gets the copy');
 
         // Hovered para copy
         $reset();
         $hover('b');
-        $hotkey('C');
+        $hotkey($hotkey_copypara);
         $wait(1000); // Wait for flash to end ... :-(
         $this->assert_classes([ 'wascopied' => 'a b c d e full g h ice' ], 'hovered copy');
 
@@ -185,7 +200,7 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         $reset();
         $click('b');
         $hover('ice');
-        $hotkey('c');
+        $hotkey($hotkey_copyterm);
         $wait(1000); // Wait for flash to end ... :-(
         $this->assert_classes([ 'wascopied' => 'a b c d e full' ], 'clicked word gets the copy');
 
