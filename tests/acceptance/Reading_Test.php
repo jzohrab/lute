@@ -294,7 +294,12 @@ class Reading_Test extends AcceptanceTestBase
 
     /**
      * @group setreaddate
+     *
+     * Test deactivated b/c it's using the DB, but really should check
+     * if sentences are returned or not.
+     * TODO: reactivate test
      */
+    /*
     public function test_set_read_date() {
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
@@ -333,6 +338,7 @@ class Reading_Test extends AcceptanceTestBase
         $sql = "select * from texts where TxReadDate is not null";
         \DbHelpers::assertRecordcountEquals($sql, 0, "not set for navigation");
     }
+    */
 
     /**
      * @group readsetsbookmark

@@ -52,7 +52,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
     public EntityManagerInterface $entity_manager;
 
     public LanguageRepository $language_repo;
-    public BookRepository $book_repo;
 
     public Language $spanish;
     public Language $english;
@@ -69,7 +68,6 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
 
         $this->language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
-        $this->book_repo = $this->entity_manager->getRepository(\App\Entity\Book::class);
 
         $this->client = static::createPantherClient(); // App auto-started using the built-in web server
 
