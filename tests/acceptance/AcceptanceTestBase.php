@@ -19,10 +19,6 @@ require_once __DIR__ . '/../db_helpers.php';
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Panther\PantherTestCase;
 
-use App\Entity\Language;
-
-use App\Utils\SqliteHelper;
-
 use App\Tests\acceptance\Contexts\ReadingContext;
 use App\Tests\acceptance\Contexts\LanguageContext;
 use App\Tests\acceptance\Contexts\BookContext;
@@ -41,14 +37,14 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public function setUp(): void
     {
-        \DbHelpers::ensure_using_test_db();
-        SqliteHelper::CreateDb();
-
         $kernel = static::createKernel();
         $kernel->boot();
 
         // App auto-started using the built-in web server
         $this->client = static::createPantherClient();
+
+        $this->client->request('GET', '/dangerous/create_test_db');
+        $this->client->waitForElementToContain('body', 'TEST DB CREATED');
 
         // Get the language ID via UI query.
         // Could (should?) have done this by clicking links

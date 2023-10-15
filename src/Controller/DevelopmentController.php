@@ -21,14 +21,29 @@ use Symfony\Component\Routing\Annotation\Route;
 class DevelopmentController extends AbstractController
 {
 
-    #[Route('/delete_all_terms', name: 'app_danger_delete_terms', methods: ['GET'])]
-    public function delete_all_terms(): Response
-    {
+    /**
+     * These methods should only be run on the test db.
+     */
+    private function ensure_is_test_db() {
         $dbf = SqliteHelper::DbFilename();
         if (!str_contains($dbf, 'test_lute')) {
             throw new \Exception("Dangerous method, only possible on test_lute database.");
         }
+    }
 
+    #[Route('/create_test_db', name: 'app_danger_createdb', methods: ['GET'])]
+    public function create_test_db(): Response
+    {
+        $this->ensure_is_test_db();
+        SqliteHelper::CreateDb();
+        $this->addFlash('notice', 'TEST DB CREATED');
+        return $this->redirectToRoute('app_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/delete_all_terms', name: 'app_danger_delete_terms', methods: ['GET'])]
+    public function delete_all_terms(): Response
+    {
+        $this->ensure_is_test_db();
         $sql = "delete from words";
         $conn = Connection::getFromEnvironment();
         $conn->query($sql);
@@ -53,6 +68,7 @@ class DevelopmentController extends AbstractController
     #[Route('/sqlresult/{sql}', name: 'app_danger_sqlresult', methods: ['GET'])]
     public function sql_result(string $sql): Response
     {
+        $this->ensure_is_test_db();
         $conn = Connection::getFromEnvironment();
         $stmt = $conn->prepare($sql);
         $stmt->execute();
