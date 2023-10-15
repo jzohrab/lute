@@ -35,6 +35,7 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
     public int $spanishid;
     public int $englishid;
+    public bool $mecab_installed;
 
     public $client;
 
@@ -64,6 +65,11 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $this->spanishid = $getLanguageID('Spanish', $this->client);
         $this->englishid = $getLanguageID('English', $this->client);
 
+        $crawler = $this->client->request('GET', '/dangerous/mecab_installed');
+        $nodes = $crawler->filter('p');
+        $check_mecab_installed = $nodes->eq(0)->text();
+        $this->mecab_installed = ($check_mecab_installed == 'yes');
+        
         $this->childSetUp();
     }
 

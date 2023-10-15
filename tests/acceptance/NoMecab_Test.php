@@ -4,8 +4,6 @@ namespace App\Tests\acceptance;
 
 require_once __DIR__ . '/../db_helpers.php';
 
-use App\Parse\JapaneseParser;
-
 class NoMecab_Test extends AcceptanceTestBase
 {
 
@@ -17,7 +15,7 @@ class NoMecab_Test extends AcceptanceTestBase
      */
     public function test_no_mecab_should_still_be_ok(): void
     {
-        if (JapaneseParser::MeCab_installed()) {
+        if ($this->mecab_installed) {
             // Dummy assert to pass, b/c I don't want to always see
             // that this has been skipped.
             \PHPUnit\Framework\Assert::assertEquals(1, 1, 'MeCab installed, dummy assert');

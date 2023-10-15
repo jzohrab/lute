@@ -39,12 +39,13 @@ class DevelopmentController extends AbstractController
 
     /** Return 'yes' or 'no' text response only */
     #[Route('/mecab_installed', name: 'app_danger_mecab_check', methods: ['GET'])]
-    public function mecab_installe(): Response
+    public function mecab_installed(): Response
     {
         $ret = 'no';
         if (JapaneseParser::MeCab_installed()) {
             $ret = 'yes';
         }
+        $ret = "<html><body><h1>Result</h1><p>" . $ret . "</p></body></html>";
         return new Response($ret);
     }
 
