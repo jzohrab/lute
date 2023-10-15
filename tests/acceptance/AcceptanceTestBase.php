@@ -30,12 +30,8 @@ use App\Tests\acceptance\Contexts\TermContext;
 use App\Tests\acceptance\Contexts\TermTagContext;
 use App\Tests\acceptance\Contexts\TermUploadContext;
 
-use Doctrine\ORM\EntityManagerInterface;
-
 abstract class AcceptanceTestBase extends PantherTestCase
 {
-
-    public EntityManagerInterface $entity_manager;
 
     public Language $spanish;
     public Language $english;
@@ -49,13 +45,28 @@ abstract class AcceptanceTestBase extends PantherTestCase
 
         $kernel = static::createKernel();
         $kernel->boot();
-        $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-        $language_repo = $this->entity_manager->getRepository(\App\Entity\Language::class);
-        $this->spanish = $language_repo->findOneByName('Spanish');
-        $this->english = $language_repo->findOneByName('English');
 
         // App auto-started using the built-in web server
         $this->client = static::createPantherClient();
+
+        // Get the language ID via UI query.
+        // Could (should?) have done this by clicking links
+        // and inspecting the URL ...
+        $getLanguageID = function($name, $client) {
+            $sql = 'select LgID from languages where LgName = "' . $name . '"';
+            $crawler = $client->request('GET', '/dangerous/sqlresult/' . $sql);
+            $nodes = $crawler->filter('p');
+            $lgid = $nodes->eq(0)->text();
+            // print($name . ': ' . $lgid);
+            return intval($lgid);
+        };
+
+        $spid = $getLanguageID('Spanish', $this->client);
+        $this->spanish = new Language();
+        $this->spanish->setLgID($spid);
+        $enid = $getLanguageID('English', $this->client);
+        $this->english = new Language();
+        $this->english->setLgID($enid);
 
         $this->childSetUp();
     }

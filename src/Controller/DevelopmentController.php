@@ -48,4 +48,29 @@ class DevelopmentController extends AbstractController
         return new Response($ret);
     }
 
+    /** Get SQL result as text. */
+    #[Route('/sqlresult/{sql}', name: 'app_danger_sqlresult', methods: ['GET'])]
+    public function sql_result(string $sql): Response
+    {
+        $conn = Connection::getFromEnvironment();
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $content = [];
+        while($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+            $rowvals = array_values($row);
+            $null_to_NULL = function($v) {
+                if ($v === null)
+                    return 'NULL';
+                $zws = mb_chr(0x200B);
+                if (is_string($v) && str_contains($v, $zws))
+                    return str_replace($zws, '/', $v);
+                return $v;
+            };
+            $content[] = implode('; ', array_map($null_to_NULL, $rowvals));
+        }
+
+        $ret = "<html><body><h1>Result</h1><p>" . implode("</p><p>", $content) . "</p></body></html>";
+        return new Response($ret);
+    }
+
 }
