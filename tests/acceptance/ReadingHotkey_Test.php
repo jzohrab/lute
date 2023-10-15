@@ -94,7 +94,7 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         $hover = function($word) {
             $wid = $this->ctx->getWordCssID($word);
             $this->client->getMouse()->mouseMoveTo($wid);
-            usleep(100 * 1000);
+            usleep(300 * 1000);
         };
         $click = function($word) {
             $this->ctx->clickReadingWord($word);
@@ -108,7 +108,7 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         };
         $hotkey = function($key) {
             $this->client->getKeyboard()->sendKeys($key);
-            usleep(300 * 1000);
+            usleep(500 * 1000);
         };
         $wait = function($millis = 100) {
             usleep($millis * 1000);
