@@ -5,6 +5,8 @@ Most of the documentation has been moved to the [project wiki](https://github.co
 ## Dev notes
 
 * [Adding a new language](./adding_a_language.md)
+* [Docker and Mac](./docker_and_mac.md) - speed notes etc
+* [Acceptance tests using Docker container](./docker_acceptance_tests.md)
 
 ## Misc notes
 
