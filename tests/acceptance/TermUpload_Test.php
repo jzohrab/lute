@@ -2,8 +2,6 @@
 
 namespace App\Tests\acceptance;
 
-use App\Entity\Language;
-
 class TermUpload_Test extends AcceptanceTestBase
 {
 

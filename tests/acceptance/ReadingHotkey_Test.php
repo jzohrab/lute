@@ -2,8 +2,6 @@
 
 namespace App\Tests\acceptance;
 
-use App\Utils\DemoDataLoader;
-use App\Domain\TermService;
 use App\Tests\acceptance\Contexts\ReadingContext;
 use Facebook\WebDriver\WebDriverKeys;
 

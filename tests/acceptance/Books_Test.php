@@ -2,8 +2,6 @@
 
 namespace App\Tests\acceptance;
 
-use App\Entity\Status;
-
 class Books_Test extends AcceptanceTestBase
 {
 

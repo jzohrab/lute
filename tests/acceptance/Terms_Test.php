@@ -2,8 +2,6 @@
 
 namespace App\Tests\acceptance;
 
-use App\Entity\Status;
-
 class Terms_Test extends AcceptanceTestBase
 {
 
@@ -152,7 +150,7 @@ class Terms_Test extends AcceptanceTestBase
         );
 
         $this->client->clickLink('gatos');
-        $ctx->updateTermForm(['Status' => Status::IGNORED]);
+        $ctx->updateTermForm(['Status' => 98]);
         usleep(300 * 1000);
         $ctx->listingShouldContain(
             'Ignored term not included',
