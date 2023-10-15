@@ -40,6 +40,15 @@ abstract class AcceptanceTestBase extends PantherTestCase
         $kernel = static::createKernel();
         $kernel->boot();
 
+        if (array_key_exists('EXTERNAL_URI', $_ENV)) {
+            $exturi = $_ENV['EXTERNAL_URI'];
+            $this->client = static::createPantherClient(['external_base_uri' => $exturi]);
+        }
+        else {
+            // App auto-started using the built-in web server
+            $this->client = static::createPantherClient();
+        }
+
         // App auto-started using the built-in web server
         $this->client = static::createPantherClient();
 
