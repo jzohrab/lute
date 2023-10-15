@@ -2,15 +2,8 @@
 
 namespace App\Tests\acceptance;
 
-use App\Entity\Status;
-
 class Terms_Test extends AcceptanceTestBase
 {
-
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
 
     ///////////////////////
     // Tests
@@ -34,7 +27,7 @@ class Terms_Test extends AcceptanceTestBase
 
         $ctx = $this->getTermContext();
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'gato',
             'Translation' => 'cat'
         ];
@@ -59,7 +52,7 @@ class Terms_Test extends AcceptanceTestBase
         $this->client->clickLink('Create new');
 
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'gatos',
             'Parents' => ['gato'],
             'Translation' => 'cat'
@@ -89,7 +82,7 @@ class Terms_Test extends AcceptanceTestBase
         $this->client->clickLink('Create new');
 
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'aaaa',
             'Parents' => ['aa', 'bb'],
             'Translation' => 'thing'
@@ -117,7 +110,7 @@ class Terms_Test extends AcceptanceTestBase
 
         $this->client->clickLink('Create new');
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'gatos',
             'Parents' => ['gato'],
             'Translation' => 'cat'
@@ -157,7 +150,7 @@ class Terms_Test extends AcceptanceTestBase
         );
 
         $this->client->clickLink('gatos');
-        $ctx->updateTermForm(['Status' => Status::IGNORED]);
+        $ctx->updateTermForm(['Status' => 98]);
         usleep(300 * 1000);
         $ctx->listingShouldContain(
             'Ignored term not included',

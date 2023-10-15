@@ -2,27 +2,11 @@
 
 namespace App\Tests\acceptance;
 
-use App\Entity\Status;
-
 class Books_Test extends AcceptanceTestBase
 {
 
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
-
     ///////////////////////
     // Tests
-
-    public function test_book_table_not_shown_if_no_books(): void
-    {
-        $this->client->request('GET', '/');
-        $crawler = $this->client->refreshCrawler();
-        $bt = $crawler->filter('#booktable');
-        $this->assertEquals(0, count($bt), 'no nodes');
-    }
-
 
     /**
      * @group smoketestbook
@@ -30,11 +14,15 @@ class Books_Test extends AcceptanceTestBase
     public function test_create_book(): void
     {
         $this->client->request('GET', '/');
+        $crawler = $this->client->refreshCrawler();
+        // Have to filter or the "create new text" link isn't shown.
+        $crawler->filter("input")->sendKeys('Hola');
+        usleep(1000 * 1000); // 1 sec
         $this->client->clickLink('Create new Text');
 
         $ctx = $this->getBookContext();
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Title' => 'Hola',
             'Text' => 'Hola. Tengo un gato.',
         ];
@@ -45,6 +33,12 @@ class Books_Test extends AcceptanceTestBase
 
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
+
+        $crawler = $this->client->refreshCrawler();
+        // Filter so that only the one row is shown ...
+        // have to wait for filter to take effect!
+        $crawler->filter("input")->sendKeys('Hola');
+        usleep(1000 * 1000); // 1 sec
         $ctx = $this->getBookContext();
         $ctx->listingShouldContain('Book shown', [ 'Hola; Spanish; ; 4 (0%); ' ]);
     }

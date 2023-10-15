@@ -5,11 +5,6 @@ namespace App\Tests\acceptance;
 class TermTags_Test extends AcceptanceTestBase
 {
 
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
-
     ///////////////////////
     // Tests
 
@@ -28,7 +23,7 @@ class TermTags_Test extends AcceptanceTestBase
         $this->client->clickLink('Create new');
         $ctx = $this->getTermContext();
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'gato',
             'Translation' => 'cat',
             'Tags' => [ 'sometag' ]

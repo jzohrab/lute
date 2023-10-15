@@ -2,10 +2,6 @@
 
 namespace App\Tests\acceptance;
 
-require_once __DIR__ . '/../db_helpers.php';
-
-use App\Utils\DemoDataLoader;
-use App\Domain\TermService;
 use App\Tests\acceptance\Contexts\ReadingContext;
 use Facebook\WebDriver\WebDriverKeys;
 
@@ -26,12 +22,10 @@ class ReadingHotkey_Test extends AcceptanceTestBase
 
     public function childSetUp(): void
     {
-        $this->load_languages();
-
         // Note using 'full' and 'ice' here b/c the test setup for
         // english has single-character-then-point as a regex parsing
         // exception!
-        $this->make_text("Test", "a b c d e full. g h ice.", $this->english);
+        $this->make_text("Test", "a b c d e full. g h ice.", $this->englishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Test');
         $this->client->clickLink('Test');
@@ -73,7 +67,8 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         // than doing a full childSetUp() for each scenario.  There
         // may be a better way to do this.
         $reset = function() {
-            \DbHelpers::exec_sql('delete from words');
+            $this->client->request('GET', '/dangerous/delete_all_terms');
+            $this->client->waitForElementToContain('body', 'ALL TERMS DELETED');
             $this->client->request('GET', $this->book_url);
             $this->client->waitForElementToContain('body', 'full');
 
@@ -148,8 +143,6 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         $hotkey_w = $get_hotkey_value('HOTKEY_WELLKNOWN', 'w');
         $hotkey_copyterm = $get_hotkey_value('HOTKEY_COPYTERM', 'c');
         $hotkey_copypara = $get_hotkey_value('HOTKEY_COPYPARA', 'C');
-        print("copy term: ");
-        print($hotkey_copyterm);
 
         $reset();
         $hover('a');

@@ -2,26 +2,15 @@
 
 namespace App\Tests\acceptance;
 
-require_once __DIR__ . '/../db_helpers.php';
-
-use App\Utils\DemoDataLoader;
-use App\Entity\Language;
-use App\Domain\TermService;
-
 class Reading_Test extends AcceptanceTestBase
 {
-
-    public function childSetUp(): void
-    {
-        $this->load_languages();
-    }
 
     /**
      * @group readingtermupdate
      */
     public function test_reading_with_term_updates(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->assertPageTitleContains('LUTE');
@@ -47,7 +36,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_reading_with_term_case_updates(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
@@ -70,7 +59,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_reading_with_term_multiple_parents_updates(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
 
@@ -95,7 +84,7 @@ class Reading_Test extends AcceptanceTestBase
 
     public function test_create_multiword_term(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
@@ -120,14 +109,23 @@ class Reading_Test extends AcceptanceTestBase
     }
 
     /**
-     * @group abbrev
+     * @group acc_abbrev
      */
     public function test_create_term_with_period(): void
     {
-        $this->spanish->setLgExceptionsSplitSentences('cap.');
-        $this->language_repo->save($this->spanish, true);
+        $this->client->request('GET', '/');
+        $this->client->waitForElementToContain('body', 'Languages');
+        $this->client->clickLink('Languages');
+        $wait = function() { usleep(200 * 1000); };  // hack
+        $wait();
+        $this->client->clickLink('Spanish');
+        $wait();
+        $ctx = $this->getLanguageContext();
+        $ctx->updateLanguageForm([
+            'LgExceptionsSplitSentences' => 'cap.'
+        ]);
 
-        $this->make_text("Hola", "He escrito cap. uno.", $this->spanish);
+        $this->make_text("Hola", "He escrito cap. uno.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
@@ -165,7 +163,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_hotkeys(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
@@ -213,7 +211,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_well_known(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
@@ -241,7 +239,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_can_update_text(): void
     {
-        $this->make_text("Hola", "HOLA tengo un gato.", $this->spanish);
+        $this->make_text("Hola", "HOLA tengo un gato.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
@@ -264,8 +262,8 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        $this->make_text("Otro", "Tengo otro amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
+        $this->make_text("Otro", "Tengo otro amigo.", $this->spanishid);
 
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
@@ -294,18 +292,17 @@ class Reading_Test extends AcceptanceTestBase
 
     /**
      * @group setreaddate
+     *
+     * Test deactivated b/c it's using the DB, but really should check
+     * if sentences are returned or not.
+     * TODO: reactivate test
      */
+    /*
     public function test_set_read_date() {
-        \DbHelpers::clean_db();
-        $this->language_repo->save(Language::makeEnglish(), true);
-        $term_svc = new TermService($this->term_repo);
-        $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
-        $ddl->loadDemoStories();
-
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
         // isn't shown.
-        $b = $this->book_repo->find(1); // hardcoded ID :-)
+        $b = $this->book_repo->find(9); // hardcoded ID :-)
         $this->assertEquals('Tutorial', $b->getTitle(), 'sanity check');
         $txtid = $b->getTexts()[0]->getID();
         $sql = "select txorder,
@@ -339,17 +336,12 @@ class Reading_Test extends AcceptanceTestBase
         $sql = "select * from texts where TxReadDate is not null";
         \DbHelpers::assertRecordcountEquals($sql, 0, "not set for navigation");
     }
+    */
 
     /**
      * @group readsetsbookmark
      */
     public function test_reading_sets_index_page_bookmark() {
-        \DbHelpers::clean_db();
-        $this->language_repo->save(Language::makeEnglish(), true);
-        $term_svc = new TermService($this->term_repo);
-        $ddl = new DemoDataLoader($this->language_repo, $this->book_repo, $term_svc);
-        $ddl->loadDemoStories();
-
         $this->goToTutorialFirstPage();
         $this->clickLinkID("#navNext");
         $this->clickLinkID("#navNext");

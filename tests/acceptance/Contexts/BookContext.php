@@ -48,7 +48,8 @@ class BookContext
     }
 
     public function listingShouldContain($msg, $expected) {
-        \PHPUnit\Framework\Assert::assertEquals($expected, $this->getBookTableContent(), $msg);
+        $c = $this->getBookTableContent();
+        \PHPUnit\Framework\Assert::assertEquals($expected, $c, $msg);
     }
 
 }

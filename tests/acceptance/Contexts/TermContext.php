@@ -2,6 +2,8 @@
 
 namespace App\Tests\acceptance\Contexts;
 
+use Facebook\WebDriver\WebDriverKeys;
+
 class TermContext
 {
 
@@ -63,12 +65,14 @@ class TermContext
         }
 
         $parents = $valOrEmpty('Parents', $updates);
-        if (count($parents) > 0) {
+        foreach ($parents as $parent) {
             $fs = 'ul#parentslist li.tagit-new > input.ui-autocomplete-input';
             $tt = $crawler->filter($fs);
             \PHPUnit\Framework\Assert::assertEquals(1, count($tt), 'found single parent input');
             $input = $tt->eq(0);
-            $input->sendkeys(implode(',', $parents));
+            $input->sendkeys($parent);
+            $input->sendkeys(WebDriverKeys::RETURN_KEY);
+            usleep(300 * 1000);
         }
 
         $crawler = $this->client->submit($form);
