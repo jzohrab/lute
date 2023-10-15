@@ -10,7 +10,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_reading_with_term_updates(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->assertPageTitleContains('LUTE');
@@ -36,7 +36,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_reading_with_term_case_updates(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
@@ -59,7 +59,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_reading_with_term_multiple_parents_updates(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
 
@@ -84,7 +84,7 @@ class Reading_Test extends AcceptanceTestBase
 
     public function test_create_multiword_term(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
@@ -125,7 +125,7 @@ class Reading_Test extends AcceptanceTestBase
             'LgExceptionsSplitSentences' => 'cap.'
         ]);
 
-        $this->make_text("Hola", "He escrito cap. uno.", $this->spanish);
+        $this->make_text("Hola", "He escrito cap. uno.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('#booktable', 'Hola');
         $this->client->clickLink('Hola');
@@ -163,7 +163,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_hotkeys(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
@@ -211,7 +211,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_well_known(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
@@ -239,7 +239,7 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_can_update_text(): void
     {
-        $this->make_text("Hola", "HOLA tengo un gato.", $this->spanish);
+        $this->make_text("Hola", "HOLA tengo un gato.", $this->spanishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');
         $this->client->clickLink('Hola');
@@ -262,8 +262,8 @@ class Reading_Test extends AcceptanceTestBase
      */
     public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void
     {
-        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanish);
-        $this->make_text("Otro", "Tengo otro amigo.", $this->spanish);
+        $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
+        $this->make_text("Otro", "Tengo otro amigo.", $this->spanishid);
 
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Hola');

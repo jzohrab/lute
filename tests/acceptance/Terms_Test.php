@@ -29,7 +29,7 @@ class Terms_Test extends AcceptanceTestBase
 
         $ctx = $this->getTermContext();
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'gato',
             'Translation' => 'cat'
         ];
@@ -54,7 +54,7 @@ class Terms_Test extends AcceptanceTestBase
         $this->client->clickLink('Create new');
 
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'gatos',
             'Parents' => ['gato'],
             'Translation' => 'cat'
@@ -84,7 +84,7 @@ class Terms_Test extends AcceptanceTestBase
         $this->client->clickLink('Create new');
 
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'aaaa',
             'Parents' => ['aa', 'bb'],
             'Translation' => 'thing'
@@ -112,7 +112,7 @@ class Terms_Test extends AcceptanceTestBase
 
         $this->client->clickLink('Create new');
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Text' => 'gatos',
             'Parents' => ['gato'],
             'Translation' => 'cat'

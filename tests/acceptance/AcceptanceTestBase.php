@@ -33,8 +33,8 @@ use App\Tests\acceptance\Contexts\TermUploadContext;
 abstract class AcceptanceTestBase extends PantherTestCase
 {
 
-    public Language $spanish;
-    public Language $english;
+    public int $spanishid;
+    public int $englishid;
 
     public $client;
 
@@ -61,12 +61,8 @@ abstract class AcceptanceTestBase extends PantherTestCase
             return intval($lgid);
         };
 
-        $spid = $getLanguageID('Spanish', $this->client);
-        $this->spanish = new Language();
-        $this->spanish->setLgID($spid);
-        $enid = $getLanguageID('English', $this->client);
-        $this->english = new Language();
-        $this->english->setLgID($enid);
+        $this->spanishid = $getLanguageID('Spanish', $this->client);
+        $this->englishid = $getLanguageID('English', $this->client);
 
         $this->childSetUp();
     }
@@ -84,17 +80,17 @@ abstract class AcceptanceTestBase extends PantherTestCase
     /**
      * Create a text via the UI.
      */
-    public function make_text(string $title, string $text, Language $lang) {
+    public function make_text(string $title, string $text, int $langid) {
         $this->client->request('GET', '/');
         $crawler = $this->client->refreshCrawler();
         // Have to filter or the "create new text" link isn't shown.
-        $crawler->filter("input")->sendKeys('Hola');
+        $crawler->filter("input")->sendKeys($title);
         usleep(1000 * 1000); // 1 sec
         $this->client->clickLink('Create new Text');
 
         $ctx = $this->getBookContext();
         $updates = [
-            'language' => $lang->getLgID(),
+            'language' => $langid,
             'Title' => $title,
             'Text' => $text,
         ];

@@ -27,7 +27,7 @@ class ReadingHotkey_Test extends AcceptanceTestBase
         // Note using 'full' and 'ice' here b/c the test setup for
         // english has single-character-then-point as a regex parsing
         // exception!
-        $this->make_text("Test", "a b c d e full. g h ice.", $this->english);
+        $this->make_text("Test", "a b c d e full. g h ice.", $this->englishid);
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Test');
         $this->client->clickLink('Test');

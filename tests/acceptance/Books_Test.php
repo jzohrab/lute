@@ -24,7 +24,7 @@ class Books_Test extends AcceptanceTestBase
 
         $ctx = $this->getBookContext();
         $updates = [
-            'language' => $this->spanish->getLgID(),
+            'language' => $this->spanishid,
             'Title' => 'Hola',
             'Text' => 'Hola. Tengo un gato.',
         ];
