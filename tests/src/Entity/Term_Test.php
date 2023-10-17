@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class Term_Test extends TestCase
 {
 
-    public function test_cruft_stripped_on_setWord()
+    public function test_cruft_stripped_on_setWord()  // V3-port: TODO
     {
         $cases = [
             [ 'hola', 'hola', 'hola' ],
@@ -29,7 +29,7 @@ class Term_Test extends TestCase
         }
     }
 
-    public function test_TokenCount()
+    public function test_TokenCount()  // V3-port: TODO
     {
         $cases = [
             [ "hola", 1, 1 ],
@@ -50,7 +50,7 @@ class Term_Test extends TestCase
     /**
      * @group tokencount
      */
-    public function test_TokenCount_punct()
+    public function test_TokenCount_punct()  // V3-port: TODO
     {
         $cases = [
             [ "  the CAT's pyjamas  ", 4, 7 ],
@@ -75,7 +75,7 @@ class Term_Test extends TestCase
     /**
      * @group tokencount
      */
-    public function test_TokenCount_japanese()
+    public function test_TokenCount_japanese()  // V3-port: TODO
     {
         if (!JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
@@ -106,7 +106,7 @@ class Term_Test extends TestCase
     /**
      * @group tokencountexception
      */
-    public function test_term_left_as_is_if_its_an_exception()
+    public function test_term_left_as_is_if_its_an_exception()  // V3-port: TODO
     {
         $sp = Language::makeSpanish();
         $sp->setLgExceptionsSplitSentences("EE.UU.");
@@ -123,7 +123,7 @@ class Term_Test extends TestCase
     /**
      * @group noselfparent
      */
-    public function test_cannot_add_self_as_own_parent() {
+    public function test_cannot_add_self_as_own_parent() {  // V3-port: TODO
         $sp = Language::makeSpanish();
         $t = new Term($sp, 'gato');
         $t->addParent($t);
@@ -133,7 +133,7 @@ class Term_Test extends TestCase
     /**
      * @group downcasing
      */
-    public function test_downcasing_handled_correctly() {
+    public function test_downcasing_handled_correctly() {  // V3-port: TODO
 
         $sp = Language::makeSpanish();
         $en = Language::makeEnglish();

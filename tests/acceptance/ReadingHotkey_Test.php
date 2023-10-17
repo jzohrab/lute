@@ -60,7 +60,7 @@ class ReadingHotkey_Test extends AcceptanceTestBase
     /**
      * @group hotkeys
      */
-    public function test_hotkeys(): void {
+    public function test_hotkeys(): void {  // V3-port: TODO
         // This test just wipes terms from the database and reloads
         // the book being tested.  It's a bit hacky (I prefer to have
         // clean state for every distinct test case), but it's faster

@@ -76,7 +76,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_booktags
      */
-    public function test_booktags_book_model()
+    public function test_booktags_book_model()  // V3-port: TODO
     {
         $this->book_repo->remove($this->book, true);
         $this->assertBookTablesEmpty();
@@ -86,7 +86,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_booktags_1
      */
-    public function test_booktags_book_sql()
+    public function test_booktags_book_sql()  // V3-port: TODO
     {
         $this->exec("delete from books where BkID = {$this->book->getId()}");
         $this->assertBookTablesEmpty();
@@ -96,7 +96,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_booktags
      */
-    public function test_booktags_tag_model()
+    public function test_booktags_tag_model()  // V3-port: TODO
     {
         $this->texttag_repo->remove($this->texttag, true);
         $this->assertBookTagsCounts(1, 1, 0, 0);
@@ -105,7 +105,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_booktags
      */
-    public function test_booktags_tag_sql()
+    public function test_booktags_tag_sql()  // V3-port: TODO
     {
         $this->exec("delete from tags2 where T2ID = {$this->texttag->getId()}");
         $this->assertBookTagsCounts(1, 1, 0, 0);
@@ -120,7 +120,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_wordtags
      */
-    public function test_wordtags_word_model()
+    public function test_wordtags_word_model()  // V3-port: TODO
     {
         $this->term_repo->remove($this->term, true);
         $this->assertWordTagsCounts(0, 1, 0);
@@ -129,7 +129,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_wordtags
      */
-    public function test_wordtags_word_sql()
+    public function test_wordtags_word_sql()  // V3-port: TODO
     {
         $this->exec("delete from words where WoID = {$this->term->getId()}");
         $this->assertWordTagsCounts(0, 1, 0);
@@ -138,7 +138,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_wordtags
      */
-    public function test_wordtags_tag_model()
+    public function test_wordtags_tag_model()  // V3-port: TODO
     {
         $this->termtag_repo->remove($this->termtag, true);
         $this->assertWordTagsCounts(1, 0, 0);
@@ -147,7 +147,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_wordtags
      */
-    public function test_wordtags_tag_sql()
+    public function test_wordtags_tag_sql()  // V3-port: TODO
     {
         $this->exec("delete from tags where TgID = {$this->termtag->getId()}");
         $this->assertWordTagsCounts(1, 0, 0);
@@ -166,7 +166,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_parent
      */
-    public function test_delete_word_with_parent_model() {
+    public function test_delete_word_with_parent_model() {  // V3-port: TODO
         $p = $this->save_parent_with_term();
         $this->term_repo->remove($this->term, true);
 
@@ -178,7 +178,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_parent
      */
-    public function test_delete_word_with_parent_sql() {
+    public function test_delete_word_with_parent_sql() {  // V3-port: TODO
         $p = $this->save_parent_with_term();
         $this->exec("delete from words where WoID = {$this->term->getId()}");
 
@@ -190,7 +190,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_parent
      */
-    public function test_delete_parent_for_word_model() {
+    public function test_delete_parent_for_word_model() {  // V3-port: TODO
         $p = $this->save_parent_with_term();
         $this->term_repo->remove($p, true);
 
@@ -203,7 +203,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_parent
      */
-    public function test_delete_parent_for_word_sql() {
+    public function test_delete_parent_for_word_sql() {  // V3-port: TODO
         $p = $this->save_parent_with_term();
         $this->exec("delete from words where WoID = {$p->getId()}");
 
@@ -216,7 +216,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_language_1
      */
-    public function test_delete_language_model() {
+    public function test_delete_language_model() {  // V3-port: TODO
         $this->save_parent_with_term();
         $this->language_repo->remove($this->english, true);
         $this->assertTermTablesEmpty();
@@ -226,7 +226,7 @@ final class ForeignKeyDeletes_Test extends DatabaseTestBase
     /**
      * @group fk_language
      */
-    public function test_delete_language_sql() {
+    public function test_delete_language_sql() {  // V3-port: TODO
         $p = $this->save_parent_with_term();
         $this->exec("delete from languages where LgID = {$this->english->getLgID()}");
         $this->assertTermTablesEmpty();

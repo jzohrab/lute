@@ -23,7 +23,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     /**
      * @group spaces
      */
-    public function test_double_spaces_removed()
+    public function test_double_spaces_removed()  // V3-port: TODO
     {
         $t = $this->make_text("Hola.", "Hola  tengo     un gato.", $this->spanish);
         $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
@@ -33,7 +33,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     /**
      * @group current
      */
-    public function test_parse_no_words_defined()
+    public function test_parse_no_words_defined()  // V3-port: TODO
     {
         $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->assert_rendered_text_equals($t, "Hola/ /tengo/ /un/ /gato/.");
@@ -44,7 +44,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     /**
      * @group manytimes
      */
-    public function test_text_contains_same_term_many_times()
+    public function test_text_contains_same_term_many_times()  // V3-port: TODO
     {
         $this->addTerms($this->spanish, ["Un gato"]);
 
@@ -53,7 +53,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     }
 
 
-    public function test_text_same_sentence_contains_same_term_many_times()
+    public function test_text_same_sentence_contains_same_term_many_times()  // V3-port: TODO
     {
         $this->addTerms($this->spanish, ["Un gato"]);
 
@@ -67,7 +67,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     /**
      * @group oldprodbugfixes
      */
-    public function test_old_production_bugfixes()
+    public function test_old_production_bugfixes()  // V3-port: TODO
     {
         // Misspelling "toddo" in the test case so it doesn't show up in my list of to-do's. :-)
         $sentences = [
@@ -111,7 +111,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     /**
      * @group apostrophes
      */
-    public function test_apostrophes()
+    public function test_apostrophes()  // V3-port: TODO
     {
         $t = $this->make_text("Jams.", "This is the cat's pyjamas.", $this->english);
 
@@ -124,7 +124,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     /**
      * @group lastword
      */
-    public function test_last_word_is_a_word()
+    public function test_last_word_is_a_word()  // V3-port: TODO
     {
         $t = $this->make_text("last-one", "Here is a word", $this->english);
         $term = $this->addTerms($this->english, "word");

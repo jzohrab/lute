@@ -14,7 +14,7 @@ final class BookRepository_Test extends DatabaseTestBase
         $this->load_languages();
     }
 
-    public function test_save()
+    public function test_save()  // V3-port: TODO
     {
         $b = new Book();
         $b->setTitle("hi");
@@ -39,7 +39,7 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group booksavefulltext
      */
-    public function test_setFullText_replaces_existing_text_entities() {
+    public function test_setFullText_replaces_existing_text_entities() {  // V3-port: TODO
         $b = new Book();
         $b->setTitle("hi");
         $b->setLanguage($this->english);
@@ -65,7 +65,7 @@ final class BookRepository_Test extends DatabaseTestBase
         return $b;
     }
 
-    public function test_texts_can_be_retrieved_by_index()
+    public function test_texts_can_be_retrieved_by_index()  // V3-port: TODO
     {
         $b = $this->make_multipage_book();
         $bret = $this->book_repo->find($b->getId());
@@ -77,7 +77,7 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group bookarch
      */
-    public function test_archive_book_archives_texts() {
+    public function test_archive_book_archives_texts() {  // V3-port: TODO
         $b = $this->make_multipage_book();
         $b->setArchived(true);
         $this->book_repo->save($b, true);
@@ -88,7 +88,7 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group bookdel
      */
-    public function test_delete_book_deletes_texts() {
+    public function test_delete_book_deletes_texts() {  // V3-port: TODO
         $b = $this->make_multipage_book();
         $this->book_repo->remove($b, true);
         DbHelpers::assertRecordcountEquals("select * from books", 0, 'b');
@@ -99,7 +99,7 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group datatables
      */
-    public function test_smoke_datatables_query_runs() {
+    public function test_smoke_datatables_query_runs() {  // V3-port: TODO
         // smoke test only.
 
         $columns = [

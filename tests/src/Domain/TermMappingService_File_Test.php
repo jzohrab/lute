@@ -26,7 +26,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
             unlink($this->tempfile);
     }
     
-    public function test_smoke_language_file_created() {
+    public function test_smoke_language_file_created() {  // V3-port: TODO
         $this->addTerms($this->spanish, [ 'gato', 'lista', 'tiene una', 'listo' ]);
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
         $t = $this->make_text('Hola', $content, $this->spanish);
@@ -48,7 +48,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
         $this->assertEquals($expected, $actual, "contents");
     }
 
-    public function test_smoke_book_file_created() {
+    public function test_smoke_book_file_created() {  // V3-port: TODO
         $this->addTerms($this->spanish, [ 'gato', 'lista', 'tiene una', 'listo' ]);
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
         $t = $this->make_text('Hola', $content, $this->spanish);
@@ -75,7 +75,7 @@ final class TermMappingService_File_Test extends DatabaseTestBase
         $this->assertEquals($expected, $actual, "contents");
     }
 
-    public function test_smoke_import_file_to_array()
+    public function test_smoke_import_file_to_array()  // V3-port: TODO
     {
         $this->tempfile = tempnam(sys_get_temp_dir(), "lute");
         $f = $this->tempfile;

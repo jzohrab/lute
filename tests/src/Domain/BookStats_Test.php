@@ -18,7 +18,7 @@ final class BookStats_Test extends DatabaseTestBase
         BookStats::refresh($this->book_repo, $this->term_service);
     }
 
-    public function test_cache_loads_when_prompted()
+    public function test_cache_loads_when_prompted()  // V3-port: TODO
     {
         DbHelpers::assertRecordcountEquals("bookstats", 0, "nothing loaded");
 
@@ -30,7 +30,7 @@ final class BookStats_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("bookstats", 1, "loaded");
     }
 
-    public function test_stats_smoke_test() {
+    public function test_stats_smoke_test() {  // V3-port: TODO
         $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $b = $t->getBook();
         $this->addTerms($this->spanish, [
@@ -51,7 +51,7 @@ final class BookStats_Test extends DatabaseTestBase
      * @group issue55
      * If multiterms "cover" the existing text, then it's really fully known.
      */
-    public function test_stats_calculates_rendered_text() {
+    public function test_stats_calculates_rendered_text() {  // V3-port: TODO
         $t = $this->make_text("Hola.", "Tengo un gato.", $this->spanish);
         $b = $t->getBook();
         $this->addTerms($this->spanish, [ "tengo un" ]);
@@ -68,7 +68,7 @@ final class BookStats_Test extends DatabaseTestBase
         );
     }
 
-    public function test_stats_only_update_existing_books_if_specified() {
+    public function test_stats_only_update_existing_books_if_specified() {  // V3-port: TODO
         $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $b = $t->getBook();
         $this->addTerms($this->spanish, [

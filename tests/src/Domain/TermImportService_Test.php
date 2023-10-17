@@ -71,13 +71,13 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertTrue($threw, "Should have thrown message " . $expected_message);
     }
 
-    public function test_language_must_exist() {
+    public function test_language_must_exist() {  // V3-port: TODO
         $this->record['language'] = 'UNKNOWN';
         $import = [ $this->record ];
         $this->assertImportThrows($import, 'Unknown language "UNKNOWN"');
     }
 
-    public function test_dup_term_throws() {
+    public function test_dup_term_throws() {  // V3-port: TODO
         $import = [ $this->record, $this->record ];
         $this->assertImportThrows($import, 'Duplicate terms in import: Spanish: gato');
         $import = [
@@ -94,13 +94,13 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertImportThrows($import, 'Duplicate terms in import: Spanish: gato');
     }
 
-    public function test_bad_status_throws() {
+    public function test_bad_status_throws() {  // V3-port: TODO
         $this->record['status'] = '7';
         $import = [ $this->record ];
         $this->assertImportThrows($import, 'Status must be one of 1,2,3,4,5,I,W, or blank');
     }
 
-    public function test_term_required() {
+    public function test_term_required() {  // V3-port: TODO
         $this->record['term'] = '';
         $import = [ $this->record ];
         $this->assertImportThrows($import, 'Term is required');
@@ -111,7 +111,7 @@ final class TermImportService_Test extends DatabaseTestBase
         return $stats;
     }
 
-    public function test_smoke_import_creates_term() {
+    public function test_smoke_import_creates_term() {  // V3-port: TODO
         $import = [ $this->record ];
         $stats = $this->doImport($import);
         DbHelpers::assertRecordcountEquals('words', 1, '1 term');
@@ -119,7 +119,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertStatsEquals($stats, 1, 0);
     }
 
-    public function test_smoke_import_two_terms() {
+    public function test_smoke_import_two_terms() {  // V3-port: TODO
         $import = [
             $this->record,
             [
@@ -138,7 +138,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertStatsEquals($stats, 2, 0);
     }
 
-    public function test_existing_terms_not_changed() {
+    public function test_existing_terms_not_changed() {  // V3-port: TODO
         $t = new Term($this->spanish, 'gato');
         $t->setTranslation('hi there');
         $this->term_repo->save($t, true);
@@ -153,7 +153,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertEquals($oldgato->getTranslation(), 'hi there', 'unchanged');
     }
 
-    public function test_case_insens_term_creation() {
+    public function test_case_insens_term_creation() {  // V3-port: TODO
         $t = new Term($this->spanish, 'gato');
         $t->setTranslation('hi there');
         $this->term_repo->save($t, true);
@@ -170,7 +170,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertEquals($oldgato->getTranslation(), 'hi there', 'unchanged');
     }
 
-    public function test_statuses_set_correctly() {
+    public function test_statuses_set_correctly() {  // V3-port: TODO
         $cases = [ '' => 1, 'W' => 99, 'I' => 98, '3' => 3 ];
         foreach(array_keys($cases) as $k) {
             DbHelpers::exec_sql('delete from words');
@@ -184,7 +184,7 @@ final class TermImportService_Test extends DatabaseTestBase
     /**
      * @group importparent
      */
-    public function test_term_mapped_to_newly_created_parent() {
+    public function test_term_mapped_to_newly_created_parent() {  // V3-port: TODO
         $this->record['term'] = 'gatos';
         $this->record['parent'] = 'gato';
         $import = [ $this->record ];
@@ -200,7 +200,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertEquals($gato->getFlashMessage(), 'Auto-created parent for "gatos"', 'gato implicitly created');
     }
 
-    public function test_same_term_in_different_langs() {
+    public function test_same_term_in_different_langs() {  // V3-port: TODO
         $import = [
             [ 'language' => 'Spanish',
               'term' => 'gatos',
@@ -233,7 +233,7 @@ final class TermImportService_Test extends DatabaseTestBase
         $this->assertTrue($gato_eng != null, 'have eng gato');
     }
 
-    public function test_term_and_parent_imported() {
+    public function test_term_and_parent_imported() {  // V3-port: TODO
         $import = [
             [ 'language' => 'Spanish',
               'term' => 'gatos',
@@ -266,7 +266,7 @@ final class TermImportService_Test extends DatabaseTestBase
     }
 
     
-    public function test_smoke_loadImportFile() {
+    public function test_smoke_loadImportFile() {  // V3-port: TODO
         $tempfile = tempnam(sys_get_temp_dir(), "import.txt");
         $this->record['tags'] = 'tag';
         $data = array_values($this->record);
@@ -311,7 +311,7 @@ Or a really cool cat.",
     /**
      * @group importfile
      */
-    public function test_import_file_with_return_in_translation() {
+    public function test_import_file_with_return_in_translation() {  // V3-port: TODO
         $content = 'language,term,translation,parent,status,tags,pronunciation
 Spanish,gato,"A cat.
 A house cat.",,1,"animal, noun",GA-toh';
@@ -330,7 +330,7 @@ A house cat.",,1,"animal, noun",GA-toh';
     /**
      * @group importfile
      */
-    public function test_import_more_stuff() {
+    public function test_import_more_stuff() {  // V3-port: TODO
         $content = 'language,term,translation,parent,status,tags,pronunciation
 Spanish,term,"this is a trans
 1. something
@@ -356,7 +356,7 @@ Spanish,third,,,W,?,';
     /**
      * @group importfile
      */
-    public function test_fields_can_be_in_different_order() {
+    public function test_fields_can_be_in_different_order() {  // V3-port: TODO
         $content = 'language,translation,term,parent,status,tags,pronunciation
 Spanish,t1 trans,term,,1,"a, b",
 Spanish,o1 trans,other,,3,,TEE-2
@@ -376,7 +376,7 @@ Spanish,3 trans,third,,W,?,';
     /**
      * @group importcols
      */
-    public function test_partial_columns_are_allowd() {
+    public function test_partial_columns_are_allowd() {  // V3-port: TODO
         $this->record = [
             'language' => 'Spanish',
             'term' => 'gato',
@@ -397,7 +397,7 @@ Spanish,3 trans,third,,W,?,';
     /**
      * @group importcols
      */
-    public function test_language_and_term_required() {
+    public function test_language_and_term_required() {  // V3-port: TODO
         $this->record = [
             'language' => 'Spanish',
             'termx' => 'gato',
@@ -410,7 +410,7 @@ Spanish,3 trans,third,,W,?,';
     /**
      * @group importcols
      */
-    public function test_only_language_and_term_is_ok() {
+    public function test_only_language_and_term_is_ok() {  // V3-port: TODO
         $this->record = [
             'language' => 'Spanish',
             'term' => 'gato',
@@ -430,7 +430,7 @@ Spanish,3 trans,third,,W,?,';
     /**
      * @group importcols
      */
-    public function test_bad_headings_throws() {
+    public function test_bad_headings_throws() {  // V3-port: TODO
         $this->record = [
             'language' => 'Spanish',
             'term' => 'gato',
@@ -443,7 +443,7 @@ Spanish,3 trans,third,,W,?,';
     /**
      * @group importcols
      */
-    public function test_import_file_must_contain_language_and_heading() {
+    public function test_import_file_must_contain_language_and_heading() {  // V3-port: TODO
         $content = 'language,xterm
 Spanish,term';
         $this->save_import_content($content);
@@ -462,7 +462,7 @@ Spanish,term';
     /**
      * @group issue51
      */
-    public function test_Mandarin_import_file_with_dups() {
+    public function test_Mandarin_import_file_with_dups() {  // V3-port: TODO
         $cc = Language::makeClassicalChinese();
         $cc->setLgName('Mandarin'); // used in the import file.
         $this->language_repo->save($cc, true);
@@ -487,7 +487,7 @@ Mandarin,啊,ah,a,HSK4";
     /**
      * @group importcols_1
      */
-    public function test_bad_headings_in_file_throws() {
+    public function test_bad_headings_in_file_throws() {  // V3-port: TODO
         $content = 'language,term,badfield
 Spanish,term,junk';
         $this->save_import_content($content);

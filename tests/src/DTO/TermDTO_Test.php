@@ -51,7 +51,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals($da, $db, "terms are the same");
     }
 
-    public function test_smoke_test_simple_dto() {
+    public function test_smoke_test_simple_dto() {  // V3-port: TODO
         $english = new Language();
         $english->setLgName('English');
 
@@ -69,7 +69,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertTermsEqual($t, $loaded);
     }
 
-    public function test_dto_gets_tags_as_array()
+    public function test_dto_gets_tags_as_array()  // V3-port: TODO
     {
         $english = new Language();
         $english->setLgName('English');
@@ -82,7 +82,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals(implode(', ', $dto->termTags), 'a, b');
     }
 
-    public function test_buildTerm_returns_existing_term_in_language()
+    public function test_buildTerm_returns_existing_term_in_language()  // V3-port: TODO
     {
         $t = new Term();
         $t->setLanguage($this->spanish);
@@ -94,7 +94,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals($t->getID(), $loaded->getID(), "saved item returned");
     }
 
-    public function test_buildTerm_with_new_parent_text_creates_new_parent()
+    public function test_buildTerm_with_new_parent_text_creates_new_parent()  // V3-port: TODO
     {
         foreach(['perros', 'perro'] as $text) {
             $f = $this->term_service->find($text, $this->spanish);
@@ -116,7 +116,7 @@ final class TermDTO_Test extends DatabaseTestBase
     /**
      * @group dtoparent
      */
-    public function test_buildTerm_with_new_parent_parent_gets_translation_and_image_and_tag()
+    public function test_buildTerm_with_new_parent_parent_gets_translation_and_image_and_tag()  // V3-port: TODO
     {
         foreach(['perros', 'perro'] as $text) {
             $f = $this->term_service->find($text, $this->spanish);
@@ -147,7 +147,7 @@ final class TermDTO_Test extends DatabaseTestBase
     /**
      * @group dtoparent
      */
-    public function test_cannot_set_dto_term_as_its_own_parent()
+    public function test_cannot_set_dto_term_as_its_own_parent()  // V3-port: TODO
     {
         $dto = new TermDTO();
         $dto->language = $this->spanish;
@@ -160,7 +160,7 @@ final class TermDTO_Test extends DatabaseTestBase
     /**
      * @group dtoparent
      */
-    public function test_add_term_existing_parent_creates_link() {
+    public function test_add_term_existing_parent_creates_link() {  // V3-port: TODO
         $p = new Term();
         $p->setLanguage($this->spanish);
         $p->setText('perro');
@@ -182,7 +182,7 @@ final class TermDTO_Test extends DatabaseTestBase
     /**
      * @group dtoparent
      */
-    public function test_add_term_existing_parent_parent_gets_translation_if_missing() {
+    public function test_add_term_existing_parent_parent_gets_translation_if_missing() {  // V3-port: TODO
         $p = new Term($this->spanish, 'perro');
         $this->term_service->add($p);
 
@@ -210,7 +210,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals($parent->getTranslation(), 'translation', 'existing transl kept');
     }
 
-    public function test_buildTerm_returns_new_term_if_no_match() {
+    public function test_buildTerm_returns_new_term_if_no_match() {  // V3-port: TODO
         $dto = new TermDTO();
         $dto->language = $this->spanish;
         $dto->Text = 'perro';
@@ -219,7 +219,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertTrue($perro->getID() == null, "new term, no id");
     }
 
-    public function test_buildTerm_returns_tags_as_TermTags() {
+    public function test_buildTerm_returns_tags_as_TermTags() {  // V3-port: TODO
         $dto = new TermDTO();
         $dto->language = $this->spanish;
         $dto->Text = 'perro';
@@ -235,7 +235,7 @@ final class TermDTO_Test extends DatabaseTestBase
     }
 
     // works even if tags already exist in repo.
-    public function test_buildTerm_returns_tags_as_existing_TermTags() {
+    public function test_buildTerm_returns_tags_as_existing_TermTags() {  // V3-port: TODO
         $there = $this->termtag_repo->findOrCreateByText('there');
         $this->termtag_repo->save($there, true);
 
@@ -259,7 +259,7 @@ final class TermDTO_Test extends DatabaseTestBase
         $this->assertEquals(implode(', ', $reloaded->termTags), 'hi, there');
     }
 
-    public function test_remove_tags_from_dto_removes_them_from_saved_Term() {
+    public function test_remove_tags_from_dto_removes_them_from_saved_Term() {  // V3-port: TODO
         $t = new Term($this->english, 'Hello');
         $t->addTermTag(TermTag::makeTermTag('a'));
         $this->term_service->add($t, true);
@@ -282,7 +282,7 @@ final class TermDTO_Test extends DatabaseTestBase
     // "composer dev:data:load" and clicking on a term, adding a new
     // parent, and adding a tag to the term, then saving, was causing
     // problems.
-    public function test_creating_save_term_with_new_parent_and_tags_works()
+    public function test_creating_save_term_with_new_parent_and_tags_works()  // V3-port: TODO
     {
         $dto = new TermDTO();
         $dto->language = $this->spanish;

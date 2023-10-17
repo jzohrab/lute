@@ -8,7 +8,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group readingtermupdate
      */
-    public function test_reading_with_term_updates(): void
+    public function test_reading_with_term_updates(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -34,7 +34,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group acctermcase
      */
-    public function test_reading_with_term_case_updates(): void
+    public function test_reading_with_term_case_updates(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -57,7 +57,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group readingtermmultipleparents
      */
-    public function test_reading_with_term_multiple_parents_updates(): void
+    public function test_reading_with_term_multiple_parents_updates(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -82,7 +82,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->assertWordDataEquals('amigo', 'status1');
     }
 
-    public function test_create_multiword_term(): void
+    public function test_create_multiword_term(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -111,7 +111,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group acc_abbrev
      */
-    public function test_create_term_with_period(): void
+    public function test_create_term_with_period(): void  // V3-port: TODO
     {
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Languages');
@@ -161,7 +161,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group hotkeys
      */
-    public function test_hotkeys(): void
+    public function test_hotkeys(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -209,7 +209,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group wellknown
      */
-    public function test_well_known(): void
+    public function test_well_known(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -237,7 +237,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group updatetext
      */
-    public function test_can_update_text(): void
+    public function test_can_update_text(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "HOLA tengo un gato.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -260,7 +260,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group othertext
      */
-    public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void
+    public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void  // V3-port: TODO
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->make_text("Otro", "Tengo otro amigo.", $this->spanishid);
@@ -298,7 +298,7 @@ class Reading_Test extends AcceptanceTestBase
      * TODO: reactivate test
      */
     /*
-    public function test_set_read_date() {
+    public function test_set_read_date() {  // V3-port: TODO
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
         // isn't shown.
@@ -341,7 +341,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group readsetsbookmark
      */
-    public function test_reading_sets_index_page_bookmark() {
+    public function test_reading_sets_index_page_bookmark() {  // V3-port: TODO
         $this->goToTutorialFirstPage();
         $this->clickLinkID("#navNext");
         $this->clickLinkID("#navNext");

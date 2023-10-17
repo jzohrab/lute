@@ -11,7 +11,7 @@ use App\Domain\TermService;
 final class LanguageRepository_Test extends DatabaseTestBase
 {
 
-    public function test_can_delete_language_even_if_terms_and_books_are_defined()
+    public function test_can_delete_language_even_if_terms_and_books_are_defined()  // V3-port: TODO
     {
         $english = Language::makeEnglish();
         $this->language_repo->save($english, true);
@@ -40,7 +40,7 @@ final class LanguageRepository_Test extends DatabaseTestBase
     /**
      * @group lgfind
      */
-    public function test_get_by_name()
+    public function test_get_by_name()  // V3-port: TODO
     {
         $english = Language::makeEnglish();
         $this->language_repo->save($english, true);

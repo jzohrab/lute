@@ -48,7 +48,7 @@ final class SpaceDelimitedParser_Test extends TestCase
     /**
      * @group parser_eos
      */
-    public function test_end_of_sentence_stored_in_parsed_tokens()
+    public function test_end_of_sentence_stored_in_parsed_tokens()  // V3-port: TODO
     {
         $p = new SpaceDelimitedParser();
         $s = "Tengo un gato.\nTengo dos.";
@@ -72,7 +72,7 @@ final class SpaceDelimitedParser_Test extends TestCase
     }
 
 
-    public function test_exceptions_are_considered_when_splitting_sentences()
+    public function test_exceptions_are_considered_when_splitting_sentences()  // V3-port: TODO
     {
         $p = new SpaceDelimitedParser();
         $s = "1. Mrs. Jones is here.";
@@ -94,7 +94,7 @@ final class SpaceDelimitedParser_Test extends TestCase
         $this->assertTokensEquals($actual, $expected);
     }
 
-    public function test_check_tokens()
+    public function test_check_tokens()  // V3-port: TODO
     {
         $p = new SpaceDelimitedParser();
         $s = "1. Mrs. Jones is here.";
@@ -119,7 +119,7 @@ final class SpaceDelimitedParser_Test extends TestCase
     /**
      * @group reloadcurr1
      */
-    public function test_single_que()
+    public function test_single_que()  // V3-port: TODO
     {
         $text = "Tengo que y qué.";
         $expected = [
@@ -138,7 +138,7 @@ final class SpaceDelimitedParser_Test extends TestCase
     /**
      * @group eeuu
      */
-    public function test_EE_UU_exception_should_be_considered()
+    public function test_EE_UU_exception_should_be_considered()  // V3-port: TODO
     {
         $p = new SpaceDelimitedParser();
         $s = "Estamos en EE.UU. hola.";
@@ -163,7 +163,7 @@ final class SpaceDelimitedParser_Test extends TestCase
     /**
      * @group eeuu
      */
-    public function test_just_EE_UU()
+    public function test_just_EE_UU()  // V3-port: TODO
     {
         $p = new SpaceDelimitedParser();
         $s = "EE.UU.";
@@ -197,7 +197,7 @@ final class SpaceDelimitedParser_Test extends TestCase
         $this->assertEquals($tostring($actual), $expected);
     }
 
-    public function test_quick_checks() {
+    public function test_quick_checks() {  // V3-port: TODO
         $e = Language::makeEnglish();
         $this->assert_string_equals("test", $e, "[test]");
         $this->assert_string_equals("test.", $e, "[test].");

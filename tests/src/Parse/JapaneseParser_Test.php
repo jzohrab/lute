@@ -27,7 +27,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
         // echo "tearing down ... \n";
     }
 
-    public function test_parse_no_words_defined()
+    public function test_parse_no_words_defined()  // V3-port: TODO
     {
         $t = $this->make_text("Test", "私は元気です.", $this->japanese);
         $this->assert_rendered_text_equals($t, "私/は/元気/です/.");
@@ -36,7 +36,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     /**
      * @group jp_sentence_ends
      */
-    public function test_getParsedTokens_sentence_ends()
+    public function test_getParsedTokens_sentence_ends()  // V3-port: TODO
     {
         $p = new JapaneseParser();
         // First, western punctuation, then JP :-)
@@ -78,7 +78,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     /**
      * @group jp_parser_tokens
      */
-    public function test_getParsedTokens()
+    public function test_getParsedTokens()  // V3-port: TODO
     {
         $p = new JapaneseParser();
         $s = "私は元気です。
@@ -117,7 +117,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     /**
      * @group jpeos
      */
-    public function test_parse_words_defined()
+    public function test_parse_words_defined()  // V3-port: TODO
     {
         $this->addTerms($this->japanese, [ '私', '元気', 'です' ]);
         $t = $this->make_text("Test", "私は元気です.", $this->japanese);
@@ -128,7 +128,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     /**
      * @group futari
      */
-    public function test_futari()
+    public function test_futari()  // V3-port: TODO
     {
         $t = $this->make_text("Test", "二人はどちらの力が強いか.", $this->japanese);
         $this->assert_rendered_text_equals($t, "二/人/は/どちら/の/力/が/強い/か/.");
@@ -138,7 +138,7 @@ final class JapaneseParser_Test extends DatabaseTestBase
     /**
      * @group reading
      */
-    public function test_reading()
+    public function test_reading()  // V3-port: TODO
     {
         $zws = mb_chr(0x200B);
         $p = new JapaneseParser();

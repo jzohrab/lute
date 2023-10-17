@@ -14,7 +14,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->load_languages();
     }
     
-    public function test_save()
+    public function test_save()  // V3-port: TODO
     {
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms");
         $t = new Term($this->spanish, 'perro');
@@ -22,7 +22,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words", 1, "saved");
     }
 
-    public function test_remove()
+    public function test_remove()  // V3-port: TODO
     {
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms");
         $t = new Term($this->spanish, 'perro');
@@ -32,7 +32,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms, removed");
     }
 
-    public function test_flush()
+    public function test_flush()  // V3-port: TODO
     {
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms");
         $t = new Term($this->spanish, 'perro');
@@ -43,7 +43,7 @@ final class TermRepository_Test extends DatabaseTestBase
 
     }
 
-    public function test_create_and_save()
+    public function test_create_and_save()  // V3-port: TODO
     {
         $t = new Term($this->spanish, 'HOLA');
         $t->setStatus(1);
@@ -58,7 +58,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
     }
 
-    public function test_word_with_parent_and_tags()
+    public function test_word_with_parent_and_tags()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -86,7 +86,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group getParentAndChildren
      */
-    public function test_word_parent_get_child()
+    public function test_word_parent_get_child()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $g = new Term($this->spanish, "gato");
@@ -110,7 +110,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group changeParent
      */
-    public function test_change_parent()
+    public function test_change_parent()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -135,7 +135,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent changed");
     }
 
-    public function test_set_parent_to_NULL()
+    public function test_set_parent_to_NULL()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -160,7 +160,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termremove
      */
-    public function test_remove_parent_leaves_children_in_db()
+    public function test_remove_parent_leaves_children_in_db()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -187,7 +187,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termremove
      */
-    public function test_can_remove_term_leaves_parent_and_existing_tags()
+    public function test_can_remove_term_leaves_parent_and_existing_tags()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $t->addTermTag($this->termtag_repo->findOrCreateByText('tag'));
@@ -213,7 +213,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group images
      */
-    public function test_save_with_image()
+    public function test_save_with_image()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $t->setCurrentImage('hello.png');
@@ -229,7 +229,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group images
      */
-    public function test_save_replace_image()
+    public function test_save_replace_image()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $t->setCurrentImage('hello.png');
@@ -251,7 +251,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group images
      */
-    public function test_save_remove_image()
+    public function test_save_remove_image()  // V3-port: TODO
     {
         $t = new Term($this->spanish, "HOLA");
         $t->setCurrentImage('hello.png');
@@ -281,7 +281,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findLikeSpec
      */
-    public function test_findLikeSpecification_initial_check() {
+    public function test_findLikeSpecification_initial_check() {  // V3-port: TODO
         $t1 = new Term($this->spanish, "abc");
         $t2 = new Term($this->spanish, "abcd");
         $t3 = new Term($this->spanish, "bcd");
@@ -298,7 +298,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findLikeSpec
      */
-    public function test_findLikeSpecification_terms_with_children_go_to_top() {
+    public function test_findLikeSpecification_terms_with_children_go_to_top() {  // V3-port: TODO
         $ap = new Term($this->spanish, "abcPAR");
         $a = new Term($this->spanish, "abc");
         $xp = new Term($this->spanish, "axyPAR");
@@ -316,7 +316,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findLikeSpec
      */
-    public function test_findLikeSpecification_exact_match_trumps_parent() {
+    public function test_findLikeSpecification_exact_match_trumps_parent() {  // V3-port: TODO
         $ap = new Term($this->spanish, "abcPAR");
         $a = new Term($this->spanish, "abc");
         $xp = new Term($this->spanish, "axyPAR");
@@ -334,7 +334,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findByID
      */
-    public function test_findBy_array_of_ids() {
+    public function test_findBy_array_of_ids() {  // V3-port: TODO
         $a = new Term($this->spanish, "a");
         $b = new Term($this->spanish, "b");
         $c = new Term($this->spanish, "c");
@@ -353,7 +353,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termflash
      */
-    public function test_term_flash_message_mapping() {
+    public function test_term_flash_message_mapping() {  // V3-port: TODO
         $p = new Term($this->spanish, 'perro');
         $this->assertEquals($p->getFlashMessage(), null, "message not set");
 
@@ -380,7 +380,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termflash
      */
-    public function test_can_change_flash_message() {
+    public function test_can_change_flash_message() {  // V3-port: TODO
         $p = new Term($this->spanish, 'perro');
         $p->setFlashMessage('hola');
         $this->term_repo->save($p, true);
@@ -400,7 +400,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termflash
      */
-    public function test_can_delete_term_with_flash_message() {
+    public function test_can_delete_term_with_flash_message() {  // V3-port: TODO
         $p = new Term($this->spanish, 'perro');
         $p->setFlashMessage('hola');
         $this->term_repo->save($p, true);
@@ -414,7 +414,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termflashremoval_1
      */
-    public function test_term_flash_can_be_removed() {
+    public function test_term_flash_can_be_removed() {  // V3-port: TODO
         $p = new Term($this->spanish, 'perro');
         $p->setFlashMessage('hola');
         $this->term_repo->save($p, true);

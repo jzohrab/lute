@@ -28,7 +28,7 @@ final class TextRepository_Test extends DatabaseTestBase
      * Sentences should only be generated when a Text is saved with the ReadDate saved.
      * Sentences are only used for reference lookups, 
      */
-    public function test_sentence_lifecycle()
+    public function test_sentence_lifecycle()  // V3-port: TODO
     {
         $t = $this->make_text("Hola.", "Tienes un perro. Un gato.", $this->spanish);
 
@@ -58,7 +58,7 @@ final class TextRepository_Test extends DatabaseTestBase
     }
 
 
-    public function test_removing_Text_removes_sentences()
+    public function test_removing_Text_removes_sentences()  // V3-port: TODO
     {
         $t = $this->text;
         $this->text_repo->remove($t, true);
@@ -68,7 +68,7 @@ final class TextRepository_Test extends DatabaseTestBase
     }
 
 
-    public function test_archiving_Text_leaves_sentences()
+    public function test_archiving_Text_leaves_sentences()  // V3-port: TODO
     {
         $t = $this->text;
         $t->setReadDate(new DateTime("now"));

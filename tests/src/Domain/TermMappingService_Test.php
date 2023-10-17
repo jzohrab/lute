@@ -65,7 +65,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertTrue($threw);
     }
 
-    public function test_throws_if_parent_or_child_blank_or_null() {
+    public function test_throws_if_parent_or_child_blank_or_null() {  // V3-port: TODO
         foreach (['', ' ', null] as $p) {
             $this->assertMappingThrows([ [ 'parent' => 'gato', 'child' => $p ] ]);
             $this->assertMappingThrows([ [ 'parent' => $p, 'child' => 'gato' ] ]);
@@ -81,7 +81,7 @@ where cw.WoTextLC = '{$tlc}'";
     /**
      * @group changetmapi
      */
-    public function test_doesnt_create_terms() {
+    public function test_doesnt_create_terms() {  // V3-port: TODO
         $sp = $this->spanish;
         DbHelpers::assertRecordcountEquals('words', 0, 'no terms');
         $mappings = [
@@ -92,7 +92,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertStatsEquals($stats, 0,0);
     }
 
-    public function test__existing_term_no_parent__existing_parent__mapped() {
+    public function test__existing_term_no_parent__existing_parent__mapped() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['gato', 'gatos']);
         $mappings = [
@@ -104,7 +104,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertStatsEquals($stats, 0,1);
     }
 
-    public function test__existing_term_no_parent__not_mapped_to_self() {
+    public function test__existing_term_no_parent__not_mapped_to_self() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['gato', 'gatos']);
         $mappings = [
@@ -116,7 +116,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertStatsEquals($stats, 0,0);
     }
 
-    public function test__existing_term_no_parent__new_parent_created_and_mapped() {
+    public function test__existing_term_no_parent__new_parent_created_and_mapped() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, 'gatos');
         $this->assertParentEquals('gatos', null);
@@ -134,7 +134,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertTermsEquals(['gato', 'gatos']);
     }
 
-    public function test__existing_term_no_parent__new_parent_created_and_mapped_multiple_children() {
+    public function test__existing_term_no_parent__new_parent_created_and_mapped_multiple_children() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['gatos', 'gatoz']);
         $this->assertParentEquals('gatos', null);
@@ -153,7 +153,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertTermsEquals(['gato', 'gatos', 'gatoz']);
     }
 
-    public function test__multiple_existing_term_no_parent__mapped_to_same_new_parent() {
+    public function test__multiple_existing_term_no_parent__mapped_to_same_new_parent() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['gatos', 'gatitas']);
         $mappings = [
@@ -167,7 +167,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertTermsEquals(['gatitas', 'gato', 'gatos']);
     }
 
-    public function test__existing_term_HAS_parent__parent_not_changed() {
+    public function test__existing_term_HAS_parent__parent_not_changed() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['gato', 'gatos', 'perro']);
         $svc = new TermService($this->term_repo);
@@ -189,7 +189,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertStatsEquals($stats, 0,0);
     }
 
-    public function test_stray_term_skipped() {
+    public function test_stray_term_skipped() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, 'gato');
         DbHelpers::assertRecordcountEquals('words', 1, 'just gato');
@@ -207,7 +207,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertTermsEquals(['gato', 'gatos']);
     }
 
-    public function test_new_term_created_and_mapped_to_existing_parent() {
+    public function test_new_term_created_and_mapped_to_existing_parent() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, 'gato');
         $this->assertTermsEquals(['gato']);
@@ -227,7 +227,7 @@ where cw.WoTextLC = '{$tlc}'";
      * @group issue40
      * https://github.com/jzohrab/lute/issues/40
      */
-    public function test_issue_40_multiple_parents_not_mapped() {
+    public function test_issue_40_multiple_parents_not_mapped() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['pA', 'pB', 'c']);
         $this->assertTermsEquals(['c', 'pA', 'pB']);
@@ -243,7 +243,7 @@ where cw.WoTextLC = '{$tlc}'";
      * @group issue40
      * https://github.com/jzohrab/lute/issues/40
      */
-    public function test_issue_40_dup_mapping_ok() {
+    public function test_issue_40_dup_mapping_ok() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['pA', 'c']);
         $this->assertTermsEquals(['c', 'pA']);
@@ -260,7 +260,7 @@ where cw.WoTextLC = '{$tlc}'";
      * @group issue40
      * https://github.com/jzohrab/lute/issues/40
      */
-    public function test_issue_40_case_ignored_for_mapping() {
+    public function test_issue_40_case_ignored_for_mapping() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['pA', 'Á']);
         $this->assertTermsEquals(['pA', 'Á'], 'initial settings');
@@ -272,7 +272,7 @@ where cw.WoTextLC = '{$tlc}'";
         DbHelpers::assertRecordcountEquals('select * from wordparents', 1, 'one mapping');
     }
 
-    public function test_new_term__new_parent_not_created_if_not_otherwise_used() {
+    public function test_new_term__new_parent_not_created_if_not_otherwise_used() {  // V3-port: TODO
         $sp = $this->spanish;
         $mappings = [
             [ 'parent'=>'gato', 'child'=>'gatos' ]
@@ -282,7 +282,7 @@ where cw.WoTextLC = '{$tlc}'";
         $this->assertStatsEquals($stats, 0,0);
      }
 
-    public function test_new_term__new_parent_created_if_used_by_existing_term() {
+    public function test_new_term__new_parent_created_if_used_by_existing_term() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, 'gatito');
         DbHelpers::assertTableContains('select wotext from words order by wotext', ['gatito']);
@@ -305,7 +305,7 @@ where cw.WoTextLC = '{$tlc}'";
      * needed as a parent for an existing term ... this showed up on
      * tests on my machine.
      */
-    public function test_child_creates_new_parent_X_and_parent_creates_same_new_child_X() {
+    public function test_child_creates_new_parent_X_and_parent_creates_same_new_child_X() {  // V3-port: TODO
         $sp = $this->spanish;
         $p = $this->addTerms($sp, ['aladas', 'alado']);
         $mappings = [

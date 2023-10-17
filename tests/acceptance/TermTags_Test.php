@@ -11,7 +11,7 @@ class TermTags_Test extends AcceptanceTestBase
     /**
      * @group termtagsmoke
      */
-    public function test_termtag_smoke_test(): void
+    public function test_termtag_smoke_test(): void  // V3-port: TODO
     {
         $this->client->request('GET', '/');
         $this->client->clickLink('Term Tags');
