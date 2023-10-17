@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class Term_Test extends TestCase
 {
 
-    public function test_cruft_stripped_on_setWord()  // V3-port: TODO
+    public function test_cruft_stripped_on_setWord()  // V3-port: DONE tests/unit/models/test_term.py
     {
         $cases = [
             [ 'hola', 'hola', 'hola' ],
@@ -29,7 +29,7 @@ class Term_Test extends TestCase
         }
     }
 
-    public function test_TokenCount()  // V3-port: TODO
+    public function test_TokenCount()    // V3-port: DONE tests/unit/models/test_term.py
     {
         $cases = [
             [ "hola", 1, 1 ],
@@ -50,7 +50,7 @@ class Term_Test extends TestCase
     /**
      * @group tokencount
      */
-    public function test_TokenCount_punct()  // V3-port: TODO
+    public function test_TokenCount_punct()    // V3-port: DONE tests/unit/models/test_term.py
     {
         $cases = [
             [ "  the CAT's pyjamas  ", 4, 7 ],
@@ -106,7 +106,7 @@ class Term_Test extends TestCase
     /**
      * @group tokencountexception
      */
-    public function test_term_left_as_is_if_its_an_exception()  // V3-port: TODO
+    public function test_term_left_as_is_if_its_an_exception()    // V3-port: DONE tests/unit/models/test_term.py
     {
         $sp = Language::makeSpanish();
         $sp->setLgExceptionsSplitSentences("EE.UU.");
@@ -123,7 +123,7 @@ class Term_Test extends TestCase
     /**
      * @group noselfparent
      */
-    public function test_cannot_add_self_as_own_parent() {  // V3-port: TODO
+    public function test_cannot_add_self_as_own_parent() {    // V3-port: DONE tests/unit/models/test_term.py
         $sp = Language::makeSpanish();
         $t = new Term($sp, 'gato');
         $t->addParent($t);
