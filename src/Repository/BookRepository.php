@@ -33,11 +33,6 @@ class BookRepository extends ServiceEntityRepository
     public function save(Book $entity): void
     {
         $isnew = ($entity->getID() == null);
-        if ($entity->isArchived()) {
-            foreach ($entity->getTexts() as $t)
-                $t->setArchived(true);
-        }
-
         $this->getEntityManager()->persist($entity);
         $this->getEntityManager()->flush();
     }

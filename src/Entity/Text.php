@@ -19,27 +19,14 @@ class Text
     #[ORM\Column(name: 'TxID', type: Types::SMALLINT)]
     private ?int $TxID = null;
 
-    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
-    #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
-    private ?Language $language = null;
-
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
     private string $TxText = '';
 
     #[ORM\Column(name: 'TxOrder', type: Types::SMALLINT)]
     private int $TxOrder = 1;
 
-    #[ORM\Column(name: 'TxAudioURI', length: 200, nullable: true)]
-    private ?string $TxAudioURI = null;
-
-    #[ORM\Column(name: 'TxSourceURI', length: 1000, nullable: true)]
-    private ?string $TxSourceURI = null;
-
     #[ORM\Column(name: 'TxReadDate', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTime $TxReadDate = null;
-
-    #[ORM\Column(name: 'TxArchived')]
-    private bool $TxArchived = false;
 
     #[ORM\ManyToOne(inversedBy: 'Texts')]
     #[ORM\JoinColumn(name: 'TxBkID', referencedColumnName: 'BkID', nullable: false)]
@@ -82,42 +69,6 @@ class Text
         return $this;
     }
 
-    public function getAudioURI(): ?string
-    {
-        return $this->TxAudioURI;
-    }
-
-    public function setAudioURI(?string $TxAudioURI): self
-    {
-        $this->TxAudioURI = $TxAudioURI;
-
-        return $this;
-    }
-
-    public function getSourceURI(): ?string
-    {
-        return $this->TxSourceURI;
-    }
-
-    public function setSourceURI(?string $TxSourceURI): self
-    {
-        $this->TxSourceURI = $TxSourceURI;
-
-        return $this;
-    }
-
-    public function isArchived(): bool
-    {
-        return $this->TxArchived;
-    }
-
-    public function setArchived(bool $TxArchived): self
-    {
-        $this->TxArchived = $TxArchived;
-
-        return $this;
-    }
-
     public function setOrder(int $n): self
     {
         $this->TxOrder = $n;
@@ -131,14 +82,7 @@ class Text
 
     public function getLanguage(): ?Language
     {
-        return $this->language;
-    }
-
-    public function setLanguage(Language $language): self
-    {
-        $this->language = $language;
-
-        return $this;
+        return $this->getBook()->getLanguage();
     }
 
     public function getBook(): ?Book
@@ -193,8 +137,9 @@ class Text
         if ($this->TxReadDate == null)
             return;
 
-        $parser = $this->language->getParser();
-        $parsedtokens = $parser->getParsedTokens($this->TxText, $this->language);
+        $lang = $this->getLanguage();
+        $parser = $lang->getParser();
+        $parsedtokens = $parser->getParsedTokens($this->TxText, $lang);
 
         $curr_sentence_tokens = [];
         $sentence_number = 1;

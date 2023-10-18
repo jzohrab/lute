@@ -143,7 +143,6 @@ class Book
         while ($toks = $it->next()) {
             $i++;
             $t = new Text();
-            $t->setLanguage($lang);
             $t->setOrder($i);
             $t->setText($tokstring($toks));
             $this->addText($t);

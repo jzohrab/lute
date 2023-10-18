@@ -67,19 +67,4 @@ final class TextRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("texts", 0, 'after');
     }
 
-
-    public function test_archiving_Text_leaves_sentences()  // V3-port: TODO
-    {
-        $t = $this->text;
-        $t->setReadDate(new DateTime("now"));
-        $this->text_repo->save($t, true);
-        DbHelpers::assertRecordcountEquals('sentences', 1, 'after read set');
-
-        $t->setArchived(true);
-        $this->text_repo->save($t, true);
-
-        DbHelpers::assertRecordcountEquals('sentences', 1, 'after archive');
-        DbHelpers::assertRecordcountEquals("texts", 1, 'still have text');
-    }
-
 }

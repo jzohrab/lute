@@ -4,6 +4,7 @@ namespace tests\App\Entity;
 
 use DateTime;
 use App\Entity\Text;
+use App\Entity\Book;
 use App\Entity\Language;
 use PHPUnit\Framework\TestCase;
  
@@ -19,8 +20,10 @@ class Text_Test extends TestCase
     public function test_sentence_lifecycle()  // V3-port: TODO
     {
         $eng = Language::makeEnglish();
+        $b = new Book();
+        $b->setLanguage($eng);
         $t = new Text();
-        $t->setLanguage($eng);
+        $t->setBook($b);
         $t->setText("Tienes un perro. Un gato.");
 
         $this->assertEquals(count($t->getSentences()), 0, 'no sentences');
