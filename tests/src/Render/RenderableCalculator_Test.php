@@ -61,7 +61,7 @@ class RenderableCalculator_Test extends TestCase
     }
 
 
-    public function test_simple_render()  // V3-port: TODO
+    public function test_simple_render()  // V3-port: DONE tests/unit/read/render/test_RenderableCalculator.py
     {
         $data = [
             [ 1, 'some' ],
@@ -76,7 +76,7 @@ class RenderableCalculator_Test extends TestCase
     }
 
     // Just in case, since ordering is so important.
-    public function test_data_out_of_order_still_ok()  // V3-port: TODO
+    public function test_data_out_of_order_still_ok()  // V3-port: DONE tests/unit/read/render/test_RenderableCalculator.py
     {
         $data = [
             [ 1, 'some' ],
@@ -91,7 +91,7 @@ class RenderableCalculator_Test extends TestCase
     }
 
     // Just in case, since contiguity is so important.
-    public function test_tokens_must_be_contiguous()  // V3-port: TODO
+    public function test_tokens_must_be_contiguous()  // V3-port: DONE tests/unit/read/render/test_RenderableCalculator.py
     {
         $data = [
             [ 1, 'some' ],
@@ -108,7 +108,7 @@ class RenderableCalculator_Test extends TestCase
         $rcs = $rc->main(Language::makeEnglish(), [], $tokens);
     }
 
-    public function test_multiword_items_cover_other_items()  // V3-port: TODO
+    public function test_multiword_items_cover_other_items()  // V3-port: DONE tests/unit/read/render/test_RenderableCalculator.py
     {
         $data = [
             [ 1, 'some' ],
@@ -126,7 +126,7 @@ class RenderableCalculator_Test extends TestCase
         $this->assertRenderableEquals($data, $words, $expected);
     }
 
-    public function test_overlapping_multiwords()  // V3-port: TODO
+    public function test_overlapping_multiwords()  // V3-port: DONE tests/unit/read/render/test_RenderableCalculator.py
     {
         $data = [
             [ 1, 'some' ],
@@ -149,7 +149,7 @@ class RenderableCalculator_Test extends TestCase
     /**
      * @group rccurr
      */
-    public function test_multiwords_starting_at_same_location()  // V3-port: TODO
+    public function test_multiwords_starting_at_same_location()  // V3-port: DONE tests/unit/read/render/test_RenderableCalculator.py
     {
         $chars = str_split('A B C D');
         $data = [];
@@ -167,7 +167,7 @@ class RenderableCalculator_Test extends TestCase
 
 
     /* Test case directly from the class documentation. */
-    public function test_crazy_case()  // V3-port: TODO
+    public function test_crazy_case()  // V3-port: DONE tests/unit/read/render/test_RenderableCalculator.py
     {
         $chars = str_split('A B C D E F G H I');
         $data = [];

@@ -255,7 +255,7 @@ final class TermService_Test extends DatabaseTestBase
     /**
      * @group findAllInString
      */
-    public function test_findAllInString() {  // V3-port: TODO
+    public function test_findAllInString() {  // V3-port: DONE test/unit/read/test_service.py
         $p = new Term($this->spanish, 'perro');
         $g = new Term($this->spanish, 'gato');
         $ug = new Term($this->spanish, 'un gato');
