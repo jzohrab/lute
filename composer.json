@@ -152,6 +152,12 @@
       "composer test:src",
       "composer test:accept"
     ],
+    "dev:portstats": [
+      "composer dev:find V3-port | grep TODO",
+      "echo --------------------------------",
+      "composer dev:find V3-port | grep DONE | wc -l",
+      "composer dev:find V3-port | grep TODO | wc -l"
+    ],
     "dev:find": "./utils/findstring.sh",
     "dev:finddump": "./utils/finddump.sh",
     "dev:data:load": "composer test:group dev:data:load",
@@ -207,7 +213,8 @@
     "test:group": "Run tests with a given '@group xxxx' annotation",
     "test:full": "Create the test db, check orm mappings, and run all tests",
     "dev:data:load": "Abuse the testing system to load the dev db with some data.",
-    "dev:data:clear": "Abuse the testing system to wipe the dev db."
+    "dev:data:clear": "Abuse the testing system to wipe the dev db.",
+    "dev:portstats": "Show tests ported to v3 python and to-dos."
   },
   "conflict": {
     "symfony/symfony": "*"
