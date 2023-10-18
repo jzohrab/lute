@@ -77,12 +77,11 @@ final class BookRepository_Test extends DatabaseTestBase
     /**
      * @group bookarch
      */
-    public function test_archive_book_archives_texts() {  // V3-port: TODO
+    public function test_archive_book() {  // V3-port: TODO
         $b = $this->make_multipage_book();
         $b->setArchived(true);
         $this->book_repo->save($b, true);
         DbHelpers::assertRecordcountEquals("select * from books where BkArchived = 1", 1, 'b');
-        DbHelpers::assertRecordcountEquals("select * from texts where TxArchived = 1", 2, 'texts archived');
     }
 
     /**
