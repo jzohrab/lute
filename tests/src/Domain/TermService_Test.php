@@ -351,8 +351,9 @@ final class TermService_Test extends DatabaseTestBase
     {
         $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
         $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
-        $archtext->setArchived(true);
-        $this->text_repo->save($archtext, true);
+        $b = $archtext->getBook();
+        $b->setArchived(true);
+        $this->book_repo->save($b, true);
 
         foreach ([$text, $archtext] as $t) {
             $t->setReadDate(new DateTime("now"));

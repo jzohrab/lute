@@ -11,7 +11,6 @@ use App\Entity\Language;
 final class Renderablesentence_Test extends DatabaseTestBase
 {
 
-    private ReadingFacade $facade;
     private int $spid;
 
     public function childSetUp(): void
