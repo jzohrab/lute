@@ -63,7 +63,7 @@ final class DataTablesSqliteQuery_Test extends TestCase
             $this->assertEquals($actual[$f], $expected[$f], $f);
     }
     
-    public function test_smoke_test()  // V3-port: TODO
+    public function test_smoke_test()  // V3-port: DONE in lute/utils/test_DataTablesSqliteQuery
     {
         $actual = DataTablesSqliteQuery::getSql($this->basesql, $this->parameters);
         $expected = [
@@ -76,7 +76,7 @@ final class DataTablesSqliteQuery_Test extends TestCase
     }
 
 
-    public function test_sorting()  // V3-port: TODO
+    public function test_sorting()  // V3-port: DONE in lute/utils/test_DataTablesSqliteQuery
     {
         $this->parameters["order"][0]["column"] = "2";
         $this->parameters["order"][0]["dir"] = "desc";
@@ -91,7 +91,7 @@ final class DataTablesSqliteQuery_Test extends TestCase
         $this->assertHashesEqual($actual, $expected);
     }
 
-    public function test_single_search()  // V3-port: TODO
+    public function test_single_search()  // V3-port: DONE in lute/utils/test_DataTablesSqliteQuery
     {
         $this->parameters["search"]["value"] = "XXX";
 
@@ -106,7 +106,7 @@ final class DataTablesSqliteQuery_Test extends TestCase
         $this->assertHashesEqual($actual, $expected);
     }
 
-    public function test_multiple_search_terms()  // V3-port: TODO
+    public function test_multiple_search_terms()  // V3-port: DONE in lute/utils/test_DataTablesSqliteQuery
     {
         $this->parameters["search"]["value"] = "XXX YYY";
 
@@ -130,7 +130,7 @@ final class DataTablesSqliteQuery_Test extends TestCase
         $this->assertEquals($expected, $where, $searchString);
     }
 
-    public function test_search_regex_markers()  // V3-port: TODO
+    public function test_search_regex_markers()  // V3-port: DONE in lute/utils/test_DataTablesSqliteQuery
     {
         $this->assertWhereEquals('XXX', "(Color LIKE '%' || :s0 || '%' OR Food LIKE '%' || :s0 || '%')");
         $this->assertWhereEquals('^XXX', "(Color LIKE '' || :s0 || '%' OR Food LIKE '' || :s0 || '%')");
