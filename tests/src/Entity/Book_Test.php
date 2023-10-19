@@ -28,7 +28,7 @@ class Book_Test extends TestCase
     }
 
 
-    public function test_create_book_creates_texts()  // V3-port: TODO
+    public function test_create_book_creates_texts()  // V3-port: DONE test/unit/models/book
     {
         $eng = Language::makeEnglish();
         $b = new Book();
@@ -44,7 +44,7 @@ class Book_Test extends TestCase
     }
 
 
-    public function test_scenarios() {  // V3-port: TODO
+    public function test_scenarios() {  // V3-port: DONE test/unit/models/book
         $fulltext = "Here is a dog. And a cat.";
         $this->scenario($fulltext, 5, [ "Here is a dog.", "And a cat."]);
         $this->scenario($fulltext, 500, [ "Here is a dog. And a cat."]);
