@@ -14,7 +14,7 @@ final class BookRepository_Test extends DatabaseTestBase
         $this->load_languages();
     }
 
-    public function test_save()  // V3-port: TODO
+    public function test_save()  // V3-port: DONE in tests/unit/models/test_orm_mappings.py
     {
         $b = new Book();
         $b->setTitle("hi");

@@ -17,7 +17,7 @@ class Text_Test extends TestCase
      * Sentences should only be generated when a Text is saved with the ReadDate saved.
      * Sentences are only used for reference lookups, 
      */
-    public function test_sentence_lifecycle()  // V3-port: TODO
+    public function test_sentence_lifecycle()  // V3-port: DONE in tests/unit/models/test_Text.py
     {
         $eng = Language::makeEnglish();
         $b = new Book();

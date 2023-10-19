@@ -31,7 +31,7 @@ final class SentenceGroupIterator_Test extends TestCase
         );
     }
 
-    public function test_group_all_in_one_group() {  // V3-port: TODO
+    public function test_group_all_in_one_group() {  // V3-port: DONE in tests/unit/parse/test_SentenceGroupIterator.py
         $this->scenario("", 100, [ "" ]);
 
         $text = "Here is a dog. Here is a cat.";

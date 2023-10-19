@@ -20,6 +20,7 @@ class ParsedToken
     /**
      * Convert array of ParsedTokens to array of TextTokens.
      */
+    // in v3: lute/read/render/text_token.py
     public static function createTextTokens($parsedTokens) {
         $ret = [];
 

@@ -24,7 +24,7 @@ final class Renderablesentence_Test extends DatabaseTestBase
     /**
      * @group rendsent
      */
-    public function test_smoke_get_paras()  // V3-port: TODO
+    public function test_smoke_get_paras()  // V3-port: DONE in tests/unit/read/test_service.py
     {
         [ $t1, $t2 ] = $this->addTerms($this->spanish, [ 'tengo un', 'un gato' ]);
 
