@@ -26,7 +26,7 @@ final class SqliteHelper_Test extends TestCase
             unlink($this->migration);
     }
 
-    public function test_create_smoke_test() {  // V3-port: TODO
+    public function test_create_smoke_test() {  // V3-port: DONE in test/dbsetup/test_Setup.py
         $f = SqliteHelper::DbFilename();
         if (file_exists($f))
             unlink($f);
@@ -36,7 +36,7 @@ final class SqliteHelper_Test extends TestCase
         $this->assertFalse(SqliteHelper::hasPendingMigrations(), 'nothing pending');
     }
 
-    public function test_new_migrations_are_applied_on_new_db_creation() {  // V3-port: TODO
+    public function test_new_migrations_are_applied_on_new_db_creation() {  // V3-port: DONE in test_SqlMigrator.py
         $f = SqliteHelper::DbFilename();
         if (file_exists($f))
             unlink($f);
@@ -45,7 +45,7 @@ final class SqliteHelper_Test extends TestCase
         $this->assertFalse(SqliteHelper::hasPendingMigrations(), 'nothing pending');
     }
 
-    public function test_has_pending_if_new_script_found() {  // V3-port: TODO
+    public function test_has_pending_if_new_script_found() {  // V3-port: DONE - not applicable, different db lifecycle.
         $f = SqliteHelper::DbFilename();
         if (file_exists($f))
             unlink($f);
@@ -72,22 +72,22 @@ final class SqliteHelper_Test extends TestCase
         }
     }
     
-    public function test_setup_missing_DB_FILENAME_returns_error() {  // V3-port: TODO
+    public function test_setup_missing_DB_FILENAME_returns_error() {  // V3-port: done in test app_config.
         $_ENV['DB_FILENAME'] = null;
         $this->assert_setup_result(null, 'Missing key DB_FILENAME');
     }
 
-    public function test_setup_blank_DB_FILENAME_returns_error() {  // V3-port: TODO
+    public function test_setup_blank_DB_FILENAME_returns_error() {  // V3-port: done in test app_config.
         $_ENV['DB_FILENAME'] = '';
         $this->assert_setup_result(null, 'Missing key DB_FILENAME');
     }
 
-    public function test_setup_non_sqlite_DATABASE_URL_returns_error() {  // V3-port: TODO
+    public function test_setup_non_sqlite_DATABASE_URL_returns_error() {  // V3-port: done in test app_config or n/a
         $_ENV['DATABASE_URL'] = 'something:blahblah';
         $this->assert_setup_result(null, 'DATABASE_URL should start with sqlite');
     }
 
-    public function test_setup_db_created_if_not_exists() {  // V3-port: TODO
+    public function test_setup_db_created_if_not_exists() {  // V3-port: DONE in test/dbsetup/test_Setup.py
         $f = SqliteHelper::DbFilename();
         if (file_exists($f))
             unlink($f);
@@ -97,7 +97,7 @@ final class SqliteHelper_Test extends TestCase
         $this->assertFalse(SqliteHelper::hasPendingMigrations(), 'nothing pending');
     }
 
-    public function test_setup_loads_demo_db() {  // V3-port: TODO
+    public function test_setup_loads_demo_db() {  // V3-port: DONE in test/dbsetup/test_Setup.py
         $f = SqliteHelper::DbFilename();
         if (file_exists($f))
             unlink($f);
