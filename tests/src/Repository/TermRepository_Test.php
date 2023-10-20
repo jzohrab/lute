@@ -14,7 +14,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->load_languages();
     }
     
-    public function test_save()  // V3-port: TODO
+    public function test_save()  // V3-port: DONE in test/orm
     {
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms");
         $t = new Term($this->spanish, 'perro');
@@ -22,7 +22,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words", 1, "saved");
     }
 
-    public function test_remove()  // V3-port: TODO
+    public function test_remove()  // V3-port: DONE in test/orm
     {
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms");
         $t = new Term($this->spanish, 'perro');
@@ -32,7 +32,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms, removed");
     }
 
-    public function test_flush()  // V3-port: TODO
+    public function test_flush()  // V3-port: DONE - not required
     {
         DbHelpers::assertRecordcountEquals("select * from words", 0, "no terms");
         $t = new Term($this->spanish, 'perro');
@@ -43,7 +43,7 @@ final class TermRepository_Test extends DatabaseTestBase
 
     }
 
-    public function test_create_and_save()  // V3-port: TODO
+    public function test_create_and_save()  // V3-port: DONE - not required
     {
         $t = new Term($this->spanish, 'HOLA');
         $t->setStatus(1);
@@ -58,7 +58,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
     }
 
-    public function test_word_with_parent_and_tags()  // V3-port: TODO
+    public function test_word_with_parent_and_tags()  // V3-port: DONE in test orm term
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -86,7 +86,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group getParentAndChildren
      */
-    public function test_word_parent_get_child()  // V3-port: TODO
+    public function test_word_parent_get_child()  // V3-port: DONE in term orm term
     {
         $t = new Term($this->spanish, "HOLA");
         $g = new Term($this->spanish, "gato");
@@ -110,7 +110,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group changeParent
      */
-    public function test_change_parent()  // V3-port: TODO
+    public function test_change_parent()  // V3-port: DONE - not relevant
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -135,7 +135,7 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parent changed");
     }
 
-    public function test_set_parent_to_NULL()  // V3-port: TODO
+    public function test_set_parent_to_NULL()  // V3-port: DONE - n/a
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -160,7 +160,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termremove
      */
-    public function test_remove_parent_leaves_children_in_db()  // V3-port: TODO
+    public function test_remove_parent_leaves_children_in_db()  // V3-port: DONE - in test orm test_term
     {
         $t = new Term($this->spanish, "HOLA");
         $p = new Term($this->spanish, "PARENT");
@@ -187,7 +187,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group termremove
      */
-    public function test_can_remove_term_leaves_parent_and_existing_tags()  // V3-port: TODO
+    public function test_can_remove_term_leaves_parent_and_existing_tags()  // V3-port: DONE - in test orm term_term
     {
         $t = new Term($this->spanish, "HOLA");
         $t->addTermTag($this->termtag_repo->findOrCreateByText('tag'));
@@ -213,7 +213,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group images
      */
-    public function test_save_with_image()  // V3-port: TODO
+    public function test_save_with_image()  // V3-port: DONE - n/a
     {
         $t = new Term($this->spanish, "HOLA");
         $t->setCurrentImage('hello.png');
@@ -229,7 +229,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group images
      */
-    public function test_save_replace_image()  // V3-port: TODO
+    public function test_save_replace_image()  // V3-port: DONE test orm term
     {
         $t = new Term($this->spanish, "HOLA");
         $t->setCurrentImage('hello.png');
@@ -251,7 +251,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group images
      */
-    public function test_save_remove_image()  // V3-port: TODO
+    public function test_save_remove_image()  // V3-port: DONE test orm term
     {
         $t = new Term($this->spanish, "HOLA");
         $t->setCurrentImage('hello.png');
@@ -269,6 +269,103 @@ final class TermRepository_Test extends DatabaseTestBase
         $exp = [ ];
         DbHelpers::assertTableContains($sql, $exp, "image removed");
     }
+
+
+    /**
+     * @group termflash
+     */
+    public function test_term_flash_message_mapping() {  // V3-port: DONE test_Term orm flash_message
+        $p = new Term($this->spanish, 'perro');
+        $this->assertEquals($p->getFlashMessage(), null, "message not set");
+
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $sql = "select WfWoID, WfMessage from wordflashmessages";
+        $expected = [ "{$p->getID()}; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        $pfind = $this->term_repo->find($p->getID());
+        $this->assertEquals($pfind->getFlashMessage(), "hola", "message loaded");
+        $this->assertEquals($pfind->getFlashMessage(), "hola", "still set after get() called");
+        $this->term_repo->save($pfind, true);
+        DbHelpers::assertTableContains($sql, $expected, "still in db");
+
+        $this->assertEquals($pfind->popFlashMessage(), "hola", "message popped");
+        $this->assertEquals($pfind->getFlashMessage(), null, "not set after pop");
+        $this->term_repo->save($pfind, true);
+        $expected = [];
+        DbHelpers::assertTableContains($sql, $expected, "removed");
+    }
+
+    /**
+     * @group termflash
+     */
+    public function test_can_change_flash_message() {  // V3-port: DONE
+        $p = new Term($this->spanish, 'perro');
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $sql = "select WfWoID, WfMessage from wordflashmessages";
+        $expected = [ "{$p->getID()}; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        $pfind = $this->term_repo->find($p->getID());
+        $p->setFlashMessage('luego');
+
+        $this->term_repo->save($p, true);
+        $expected = [ "{$p->getID()}; luego" ];
+        DbHelpers::assertTableContains($sql, $expected, "removed");
+    }
+
+    /**
+     * @group termflash
+     */
+    public function test_can_delete_term_with_flash_message() {  // V3-port: DONE test orm test_term
+        $p = new Term($this->spanish, 'perro');
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $this->term_repo->remove($p, true);
+        foreach (["words", "wordflashmessages"] as $t) {
+            DbHelpers::assertTableContains("select * from {$t}", [], "$t removed");
+        }
+    }
+
+    /**
+     * @group termflashremoval_1
+     */
+    public function test_term_flash_can_be_removed() {  // V3-port: DONE test orm test_term
+        $p = new Term($this->spanish, 'perro');
+        $p->setFlashMessage('hola');
+        $this->term_repo->save($p, true);
+
+        $sql = "select WfWoID, WfMessage from wordflashmessages";
+        $expected = [ "{$p->getID()}; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
+        $pfind = $this->term_repo->find($p->getID());
+        $this->assertEquals($pfind->popFlashMessage(), "hola", "message popped");
+        $this->term_repo->save($pfind, true);
+        $expected = [];
+        DbHelpers::assertTableContains($sql, $expected, "removed");
+    }
+
+    // TODO:image_integration_tests Future integration-style tests.
+    //
+    // Integration tests should remove all images from the userimages
+    // folder.  To prevent problems/data loss, there should be a check
+    // for some sort of "control file" that the dev has to create in a
+    // particular location, or maybe a setting in .env.test/.local, to
+    // acknowledge that this will happen and is ok.  Don't want devs
+    // to accidentally kill their own personal images.
+    //
+    // term set current image - downloads if possible (use /public/img/lute.png for tests?)
+    // remove term leaves its image in images folder
+
+
+    /* FIND TESTS ***************************/
+
 
     private function assertFindLikeSpecReturns($s, $expected) {
         $spec = new Term($this->spanish, $s);
@@ -349,97 +446,5 @@ final class TermRepository_Test extends DatabaseTestBase
         // dump($terms);
         $this->assertEquals(3, count($terms), "3 terms returned");
     }
-
-    /**
-     * @group termflash
-     */
-    public function test_term_flash_message_mapping() {  // V3-port: TODO
-        $p = new Term($this->spanish, 'perro');
-        $this->assertEquals($p->getFlashMessage(), null, "message not set");
-
-        $p->setFlashMessage('hola');
-        $this->term_repo->save($p, true);
-
-        $sql = "select WfWoID, WfMessage from wordflashmessages";
-        $expected = [ "{$p->getID()}; hola" ];
-        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
-
-        $pfind = $this->term_repo->find($p->getID());
-        $this->assertEquals($pfind->getFlashMessage(), "hola", "message loaded");
-        $this->assertEquals($pfind->getFlashMessage(), "hola", "still set after get() called");
-        $this->term_repo->save($pfind, true);
-        DbHelpers::assertTableContains($sql, $expected, "still in db");
-
-        $this->assertEquals($pfind->popFlashMessage(), "hola", "message popped");
-        $this->assertEquals($pfind->getFlashMessage(), null, "not set after pop");
-        $this->term_repo->save($pfind, true);
-        $expected = [];
-        DbHelpers::assertTableContains($sql, $expected, "removed");
-    }
-
-    /**
-     * @group termflash
-     */
-    public function test_can_change_flash_message() {  // V3-port: TODO
-        $p = new Term($this->spanish, 'perro');
-        $p->setFlashMessage('hola');
-        $this->term_repo->save($p, true);
-
-        $sql = "select WfWoID, WfMessage from wordflashmessages";
-        $expected = [ "{$p->getID()}; hola" ];
-        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
-
-        $pfind = $this->term_repo->find($p->getID());
-        $p->setFlashMessage('luego');
-
-        $this->term_repo->save($p, true);
-        $expected = [ "{$p->getID()}; luego" ];
-        DbHelpers::assertTableContains($sql, $expected, "removed");
-    }
-
-    /**
-     * @group termflash
-     */
-    public function test_can_delete_term_with_flash_message() {  // V3-port: TODO
-        $p = new Term($this->spanish, 'perro');
-        $p->setFlashMessage('hola');
-        $this->term_repo->save($p, true);
-
-        $this->term_repo->remove($p, true);
-        foreach (["words", "wordflashmessages"] as $t) {
-            DbHelpers::assertTableContains("select * from {$t}", [], "$t removed");
-        }
-    }
-
-    /**
-     * @group termflashremoval_1
-     */
-    public function test_term_flash_can_be_removed() {  // V3-port: TODO
-        $p = new Term($this->spanish, 'perro');
-        $p->setFlashMessage('hola');
-        $this->term_repo->save($p, true);
-
-        $sql = "select WfWoID, WfMessage from wordflashmessages";
-        $expected = [ "{$p->getID()}; hola" ];
-        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
-
-        $pfind = $this->term_repo->find($p->getID());
-        $this->assertEquals($pfind->popFlashMessage(), "hola", "message popped");
-        $this->term_repo->save($pfind, true);
-        $expected = [];
-        DbHelpers::assertTableContains($sql, $expected, "removed");
-    }
-
-    // TODO:image_integration_tests Future integration-style tests.
-    //
-    // Integration tests should remove all images from the userimages
-    // folder.  To prevent problems/data loss, there should be a check
-    // for some sort of "control file" that the dev has to create in a
-    // particular location, or maybe a setting in .env.test/.local, to
-    // acknowledge that this will happen and is ok.  Don't want devs
-    // to accidentally kill their own personal images.
-    //
-    // term set current image - downloads if possible (use /public/img/lute.png for tests?)
-    // remove term leaves its image in images folder
 
 }
