@@ -17,14 +17,14 @@ final class TermTagRepository_Test extends DatabaseTestBase
         $this->termtag_repo->save($this->t, true);
     }
 
-    public function test_save()  // V3-port: TODO
+    public function test_save()  // V3-port: DONE tests/unit/models/test_TermTag.py
     {
         $sql = "select TgID, TgText, TgComment from tags";
         $expected = [ "1; Hola; Hola comment" ];
         DbHelpers::assertTableContains($sql, $expected);
     }
 
-    public function test_new_dup_tag_text_fails()  // V3-port: TODO
+    public function test_new_dup_tag_text_fails()  // V3-port: DONE tests/unit/models/test_TermTag.py
     {
         $t = new TermTag();
         $t->setText("Hola");
@@ -34,13 +34,13 @@ final class TermTagRepository_Test extends DatabaseTestBase
         $this->termtag_repo->save($t, true);
     }
 
-    public function test_get_by_text()  // V3-port: TODO
+    public function test_get_by_text()  // V3-port: DONE tests/unit/models/test_TermTag.py
     {
         $retrieved = $this->termtag_repo->findByText("Hola");
         $this->assertEquals($this->t->getId(), $retrieved->getId(), 'same item returned');
     }
 
-    public function test_get_by_text_returns_null_if_not_exact_match()  // V3-port: TODO
+    public function test_get_by_text_returns_null_if_not_exact_match()  // V3-port: DONE tests/unit/models/test_TermTag.py
     {
         $retrieved = $this->termtag_repo->findByText("hola");
         $this->assertNull($retrieved, 'not exact text = no match');
