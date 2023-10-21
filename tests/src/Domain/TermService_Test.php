@@ -19,7 +19,7 @@ final class TermService_Test extends DatabaseTestBase
         $this->load_languages();
     }
 
-    public function test_find_by_text_is_found()  // V3-port: TODO
+    public function test_find_by_text_is_found()  // V3-port: DONE in unit/term/test_repo
     {
         $this->addTerms($this->spanish, 'PARENT');
         $cases = [ 'PARENT', 'parent', 'pAReNt' ];
@@ -30,20 +30,20 @@ final class TermService_Test extends DatabaseTestBase
         }
     }
 
-    public function test_find_by_text_not_found_returns_null()  // V3-port: TODO
+    public function test_find_by_text_not_found_returns_null()  // V3-port: DONE - returns None
     {
         $p = $this->term_service->find('SOMETHING_MISSING', $this->spanish);
         $this->assertTrue($p == null, 'nothing found');
     }
 
-    public function test_find_only_looks_in_specified_language()  // V3-port: TODO
+    public function test_find_only_looks_in_specified_language()  // V3-port: DONE in test repo
     {
         $this->addTerms($this->french, 'bonjour');
         $p = $this->term_service->find('bonjour', $this->spanish);
         $this->assertTrue($p == null, 'french terms not checked');
     }
 
-    public function test_findMatches_matching()  // V3-port: TODO
+    public function test_findMatches_matching()  // V3-port: DONE in unit term test_repo
     {
         $this->addTerms($this->spanish, 'PARENT');
         $this->addTerms($this->french, 'PARENT');
@@ -56,13 +56,13 @@ final class TermService_Test extends DatabaseTestBase
         }
     }
 
-    public function test_findMatches_returns_empty_if_blank_string()  // V3-port: TODO
+    public function test_findMatches_returns_empty_if_blank_string()  // V3-port: DONE in unit term test_repo
     {
         $p = $this->term_service->findMatches('', $this->spanish);
         $this->assertEquals(count($p), 0);
     }
 
-    public function test_findMatches_returns_empty_if_different_language()  // V3-port: TODO
+    public function test_findMatches_returns_empty_if_different_language()  // V3-port: DONE in unit term test_repo
     {
         $this->addTerms($this->french, 'chien');
 
@@ -74,7 +74,7 @@ final class TermService_Test extends DatabaseTestBase
     }
 
 
-    public function test_add_term_saves_term() {  // V3-port: TODO
+    public function test_add_term_saves_term() {  // V3-port: DONE test_repo
         $term = new Term();
         $term->setLanguage($this->spanish);
         $term->setText('perro');
@@ -85,7 +85,7 @@ final class TermService_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("select * from words where WoTextLC='perro'", 1, 'in db');
     }
 
-    public function test_add_term_with_new_parent()  // V3-port: TODO
+    public function test_add_term_with_new_parent()  // V3-port: DONE term_repo
     {
         foreach(['perros', 'perro'] as $text) {
             $f = $this->term_service->find($text, $this->spanish);
@@ -116,7 +116,7 @@ final class TermService_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
     }
 
-    public function test_add_term_existing_parent_creates_link() {  // V3-port: TODO
+    public function test_add_term_existing_parent_creates_link() {  // V3-port: DONE term repo
         $p = new Term($this->spanish, 'perro');
         $this->term_service->add($p);
 

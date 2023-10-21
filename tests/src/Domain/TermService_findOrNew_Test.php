@@ -23,27 +23,27 @@ final class TermService_findOrNew_Test extends DatabaseTestBase {
         $this->bebida = $this->addTerms($this->spanish, 'BEBIDA')[0];
     }
 
-    public function test_load_existing_word() {  // V3-port: TODO
+    public function test_load_existing_word() {  // V3-port: DONE in tests/unit/term/test_repo
         $t = $this->term_service->findOrNew($this->spanish, 'bebida');
         $this->assertEquals($t->getID(), $this->bebida->getID(), 'id');
         $this->assertEquals($t->getText(), "BEBIDA", 'text');
     }
 
 
-    public function test_load_new_word() {  // V3-port: TODO
+    public function test_load_new_word() {  // V3-port: DONE in tests/unit/term/test_repo
         $t = $this->term_service->findOrNew($this->spanish, 'TENGO');
         $this->assertEquals($t->getID(), 0, 'new word');
         $this->assertEquals($t->getText(), "TENGO", 'text');
     }
 
-    public function test_new_multi_word() {  // V3-port: TODO
+    public function test_new_multi_word() {  // V3-port: DONE in tests/unit/term/test_repo
         $zws = mb_chr(0x200B);
         $t = $this->term_service->findOrNew($this->spanish, "TENGO{$zws} {$zws}una");
         $this->assertEquals($t->getID(), 0, 'new word');
         $this->assertEquals($t->getText(), "TENGO{$zws} {$zws}una", 'text');
     }
 
-    public function test_existing_multi_word() {  // V3-port: TODO
+    public function test_existing_multi_word() {  // V3-port: DONE in tests/unit/term/test_repo
         $zws = mb_chr(0x200B);
         $this->addTerms($this->spanish, ["TENGO{$zws} {$zws}UNA"]);
         $t = $this->term_service->findOrNew($this->spanish, "TENGO{$zws} {$zws}una");
