@@ -67,7 +67,7 @@ final class SpaceDelimitedParser_IntTest extends DatabaseTestBase
     /**
      * @group oldprodbugfixes
      */
-    public function test_old_production_bugfixes()  // V3-port: TODO
+    public function test_old_production_bugfixes()  // V3-port: DONE rendering.feature
     {
         // Misspelling "toddo" in the test case so it doesn't show up in my list of to-do's. :-)
         $sentences = [

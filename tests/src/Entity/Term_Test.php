@@ -75,7 +75,7 @@ class Term_Test extends TestCase
     /**
      * @group tokencount
      */
-    public function test_TokenCount_japanese()  // V3-port: TODO
+    public function test_TokenCount_japanese()  // V3-port: DONE tests/unit/parse/test jp
     {
         if (!JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
@@ -133,7 +133,7 @@ class Term_Test extends TestCase
     /**
      * @group downcasing
      */
-    public function test_downcasing_handled_correctly() {  // V3-port: TODO
+    public function test_downcasing_handled_correctly() {  // V3-port: DONE test_turkish and jp parsers.
 
         $sp = Language::makeSpanish();
         $en = Language::makeEnglish();

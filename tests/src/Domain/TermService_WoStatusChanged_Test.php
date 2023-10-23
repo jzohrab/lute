@@ -49,7 +49,7 @@ final class TermService_WoStatusChanged_Test extends DatabaseTestBase
         $this->assertTrue($diff < 10, $msg);
     }
     
-    public function test_creating_new_term_sets_field() {  // V3-port: TODO
+    public function test_creating_new_term_sets_field() {  // V3-port: DONE test_Term.py
         $sql = "select WoCreated, WoStatusChanged from words
                 where WoID = {$this->term->getID()}";
         $rec = DbHelpers::exec_sql_get_result($sql);
@@ -57,14 +57,14 @@ final class TermService_WoStatusChanged_Test extends DatabaseTestBase
         $this->assertEquals($a['WoCreated'], $a['WoStatusChanged']);
     }
 
-    public function test_updating_status_updates_field() {  // V3-port: TODO
+    public function test_updating_status_updates_field() {  // V3-port: DONE test_term.py
         $this->set_WoStatusChanged("2000-01-01 12:00:00");
         $this->term->setStatus(2);
         $this->term_service->add($this->term, true);
         $this->assertUpdated();
     }
 
-    public function test_setting_status_to_same_value_leaves_date() {  // V3-port: TODO
+    public function test_setting_status_to_same_value_leaves_date() {  // V3-port: DONE test_term.py
         $d = "2000-01-01 12:00:00";
         $this->set_WoStatusChanged($d);
         $this->term->setStatus(1);
@@ -73,14 +73,14 @@ final class TermService_WoStatusChanged_Test extends DatabaseTestBase
         $this->assertEquals($val, $d, "not changed");
     }
 
-    public function test_updating_status_via_sql_updates_field() {  // V3-port: TODO
+    public function test_updating_status_via_sql_updates_field() {  // V3-port: DONE test model term
         $d = "2000-01-01 12:00:00";
         DbHelpers::exec_sql("update words set WoStatusChanged = '{$d}'");
         DbHelpers::exec_sql("update words set WoStatus = 2");
         $this->assertUpdated();
     }
 
-    public function test_setting_status_to_same_value_via_sql_no_change() {  // V3-port: TODO
+    public function test_setting_status_to_same_value_via_sql_no_change() {  // V3-port: DONE test model term
         $d = "2000-01-01 12:00:00";
         DbHelpers::exec_sql("update words set WoStatusChanged = '{$d}'");
         DbHelpers::exec_sql("update words set WoStatus = 1");

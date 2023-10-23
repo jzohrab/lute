@@ -137,7 +137,7 @@ final class TermService_Save_Test extends DatabaseTestBase
     /**
      * @group termflashremoval_2
      */
-    public function test_term_flash_can_be_removed() {  // V3-port: TODO
+    public function test_term_flash_can_be_removed() {  // V3-port: DONE skipping
         $p = new Term($this->spanish, 'perro');
         $p->setFlashMessage('hola');
         $this->term_service->add($p, true);

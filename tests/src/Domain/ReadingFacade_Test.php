@@ -93,7 +93,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     /**
      * @group associations
      */
-    public function test_removing_term_disassociates_textitems()  // V3-port: TODO
+    public function test_removing_term_disassociates_textitems()  // V3-port: DONE skipping not useful
     {
         $content = "Hola tengo un gato.";
         $text = $this->make_text("Hola", $content, $this->spanish);
@@ -562,7 +562,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     /**
      * @group classicalchinesehighlight
      */
-    public function test_classical_chinese_first_char_bug() {  // V3-port: TODO
+    public function test_classical_chinese_first_char_bug() {  // V3-port: DONE features
         $cc = $this->classicalchinese;
         $text = $this->make_text("t1", "關關。", $cc);
         $this->assert_rendered_text_equals($text, "關/關/。");

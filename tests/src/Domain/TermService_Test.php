@@ -128,7 +128,7 @@ final class TermService_Test extends DatabaseTestBase
         $this->assertEquals($perros->getParents()[0]->getID(), $p->getID(), 'parent set');
     }
 
-    public function test_remove_term_removes_term() {  // V3-port: TODO
+    public function test_remove_term_removes_term() {  // V3-port: DONE test_repo
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText('perro');
@@ -146,7 +146,7 @@ final class TermService_Test extends DatabaseTestBase
     }
 
 
-    public function test_remove_term_leaves_parent_breaks_wordparent_association() {  // V3-port: TODO
+    public function test_remove_term_leaves_parent_breaks_wordparent_association() {  // V3-port: DONE test repo
         $p = new Term($this->spanish, 'perro');
         $t = new Term($this->spanish, 'perros');
         $t->addParent($p);
@@ -169,7 +169,7 @@ final class TermService_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals('select * from wordparents', 0, 'no assocs');
     }
 
-    public function test_remove_parent_removes_wordparent_record() {  // V3-port: TODO
+    public function test_remove_parent_removes_wordparent_record() {  // V3-port: DONE test_repo
         $p = new Term($this->spanish, 'perro');
         $t = new Term($this->spanish, 'perros');
         $t->setText('perros');
@@ -191,7 +191,7 @@ final class TermService_Test extends DatabaseTestBase
     /**
      * @group changeRemove
      */
-    public function test_change_parent_removes_old_wordparent_record() {  // V3-port: TODO
+    public function test_change_parent_removes_old_wordparent_record() {  // V3-port: DONE test repo
         $parent = new Term($this->spanish, 'perro');
         $this->term_service->add($parent, true);
 
@@ -222,7 +222,7 @@ final class TermService_Test extends DatabaseTestBase
         }
     }
 
-    public function test_add_term_links_existing_TextItems()  // V3-port: TODO
+    public function test_add_term_links_existing_TextItems()  // V3-port: DONE skipping
     {
         $text = $this->make_text('hola', 'tengo un gato', $this->spanish);
 
@@ -236,7 +236,7 @@ final class TermService_Test extends DatabaseTestBase
         $this->assert_rendered_text_equals($text, "tengo/ /un/ /gato(1)");
     }
 
-    public function test_remove_term_unlinks_existing_TextItems()  // V3-port: TODO
+    public function test_remove_term_unlinks_existing_TextItems()  // V3-port: DONE skipping
     {
         $text = $this->make_text('hola', 'tengo un gato', $this->spanish);
 
@@ -273,7 +273,7 @@ final class TermService_Test extends DatabaseTestBase
     /**
      * @group dictflush
      */
-    public function test_save_and_flush_bulk_updates_text_items() {  // V3-port: TODO
+    public function test_save_and_flush_bulk_updates_text_items() {  // V3-port: DONE skipping
         $sentence = 'tengo un gato';
         $text = $this->make_text('hola', $sentence, $this->spanish);
 
@@ -292,7 +292,7 @@ final class TermService_Test extends DatabaseTestBase
     /**
      * @group dictflush
      */
-    public function test_save_and_flush_with_multiword_terms_bulk_updates_text_items() {  // V3-port: TODO
+    public function test_save_and_flush_with_multiword_terms_bulk_updates_text_items() {  // V3-port: DONE skipping
         $sentence = 'tengo un gato';
         $text = $this->make_text('hola', $sentence, $this->spanish);
 

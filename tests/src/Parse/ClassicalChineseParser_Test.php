@@ -34,7 +34,7 @@ final class ClassicalChineseParser_Test extends TestCase
         $this->assertEquals($tostring($actual), $tostring($expected));
     }
     
-    public function test_sample_1() {  // V3-port: TODO
+    public function test_sample_1() {  // V3-port: DONE - test parse
         $text = "學而時習之，不亦說乎？";
         $tokens = $this->parser->getParsedTokens($text, $this->lang);
 
@@ -55,7 +55,7 @@ final class ClassicalChineseParser_Test extends TestCase
         $this->assertTokensEquals($tokens, $expected);
     }
 
-    public function test_sample_2() {  // V3-port: TODO
+    public function test_sample_2() {  // V3-port: DONE test parse
         $text = "學而時習之，不亦說乎？
 有朋自遠方來，不亦樂乎？";
         $tokens = $this->parser->getParsedTokens($text, $this->lang);
