@@ -22,7 +22,7 @@ final class TermService_Save_Test extends DatabaseTestBase
     }
 
 
-    public function test_add_updates_associated_textitems() {  // V3-port: TODO
+    public function test_add_updates_associated_textitems() {  // V3-port: DONE - skipping
         $st = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $ft = $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
 
@@ -38,7 +38,7 @@ final class TermService_Save_Test extends DatabaseTestBase
     }
 
 
-    public function test_textitems_not_associated_until_flush() {  // V3-port: TODO
+    public function test_textitems_not_associated_until_flush() {  // V3-port: DONE - skipping
         $st = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         $t1 = new Term($this->spanish, "tengo");
@@ -57,7 +57,7 @@ final class TermService_Save_Test extends DatabaseTestBase
     /**
      * @group mwordparent
      */
-    public function test_multiword_parent_item_associated() {  // V3-port: TODO
+    public function test_multiword_parent_item_associated() {  // V3-port: DONE render.feature
         $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         $t1 = new Term($this->spanish, "tengo");
@@ -76,7 +76,7 @@ final class TermService_Save_Test extends DatabaseTestBase
     /**
      * @group zws
      */
-    public function test_textitems_un_associated_after_remove() {  // V3-port: TODO
+    public function test_textitems_un_associated_after_remove() {  // V3-port: DONE not relevant
         $t = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
 
@@ -98,7 +98,7 @@ final class TermService_Save_Test extends DatabaseTestBase
 
 
     // Production bug.
-    public function test_save_multiword_term_multiple_times_is_ok() {  // V3-port: TODO
+    public function test_save_multiword_term_multiple_times_is_ok() {  // V3-port: DONE render.feature
         $text = $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
         $t = new Term();
@@ -117,7 +117,7 @@ final class TermService_Save_Test extends DatabaseTestBase
     /**
      * @group japanesemultiword
      */
-    public function test_save_japanese_multiword_updates_textitems() {  // V3-port: TODO
+    public function test_save_japanese_multiword_updates_textitems() {  // V3-port: DONE in features
         if (!JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
         }
