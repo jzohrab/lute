@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use App\Utils\Connection;
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
 use App\Entity\Book;
@@ -98,6 +99,9 @@ class DemoDataLoader {
             $ddl->loadDemoLanguage($filename);
         }
         $ddl->loadDemoStories();
+
+        $conn = Connection::getFromEnvironment();
+        $conn->query("insert or ignore into settings (StKey, StValue) values ('IsDemoData', 1)");
     }
 
 }

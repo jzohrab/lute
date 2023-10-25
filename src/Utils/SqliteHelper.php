@@ -54,13 +54,10 @@ class SqliteHelper {
     }
 
     public static function isDemoData(): bool {
-        $sql = "select count(*) from books
-          inner join languages on LgID = BkLgID
-          where LgName = 'English' and BkTitle = 'Tutorial'";
+        $sql = "select count(*) from settings
+          where StKey = 'IsDemoData'";
         $conn = Connection::getFromEnvironment();
-        $check = $conn
-               ->query($sql)
-               ->fetch(\PDO::FETCH_NUM);
+        $check = $conn->query($sql)->fetch(\PDO::FETCH_NUM);
         $c = $check[0];
         return $c == 1;
     }
@@ -151,6 +148,10 @@ class SqliteHelper {
 
     public static function clearDb() {
         // Clean out tables.  Cascade delete clears out supporting tables.
+        if (! SqliteHelper::isDemoData()) {
+            throw new \Exception("Can't wipe non-demo db");
+        }
+        
         $tables = [
             "settings",
             "tags",
