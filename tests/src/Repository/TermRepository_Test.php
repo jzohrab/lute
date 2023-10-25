@@ -378,7 +378,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findLikeSpec
      */
-    public function test_findLikeSpecification_initial_check() {  // V3-port: TODO
+    public function test_findLikeSpecification_initial_check() {  // V3-port: DONE test_Repository
         $t1 = new Term($this->spanish, "abc");
         $t2 = new Term($this->spanish, "abcd");
         $t3 = new Term($this->spanish, "bcd");
@@ -395,7 +395,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findLikeSpec
      */
-    public function test_findLikeSpecification_terms_with_children_go_to_top() {  // V3-port: TODO
+    public function test_findLikeSpecification_terms_with_children_go_to_top() {  // V3-port: DONE test_Repository
         $ap = new Term($this->spanish, "abcPAR");
         $a = new Term($this->spanish, "abc");
         $xp = new Term($this->spanish, "axyPAR");
@@ -413,7 +413,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findLikeSpec
      */
-    public function test_findLikeSpecification_exact_match_trumps_parent() {  // V3-port: TODO
+    public function test_findLikeSpecification_exact_match_trumps_parent() {  // V3-port: DONE test_Repository
         $ap = new Term($this->spanish, "abcPAR");
         $a = new Term($this->spanish, "abc");
         $xp = new Term($this->spanish, "axyPAR");
@@ -431,7 +431,7 @@ final class TermRepository_Test extends DatabaseTestBase
     /**
      * @group findByID
      */
-    public function test_findBy_array_of_ids() {  // V3-port: TODO
+    public function test_findBy_array_of_ids() {  // V3-port: DONE skipping
         $a = new Term($this->spanish, "a");
         $b = new Term($this->spanish, "b");
         $c = new Term($this->spanish, "c");
