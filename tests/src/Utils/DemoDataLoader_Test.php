@@ -14,7 +14,7 @@ final class DemoDataLoader_Test extends DatabaseTestBase
     /**
      * @group loadyaml
      */
-    public function test_can_load_from_yaml() {  // V3-port: TODO
+    public function test_can_load_from_yaml() {  // V3-port: DONE - ~done in test language
         $booksql = "select BkTitle, LgName
 from books
 inner join languages on lgid = bklgid
@@ -38,7 +38,7 @@ inner join languages on lgid = bklgid
     /**
      * @group loadyaml
      */
-    public function test_can_load_all_yaml() {  // V3-port: TODO
+    public function test_can_load_all_yaml() {  // V3-port: DONE - ~done in test language
         if (!JapaneseParser::MeCab_installed()) {
             $this->markTestSkipped('Skipping test, missing MeCab.');
         }
