@@ -347,7 +347,7 @@ final class TermService_Test extends DatabaseTestBase
     /**
      * @group dictrefs_get_all
      */
-    public function test_get_all_references()  // V3-port: TODO
+    public function test_get_all_references()  // V3-port: DONE test unit term repo
     {
         $text = $this->make_text('hola', 'Tengo un gato.  Ella tiene un perro.  No quiero tener nada.', $this->spanish);
         $archtext = $this->make_text('luego', 'Tengo un coche.', $this->spanish);
@@ -413,7 +413,7 @@ final class TermService_Test extends DatabaseTestBase
     /**
      * @group dictrefsunread
      */
-    public function test_get_references_only_includes_read_texts()  // V3-port: TODO
+    public function test_get_references_only_includes_read_texts()  // V3-port: DONE test unit term repo
     {
         $text = $this->make_text('hola', 'Tengo un gato.  No tengo un perro.', $this->spanish);
         $tengo = $this->addTerms($this->spanish, 'tengo')[0];
