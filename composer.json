@@ -153,10 +153,10 @@
       "composer test:accept"
     ],
     "dev:portstats": [
-      "composer dev:find V3-port | grep TODO",
+      "composer dev:find V3-port | grep TODO | grep -v README",
       "echo --------------------------------",
       "composer dev:find V3-port | grep DONE | wc -l",
-      "composer dev:find V3-port | grep TODO | wc -l"
+      "composer dev:find V3-port | grep TODO | grep -v README | wc -l"
     ],
     "dev:find": "./utils/findstring.sh",
     "dev:finddump": "./utils/finddump.sh",

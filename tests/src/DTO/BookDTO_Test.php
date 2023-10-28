@@ -22,7 +22,7 @@ final class BookDTO_Test extends TestCase
         return $d;
     }
 
-    public function test_smoke_createBook() {  // V3-port: TODO
+    public function test_smoke_createBook() {  // V3-port: DONE test book repo
         $eng = Language::makeEnglish();
         $d = $this->getDTO($eng);
         $b = $d->createBook();
@@ -30,7 +30,7 @@ final class BookDTO_Test extends TestCase
         $this->assertEquals($b->getTags()[0]->getText(), 'tag');
     }
 
-    public function test_smoke_load_book_replaces_title_and_tags_only() {  // V3-port: TODO
+    public function test_smoke_load_book_replaces_title_and_tags_only() {  // V3-port: DONE skipping
         $fr = Language::makeFrench();
         $b = Book::makeBook('bonjour', $fr, 'Jai un chat.');
         $this->assertEquals('Jai un chat.', $b->getTexts()[0]->getText());
