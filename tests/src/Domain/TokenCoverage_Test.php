@@ -36,7 +36,7 @@ final class TokenCoverage_Test extends DatabaseTestBase
         $this->assertEquals($stats, $expected);
     }
 
-    public function test_two_words() {  // V3-port: TODO
+    public function test_two_words() {  // V3-port: DONE test book stats
         $this->scenario("Tengo un gato.  Tengo un perro.",
                         [[ "gato", 1 ], [ "perro", 2 ]],
                         [
@@ -52,7 +52,7 @@ final class TokenCoverage_Test extends DatabaseTestBase
         );
     }
 
-    public function test_single_word() {  // V3-port: TODO
+    public function test_single_word() {  // V3-port: DONE
         $this->scenario("Tengo un gato.  Tengo un perro.",
                         [[ "gato", 3 ]],
                         [
@@ -68,7 +68,7 @@ final class TokenCoverage_Test extends DatabaseTestBase
         );
     }
 
-    public function test_with_multiword() {  // V3-port: TODO
+    public function test_with_multiword() {  // V3-port: DONE
         $this->scenario("Tengo un gato.  Tengo un perro.",
                         [[ "tengo un", 3 ]],
                         [
@@ -84,7 +84,7 @@ final class TokenCoverage_Test extends DatabaseTestBase
         );
     }
 
-    public function test_chinese_stats() {  // V3-port: TODO
+    public function test_chinese_stats() {  // V3-port: DONE
         $t = $this->make_text('Hola.', '這是東西', $this->classicalchinese);
         $b = $t->getBook();
 
