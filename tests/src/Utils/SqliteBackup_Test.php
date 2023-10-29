@@ -77,26 +77,26 @@ final class SqliteBackup_Test extends TestCase
     }
 
 
-    public function test_missing_keys_all_keys_present() {  // V3-port: TODO
+    public function test_missing_keys_all_keys_present() {  // V3-port: DONE n/a
         $b = $this->createSqliteBackup();
         $this->assertTrue($b->config_keys_set(), "all keys present");
     }
 
-    public function test_missing_keys() {  // V3-port: TODO
+    public function test_missing_keys() {  // V3-port: DONE n/a
         $this->config = [];
         $b = $this->createSqliteBackup();
         $this->assertFalse($b->config_keys_set(), "not all keys present");
         $this->assertEquals($b->missing_keys(), implode(', ', SqliteBackup::$reqkeys));
     }
 
-    public function test_one_missing_key() {  // V3-port: TODO
+    public function test_one_missing_key() {  // V3-port: DONE n/a
         unset($this->config['BACKUP_DIR']);
         $b = $this->createSqliteBackup();
         $this->assertFalse($b->config_keys_set(), "not all keys present");
         $this->assertEquals($b->missing_keys(), 'BACKUP_DIR');
     }
 
-    public function test_backup_fails_if_missing_output_dir() {  // V3-port: TODO
+    public function test_backup_fails_if_missing_output_dir() {  // V3-port: DONE
         $this->config['BACKUP_DIR'] = 'some_missing_dir';
         $b = $this->createSqliteBackup();
         $this->expectException(Exception::class);
@@ -106,7 +106,7 @@ final class SqliteBackup_Test extends TestCase
     /**
      * @group actualbackup
      */
-    public function test_backup_writes_file_to_output_dir() {  // V3-port: TODO
+    public function test_backup_writes_file_to_output_dir() {  // V3-port: DONE
         $filesystem = new FileSystem();
         $filesystem->dumpFile($this->imagedir . '/1/file.txt', 'imagefile');
 
@@ -121,7 +121,7 @@ final class SqliteBackup_Test extends TestCase
     /**
      * @group rollingbackup
      */
-    public function test_timestamp_added_to_db_name() {  // V3-port: TODO
+    public function test_timestamp_added_to_db_name() {  // V3-port: DONE
         $b = $this->createSqliteBackup();
         $b->create_db_backup();
         $files = glob($this->dir . "/*.*");
@@ -133,7 +133,7 @@ final class SqliteBackup_Test extends TestCase
     /**
      * @group rollingbackup
      */
-    public function test_rolling_backup_defaults_to_5_files() {  // V3-port: TODO
+    public function test_rolling_backup_defaults_to_5_files() {  // V3-port: DONE
         $b = $this->createSqliteBackup();
         $b->create_db_backup('01');
         $files = glob($this->dir . "/*.*");
@@ -154,7 +154,7 @@ final class SqliteBackup_Test extends TestCase
     /**
      * @group rollingbackup
      */
-    public function test_user_can_configure_rolling_backup_count() {  // V3-port: TODO
+    public function test_user_can_configure_rolling_backup_count() {  // V3-port: DONE
         $this->config['BACKUP_COUNT'] = 2;  // read from .env
         $b = $this->createSqliteBackup();
         for ($i = 1; $i <= 9; $i++) {
@@ -171,7 +171,7 @@ final class SqliteBackup_Test extends TestCase
     /**
      * @group rollingbackup
      */
-    public function test_all_manual_backups_are_kept() {  // V3-port: TODO
+    public function test_all_manual_backups_are_kept() {  // V3-port: DONE
         $this->config['BACKUP_COUNT'] = 2;  // read from .env
         $b = new SqliteBackup($this->config, $this->repo, true);
 
@@ -186,13 +186,13 @@ final class SqliteBackup_Test extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_last_import_setting_is_updated_on_successful_backup() {  // V3-port: TODO
+    public function test_last_import_setting_is_updated_on_successful_backup() {  // V3-port: DONE
         $this->repo->expects($this->once())->method('saveLastBackupDatetime');
         $b = $this->createSqliteBackup();
         $b->create_backup();
     }
 
-    public function test_should_not_run_autobackup_if_auto_is_no_or_false() {  // V3-port: TODO
+    public function test_should_not_run_autobackup_if_auto_is_no_or_false() {  // V3-port: DONE
         $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'no';
         $b = $this->createSqliteBackup();
@@ -200,7 +200,7 @@ final class SqliteBackup_Test extends TestCase
         $this->assertFalse($b->should_run_auto_backup());
     }
 
-    public function test_checks_if_should_run_autobackup_if_auto_is_yes_or_true() {  // V3-port: TODO
+    public function test_checks_if_should_run_autobackup_if_auto_is_yes_or_true() {  // V3-port: DONE
         $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
         $b = $this->createSqliteBackup();
@@ -208,7 +208,7 @@ final class SqliteBackup_Test extends TestCase
         $b->should_run_auto_backup();
     }
 
-    public function test_autobackup_returns_true_if_never_backed_up() {  // V3-port: TODO
+    public function test_autobackup_returns_true_if_never_backed_up() {  // V3-port: DONE
         $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
         $this->repo->method('getLastBackupDatetime')->willReturn(null);
@@ -216,7 +216,7 @@ final class SqliteBackup_Test extends TestCase
         $this->assertTrue($b->should_run_auto_backup());
     }
 
-    public function test_autobackup_returns_true_last_backed_up_over_one_day_ago() {  // V3-port: TODO
+    public function test_autobackup_returns_true_last_backed_up_over_one_day_ago() {  // V3-port: DONE
         $this->config['BACKUP_ENABLED'] = 'yes';
         $this->config['BACKUP_AUTO'] = 'yes';
         $currdatetime = getdate()[0];
@@ -233,14 +233,14 @@ final class SqliteBackup_Test extends TestCase
         $this->assertFalse($b->should_run_auto_backup(), 'newer than 1 day');
     }
 
-    public function test_warning_is_set_if_keys_missing() {  // V3-port: TODO
+    public function test_warning_is_set_if_keys_missing() {  // V3-port: DONE
         $this->config = [];
         $b = $this->createSqliteBackup();
         $expected = "Missing backup environment keys in .env: BACKUP_DIR, BACKUP_AUTO, BACKUP_WARN";
         $this->assertEquals($b->warning(), $expected);
     }
 
-    public function test_warn_if_last_backup_never_happened_or_is_old() {  // V3-port: TODO
+    public function test_warn_if_last_backup_never_happened_or_is_old() {  // V3-port: DONE
         $currdatetime = getdate()[0];
         $oneweekago = $currdatetime - (7 * 24 * 60 * 60);
 

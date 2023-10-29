@@ -111,7 +111,6 @@ class ReadingFacade {
         $uniques = array_unique($words, SORT_STRING);
 
         $lang =$text->getLanguage();
-        $tid = $text->getID();
 
         $batchSize = 100;
         $i = 0;
