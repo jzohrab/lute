@@ -16,7 +16,7 @@ final class LoadTestData_Test extends DatabaseTestBase
      * @group dev:data
      * @group dev:data:clear
      */
-    public function test_clear_dev_data(): void {  // V3-port: TODO
+    public function test_clear_dev_data(): void {  // V3-port: DONE - never used, really.
         // the db clear in DatabaseTestBase wipes everything.
         $this->assertEquals(1, 1, 'Dummy test so phpunit is happy :-)');
     }
@@ -25,7 +25,7 @@ final class LoadTestData_Test extends DatabaseTestBase
      * @group dev:data
      * @group dev:data:load
      */
-    public function test_load_dev_data(): void  // V3-port: TODO
+    public function test_load_dev_data(): void  // V3-port: DONE - skipping for now
     {
         $term_svc = new TermService($this->term_repo);
         DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
@@ -37,7 +37,7 @@ final class LoadTestData_Test extends DatabaseTestBase
     /**
      * @group dev:data
      */
-    public function test_wipe_db_only_works_if_flag_is_set(): void  // V3-port: TODO
+    public function test_wipe_db_only_works_if_flag_is_set(): void  // V3-port: DONE - in db/demo.py
     {
         $term_svc = new TermService($this->term_repo);
         DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);
@@ -62,7 +62,7 @@ final class LoadTestData_Test extends DatabaseTestBase
     /**
      * @group dev:data
      */
-    public function test_is_demo_if_flag_set(): void  // V3-port: TODO
+    public function test_is_demo_if_flag_set(): void  // V3-port: DONE - in db/demo.py
     {
         $term_svc = new TermService($this->term_repo);
         DemoDataLoader::loadDemoData($this->language_repo, $this->book_repo, $term_svc);

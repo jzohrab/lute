@@ -110,7 +110,7 @@ final class SqliteHelper_Test extends TestCase
         $this->assertFalse(SqliteHelper::dbIsEmpty(), 'not empty');
     }
 
-    public function test_wiping_data_resets_to_empty() {  // V3-port: TODO
+    public function test_wiping_data_resets_to_empty() {  // V3-port: DONE in db demo checks
         $f = SqliteHelper::DbFilename();
         if (file_exists($f))
             unlink($f);
