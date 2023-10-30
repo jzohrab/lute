@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 /** Smoke tests only. */
 final class AppManifest_Test extends TestCase
 {
-    public function test_missing_file_returns_empty() {  // V3-port: TODO
+    public function test_missing_file_returns_empty() {  // V3-port: DONE - skipping, handle differently
         if (file_exists(AppManifest::manifestPath()))
             unlink(AppManifest::manifestPath());
         $hsh = AppManifest::read();
@@ -15,7 +15,7 @@ final class AppManifest_Test extends TestCase
         }
     }
 
-    public function test_can_write_and_read() {  // V3-port: TODO
+    public function test_can_write_and_read() {  // V3-port: DONE - skipping, handle differently
         if (file_exists(AppManifest::manifestPath()))
             unlink(AppManifest::manifestPath());
         AppManifest::write();
