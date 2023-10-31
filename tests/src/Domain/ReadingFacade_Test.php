@@ -64,7 +64,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
     /**
      * @group dtoflash
      */
-    public function test_loadDTO_removes_term_flash_message()  // V3-port: TODO
+    public function test_loadDTO_removes_term_flash_message()  // V3-port: DONE
     {
         $t = $this->addTerms($this->spanish, 'term')[0];
         $t->setFlashMessage('hello');

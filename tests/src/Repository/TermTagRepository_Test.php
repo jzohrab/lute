@@ -49,7 +49,7 @@ final class TermTagRepository_Test extends DatabaseTestBase
     /**
      * @group ttdt
      */
-    public function test_smoke_datatables_query()  // V3-port: TODO
+    public function test_smoke_datatables_query()  // V3-port: DONE test unit termtags
     {
         $columns = [
             0 => [
