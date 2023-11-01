@@ -8,7 +8,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group readingtermupdate
      */
-    public function test_reading_with_term_updates(): void  // V3-port: TODO
+    public function test_reading_with_term_updates(): void  // V3-port: DONE
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -34,7 +34,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group acctermcase
      */
-    public function test_reading_with_term_case_updates(): void  // V3-port: TODO
+    public function test_reading_with_term_case_updates(): void  // V3-port: DONE
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -57,7 +57,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group readingtermmultipleparents
      */
-    public function test_reading_with_term_multiple_parents_updates(): void  // V3-port: TODO
+    public function test_reading_with_term_multiple_parents_updates(): void  // V3-port: DONE test_smoke, feature
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -82,7 +82,7 @@ class Reading_Test extends AcceptanceTestBase
         $ctx->assertWordDataEquals('amigo', 'status1');
     }
 
-    public function test_create_multiword_term(): void  // V3-port: TODO
+    public function test_create_multiword_term(): void  // V3-port: DONE - skipping - can't do this
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -161,7 +161,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group hotkeys
      */
-    public function test_hotkeys(): void  // V3-port: TODO
+    public function test_hotkeys(): void  // V3-port: DONE feature
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -209,7 +209,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group wellknown
      */
-    public function test_well_known(): void  // V3-port: TODO
+    public function test_well_known(): void  // V3-port: DONE feature
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -260,7 +260,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group othertext
      */
-    public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void  // V3-port: TODO
+    public function test_terms_created_in_one_text_are_carried_over_to_other_text(): void  // V3-port: DONE feature
     {
         $this->make_text("Hola", "Hola. Adios amigo.", $this->spanishid);
         $this->make_text("Otro", "Tengo otro amigo.", $this->spanishid);
@@ -341,7 +341,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group readsetsbookmark
      */
-    public function test_reading_sets_index_page_bookmark() {  // V3-port: TODO
+    public function test_reading_sets_index_page_bookmark() {  // V3-port: DONE
         $this->goToTutorialFirstPage();
         $this->clickLinkID("#navNext");
         $this->clickLinkID("#navNext");
@@ -354,5 +354,4 @@ class Reading_Test extends AcceptanceTestBase
         $this->assertStringContainsString($expected, $fullcontent, $expected . ' not found in ' . $fullcontent);
     }
 
-    // TODO: can't change the text of term, can change case.
 }
