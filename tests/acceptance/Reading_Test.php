@@ -111,7 +111,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group acc_abbrev
      */
-    public function test_create_term_with_period(): void  // V3-port: TODO
+    public function test_create_term_with_period(): void  // V3-port: DONE
     {
         $this->client->request('GET', '/');
         $this->client->waitForElementToContain('body', 'Languages');
@@ -237,7 +237,7 @@ class Reading_Test extends AcceptanceTestBase
     /**
      * @group updatetext
      */
-    public function test_can_update_text(): void  // V3-port: TODO
+    public function test_can_update_text(): void  // V3-port: DONE
     {
         $this->make_text("Hola", "HOLA tengo un gato.", $this->spanishid);
         $this->client->request('GET', '/');
@@ -298,7 +298,7 @@ class Reading_Test extends AcceptanceTestBase
      * TODO: reactivate test
      */
     /*
-    public function test_set_read_date() {  // V3-port: TODO
+    public function test_set_read_date() {  // V3-port: DONE skip for now.
         // Hitting the db directly, because if I check the objects,
         // Doctrine caches objects and the behind-the-scenes change
         // isn't shown.
