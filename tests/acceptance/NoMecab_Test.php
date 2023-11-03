@@ -13,7 +13,7 @@ class NoMecab_Test extends AcceptanceTestBase
      * This test checks if a computer without MeCab still loads the
      * demo db ok.
      */
-    public function test_no_mecab_should_still_be_ok(): void  // V3-port: TODO
+    public function test_no_mecab_should_still_be_ok(): void  // V3-port: DONE
     {
         if ($this->mecab_installed) {
             // Dummy assert to pass, b/c I don't want to always see
