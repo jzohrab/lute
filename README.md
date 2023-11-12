@@ -1,3 +1,17 @@
+---
+
+**[Lute v3 is out](https://jzohrab.github.io/lute-manual/intro.html) - This version of Lute is obsolete and will no longer be maintained.**
+
+Lute v3 is a full Python rewrite of Lute.  Installation is _much_ easier, and all the features have been ported.
+
+- [Install Lute v3](https://jzohrab.github.io/lute-manual/install.html)
+- [lute-v3 repository](https://github.com/jzohrab/lute-v3) and [manual](https://jzohrab.github.io/lute-manual/intro.html)
+- If you have Lute v2, you can easily [migrate to v3](https://jzohrab.github.io/lute-manual/v2-to-v3.html).
+  
+_Thank you!_
+
+---
+
 # LUTE - Learning Using Texts
 
 [![CI master](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml/badge.svg?branch=master)](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml?query=branch%3Amaster)

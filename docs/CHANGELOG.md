@@ -17,12 +17,13 @@ some reason._
 
 Feature changes:
 
-* Change reading URL to /read/<book_id>/page/<page_number>
+* None.
 
 Back-end changes:
 
 There are _many_ back-end changes that facilitated the port to Python:
 
+* Change reading URL to /read/<book_id>/page/<page_number>
 * Port all tests
 * Remove unused code
 * Simplify some schema
