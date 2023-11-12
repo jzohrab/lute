@@ -1,6 +1,6 @@
----
+# DEPRECATED
 
-**[Lute v3 is out](https://jzohrab.github.io/lute-manual/intro.html) - This version of Lute is obsolete and will no longer be maintained.**
+**This version of Lute is obsolete and will no longer be maintained.  Instead, please use [Lute v3](https://github.com/jzohrab/lute-v3)**
 
 Lute v3 is a full Python rewrite of Lute.  Installation is _much_ easier, and all the features have been ported.
 
