@@ -1,5 +1,39 @@
 # Changelog
 
+## 2023-11-11 v2.1.4_EndOfLife
+
+**This is the END-OF-LIFE release for Lute v2.**
+
+Lute v3 is out, and Lute v2 will no longer be maintained.
+
+If this is your first time installing Lute, then
+you should instead install **Lute v3**, see the docs at:
+
+https://jzohrab.github.io/lute-manual/install.html
+
+_This release is merely done to ship the rest of the
+v2 code, for users who won't update to v3 for
+some reason._
+
+Feature changes:
+
+* Change reading URL to /read/<book_id>/page/<page_number>
+
+Back-end changes:
+
+There are _many_ back-end changes that facilitated the port to Python:
+
+* Port all tests
+* Remove unused code
+* Simplify some schema
+* Add smoke tests for coverage.
+* Query env. via api to see if mecab installed.
+* Use primitives not entities in web tests.
+* Extract common code.
+* Save sentences when saving Text.
+* Fix namespaces.
+
+
 ## 2023-10-07 v2.1.3
 
 Features:
