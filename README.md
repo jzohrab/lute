@@ -16,6 +16,7 @@ _Thank you!_
 
 [![CI master](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml/badge.svg?branch=master)](https://github.com/jzohrab/lute/actions/workflows/symfony-ci.yml?query=branch%3Amaster)
 [![Discord Server](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/CzFUQP5m8u)
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
 This is a fork and ground-up rewrite of Learning with Texts, for learning foreign languages through reading.  You install Lute on your computer, import texts, and annotate terms.
 
